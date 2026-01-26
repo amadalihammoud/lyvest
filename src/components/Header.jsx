@@ -91,7 +91,7 @@ export default function Header({
                             aria-label="Ly Vest Home"
                             onClick={handleLogoClick}
                         >
-                            <img src="/lyvest-red-logo.png" alt="Ly Vest Logo" className="h-10 md:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105" />
+                            <img src="/lyvest-red-logo.png" alt="Ly Vest Logo" className="h-14 md:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105" />
                         </Link>
                     </div>
 
