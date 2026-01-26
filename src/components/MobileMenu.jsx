@@ -56,30 +56,12 @@ export default function MobileMenu({
                     </div>
                     <button onClick={onClose} className="p-2 touch-target" aria-label={t('aria.closeMenu')}><X className="w-7 h-7 text-slate-400" /></button>
                 </div>
-                {/* Search */}
-                <div className="relative mb-6">
-                    <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))} placeholder={t('common.search')} className="w-full pl-12 pr-4 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#F5E6E8] focus:border-lyvest-200" />
-                    <Search className={`w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 ${searchQuery ? 'text-lyvest-500' : 'text-slate-400'}`} />
-                    {searchQuery && (
-                        <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-200 rounded-full" aria-label={t('aria.clearSearch')}><X className="w-4 h-4 text-slate-500" /></button>
-                    )}
-                </div>
-                {/* Navigation */}
-                <nav className="space-y-2 text-lg font-medium text-slate-600 flex-1" role="navigation" aria-label="Mobile menu navigation">
-                    {mainMenu.map((item, index) => (
-                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-between hover:text-lyvest-500 py-3 px-2 border-b border-slate-50 last:border-0 text-left rounded-lg hover:bg-lyvest-100/30 transition-colors touch-target">
-                            {t(item.translationKey) || item.label} <ChevronRight className={`w-5 h-5 text-slate-300 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
-                        </button>
-                    ))}
-                </nav>
-                {/* Footer Mobile */}
-                <div className="pt-6 mt-4 border-t border-slate-100 space-y-4">
-
-                    {/* Login / User Profile */}
+                {/* Login / User Profile - Moved to Top */}
+                <div className="mb-6">
                     {isLoggedIn ? (
                         <button
                             onClick={() => { onClose(); navigateToDashboard(); }}
-                            className="flex items-center gap-3 w-full p-2 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                            className="flex items-center gap-3 w-full p-2 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-slate-100"
                         >
                             <img
                                 src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
@@ -94,13 +76,30 @@ export default function MobileMenu({
                     ) : (
                         <button
                             onClick={() => { onClose(); onOpenLogin(); }}
-                            className="flex items-center justify-center gap-2 w-full py-3 bg-lyvest-500 text-white rounded-full font-bold shadow-md hover:bg-lyvest-600 active:scale-95 transition-all"
+                            className="flex items-center justify-center gap-2 w-full py-2.5 bg-lyvest-500 text-white rounded-full font-bold shadow-md hover:bg-lyvest-600 active:scale-95 transition-all text-sm"
                         >
                             <User className="w-5 h-5" />
-                            {t('nav.login') || 'Entrar'}
+                            {t('nav.login') || 'Entrar / Cadastrar'}
                         </button>
                     )}
                 </div>
+
+                {/* Search */}
+                <div className="relative mb-6">
+                    <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))} placeholder={t('common.search')} className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#F5E6E8] focus:border-lyvest-200 transition-all" />
+                    <Search className={`w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 ${searchQuery ? 'text-lyvest-500' : 'text-slate-400'}`} />
+                    {searchQuery && (
+                        <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-200 rounded-full" aria-label={t('aria.clearSearch')}><X className="w-4 h-4 text-slate-500" /></button>
+                    )}
+                </div>
+                {/* Navigation */}
+                <nav className="space-y-1 text-base font-medium text-slate-600 flex-1" role="navigation" aria-label="Mobile menu navigation">
+                    {mainMenu.map((item, index) => (
+                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-between hover:text-lyvest-500 py-2.5 px-2 border-b border-slate-50 last:border-0 text-left rounded-lg hover:bg-lyvest-100/30 transition-colors touch-target">
+                            {t(item.translationKey) || item.label} <ChevronRight className={`w-4 h-4 text-slate-300 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
+                        </button>
+                    ))}
+                </nav>
             </div>
         </div>
     );
