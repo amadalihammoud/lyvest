@@ -1,5 +1,5 @@
 // src/components/LazyImage.tsx
-import React, { useState, useRef, useEffect, ImgHTMLAttributes } from 'react';
+import { useState, useRef, useEffect, ImgHTMLAttributes } from 'react';
 
 interface LazyImageProps extends ImgHTMLAttributes<HTMLImageElement> {
     src: string;

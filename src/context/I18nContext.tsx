@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 // src/context/I18nContext.tsx
-import React, { useState, useCallback, useMemo, useEffect, useContext, createContext, ReactNode } from 'react';
+import { useState, useCallback, useMemo, useEffect, useContext, createContext, ReactNode } from 'react';
 import { translations } from '../data/translations';
 import { I18N_CONFIG } from '../config/constants';
 

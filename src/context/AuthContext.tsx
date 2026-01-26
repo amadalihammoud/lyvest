@@ -1,7 +1,7 @@
 // src/context/AuthContext.tsx
 /* eslint-disable react-refresh/only-export-components, react-hooks/set-state-in-effect */
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { User, Session, AuthError } from '@supabase/supabase-js';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import { AuthError } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface Profile {
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         // Escutar mudanças de auth
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
+            async (_, session) => {
                 setUser(session?.user ?? null);
                 if (session?.user) {
                     const profileData = await fetchProfile(session.user.id);
