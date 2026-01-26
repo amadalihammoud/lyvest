@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /*?*
+Disallow: /checkout
+Disallow: /minha-conta
+
+Sitemap: https://lyvest.vercel.app/sitemap.xml

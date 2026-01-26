@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#800020" />
+
+  <!-- Security Headers -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vitals.vercel-insights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' ws: wss: https://va.vercel-scripts.com https://vitals.vercel-insights.com https://*.supabase.co https://viacep.com.br; object-src 'none'; base-uri 'self';" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <!-- Preconnect aos domínios críticos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Preload da fonte crítica (acima do fold) -->
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Cookie&family=Lato:wght@400;700&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Cookie&family=Lato:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- DNS Prefetch para recursos externos -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+  <!-- PWA Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Ly Vest" />
+  <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+
+  <!-- SEO Base -->
+  <meta name="description"
+    content="Descubra a coleção de lingerie Ly Vest. Calcinhas, sutiãs e pijamas que unem conforto, qualidade e estilo para o seu dia a dia." />
+  <meta name="keywords" content="lingerie, moda íntima, calcinhas, sutiãs, conforto, ly vest, cuecas femininas" />
+  <meta name="author" content="Ly Vest" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://lyvest.vercel.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Ly Vest" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:title" content="Ly Vest | Moda Íntima e Conforto" />
+  <meta property="og:description"
+    content="Lingerie pensada para o seu bem-estar. Peças que unem delicadeza, conforto e estilo." />
+  <meta property="og:image" content="https://lyvest.vercel.app/header-logo.png" />
+  <meta property="og:url" content="https://lyvest.vercel.app/" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Ly Vest | Moda Íntima e Conforto" />
+  <meta name="twitter:description" content="Lingerie pensada para o seu bem-estar. Conforto e estilo para você." />
+  <meta name="twitter:image" content="https://lyvest.vercel.app/header-logo.png" />
+
+  <title>Ly Vest | Moda Íntima e Conforto</title>
+</head>
+
+<body>
+  <!-- Noscript fallback -->
+  <noscript>
+    <div style="padding: 2rem; text-align: center; font-family: sans-serif;">
+      <h1>JavaScript Desabilitado</h1>
+      <p>Esta loja precisa de JavaScript para funcionar. Por favor, habilite o JavaScript no seu navegador.</p>
+    </div>
+  </noscript>
+
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
