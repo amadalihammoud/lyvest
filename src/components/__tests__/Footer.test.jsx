@@ -21,15 +21,15 @@ const renderFooter = (props = {}) => {
 describe('Footer', () => {
     it('renders logo', () => {
         renderFooter();
-        const logo = screen.getByAltText('Tutti & Nino');
+        const logo = screen.getByAltText('Ly Vest');
         expect(logo).toBeInTheDocument();
     });
 
     it('renders company information', () => {
         renderFooter();
-        expect(screen.getByText(/Tutti & Nino Papelaria LTDA/)).toBeInTheDocument();
+        expect(screen.getByText(/Ly Vest LTDA/)).toBeInTheDocument();
         expect(screen.getByText(/45.123.456\/0001-89/)).toBeInTheDocument();
-        expect(screen.getByText(/contato@tuttinino.com.br/)).toBeInTheDocument();
+        expect(screen.getByText(/contato@lyvest.com.br/)).toBeInTheDocument();
     });
 
     it('renders help section links', () => {
@@ -104,7 +104,7 @@ describe('Footer', () => {
 
     it('renders copyright text', () => {
         renderFooter();
-        expect(screen.getByText(/© 2026 Tutti & Nino/i)).toBeInTheDocument();
+        expect(screen.getByText(/© 2026 Ly Vest/i)).toBeInTheDocument();
     });
 
     it('social links have correct attributes', () => {

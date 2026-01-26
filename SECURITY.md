@@ -4,7 +4,7 @@
 
 Levamos a segurança do nosso e-commerce muito a sério. Se você descobrir uma vulnerabilidade, agradecemos que nos informe imediatamente para podermos corrigi-la.
 
-Para relatar uma vulnerabilidade de segurança, por favor envie um e-mail para: **security@tuttienino.com.br**
+Para relatar uma vulnerabilidade de segurança, por favor envie um e-mail para: **security@lyvest.com.br**
 
 Por favor, inclua as seguintes informações no seu relatório:
 - Descrição da vulnerabilidade

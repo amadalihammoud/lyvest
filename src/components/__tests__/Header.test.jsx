@@ -39,7 +39,7 @@ describe('Header', () => {
 
     it('renders logo', () => {
         renderHeader();
-        const logo = screen.getByAltText('Tutti & Nino Logo');
+        const logo = screen.getByAltText('Ly Vest Logo');
         expect(logo).toBeInTheDocument();
     });
 

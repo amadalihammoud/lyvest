@@ -20,7 +20,7 @@ export const I18nContext = createContext<I18nContextType | null>(null);
 
 // Locales suportados (agora vindo das constantes)
 const { SUPPORTED_LOCALES, DEFAULT_LOCALE } = I18N_CONFIG;
-const LOCALE_STORAGE_KEY = 'tutti_nino_locale';
+const LOCALE_STORAGE_KEY = 'lyvest_locale';
 
 interface I18nProviderProps {
     children: ReactNode;

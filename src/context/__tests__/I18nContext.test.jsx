@@ -137,11 +137,11 @@ describe('I18nContext', () => {
             changeButton.click();
         });
 
-        expect(localStorage.getItem('tutti_nino_locale')).toBe('en-US');
+        expect(localStorage.getItem('lyvest_locale')).toBe('en-US');
     });
 
     it('loads locale from localStorage on mount', () => {
-        localStorage.setItem('tutti_nino_locale', 'es-ES');
+        localStorage.setItem('lyvest_locale', 'es-ES');
 
         render(
             <I18nProvider>

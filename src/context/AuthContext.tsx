@@ -78,7 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     useEffect(() => {
         if (!isConfigured) {
             // Modo mock para desenvolvimento
-            const mockUser = localStorage.getItem('tutti_mock_user');
+            const mockUser = localStorage.getItem('lyvest_mock_user');
             if (mockUser) {
                 try {
                     const parsed = JSON.parse(mockUser);
@@ -128,7 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 name: email.split('@')[0],
                 avatar: null
             };
-            localStorage.setItem('tutti_mock_user', JSON.stringify(mockUser));
+            localStorage.setItem('lyvest_mock_user', JSON.stringify(mockUser));
             setUser(mockUser);
             setProfile(mockUser);
             return { data: { user: mockUser }, error: null };
@@ -159,7 +159,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 name: metadata.full_name || email.split('@')[0],
                 avatar: null
             };
-            localStorage.setItem('tutti_mock_user', JSON.stringify(mockUser));
+            localStorage.setItem('lyvest_mock_user', JSON.stringify(mockUser));
             setUser(mockUser);
             setProfile(mockUser);
             return { data: { user: mockUser }, error: null };
@@ -203,7 +203,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Logout
     const signOut = useCallback(async () => {
         if (!isConfigured) {
-            localStorage.removeItem('tutti_mock_user');
+            localStorage.removeItem('lyvest_mock_user');
             setUser(null);
             setProfile(null);
             return { error: null };

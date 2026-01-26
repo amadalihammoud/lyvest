@@ -330,7 +330,7 @@ function SettingsSection({ user }) {
             }
 
             // Limpar localStorage
-            localStorage.removeItem('tutti_mock_user');
+            localStorage.removeItem('lyvest_mock_user');
             localStorage.removeItem('Ly Vest_favorites');
 
             // Logout

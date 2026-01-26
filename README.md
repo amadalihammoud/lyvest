@@ -1,8 +1,8 @@
-# 🎀 Tutti & Nino - E-commerce de Papelaria
+# 🎀 Ly Vest - E-commerce
 
-E-commerce moderno de papelaria fofa e organização, construído com React + Vite.
+E-commerce moderno, construído com React + Vite.
 
-![Tutti & Nino](public/header-logo-v2.png)
+![Ly Vest](public/header-logo-v2.png)
 
 ## ✨ Funcionalidades
 
@@ -171,4 +171,4 @@ Este projeto é privado e proprietário.
 
 ---
 
-Feito com 💖 para Tutti & Nino
+Feito com 💖 para Ly Vest
