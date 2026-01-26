@@ -77,7 +77,7 @@ export default function MobileMenu({
                         <div className="w-px h-6 bg-slate-200 mx-1"></div> {/* Separator */}
                         <LanguageSelector />
                     </div>
-                    <button onClick={onClose} className="p-2 touch-target bg-slate-50 rounded-full hover:bg-slate-100" aria-label={t('aria.closeMenu')}><X className="w-5 h-5 text-slate-500" /></button>
+                    <button onClick={onClose} className="p-1.5 touch-target bg-slate-50 rounded-full hover:bg-slate-100" aria-label={t('aria.closeMenu')}><X className="w-4 h-4 text-slate-500" /></button>
                 </div>
 
                 {/* Search - Margin top adjusted since previous login block is gone */}
