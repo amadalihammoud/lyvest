@@ -18,7 +18,7 @@ export default function Footer({ setActiveModal }) {
                                 <li className="text-left"><button onClick={() => setActiveModal('shipping')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-left w-full p-0">{t('footer.shipping')}</button></li>
                                 <li className="text-left"><button onClick={() => setActiveModal('returns')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-left w-full p-0">{t('footer.returns')}</button></li>
                                 <li className="text-left"><button onClick={() => setActiveModal('faq')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-left w-full p-0">{t('footer.faq')}</button></li>
-                                <li className="text-left"><button onClick={() => setActiveModal('contact')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-left w-full p-0">{t('footer.contact')}</button></li>
+
                                 <li className="text-left"><button onClick={() => setActiveModal('privacy')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-left w-full p-0">{t('footer.privacy')}</button></li>
                             </ul>
                         </div>
