@@ -2,7 +2,7 @@
 
 E-commerce moderno, construído com React + Vite.
 
-![Ly Vest](public/lyvest-logo.png)
+![Ly Vest](public/header-logo-v2.png)
 
 ## ✨ Funcionalidades
 
