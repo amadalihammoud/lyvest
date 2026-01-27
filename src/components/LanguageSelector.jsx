@@ -49,15 +49,14 @@ function LanguageSelector({ className = '' }) {
         <div ref={dropdownRef} className={`relative ${className}`}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-slate-700 text-sm font-medium"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-200/50 transition-colors text-slate-600 text-xs font-bold"
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
                 aria-label="Selecionar idioma"
             >
-                <Globe className="w-4 h-4" />
-                <span>{currentLocale.flag}</span>
-                <span className="hidden sm:inline">{currentLocale.name}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <Globe className="w-4 h-4 text-slate-500" />
+                <span className="uppercase">{locale.split('-')[1]}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform text-slate-400 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (

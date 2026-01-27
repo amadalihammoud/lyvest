@@ -81,14 +81,24 @@ export default function MobileMenu({
                     </div>
                 </div>
 
-                {/* Search - Margin top adjusted since previous login block is gone */}
-                <div className="flex items-center gap-2 mb-6">
+                {/* Search & Close Button Row */}
+                <div className="flex items-center gap-3 mb-8">
                     <div className="relative flex-1">
-                        <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))} className="w-full pl-10 pr-4 py-2 rounded-full border border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all text-sm placeholder:text-transparent" />
-                        <Search className={`w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-black`} />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))}
+                            placeholder=""
+                            className="w-full pl-10 pr-4 py-1.5 rounded-full border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all text-sm"
+                        />
+                        <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-black" />
                     </div>
-                    <button onClick={onClose} className="p-2 bg-slate-50 rounded-md border border-slate-100 touch-target hover:bg-slate-100 shadow-sm" aria-label={t('aria.closeMenu')}>
-                        <X className="w-4 h-4 text-slate-400" />
+                    <button
+                        onClick={onClose}
+                        className="p-2 bg-slate-50 rounded-lg border border-slate-200 touch-target hover:bg-slate-100 shadow-sm transition-colors"
+                        aria-label={t('aria.closeMenu')}
+                    >
+                        <X className="w-4 h-4 text-slate-500" />
                     </button>
                 </div>
                 {/* Navigation */}
