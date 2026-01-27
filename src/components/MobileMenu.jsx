@@ -103,7 +103,7 @@ export default function MobileMenu({
                     </div>
                 </div>
                 {/* Navigation */}
-                <nav className="space-y-0.5 text-base font-medium text-slate-600 flex-1 w-full mt-3 -ml-4" role="navigation" aria-label="Mobile menu navigation">
+                <nav className="space-y-0.5 text-base font-medium text-slate-600 flex-1 w-full mt-6 -ml-3" role="navigation" aria-label="Mobile menu navigation">
                     {mainMenu.map((item, index) => (
                         <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-between hover:text-lyvest-500 py-4 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
                             <span className="text-left font-medium text-[16px] leading-none whitespace-nowrap">{t(item.translationKey) || item.label}</span>
