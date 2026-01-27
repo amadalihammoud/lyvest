@@ -80,31 +80,34 @@ export default function MobileMenu({
                 </div>
 
                 {/* Search & Close Button Row */}
-                <div className="flex items-center gap-3 mb-8 w-full">
-                    <div className="relative flex-1">
+                <div className="flex items-center gap-2 mb-8 w-full">
+                    <div className="relative flex-1 flex items-center bg-white rounded-full border border-slate-300 px-3 py-1.5 focus-within:ring-1 focus-within:ring-slate-400">
+                        <Search className="w-4 h-4 text-slate-800" />
+                        <div className="w-px h-4 bg-slate-300 mx-2"></div>
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))}
                             placeholder=""
-                            className="w-full pl-10 pr-4 py-1.5 rounded-full border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all text-sm"
+                            className="flex-1 bg-transparent border-none focus:outline-none text-sm"
                         />
-                        <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-black" />
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="p-2 bg-slate-50 rounded-lg border border-slate-200 touch-target hover:bg-slate-100 shadow-sm transition-colors"
-                        aria-label={t('aria.closeMenu')}
-                    >
-                        <X className="w-4 h-4 text-slate-500" />
-                    </button>
+                    <div className="p-1">
+                        <button
+                            onClick={onClose}
+                            className="p-1.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center"
+                            aria-label={t('aria.closeMenu')}
+                        >
+                            <X className="w-3.5 h-3.5 text-slate-400" />
+                        </button>
+                    </div>
                 </div>
                 {/* Navigation */}
                 <nav className="space-y-1 text-base font-medium text-slate-600 flex-1 w-full" role="navigation" aria-label="Mobile menu navigation">
                     {mainMenu.map((item, index) => (
-                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-between hover:text-lyvest-500 py-3 px-0 border-b border-slate-50 last:border-0 text-left rounded-lg hover:bg-lyvest-100/30 transition-colors touch-target">
-                            <span className="flex-1 text-left">{t(item.translationKey) || item.label}</span>
-                            <ChevronRight className={`w-4 h-4 text-slate-300 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
+                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center gap-1 hover:text-lyvest-500 py-3 px-0 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
+                            <span className="text-left">{t(item.translationKey) || item.label}</span>
+                            <ChevronRight className={`w-3.5 h-3.5 text-slate-300 group-hover:text-lyvest-500 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
                         </button>
                     ))}
                 </nav>
