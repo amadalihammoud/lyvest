@@ -1,5 +1,3 @@
-/* global process */
-/* eslint-disable no-unused-vars */
 /**
  * Payment Service Abstraction
  * 

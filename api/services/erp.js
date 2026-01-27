@@ -1,5 +1,3 @@
-/* global process */
-/* eslint-disable no-unused-vars */
 /**
  * ERP Service Abstraction
  * 

@@ -3,11 +3,7 @@ import {
     Scissors, // Calcinha/Corte
     Heart,    // Sutiã/Amor
     Layers,   // Cueca/Camadas
-    Footprints, // Meia (aproximação)
-    Gift,
-    Sparkles,
-    Star,
-    Shirt // Camiseta/Pijama?
+    Star // Icons unused removed
 } from 'lucide-react';
 
 // --- DADOS DOS PRODUTOS ---

@@ -1,5 +1,5 @@
 // src/components/LanguageSelector.jsx
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 import { useI18n } from '../hooks/useI18n';
 
@@ -37,8 +37,6 @@ function LanguageSelector({ className = '' }) {
         document.addEventListener('keydown', handleEscape);
         return () => document.removeEventListener('keydown', handleEscape);
     }, []);
-
-    const currentLocale = LOCALE_NAMES[locale] || LOCALE_NAMES['pt-BR'];
 
     const handleSelect = (newLocale) => {
         changeLocale(newLocale);

@@ -1,7 +1,7 @@
 // src/pages/__tests__/ProductPage.test.jsx
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import ProductPage from '../ProductPage';
 import { CartProvider } from '../../context/CartContext';
 import { FavoritesProvider } from '../../context/FavoritesContext';

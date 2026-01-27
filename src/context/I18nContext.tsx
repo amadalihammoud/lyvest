@@ -12,7 +12,7 @@ interface I18nContextType {
     formatCurrency: (value: number) => string;
     formatDate: (date: Date | string | number, options?: Intl.DateTimeFormatOptions) => string;
     formatNumber: (value: number) => string;
-    getProductData: (productId: string | number, field: string) => any;
+    getProductData: (productId: string | number, field: string) => unknown;
     isRTL: boolean;
 }
 
@@ -73,17 +73,17 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
     const t = useCallback((key: string, params: Record<string, string | number> = {}) => {
         const keys = key.split('.');
         // Usando 'any' temporariamente para permitir indexação dinâmica nas traduções
-        let value: any = translations[locale as keyof typeof translations];
+        let value: unknown = translations[locale as keyof typeof translations];
 
         for (const k of keys) {
             if (value && typeof value === 'object' && k in value) {
-                value = value[k];
+                value = (value as Record<string, unknown>)[k];
             } else {
                 // Fallback para pt-BR
                 value = translations[DEFAULT_LOCALE as keyof typeof translations];
                 for (const fallbackK of keys) {
                     if (value && typeof value === 'object' && fallbackK in value) {
-                        value = value[fallbackK];
+                        value = (value as Record<string, unknown>)[fallbackK];
                     } else {
                         return key; // Retorna a chave se não encontrar
                     }
@@ -141,19 +141,19 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
     // Suporta tanto strings quanto objetos (como specs)
     const getProductData = useCallback((productId: string | number, field: string) => {
         // Tipagem 'any' para acesso dinâmico às traduções
-        const translationData = translations[locale as keyof typeof translations] as any;
-        const productData = translationData?.productData?.[productId];
+        const translationData = translations[locale as keyof typeof translations] as Record<string, unknown>;
+        const productData = (translationData?.productData as Record<string, unknown>)?.[productId];
 
-        if (productData && field in productData) {
-            return productData[field];
+        if (productData && field in (productData as Record<string, unknown>)) {
+            return (productData as Record<string, unknown>)[field];
         }
 
         // Fallback para pt-BR
-        const fallbackTranslationData = translations[DEFAULT_LOCALE as keyof typeof translations] as any;
-        const fallbackData = fallbackTranslationData?.productData?.[productId];
+        const fallbackTranslationData = translations[DEFAULT_LOCALE as keyof typeof translations] as Record<string, unknown>;
+        const fallbackData = (fallbackTranslationData?.productData as Record<string, unknown>)?.[productId];
 
-        if (fallbackData && field in fallbackData) {
-            return fallbackData[field];
+        if (fallbackData && typeof fallbackData === 'object' && field in fallbackData) {
+            return (fallbackData as Record<string, unknown>)[field];
         }
         return null;
     }, [locale]);

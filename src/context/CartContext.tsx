@@ -35,23 +35,24 @@ const CART_MAX_QUANTITY = CART_CONFIG.MAX_QUANTITY_PER_ITEM;
  * Valida estrutura de um item do carrinho
  * Previne injeção de dados maliciosos via localStorage
  */
-function validateCartItem(item: any): CartItem | null {
+function validateCartItem(item: unknown): CartItem | null {
     if (!item || typeof item !== 'object') return null;
+    const i = item as Record<string, unknown>;
 
     // Validar campos obrigatórios
-    if (typeof item.id !== 'number' || item.id <= 0) return null;
-    if (typeof item.name !== 'string' || item.name.length === 0 || item.name.length > 200) return null;
-    if (typeof item.price !== 'number' || item.price < 0 || item.price > 100000) return null;
-    if (typeof item.qty !== 'number' || item.qty <= 0 || item.qty > CART_MAX_QUANTITY) return null;
+    if (typeof i.id !== 'number' || i.id <= 0) return null;
+    if (typeof i.name !== 'string' || i.name.length === 0 || i.name.length > 200) return null;
+    if (typeof i.price !== 'number' || i.price < 0 || i.price > 100000) return null;
+    if (typeof i.qty !== 'number' || i.qty <= 0 || i.qty > CART_MAX_QUANTITY) return null;
 
     // Sanitizar e retornar apenas campos necessários
     return {
-        id: Math.floor(item.id),
-        name: String(item.name).slice(0, 200).replace(/<[^>]*>/g, ''), // Remove HTML
-        price: Math.abs(Number(item.price)),
-        qty: Math.min(Math.floor(item.qty), CART_MAX_QUANTITY),
-        image: typeof item.image === 'string' ? item.image.slice(0, 500) : '',
-        category: typeof item.category === 'string' ? item.category.slice(0, 100) : ''
+        id: Math.floor(i.id),
+        name: String(i.name).slice(0, 200).replace(/<[^>]*>/g, ''), // Remove HTML
+        price: Math.abs(Number(i.price)),
+        qty: Math.min(Math.floor(i.qty), CART_MAX_QUANTITY),
+        image: typeof i.image === 'string' ? i.image.slice(0, 500) : '',
+        category: typeof i.category === 'string' ? i.category.slice(0, 100) : ''
     };
 }
 

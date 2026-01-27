@@ -11,18 +11,18 @@ interface Notification {
 
 interface ModalContextType {
     activeModal: string | null;
-    modalData: any;
-    openModal: (modalName: string, data?: any) => void;
+    modalData: unknown;
+    openModal: (modalName: string, data?: unknown) => void;
     closeModal: () => void;
     activeDrawer: string | null;
     openDrawer: (drawerName: string) => void;
     closeDrawer: () => void;
     notification: Notification | null;
     showNotification: (message: string, type?: NotificationType) => void;
-    trackingCode: string;
-    setTrackingCode: React.Dispatch<React.SetStateAction<string>>;
-    trackingResult: any;
-    setTrackingResult: React.Dispatch<React.SetStateAction<any>>;
+    trackingCode: string | null;
+    setTrackingCode: React.Dispatch<React.SetStateAction<string | null>>;
+    trackingResult: unknown;
+    setTrackingResult: React.Dispatch<React.SetStateAction<unknown>>;
 }
 
 export const ModalContext = createContext<ModalContextType | null>(null);
@@ -33,15 +33,15 @@ interface ModalProviderProps {
 
 export const ModalProvider = ({ children }: ModalProviderProps) => {
     const [activeModal, setActiveModal] = useState<string | null>(null); // 'login', 'contact', etc.
-    const [modalData, setModalData] = useState<any>(null); // Data passed to the modal
+    const [modalData, setModalData] = useState<unknown>(null); // Data passed to the modal
     const [activeDrawer, setActiveDrawer] = useState<string | null>(null); // 'cart', 'favorites', 'tracking'
     const [notification, setNotification] = useState<Notification | null>(null); // { message: string, type: 'success'|'error' }
 
     // Tracking State
-    const [trackingCode, setTrackingCode] = useState<string>('');
-    const [trackingResult, setTrackingResult] = useState<any>(null);
+    const [trackingCode, setTrackingCode] = useState<string | null>(null);
+    const [trackingResult, setTrackingResult] = useState<unknown>(null);
 
-    const openModal = useCallback((modalName: string, data: any = null) => {
+    const openModal = useCallback((modalName: string, data: unknown = null) => {
         setModalData(data);
         setActiveModal(modalName);
     }, []);

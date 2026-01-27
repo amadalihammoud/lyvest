@@ -1,4 +1,4 @@
-import { Package, Heart, LogOut, User, MapPin, CreditCard } from 'lucide-react';
+import { Package, Heart, LogOut, User, MapPin } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
 
 // Explicit Settings Icon Component

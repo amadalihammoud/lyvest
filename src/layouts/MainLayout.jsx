@@ -13,7 +13,7 @@ import ChatWidget from '../components/ChatWidget'; // chat-widget-import
 import SEO from '../components/SEO';
 import ModalManager from '../components/ModalManager';
 import DrawerManager from '../components/DrawerManager'; // New Manager
-import SkipLinks from '../components/SkipLinks';
+
 import ErrorBoundary from '../components/ErrorBoundary';
 import MobileMenu from '../components/MobileMenu';
 import { Analytics } from '@vercel/analytics/react';

@@ -14,7 +14,6 @@ export default function CheckoutWizard({ onBack, onComplete }) {
     const { cartItems, cartTotal, clearCart } = useCart();
     const [step, setStep] = useState(1); // 1: Address, 2: Payment, 3: Success
     const [addressData, setAddressData] = useState(null);
-    const [_paymentData, setPaymentData] = useState(null);
     const [orderNumber, setOrderNumber] = useState(null);
 
     const handleAddressSubmit = (data) => {

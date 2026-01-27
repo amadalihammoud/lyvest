@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { CreditCard, QrCode, Lock, AlertCircle } from 'lucide-react';
+import { CreditCard, QrCode, AlertCircle } from 'lucide-react';
 import { paymentSchema, formatCardNumber, validateForm } from '../utils/validation';
 import { RateLimiter, detectXSS } from '../utils/security';
 import { paymentService } from '../services/payment';
 import { useI18n } from '../hooks/useI18n';
-import { useCart } from '../context/CartContext';
 
 // Rate limiter para checkout (3 tentativas por 5 minutos)
 const checkoutLimiter = new RateLimiter('checkout', 3, 300000);
@@ -71,7 +70,7 @@ export default function CheckoutPayment({ onSubmit, total }) {
         if (!allowed) {
             const minutes = Math.ceil(resetIn / 60000);
             setRateLimitError(true);
-            setErrors({ _form: t('errors.rateLimit') || `Muitas tentativas. Aguarde ${minutes} minuto(s).` });
+            setErrors({ _form: t('errors.rateLimit') || `Muitas tentativas.Aguarde ${minutes} minuto(s).` });
             return;
         }
 
@@ -118,7 +117,7 @@ export default function CheckoutPayment({ onSubmit, total }) {
                             id: item.id,
                             quantity: item.qty
                         })),
-                        orderId: `LV-${Date.now()}`
+                        orderId: `LV - ${Date.now()} `
                     });
 
                     if (session.checkoutUrl) {
@@ -160,7 +159,7 @@ export default function CheckoutPayment({ onSubmit, total }) {
                 <button
                     type="button"
                     onClick={() => setMethod('credit')}
-                    className={`flex-1 py-3 px-4 rounded-xl border-2 flex items-center justify-center gap-2 font-bold transition-all text-sm sm:text-base ${method === 'credit' ? 'border-lyvest-500 bg-lyvest-50 text-lyvest-600' : 'border-slate-100 bg-white text-slate-400 hover:border-lyvest-100'}`}
+                    className={`flex - 1 py - 3 px - 4 rounded - xl border - 2 flex items - center justify - center gap - 2 font - bold transition - all text - sm sm: text - base ${method === 'credit' ? 'border-lyvest-500 bg-lyvest-50 text-lyvest-600' : 'border-slate-100 bg-white text-slate-400 hover:border-lyvest-100'} `}
                 >
                     <CreditCard className="w-5 h-5" />
                     <span>{t('checkout.payment.creditCard') || 'Cartão de Crédito'}</span>
@@ -168,7 +167,7 @@ export default function CheckoutPayment({ onSubmit, total }) {
                 <button
                     type="button"
                     onClick={() => setMethod('pix')}
-                    className={`flex-1 py-3 px-4 rounded-xl border-2 flex items-center justify-center gap-2 font-bold transition-all text-sm sm:text-base ${method === 'pix' ? 'border-green-500 bg-green-50 text-green-600' : 'border-slate-100 bg-white text-slate-400 hover:border-green-200'}`}
+                    className={`flex - 1 py - 3 px - 4 rounded - xl border - 2 flex items - center justify - center gap - 2 font - bold transition - all text - sm sm: text - base ${method === 'pix' ? 'border-green-500 bg-green-50 text-green-600' : 'border-slate-100 bg-white text-slate-400 hover:border-green-200'} `}
                 >
                     <QrCode className="w-5 h-5" />
                     <span>{t('checkout.payment.pix') || 'PIX'}</span>
@@ -202,7 +201,7 @@ export default function CheckoutPayment({ onSubmit, total }) {
                                 value={formatCardNumber(formData.cardNumber)}
                                 onChange={handleCardNumberChange}
                                 maxLength={19}
-                                className={`w-full pl-10 pr-4 py-3 rounded-xl border ${errors.cardNumber ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700`}
+                                className={`w - full pl - 10 pr - 4 py - 3 rounded - xl border ${errors.cardNumber ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus: outline - none focus: ring - 2 focus: ring - [#E8C4C8] transition - all font - mono text - slate - 700`}
                             />
                         </div>
                         {errors.cardNumber && (
@@ -223,7 +222,7 @@ export default function CheckoutPayment({ onSubmit, total }) {
                             value={formData.cardName}
                             onChange={handleInputChange('cardName')}
                             maxLength={100}
-                            className={`w-full px-4 py-3 rounded-xl border ${errors.cardName ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-medium text-slate-700 uppercase`}
+                            className={`w - full px - 4 py - 3 rounded - xl border ${errors.cardName ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus: outline - none focus: ring - 2 focus: ring - [#E8C4C8] transition - all font - medium text - slate - 700 uppercase`}
                         />
                         {errors.cardName && (
                             <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.cardName)}</p>
@@ -245,7 +244,7 @@ export default function CheckoutPayment({ onSubmit, total }) {
                                 value={formData.expiry}
                                 onChange={handleExpiryChange}
                                 maxLength={5}
-                                className={`w-full px-4 py-3 rounded-xl border ${errors.expiry ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700 text-center`}
+                                className={`w - full px - 4 py - 3 rounded - xl border ${errors.expiry ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus: outline - none focus: ring - 2 focus: ring - [#E8C4C8] transition - all font - mono text - slate - 700 text - center`}
                             />
                             {errors.expiry && (
                                 <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.expiry)}</p>
@@ -264,7 +263,7 @@ export default function CheckoutPayment({ onSubmit, total }) {
                                 value={formData.cvv}
                                 onChange={handleInputChange('cvv')}
                                 maxLength={4}
-                                className={`w-full px-4 py-3 rounded-xl border ${errors.cvv ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700 text-center`}
+                                className={`w - full px - 4 py - 3 rounded - xl border ${errors.cvv ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus: outline - none focus: ring - 2 focus: ring - [#E8C4C8] transition - all font - mono text - slate - 700 text - center`}
                             />
                             {errors.cvv && (
                                 <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.cvv)}</p>

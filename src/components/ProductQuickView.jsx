@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, X } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { generateSlug } from '../utils/slug';
 import { useI18n } from '../hooks/useI18n';

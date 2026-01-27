@@ -48,14 +48,8 @@ try {
     // We need to clean up the string to make it valid JSON-ish or just parse manually
     // Since we only need names and categories, we can use regex to find them.
 
-    const productEntries = [];
     const categories = new Set();
 
-    // Regex to find name and category in the file content directly
-    const nameRegex = /name:\s*"([^"]+)"/g;
-    const categoryRegex = /category:\s*"([^"]+)"/g;
-
-    let match;
     const items = [];
 
     // We'll split the content by objects to keep name/category paired

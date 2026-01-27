@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Play, Minus, Plus, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { generateSlug } from '../utils/slug';
-import { productsData } from '../data/mockData';
 import { useI18n } from '../hooks/useI18n';
-import ProductCard from './ProductCard';
 
 function ProductDetails({ product, onAddToCart }) {
     const navigate = useNavigate();
@@ -19,7 +15,6 @@ function ProductDetails({ product, onAddToCart }) {
     // Translated product data
     const productName = getProductData(product.id, 'name') || product.name;
     const productDescription = getProductData(product.id, 'description') || product.description;
-    const _productBadge = getProductData(product.id, 'badge') || product.badge;
     const productSpecs = getProductData(product.id, 'specs') || product.specs;
 
     // Mock thumbnails (replicating the main image since we only have one per product in mock data)

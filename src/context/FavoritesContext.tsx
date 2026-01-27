@@ -5,7 +5,7 @@ import { FAVORITES_CONFIG } from '../config/constants';
 
 interface FavoritesContextType {
     favorites: number[];
-    toggleFavorite: (event: any, productId?: number) => void;
+    toggleFavorite: (event: React.SyntheticEvent | number, productId?: number) => void;
     addFavorite: (productId: number) => void;
     removeFavorite: (productId: number) => void;
     isFavorite: (productId: number) => boolean;
@@ -23,7 +23,7 @@ const MAX_FAVORITES = FAVORITES_CONFIG.MAX_ITEMS;
 /**
  * Valida que um ID é um número positivo válido
  */
-function isValidId(id: any): boolean {
+function isValidId(id: unknown): boolean {
     return typeof id === 'number' && Number.isInteger(id) && id > 0 && id < Number.MAX_SAFE_INTEGER;
 }
 
@@ -86,11 +86,11 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         saveFavoritesToStorage(favorites);
     }, [favorites]);
 
-    const toggleFavorite = useCallback((event: any, productId?: number) => {
+    const toggleFavorite = useCallback((event: React.SyntheticEvent | number, productId?: number) => {
         // Se vier de um evento, evitar propagação
-        if (event?.stopPropagation) {
-            event.stopPropagation();
-            event.preventDefault();
+        if (typeof event === 'object' && event !== null && 'stopPropagation' in event) {
+            (event as React.SyntheticEvent).stopPropagation();
+            (event as React.SyntheticEvent).preventDefault();
         }
 
         // Se productId for passado diretamente (sem evento)

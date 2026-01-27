@@ -1,8 +1,7 @@
 import React from 'react';
 import { useModal } from '../../hooks/useModal';
 import { useI18n } from '../../hooks/useI18n';
-import { useCart } from '../../hooks/useCart';
-import { ShoppingBag, ArrowRight, Check, Truck } from 'lucide-react';
+import { ArrowRight, Check, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const FREE_SHIPPING_THRESHOLD = 350; // Meta para Frete Grátis

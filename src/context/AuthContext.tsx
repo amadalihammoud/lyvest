@@ -9,26 +9,26 @@ interface Profile {
     full_name?: string;
     phone?: string;
     avatar?: string | null;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 interface AuthResponse {
-    data: any;
+    data: unknown;
     error: AuthError | null | { message: string };
 }
 
 interface AuthContextType {
-    user: any | null; // Using any for now to support both Supabase User and mock user
+    user: unknown | null; // Using unknown for now to support both Supabase User and mock user
     profile: Profile | null;
     loading: boolean;
     isConfigured: boolean;
     isAuthenticated: boolean;
     signIn: (email: string, password: string) => Promise<AuthResponse>;
-    signUp: (email: string, password: string, metadata?: any) => Promise<AuthResponse>;
+    signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<AuthResponse>;
     signInWithGoogle: () => Promise<AuthResponse>;
     signOut: () => Promise<{ error: AuthError | null }>;
     resetPassword: (email: string) => Promise<AuthResponse>;
-    updateProfile: (updates: any) => Promise<AuthResponse>;
+    updateProfile: (updates: Record<string, unknown>) => Promise<AuthResponse>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -38,7 +38,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-    const [user, setUser] = useState<any | null>(null);
+    const [user, setUser] = useState<unknown | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [isConfigured] = useState(isSupabaseConfigured);
@@ -64,12 +64,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 return null;
             }
             return data;
-        } catch (err: any) {
+        } catch (err: unknown) {
             // Ignorar erros de abort
-            if (err.name === 'AbortError' || err.message?.includes('abort')) {
+            if ((err as Error).name === 'AbortError' || (err as Error).message?.includes('abort')) {
                 return null;
             }
-            console.warn('Aviso ao buscar perfil:', err.message);
+            console.warn('Aviso ao buscar perfil:', (err as Error).message);
             return null;
         }
     }, [isConfigured]);
@@ -140,17 +140,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 password
             });
             return { data, error };
-        } catch (err: any) {
+        } catch (err: unknown) {
             // Tratar erros de rede/abort
             return {
                 data: null,
-                error: { message: err.message || 'Erro de conexão. Tente novamente.' }
+                error: { message: (err as Error).message || 'Erro de conexão. Tente novamente.' }
             };
         }
     }, [isConfigured]);
 
     // Registro com email/senha
-    const signUp = useCallback(async (email: string, password: string, metadata: any = {}): Promise<AuthResponse> => {
+    const signUp = useCallback(async (email: string, password: string, metadata: Record<string, unknown> = {}): Promise<AuthResponse> => {
         if (!isConfigured) {
             // Modo mock
             const mockUser = {
@@ -230,14 +230,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }, [isConfigured]);
 
     // Atualizar perfil
-    const updateProfile = useCallback(async (updates: any): Promise<AuthResponse> => {
+    const updateProfile = useCallback(async (updates: Record<string, unknown>): Promise<AuthResponse> => {
         if (!isConfigured || !user) {
             return { data: null, error: { message: 'Não autenticado' } };
         }
 
         const { data, error } = await supabase
             .from('profiles')
-            .upsert({ id: user.id, ...updates })
+            .upsert({ id: (user as { id: string }).id, ...updates })
             .select()
             .single();
 

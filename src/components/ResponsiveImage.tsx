@@ -121,7 +121,7 @@ function ResponsiveImage({
                     className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'
                         } ${className}`}
                     style={{
-                        objectFit: objectFit as any,
+                        objectFit: objectFit as CSSProperties['objectFit'],
                         width: '100%',
                         height: '100%',
                     }}

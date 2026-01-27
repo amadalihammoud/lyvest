@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Heart, Star } from 'lucide-react';
+// No icons needed
 
 
 const slides = [
