@@ -55,7 +55,7 @@ export default function MobileMenu({
                         {isLoggedIn ? (
                             <button
                                 onClick={() => { onClose(); navigateToDashboard(); }}
-                                className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm -ml-3"
+                                className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm"
                             >
                                 <img
                                     src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
@@ -67,7 +67,7 @@ export default function MobileMenu({
                         ) : (
                             <button
                                 onClick={() => { onClose(); onOpenLogin(); }}
-                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs -ml-3 whitespace-nowrap"
+                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs whitespace-nowrap"
                             >
                                 <div className="pl-3 flex items-center gap-2">
                                     <User className="w-4 h-4" />
@@ -89,10 +89,10 @@ export default function MobileMenu({
                 </div>
 
                 {/* Search Row - Solo */}
-                <div className="mb-8 w-full -ml-3 pr-6">
+                <div className="mb-8 w-full">
                     <div className="relative flex items-center bg-white rounded-full border border-slate-300 h-[38px] focus-within:ring-1 focus-within:ring-slate-400">
                         <Search className="w-4 h-4 text-slate-800 absolute left-3" />
-                        <div className="w-px h-4 bg-slate-300 absolute left-9"></div>
+                        <div className="w-px h-4 bg-slate-100 absolute left-9"></div>
                         <input
                             type="text"
                             value={searchQuery}
