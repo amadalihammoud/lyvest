@@ -48,7 +48,7 @@ export default function MobileMenu({
             aria-label="Mobile navigation menu"
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
-            <div className="absolute top-0 left-0 h-full w-[65%] max-w-[280px] bg-white shadow-2xl pt-5 pb-6 pl-0 pr-4 flex flex-col items-start overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
+            <div className="absolute top-0 left-0 h-full w-[65%] max-w-[280px] bg-white shadow-2xl pt-5 pb-6 pl-0 pr-4 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
                 <div className="flex items-center justify-start mt-6 mb-6 w-full gap-4 pl-2">
                     <div className="flex items-center">
                         {/* Login Button / User Profile Replaces "Menu" Text */}
@@ -105,8 +105,8 @@ export default function MobileMenu({
                 {/* Navigation */}
                 <nav className="space-y-0.5 text-base font-medium text-slate-600 flex-1 w-full mt-3 pl-0" role="navigation" aria-label="Mobile menu navigation">
                     {mainMenu.map((item, index) => (
-                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-between hover:text-lyvest-500 py-4 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
-                            <span className="text-left font-medium text-[16px] leading-none whitespace-nowrap">{t(item.translationKey) || item.label}</span>
+                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-start hover:text-lyvest-500 py-4 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
+                            <span className="text-left font-medium text-[16px] leading-none whitespace-nowrap flex-1">{t(item.translationKey) || item.label}</span>
                             <ChevronRight className={`w-3.5 h-3.5 text-slate-300 group-hover:text-lyvest-500 transition-transform flex-shrink-0 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
                         </button>
                     ))}
