@@ -48,7 +48,7 @@ export default function MobileMenu({
             aria-label="Mobile navigation menu"
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
-            <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 pl-1 pr-3 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
+            <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 pl-5 pr-4 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
                 <div className="relative flex items-center justify-center mt-12 mb-6 w-full">
                     <div className="flex items-center">
                         {/* Login Button / User Profile Replaces "Menu" Text */}
@@ -101,10 +101,10 @@ export default function MobileMenu({
                     </div>
                 </div>
                 {/* Navigation */}
-                <nav className="space-y-1 text-base font-medium text-slate-600 flex-1 w-full" role="navigation" aria-label="Mobile menu navigation">
+                <nav className="space-y-0.5 text-base font-medium text-slate-700 flex-1 w-full mt-4" role="navigation" aria-label="Mobile menu navigation">
                     {mainMenu.map((item, index) => (
-                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center gap-1 hover:text-lyvest-500 py-3.5 px-0 border-b border-slate-100 last:border-0 text-left transition-colors touch-target group">
-                            <span className="text-left">{t(item.translationKey) || item.label}</span>
+                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center gap-1.5 hover:text-lyvest-500 py-3.5 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
+                            <span className="text-left font-semibold text-[15px]">{t(item.translationKey) || item.label}</span>
                             <ChevronRight className={`w-3.5 h-3.5 text-slate-300 group-hover:text-lyvest-500 transition-transform ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
                         </button>
                     ))}
