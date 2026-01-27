@@ -48,7 +48,7 @@ export default function MobileMenu({
             aria-label="Mobile navigation menu"
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
-            <div className="absolute top-0 left-0 h-full w-4/5 max-w-sm bg-white shadow-2xl py-6 px-6 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
+            <div className="absolute top-0 left-0 h-full w-4/5 max-w-sm bg-white shadow-2xl py-6 px-6 flex flex-col items-start overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
                 <div className="flex items-center mb-4">
                     <div className="flex items-center">
                         {/* Login Button / User Profile Replaces "Menu" Text */}
@@ -80,7 +80,7 @@ export default function MobileMenu({
                 </div>
 
                 {/* Search & Close Button Row */}
-                <div className="flex items-center gap-3 mb-8">
+                <div className="flex items-center gap-3 mb-8 w-full">
                     <div className="relative flex-1">
                         <input
                             type="text"
@@ -100,10 +100,11 @@ export default function MobileMenu({
                     </button>
                 </div>
                 {/* Navigation */}
-                <nav className="space-y-1 text-base font-medium text-slate-600 flex-1" role="navigation" aria-label="Mobile menu navigation">
+                <nav className="space-y-1 text-base font-medium text-slate-600 flex-1 w-full" role="navigation" aria-label="Mobile menu navigation">
                     {mainMenu.map((item, index) => (
                         <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-between hover:text-lyvest-500 py-3 px-0 border-b border-slate-50 last:border-0 text-left rounded-lg hover:bg-lyvest-100/30 transition-colors touch-target">
-                            {t(item.translationKey) || item.label} <ChevronRight className={`w-4 h-4 text-slate-300 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
+                            <span className="flex-1 text-left">{t(item.translationKey) || item.label}</span>
+                            <ChevronRight className={`w-4 h-4 text-slate-300 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
                         </button>
                     ))}
                 </nav>
