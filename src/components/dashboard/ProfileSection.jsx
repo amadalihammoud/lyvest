@@ -72,7 +72,7 @@ export default function ProfileSection() {
             }
 
             // Primeiro tentar salvar com gender, se falhar tentar sem
-            let updateData = {
+            const updateData = {
                 full_name: formData.full_name,
                 phone: formData.phone.replace(/\D/g, ''),
                 birth_date: formData.birth_date || null,

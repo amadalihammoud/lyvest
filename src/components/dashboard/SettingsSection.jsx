@@ -79,7 +79,7 @@ function SettingsSection({ user }) {
 
         try {
             // Coletar dados
-            let userData = {
+            const userData = {
                 profile: {
                     email: authUser?.email || user?.email || '',
                     name: user?.name || '',

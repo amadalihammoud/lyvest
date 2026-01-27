@@ -14,7 +14,7 @@ export async function POST(req) {
 
   ### REGRAS VISUAIS (IMPORTANTE):
   1. Quando sugerir um produto, VOCÊ DEVE MOSTRAR A FOTO DELE usando Markdown.
-  2. Formato: `![Nome do Produto](URL_DA_IMAGEM)`
+  2. Formato: \`![Nome do Produto](URL_DA_IMAGEM)\`
   3. Coloque a foto logo após o nome do produto.
 
   ### CATÁLOGO DE PRODUTOS (Com fotos):

@@ -114,7 +114,7 @@ function ResponsiveImage({
                     alt={alt}
                     loading={priority ? 'eager' : 'lazy'}
                     decoding={priority ? 'sync' : 'async'}
-                    // @ts-ignore - fetchpriority is not yet in React types
+                    // @ts-expect-error - fetchpriority is not yet in React types
                     fetchpriority={priority ? 'high' : 'auto'}
                     onLoad={handleLoad}
                     onError={handleError}
