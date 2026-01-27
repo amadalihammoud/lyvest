@@ -3,7 +3,10 @@ import {
     Scissors, // Calcinha/Corte
     Heart,    // Sutiã/Amor
     Layers,   // Cueca/Camadas
-    Star // Icons unused removed
+    Footprints, // Meias
+    Gift,       // Kits
+    Baby,       // Maternidade (Future)
+    Shirt       // Pijamas (Future)
 } from 'lucide-react';
 
 // --- DADOS DOS PRODUTOS ---
