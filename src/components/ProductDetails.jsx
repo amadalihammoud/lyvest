@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Play, Minus, Plus, Lock } from 'lucide-react';
+import { generateSlug } from '../utils/slug';
+import { productsData } from '../data/mockData';
+import ProductCard from './ProductCard';
 import { useI18n } from '../hooks/useI18n';
 
 function ProductDetails({ product, onAddToCart }) {
