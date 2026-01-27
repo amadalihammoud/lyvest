@@ -89,7 +89,7 @@ export default function MobileMenu({
                 </div>
 
                 {/* Search Row - Solo */}
-                <div className="mb-8 w-full">
+                <div className="mb-2 w-full">
                     <div className="relative flex items-center bg-white rounded-full border border-slate-300 h-[38px] focus-within:ring-1 focus-within:ring-slate-400">
                         <Search className="w-4 h-4 text-slate-800 absolute left-3" />
                         <div className="w-px h-4 bg-slate-100 absolute left-9"></div>
@@ -103,9 +103,9 @@ export default function MobileMenu({
                     </div>
                 </div>
                 {/* Navigation */}
-                <nav className="space-y-0.5 text-base font-medium text-slate-600 flex-1 w-full mt-6 -ml-3" role="navigation" aria-label="Mobile menu navigation">
+                <nav className="space-y-0.5 text-base font-medium text-slate-600 flex-1 w-full -ml-3" role="navigation" aria-label="Mobile menu navigation">
                     {mainMenu.map((item, index) => (
-                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-between hover:text-lyvest-500 py-5 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
+                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-between hover:text-lyvest-500 py-3.5 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
                             <span className="text-left font-medium text-[16px] leading-none whitespace-nowrap">{t(item.translationKey) || item.label}</span>
                             <ChevronRight className={`w-3.5 h-3.5 text-slate-300 group-hover:text-lyvest-500 transition-transform flex-shrink-0 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
                         </button>
