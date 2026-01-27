@@ -88,9 +88,8 @@ export default function MobileMenu({
                     </button>
                 </div>
 
-                {/* Search Row - Solo */}
                 <div className="mb-4 w-full pl-3">
-                    <div className="relative flex items-center bg-white rounded-full border border-slate-300 h-[38px] focus-within:ring-1 focus-within:ring-slate-400">
+                    <div className="relative flex items-center bg-white rounded-full border border-slate-300 h-[38px] focus-within:border-slate-500 transition-colors">
                         <Search className="w-4 h-4 text-slate-800 absolute left-3" />
                         <div className="w-px h-4 bg-slate-100 absolute left-9"></div>
                         <input
@@ -98,7 +97,8 @@ export default function MobileMenu({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))}
                             placeholder=""
-                            className="flex-1 bg-transparent border-none focus:outline-none text-sm pl-12 pr-4"
+                            className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:!outline-none text-sm pl-12 pr-4 shadow-none appearance-none"
+                            style={{ boxShadow: 'none' }} // Force removal of any shadow rings
                         />
                     </div>
                 </div>
