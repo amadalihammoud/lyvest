@@ -55,23 +55,23 @@ export default function MobileMenu({
                         {isLoggedIn ? (
                             <button
                                 onClick={() => { onClose(); navigateToDashboard(); }}
-                                className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm"
+                                className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm -ml-2"
                             >
                                 <img
                                     src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
                                     alt={user?.name}
                                     className="w-5 h-5 rounded-full object-cover border border-white/20"
                                 />
-                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name}</span>
+                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name} (v-viva-a-lyvest)</span>
                             </button>
                         ) : (
                             <button
                                 onClick={() => { onClose(); onOpenLogin(); }}
-                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs"
+                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs -ml-2"
                             >
                                 <div className="pl-1.5 flex items-center gap-2">
                                     <User className="w-4 h-4" />
-                                    {t('nav.login') || 'Entrar'} (v-final)
+                                    {t('nav.login') || 'Entrar'} (v-viva-a-lyvest)
                                 </div>
                             </button>
                         )}
