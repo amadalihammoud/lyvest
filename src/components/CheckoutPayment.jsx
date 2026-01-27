@@ -4,12 +4,14 @@ import { paymentSchema, formatCardNumber, validateForm } from '../utils/validati
 import { RateLimiter, detectXSS } from '../utils/security';
 import { paymentService } from '../services/payment';
 import { useI18n } from '../hooks/useI18n';
+import { useCart } from '../context/CartContext';
 
 // Rate limiter para checkout (3 tentativas por 5 minutos)
 const checkoutLimiter = new RateLimiter('checkout', 3, 300000);
 
 export default function CheckoutPayment({ onSubmit, total }) {
     const { t, formatCurrency } = useI18n();
+    const { cartItems } = useCart();
     const [method, setMethod] = useState('credit');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});

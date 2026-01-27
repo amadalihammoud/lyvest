@@ -1,5 +1,5 @@
-// src/layouts/MainLayout.jsx
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -50,8 +50,10 @@ export default function MainLayout() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('Todos');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState(null);
+
+    // Get auth state globally
+    const { user, isAuthenticated: isLoggedIn, signIn } = useAuth();
+    // const [user, setUser] = useState(null); // Local state removed
 
     // Sync: Close Mobile Menu when Drawer opens
     // Effects removed: UI synchronization now handled by event handlers in Header/MobileMenu
