@@ -49,7 +49,7 @@ export default function MobileMenu({
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
             <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 pl-1.5 pr-4 flex flex-col items-start overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
-                <div className="relative flex items-center justify-center mt-12 mb-6 w-full">
+                <div className="flex items-center justify-between mt-12 mb-6 w-full">
                     <div className="flex items-center">
                         {/* Login Button / User Profile Replaces "Menu" Text */}
                         {isLoggedIn ? (
@@ -79,7 +79,7 @@ export default function MobileMenu({
                     </div>
                     <button
                         onClick={onClose}
-                        className="absolute right-0 p-1.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center flex-shrink-0"
+                        className="p-1.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center flex-shrink-0"
                         aria-label={t('aria.closeMenu')}
                     >
                         <X className="w-3.5 h-3.5 text-slate-400" />
