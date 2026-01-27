@@ -55,38 +55,37 @@ export default function MobileMenu({
                         {isLoggedIn ? (
                             <button
                                 onClick={() => { onClose(); navigateToDashboard(); }}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-full border border-slate-200 transition-colors"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-[#900020] hover:bg-[#700018] text-white rounded-full transition-colors shadow-sm"
                             >
                                 <img
                                     src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
                                     alt={user?.name}
-                                    className="w-6 h-6 rounded-full object-cover"
+                                    className="w-5 h-5 rounded-full object-cover border border-white/20"
                                 />
-                                <span className="text-sm font-bold text-slate-700 truncate max-w-[100px]">{user?.name}</span>
+                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name}</span>
                             </button>
                         ) : (
                             <button
                                 onClick={() => { onClose(); onOpenLogin(); }}
-                                className="flex items-center gap-2 px-4 py-2 bg-lyvest-500 text-white rounded-full font-bold shadow-sm hover:bg-lyvest-600 active:scale-95 transition-all text-xs"
+                                className="flex items-center gap-2 px-5 py-1.5 bg-[#900020] text-white rounded-full font-bold shadow-sm hover:bg-[#700018] active:scale-95 transition-all text-xs"
                             >
                                 <User className="w-4 h-4" />
                                 {t('nav.login') || 'Entrar'}
                             </button>
                         )}
 
-                        <div className="w-px h-6 bg-slate-200 mx-4"></div> {/* Separator */}
-                        <LanguageSelector />
+                        <div className="w-px h-6 bg-slate-200 mx-2"></div> {/* Separator */}
+                        <div className="scale-90 origin-left">
+                            <LanguageSelector />
+                        </div>
                     </div>
                     <button onClick={onClose} className="p-1.5 touch-target bg-slate-50 rounded-full hover:bg-slate-100" aria-label={t('aria.closeMenu')}><X className="w-4 h-4 text-slate-500" /></button>
                 </div>
 
                 {/* Search - Margin top adjusted since previous login block is gone */}
                 <div className="relative mb-6">
-                    <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))} placeholder={t('common.search')} className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#F5E6E8] focus:border-lyvest-200 transition-all" />
-                    <Search className={`w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 ${searchQuery ? 'text-lyvest-500' : 'text-slate-400'}`} />
-                    {searchQuery && (
-                        <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-200 rounded-full" aria-label={t('aria.clearSearch')}><X className="w-4 h-4 text-slate-500" /></button>
-                    )}
+                    <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))} className="w-full pl-10 pr-4 py-2 rounded-full border border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all text-sm placeholder:text-transparent" />
+                    <Search className={`w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-black`} />
                 </div>
                 {/* Navigation */}
                 <nav className="space-y-1 text-base font-medium text-slate-600 flex-1" role="navigation" aria-label="Mobile menu navigation">
