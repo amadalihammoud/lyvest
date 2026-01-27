@@ -48,7 +48,7 @@ export default function MobileMenu({
             aria-label="Mobile navigation menu"
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
-            <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 pl-5 pr-4 flex flex-col items-start overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
+            <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 pl-3 pr-4 flex flex-col items-start overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
                 <div className="flex items-center justify-between mt-12 mb-6 w-full">
                     <div className="flex items-center">
                         {/* Login Button / User Profile Replaces "Menu" Text */}
@@ -67,9 +67,9 @@ export default function MobileMenu({
                         ) : (
                             <button
                                 onClick={() => { onClose(); onOpenLogin(); }}
-                                className="flex items-center gap-2 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs"
+                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs overflow-hidden"
                             >
-                                <div className="pl-3.5 pr-1 flex items-center gap-2">
+                                <div className="pl-2.5 flex items-center gap-2">
                                     <User className="w-4 h-4" />
                                     {t('nav.login') || 'Entrar'}
                                 </div>
@@ -91,14 +91,14 @@ export default function MobileMenu({
                 {/* Search Row - Solo */}
                 <div className="mb-8 w-full">
                     <div className="relative flex items-center bg-white rounded-full border border-slate-300 h-[38px] focus-within:ring-1 focus-within:ring-slate-400">
-                        <Search className="w-4 h-4 text-slate-800 absolute left-0" />
-                        <div className="w-px h-4 bg-slate-300 absolute left-6"></div>
+                        <Search className="w-4 h-4 text-slate-800 absolute left-2.5" />
+                        <div className="w-px h-4 bg-slate-300 absolute left-8.5"></div>
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))}
                             placeholder=""
-                            className="flex-1 bg-transparent border-none focus:outline-none text-sm pl-9 pr-4"
+                            className="flex-1 bg-transparent border-none focus:outline-none text-sm pl-11 pr-4"
                         />
                     </div>
                 </div>
