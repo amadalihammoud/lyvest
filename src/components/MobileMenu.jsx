@@ -48,40 +48,38 @@ export default function MobileMenu({
             aria-label="Mobile navigation menu"
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
-            <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 px-4 flex flex-col items-start overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
-                <div className="flex items-center justify-between mt-12 mb-6 w-full gap-4">
-                    <div className="flex items-center justify-center flex-1">
-                        <div className="flex items-center">
-                            {/* Login Button / User Profile Replaces "Menu" Text */}
-                            {isLoggedIn ? (
-                                <button
-                                    onClick={() => { onClose(); navigateToDashboard(); }}
-                                    className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm"
-                                >
-                                    <img
-                                        src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
-                                        alt={user?.name}
-                                        className="w-5 h-5 rounded-full object-cover border border-white/20"
-                                    />
-                                    <span className="text-xs font-bold truncate max-w-[80px]">{user?.name}</span>
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => { onClose(); onOpenLogin(); }}
-                                    className="flex items-center gap-2 px-5 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs"
-                                >
-                                    <User className="w-4 h-4" />
-                                    {t('nav.login') || 'Entrar'}
-                                </button>
-                            )}
+            <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 pl-1 pr-3 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
+                <div className="relative flex items-center justify-center mt-12 mb-6 w-full">
+                    <div className="flex items-center">
+                        {/* Login Button / User Profile Replaces "Menu" Text */}
+                        {isLoggedIn ? (
+                            <button
+                                onClick={() => { onClose(); navigateToDashboard(); }}
+                                className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm"
+                            >
+                                <img
+                                    src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
+                                    alt={user?.name}
+                                    className="w-5 h-5 rounded-full object-cover border border-white/20"
+                                />
+                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name}</span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => { onClose(); onOpenLogin(); }}
+                                className="flex items-center gap-2 px-5 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs"
+                            >
+                                <User className="w-4 h-4" />
+                                {t('nav.login') || 'Entrar'}
+                            </button>
+                        )}
 
-                            <div className="w-px h-6 bg-slate-200 mx-2"></div> {/* Separator */}
-                            <LanguageSelector />
-                        </div>
+                        <div className="w-px h-6 bg-slate-200 mx-2"></div> {/* Separator */}
+                        <LanguageSelector />
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-1.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center flex-shrink-0"
+                        className="absolute right-0 p-1.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center flex-shrink-0"
                         aria-label={t('aria.closeMenu')}
                     >
                         <X className="w-3.5 h-3.5 text-slate-400" />
