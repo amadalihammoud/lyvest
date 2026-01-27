@@ -28,7 +28,7 @@ export default function ChatWidget() {
         scrollToBottom();
     }, [messages]);
 
-    const quickReplies = ["Ajuda com Tamanhos", "Ideias de Presente", "Rastrear Pedido", "Falar com Humano"];
+    const quickReplies = ["Ajuda com Tamanhos", "Ideias de Presente", "Falar com Humano"];
 
     const handleQuickReply = (text) => {
         handleInputChange({ target: { value: text } });
@@ -48,7 +48,7 @@ export default function ChatWidget() {
 
             {/* Chat Window */}
             {isOpen && (
-                <div className="fixed bottom-24 left-4 right-4 z-[95] flex h-[450px] max-h-[45vh] flex-col overflow-hidden rounded-2xl bg-white/90 shadow-2xl backdrop-blur-xl transition-all duration-300 animate-slide-up sm:bottom-28 sm:left-auto sm:right-6 sm:max-h-[80vh] sm:h-[600px] sm:w-[400px]">
+                <div className="fixed bottom-24 left-4 right-4 z-[95] flex h-[450px] max-h-[45vh] flex-col overflow-hidden rounded-2xl bg-white/90 shadow-2xl backdrop-blur-xl transition-all duration-300 animate-slide-up sm:bottom-28 sm:left-auto sm:right-6 sm:max-h-[80vh] sm:h-[510px] sm:w-[440px]">
                     {/* Header with Avatar */}
                     <div className="flex items-center justify-between bg-gradient-to-r from-[#800020] to-[#600018] p-4 text-white shadow-md">
                         <div className="flex items-center gap-3">
