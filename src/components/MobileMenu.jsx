@@ -62,16 +62,16 @@ export default function MobileMenu({
                                     alt={user?.name}
                                     className="w-5 h-5 rounded-full object-cover border border-white/20"
                                 />
-                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name} (v-viva-a-lyvest)</span>
+                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name}</span>
                             </button>
                         ) : (
                             <button
                                 onClick={() => { onClose(); onOpenLogin(); }}
-                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs -ml-2"
+                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs -ml-2 whitespace-nowrap"
                             >
                                 <div className="pl-1.5 flex items-center gap-2">
                                     <User className="w-4 h-4" />
-                                    {t('nav.login') || 'Entrar'} (v-viva-a-lyvest)
+                                    {t('nav.login') || 'Entrar'}
                                 </div>
                             </button>
                         )}
