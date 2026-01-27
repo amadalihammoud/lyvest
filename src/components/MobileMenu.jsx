@@ -90,15 +90,15 @@ export default function MobileMenu({
 
                 {/* Search Row - Solo */}
                 <div className="mb-8 w-full">
-                    <div className="relative flex items-center bg-white rounded-full border border-slate-300 px-3 py-1.5 focus-within:ring-1 focus-within:ring-slate-400">
-                        <Search className="w-4 h-4 text-slate-800" />
-                        <div className="w-px h-4 bg-slate-300 mx-2"></div>
+                    <div className="relative flex items-center bg-white rounded-full border border-slate-300 h-[38px] focus-within:ring-1 focus-within:ring-slate-400">
+                        <Search className="w-4 h-4 text-slate-800 absolute left-3" />
+                        <div className="w-px h-4 bg-slate-300 absolute left-9"></div>
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value.slice(0, 50))}
                             placeholder=""
-                            className="flex-1 bg-transparent border-none focus:outline-none text-sm"
+                            className="flex-1 bg-transparent border-none focus:outline-none text-sm pl-12 pr-4"
                         />
                     </div>
                 </div>
