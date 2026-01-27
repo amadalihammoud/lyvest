@@ -48,8 +48,8 @@ export default function MobileMenu({
             aria-label="Mobile navigation menu"
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
-            <div className="absolute top-0 left-0 h-full w-[65%] max-w-[280px] bg-white shadow-2xl pt-5 pb-6 pl-3 pr-4 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
-                <div className="flex items-center justify-start mt-6 mb-6 w-full gap-4">
+            <div className="absolute top-0 left-0 h-full w-[65%] max-w-[280px] bg-white shadow-2xl pt-5 pb-6 pl-3 pr-4 flex flex-col items-start overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
+                <div className="flex items-center justify-start mt-6 mb-6 w-full gap-4 pl-1">
                     <div className="flex items-center">
                         {/* Login Button / User Profile Replaces "Menu" Text */}
                         {isLoggedIn ? (
@@ -62,7 +62,7 @@ export default function MobileMenu({
                                     alt={user?.name}
                                     className="w-5 h-5 rounded-full object-cover border border-white/20"
                                 />
-                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name}</span>
+                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name} (v-final)</span>
                             </button>
                         ) : (
                             <button
@@ -71,7 +71,7 @@ export default function MobileMenu({
                             >
                                 <div className="pl-3 flex items-center gap-2">
                                     <User className="w-4 h-4" />
-                                    {t('nav.login') || 'Entrar'}
+                                    {t('nav.login') || 'Entrar'} (v-final)
                                 </div>
                             </button>
                         )}
@@ -89,7 +89,7 @@ export default function MobileMenu({
                 </div>
 
                 {/* Search Row - Solo */}
-                <div className="mb-8 w-full">
+                <div className="mb-8 w-full pl-1">
                     <div className="relative flex items-center bg-white rounded-full border border-slate-300 h-[38px] focus-within:ring-1 focus-within:ring-slate-400">
                         <Search className="w-4 h-4 text-slate-800 absolute left-3" />
                         <div className="w-px h-4 bg-slate-100 absolute left-9"></div>
