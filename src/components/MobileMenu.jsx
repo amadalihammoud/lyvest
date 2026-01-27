@@ -48,7 +48,7 @@ export default function MobileMenu({
             aria-label="Mobile navigation menu"
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
-            <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 pl-3 pr-4 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
+            <div className="absolute top-0 left-0 h-full w-[70%] max-w-[320px] bg-white shadow-2xl pt-10 pb-6 pl-2 pr-4 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
                 <div className="relative flex items-center justify-center mt-12 mb-6 w-full">
                     <div className="flex items-center">
                         {/* Login Button / User Profile Replaces "Menu" Text */}
