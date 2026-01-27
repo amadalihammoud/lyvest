@@ -2,6 +2,7 @@ import React from 'react';
 import {
     Scissors, // Calcinha/Corte
     Heart,    // Sutiã/Amor
+    Star,     // Todos
     Layers,   // Cueca/Camadas
     Footprints, // Meias
     Gift,       // Kits

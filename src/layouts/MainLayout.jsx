@@ -75,9 +75,9 @@ export default function MainLayout() {
     };
 
     const handleLoginSuccess = (mockUser) => {
-        setIsLoggedIn(true);
-        setUser(mockUser);
-        showNotification(t('dashboard.welcome', { name: mockUser.name }));
+        // State is handled by AuthContext via Supabase listener
+        // Just handle UI feedback here
+        showNotification(t('dashboard.welcome', { name: mockUser?.name || user?.name || 'Cliente' }));
         closeModal();
         navigate('/dashboard');
     };
@@ -125,9 +125,8 @@ export default function MainLayout() {
                         <Outlet context={{
                             user,
                             isLoggedIn,
-                            setIsLoggedIn,
-                            setUser,
-                            setActiveDrawer: openDrawer, // Provide openDrawer as setActiveDrawer
+                            // Setters removed as they are managed by AuthContext
+                            setActiveDrawer: openDrawer,
                             setTrackingCode, // From Context
                             selectedCategory,
                             setSelectedCategory,
