@@ -55,7 +55,7 @@ export default function MobileMenu({
                         {isLoggedIn ? (
                             <button
                                 onClick={() => { onClose(); navigateToDashboard(); }}
-                                className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm -ml-2"
+                                className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm -ml-3"
                             >
                                 <img
                                     src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
@@ -67,9 +67,9 @@ export default function MobileMenu({
                         ) : (
                             <button
                                 onClick={() => { onClose(); onOpenLogin(); }}
-                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs -ml-2 whitespace-nowrap"
+                                className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs -ml-3 whitespace-nowrap"
                             >
-                                <div className="pl-1.5 flex items-center gap-2">
+                                <div className="pl-3 flex items-center gap-2">
                                     <User className="w-4 h-4" />
                                     {t('nav.login') || 'Entrar'}
                                 </div>
