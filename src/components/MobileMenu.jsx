@@ -49,13 +49,13 @@ export default function MobileMenu({
         >
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()} role="button" tabIndex={0} aria-label="Fechar menu" />
             <div className="absolute top-0 left-0 h-full w-4/5 max-w-sm bg-white shadow-2xl py-4 px-2 flex flex-col overflow-y-auto overscroll-y-contain scroll-smooth safe-top safe-bottom">
-                <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
+                <div className="flex items-center mb-4">
+                    <div className="flex items-center">
                         {/* Login Button / User Profile Replaces "Menu" Text */}
                         {isLoggedIn ? (
                             <button
                                 onClick={() => { onClose(); navigateToDashboard(); }}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-[#900020] hover:bg-[#700018] text-white rounded-full transition-colors shadow-sm"
+                                className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm"
                             >
                                 <img
                                     src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
@@ -67,7 +67,7 @@ export default function MobileMenu({
                         ) : (
                             <button
                                 onClick={() => { onClose(); onOpenLogin(); }}
-                                className="flex items-center gap-2 px-5 py-1.5 bg-[#900020] text-white rounded-full font-bold shadow-sm hover:bg-[#700018] active:scale-95 transition-all text-xs"
+                                className="flex items-center gap-2 px-5 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs"
                             >
                                 <User className="w-4 h-4" />
                                 {t('nav.login') || 'Entrar'}
@@ -75,9 +75,7 @@ export default function MobileMenu({
                         )}
 
                         <div className="w-px h-6 bg-slate-200 mx-2"></div> {/* Separator */}
-                        <div className="scale-90 origin-left">
-                            <LanguageSelector />
-                        </div>
+                        <LanguageSelector />
                     </div>
                 </div>
 
