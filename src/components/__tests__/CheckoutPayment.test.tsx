@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import CheckoutPayment from '../CheckoutPayment';
+import CheckoutPayment from '../checkout/CheckoutPayment';
 
 // Mock dependencies
 vi.mock('../../context/CartContext', () => ({

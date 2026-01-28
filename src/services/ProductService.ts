@@ -15,7 +15,15 @@ export interface Product {
     ean?: string;
     active?: boolean;
     stock_quantity?: number;
-    [key: string]: any;
+    sizes?: string[];
+    colors?: any[]; // Allow strings or objects {name, hex}
+    quantity?: number;
+    badge?: string;
+    rating?: number;
+    reviews?: number;
+    video?: string;
+    oldPrice?: number;
+    installments?: { count: number; value: number };
 }
 
 /**

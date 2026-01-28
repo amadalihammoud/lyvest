@@ -1,17 +1,17 @@
-// src/pages/HomePage.jsx
+﻿// src/pages/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Hero from '../components/Hero';
-import ProductCard from '../components/ProductCard';
-import TestimonialsSection from '../components/TestimonialsSection';
-import InfoStrip from '../components/InfoStrip';
+import ProductCard from '../components/product/ProductCard';
+import TestimonialsSection from '../components/features/TestimonialsSection';
+import InfoStrip from '../components/features/InfoStrip';
 import { productsData } from '../data/mockData';
 import { useCart } from '../hooks/useCart';
 import { useFavorites } from '../hooks/useFavorites';
 import { useModal } from '../hooks/useModal';
 import { Smile } from 'lucide-react';
 import { useI18n } from '../hooks/useI18n';
-import NewsletterForm from '../components/NewsletterForm';
+import NewsletterForm from '../components/features/NewsletterForm';
 
 export default function HomePage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -61,7 +61,7 @@ export default function HomePage() {
         const map = {
             'Todos': 'all',
             'Calcinha': 'panties',
-            'Sutiã': 'bras',
+            'SutiÃ£': 'bras',
             'Cueca': 'boxers',
             'Meia': 'socks',
             'Kits': 'kits',
@@ -82,7 +82,7 @@ export default function HomePage() {
             {/* Product Grid */}
             <section id="products-grid" className="py-16 bg-[#F9F9F9] min-h-[600px]">
                 <div className="container mx-auto px-4">
-                    {/* Header da Seção */}
+                    {/* Header da SeÃ§Ã£o */}
                     <div className="text-center mb-12">
                         <h2 className="text-[31px] md:text-5xl font-cookie text-lyvest-500 mb-4 relative inline-block animate-fade-in"
                             style={{ textShadow: "3px 3px 0px rgba(253, 226, 243, 1)" }}
@@ -147,6 +147,7 @@ export default function HomePage() {
         </>
     );
 }
+
 
 
 

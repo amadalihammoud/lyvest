@@ -1,4 +1,4 @@
-import { StrictMode, Suspense, lazy } from 'react'
+﻿import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
@@ -9,14 +9,14 @@ import { ModalProvider } from './context/ModalContext';
 
 import { AuthProvider } from './context/AuthContext';
 
-import ErrorBoundary from './components/ErrorBoundary'
+import ErrorBoundary from './components/ui/ErrorBoundary'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Layout
 import MainLayout from './layouts/MainLayout';
 
-import ScrollToTop from './components/ScrollToTop';
-import PageLoader from './components/PageLoader';
+import ScrollToTop from './components/layout/ScrollToTop';
+import PageLoader from './components/ui/PageLoader';
 
 // Pages - Eager loading for Home (LCP)
 import HomePage from './pages/HomePage';
@@ -88,3 +88,4 @@ createRoot(document.getElementById('root')!).render(
     </I18nProvider>
   </StrictMode>
 )
+

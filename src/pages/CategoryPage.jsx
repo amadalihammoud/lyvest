@@ -1,11 +1,11 @@
-// Forced refresh
+﻿// Forced refresh
 import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { productsData } from '../data/mockData';
 import { generateSlug } from '../utils/slug';
-import ProductCard from '../components/ProductCard';
+import ProductCard from '../components/product/ProductCard';
 import { useI18n } from '../hooks/useI18n';
-import SEO from '../components/SEO';
+import SEO from '../components/features/SEO';
 import { Home } from 'lucide-react';
 import CategoryToolbar from '../components/CategoryToolbar';
 import FilterSidebar from '../components/FilterSidebar';
@@ -101,11 +101,11 @@ export default function CategoryPage() {
                     title={`${displayTitle} | Ly Vest`}
                     description={`Produtos da categoria ${displayTitle}`}
                 />
-                <h1 className="text-3xl font-bold text-slate-800 mb-4">{t('common.categoryNotFound') || 'Categoria não encontrada'}</h1>
-                <p className="text-slate-600 mb-8">{t('common.noProductsInCategory') || 'Não encontramos produtos nesta categoria.'}</p>
+                <h1 className="text-3xl font-bold text-slate-800 mb-4">{t('common.categoryNotFound') || 'Categoria nÃ£o encontrada'}</h1>
+                <p className="text-slate-600 mb-8">{t('common.noProductsInCategory') || 'NÃ£o encontramos produtos nesta categoria.'}</p>
                 <Link to="/" className="inline-flex items-center gap-2 text-lyvest-500 hover:text-lyvest-600 font-medium">
                     <Home className="w-5 h-5" />
-                    {t('common.backToHome') || 'Voltar para o início'}
+                    {t('common.backToHome') || 'Voltar para o inÃ­cio'}
                 </Link>
             </div>
         );
@@ -115,7 +115,7 @@ export default function CategoryPage() {
         <div className="min-h-screen bg-slate-50 pb-20">
             <SEO
                 title={`${displayTitle} | Ly Vest`}
-                description={`Confira nossa seleção de ${displayTitle}. Produtos exclusivos de moda feminina.`}
+                description={`Confira nossa seleÃ§Ã£o de ${displayTitle}. Produtos exclusivos de moda feminina.`}
                 product={filteredAndSortedProducts}
                 type="category"
             />
@@ -175,7 +175,7 @@ export default function CategoryPage() {
 
                         {filteredAndSortedProducts.length === 0 && (
                             <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-2xl border border-slate-100 shadow-sm p-10">
-                                <span className="text-4xl mb-4 block">🔍</span>
+                                <span className="text-4xl mb-4 block">ðŸ”</span>
                                 <h3 className="text-xl font-bold text-slate-700 mb-2">Nenhum produto encontrado</h3>
                                 <p className="text-slate-500">Tente ajustar os filtros para encontrar o que procura.</p>
                                 <button
@@ -192,6 +192,7 @@ export default function CategoryPage() {
         </div>
     );
 }
+
 
 
 

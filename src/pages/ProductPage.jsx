@@ -1,11 +1,11 @@
-// src/pages/ProductPage.jsx
+﻿// src/pages/ProductPage.jsx
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ProductDetails from '../components/ProductDetails';
+import ProductDetails from '../components/product/ProductDetails';
 import { productsData } from '../data/mockData';
 import { useCart } from '../hooks/useCart';
 import { useModal } from '../hooks/useModal';
-import SEO from '../components/SEO';
+import SEO from '../components/features/SEO';
 import { generateSlug } from '../utils/slug';
 import Breadcrumbs from '../components/Breadcrumbs';
 
@@ -68,6 +68,7 @@ export default function ProductPage() {
         </>
     );
 }
+
 
 
 

@@ -1,8 +1,8 @@
-// src/pages/NotFoundPage.jsx
+﻿// src/pages/NotFoundPage.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Search, ArrowLeft } from 'lucide-react';
-import SEO from '../components/SEO';
+import SEO from '../components/features/SEO';
 import { useI18n } from '../hooks/useI18n';
 
 export default function NotFoundPage() {
@@ -16,7 +16,7 @@ export default function NotFoundPage() {
             />
             <div className="min-h-[70vh] flex items-center justify-center px-4">
                 <div className="text-center max-w-md">
-                    {/* Ilustração 404 */}
+                    {/* IlustraÃ§Ã£o 404 */}
                     <div className="mb-8">
                         <div className="relative inline-block">
                             <div className="text-[120px] font-bold bg-gradient-to-r from-[#C05060] to-sky-400 bg-clip-text text-transparent leading-none">
@@ -35,7 +35,7 @@ export default function NotFoundPage() {
                         {t('notFound.description')}
                     </p>
 
-                    {/* Ações */}
+                    {/* AÃ§Ãµes */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             to="/"
@@ -66,6 +66,7 @@ export default function NotFoundPage() {
         </>
     );
 }
+
 
 
 

@@ -12,13 +12,28 @@ interface Profile {
     [key: string]: unknown;
 }
 
+export interface User {
+    id: string;
+    email?: string;
+    name?: string;
+    avatar?: string;
+    user_metadata?: {
+        full_name?: string;
+        avatar_url?: string;
+        [key: string]: any;
+    };
+    app_metadata?: {
+        [key: string]: any;
+    };
+}
+
 interface AuthResponse {
     data: unknown;
     error: AuthError | null | { message: string };
 }
 
 interface AuthContextType {
-    user: unknown | null; // Using unknown for now to support both Supabase User and mock user
+    user: User | null; // Using defined User type
     profile: Profile | null;
     loading: boolean;
     isConfigured: boolean;
@@ -38,7 +53,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-    const [user, setUser] = useState<unknown | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [isConfigured] = useState(isSupabaseConfigured);
@@ -126,7 +141,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 id: 'mock-user-id',
                 email,
                 name: email.split('@')[0],
-                avatar: null
+                avatar: undefined
             };
             localStorage.setItem('lyvest_mock_user', JSON.stringify(mockUser));
             setUser(mockUser);
@@ -156,8 +171,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const mockUser = {
                 id: 'mock-user-id',
                 email,
-                name: metadata.full_name || email.split('@')[0],
-                avatar: null
+                name: (metadata.full_name as string) || email.split('@')[0],
+                avatar: undefined
             };
             localStorage.setItem('lyvest_mock_user', JSON.stringify(mockUser));
             setUser(mockUser);

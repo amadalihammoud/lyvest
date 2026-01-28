@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+﻿import { useState, useEffect } from 'react';
+import { useAuth, User } from '../context/AuthContext';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { useShop } from '../context/ShopContext';
 
 // Components
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import AnnouncementBar from '../components/AnnouncementBar';
-import CookieBanner from '../components/CookieBanner';
-import FloatingWhatsApp from '../components/FloatingWhatsApp';
-import ChatWidget from '../components/ChatWidget';
-import SEO from '../components/SEO';
-import ModalManager from '../components/ModalManager';
-import DrawerManager from '../components/DrawerManager';
-import ErrorBoundary from '../components/ErrorBoundary';
-import MobileMenu from '../components/MobileMenu';
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
+import AnnouncementBar from '../components/layout/AnnouncementBar';
+import CookieBanner from '../components/layout/CookieBanner';
+import FloatingWhatsApp from '../components/features/FloatingWhatsApp';
+import ChatWidget from '../components/features/ChatWidget';
+import SEO from '../components/features/SEO';
+import ModalManager from '../components/layout/ModalManager';
+import DrawerManager from '../components/layout/DrawerManager';
+import ErrorBoundary from '../components/ui/ErrorBoundary';
+import MobileMenu from '../components/layout/MobileMenu';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
@@ -30,12 +30,7 @@ import { CheckCircle } from 'lucide-react';
 const preloadCheckout = () => import('../pages/CheckoutPage');
 
 // Define exact shape of user from AuthContext
-interface User {
-    id: string;
-    email?: string;
-    name?: string;
-    avatar?: string;
-}
+// interface User { ... } -> Imported from AuthContext
 
 export default function MainLayout() {
     const navigate = useNavigate();
@@ -61,7 +56,7 @@ export default function MainLayout() {
     // Cast user to our interface if needed, or rely on AuthContext typing if improved
     const currentUser = user as User | null;
 
-    const handleLoginSuccess = (mockUser: any) => {
+    const handleLoginSuccess = (mockUser: User) => {
         showNotification(t('dashboard.welcome', { name: mockUser?.name || currentUser?.name || 'Cliente' }));
         closeModal();
         navigate('/dashboard');
@@ -158,3 +153,4 @@ export default function MainLayout() {
         </HelmetProvider>
     );
 }
+

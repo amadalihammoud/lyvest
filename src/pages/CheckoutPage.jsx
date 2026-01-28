@@ -1,8 +1,8 @@
-// src/pages/CheckoutPage.jsx
+﻿// src/pages/CheckoutPage.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import CheckoutWizard from '../components/CheckoutWizard';
-import SEO from '../components/SEO';
+import CheckoutWizard from '../components/checkout/CheckoutWizard';
+import SEO from '../components/features/SEO';
 import { useI18n } from '../hooks/useI18n';
 
 export default function CheckoutPage() {
@@ -22,6 +22,7 @@ export default function CheckoutPage() {
         </>
     );
 }
+
 
 
 

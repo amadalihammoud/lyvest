@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+﻿import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import CheckoutPayment from '../components/CheckoutPayment';
+import CheckoutPayment from '../components/checkout/CheckoutPayment';
 import { BrowserRouter } from 'react-router-dom';
 
 describe('CheckoutPayment', () => {
@@ -21,7 +21,7 @@ describe('CheckoutPayment', () => {
 
     it('renders all payment methods', () => {
         renderComponent();
-        expect(screen.getByText('Cartão de Crédito')).toBeInTheDocument();
+        expect(screen.getByText('CartÃ£o de CrÃ©dito')).toBeInTheDocument();
         expect(screen.getByText('PIX')).toBeInTheDocument();
     });
 
@@ -62,7 +62,7 @@ describe('CheckoutPayment', () => {
         await user.type(screen.getByPlaceholderText('0000 0000 0000 0000'), '4111111111111111');
         await user.type(screen.getByPlaceholderText('MM/AA'), '12/30');
         await user.type(screen.getByPlaceholderText('123'), '123');
-        await user.type(screen.getByPlaceholderText('Nome como no cartão'), 'JOHN DOE');
+        await user.type(screen.getByPlaceholderText('Nome como no cartÃ£o'), 'JOHN DOE');
         await user.type(screen.getByPlaceholderText('000.000.000-00'), '123.456.789-00');
 
         const submitBtn = screen.getByText(/Pagar R\$ 100,00/i);
@@ -76,6 +76,7 @@ describe('CheckoutPayment', () => {
         });
     });
 });
+
 
 
 

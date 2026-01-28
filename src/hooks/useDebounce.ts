@@ -26,7 +26,7 @@ export function useDebounce<T>(value: T, delay: number = 300): T {
  * Útil para handlers de eventos que não devem ser chamados frequentemente
  */
 export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(callback: T, delay: number = 300): (...args: Parameters<T>) => void {
-    const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+    const [timeoutId, setTimeoutId] = useState<ReturnType<typeof setTimeout> | null>(null);
 
     const debouncedCallback = (...args: Parameters<T>) => {
         if (timeoutId) {
