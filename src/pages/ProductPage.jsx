@@ -5,7 +5,7 @@ import ProductDetails from '../components/product/ProductDetails';
 import { productsData } from '../data/mockData';
 import { useCart } from '../hooks/useCart';
 import { useModal } from '../hooks/useModal';
-import SEO from '../components/features/SEO';
+import SEO from '../components/features/SEOComponent';
 import { generateSlug } from '../utils/slug';
 import Breadcrumbs from '../components/Breadcrumbs';
 

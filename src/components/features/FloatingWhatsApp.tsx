@@ -1,11 +1,23 @@
 import React from 'react';
 
-export default function FloatingWhatsApp() {
+// Interface for future extensibility (e.g. custom phone number prop)
+interface FloatingWhatsAppProps {
+    phoneNumber?: string;
+    message?: string;
+}
+
+export default function FloatingWhatsApp({
+    phoneNumber = '5513999999999',
+    message = 'Olá! Vim pelo site da Ly Vest e gostaria de tirar uma dúvida.'
+}: FloatingWhatsAppProps) {
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
     return (
         <div className="fixed bottom-6 right-6 z-[90] flex flex-col items-end gap-3">
             {/* Main WhatsApp Button */}
             <a
-                href="https://wa.me/5513999999999?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Ly%20Vest%20e%20gostaria%20de%20tirar%20uma%20d%C3%BAvida."
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3 sm:p-4 bg-[#25D366] text-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 animate-bounce-in flex items-center gap-2 group"

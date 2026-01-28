@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import UserDashboard from '../components/dashboard/UserDashboard';
-import SEO from '../components/features/SEO';
+import SEO from '../components/features/SEOComponent';
 import { mockOrders } from '../data/mockData';
 import { useI18n } from '../hooks/useI18n';
 import { useAuth } from '../context/AuthContext';

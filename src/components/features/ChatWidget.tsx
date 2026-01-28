@@ -1,15 +1,21 @@
-﻿'use client';
-
-import { useChat } from '@ai-sdk/react';
+﻿import { useChat } from '@ai-sdk/react';
 import { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useCart } from '../../context/CartContext';
-import { useShop } from '../../context/ShopContext';
+import { useCart } from '../../hooks/useCart';
+import { useModal } from '../../hooks/useModal';
+import { productsData } from '../../data/mockData';
+
+// Custom type for simplified ToolInvocation
+interface ToolInvocation {
+    toolName: string;
+    toolCallId: string;
+    args: any;
+}
 
 export default function ChatWidget() {
     const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-        api: '/api/chat', // Default Vercel AI SDK route
+        api: '/api/chat',
         initialMessages: [
             {
                 id: 'welcome-v3',
@@ -17,10 +23,10 @@ export default function ChatWidget() {
                 content: 'Oi! Sou a Ly, assistente digital da Ly Vest.\n\nComo posso ajudar hoje?'
             }
         ]
-    });
+    }) as any; // Cast to any to avoid generic type complex conflicts for now if strict mode is harsh
 
-    const [isOpen, setIsOpen] = useState(false);
-    const messagesEndRef = useRef(null);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -30,15 +36,18 @@ export default function ChatWidget() {
         scrollToBottom();
     }, [messages]);
 
-    const quickReplies = ["Ajuda com Tamanhos", "Ideias de Presente", "Falar com Humano"];
+    const quickReplies: string[] = ["Ajuda com Tamanhos", "Ideias de Presente", "Falar com Humano"];
 
-    const handleQuickReply = (text) => {
-        handleInputChange({ target: { value: text } });
+    const handleQuickReply = (text: string) => {
+        const event = {
+            target: { value: text }
+        } as React.ChangeEvent<HTMLInputElement>;
+        handleInputChange(event);
     };
 
     return (
         <>
-            {/* Floating Action Button - Hides when chat is open */}
+            {/* Floating Action Button */}
             <button
                 onClick={() => setIsOpen(true)}
                 className={`fixed bottom-24 right-6 z-[95] flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#800020] focus:ring-offset-2 bg-[#800020] text-white
@@ -50,8 +59,7 @@ export default function ChatWidget() {
 
             {/* Chat Window */}
             {isOpen && (
-                <div className="fixed bottom-24 left-4 right-4 z-[95] flex h-[450px] max-h-[45vh] flex-col overflow-hidden rounded-2xl bg-white/90 shadow-2xl backdrop-blur-xl transition-all duration-300 animate-slide-up sm:bottom-28 sm:left-auto sm:right-6 sm:max-h-[80vh] sm:h-[510px] sm:w-[440px]">
-                    {/* Header with Avatar */}
+                <div className="fixed bottom-24 left-4 right-4 z-[95] flex h-[450px] max-h-[45vh] flex-col overflow-hidden rounded-2xl bg-white/95 shadow-2xl backdrop-blur-xl transition-all duration-300 animate-slide-up sm:bottom-28 sm:left-auto sm:right-6 sm:max-h-[80vh] sm:h-[510px] sm:w-[440px] border border-stone-100">
                     <div className="flex items-center justify-between bg-gradient-to-r from-[#800020] to-[#600018] p-4 text-white shadow-md">
                         <div className="flex items-center gap-3">
                             <div className="relative">
@@ -73,10 +81,8 @@ export default function ChatWidget() {
                         </button>
                     </div>
 
-                    {/* Messages Area */}
                     <div className="flex-1 overflow-y-auto p-4 scrollbar-hide bg-gradient-to-b from-slate-50 to-white">
                         <div className="flex flex-col gap-4">
-                            {/* Welcome Message (System logic handled in initialMessages) */}
                             {messages.length === 0 && (
                                 <div className="flex gap-3 animate-fade-in">
                                     <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden shadow-sm bg-white">
@@ -90,7 +96,7 @@ export default function ChatWidget() {
                                 </div>
                             )}
 
-                            {messages.map((m) => (
+                            {messages.map((m: any) => (
                                 m.role !== 'system' && (
                                     <div
                                         key={m.id}
@@ -111,15 +117,14 @@ export default function ChatWidget() {
                                             >
                                                 <ReactMarkdown>{m.content}</ReactMarkdown>
 
-                                                {/* Tool Invocations (Add to Cart) */}
-                                                {m.toolInvocations?.map((toolInvocation) => {
+                                                {m.toolInvocations?.map((toolInvocation: ToolInvocation) => {
                                                     const { toolName, toolCallId, args } = toolInvocation;
 
                                                     if (toolName === 'addToCart') {
                                                         return (
                                                             <div key={toolCallId} className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
                                                                 <p className="font-semibold text-slate-700 text-xs mb-2">
-                                                                    SugestÃ£o de Compra:
+                                                                    Sugestão de Compra:
                                                                 </p>
                                                                 <AddToCartButton productId={args.productId} />
                                                             </div>
@@ -151,9 +156,7 @@ export default function ChatWidget() {
                         </div>
                     </div>
 
-                    {/* Input Area */}
                     <div className="border-t border-slate-100 bg-white p-4">
-                        {/* Quick Replies - Chips */}
                         {messages.length < 2 && (
                             <div className="mb-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                                 {quickReplies.map((reply) => (
@@ -172,7 +175,7 @@ export default function ChatWidget() {
                             <input
                                 value={input}
                                 onChange={handleInputChange}
-                                placeholder="Digite sua dÃºvida..."
+                                placeholder="Digite sua dúvida..."
                                 className="flex-1 rounded-full border border-slate-200 bg-slate-50 pl-4 pr-10 py-2.5 text-sm transition-all focus:border-[#800020] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#800020]/20"
                             />
                             <button
@@ -183,9 +186,6 @@ export default function ChatWidget() {
                                 <Send className="h-3.5 w-3.5 ml-0.5" />
                             </button>
                         </form>
-                        <div className="mt-2 text-center">
-                            {/* Footer removed by user request */}
-                        </div>
                     </div>
                 </div>
             )}
@@ -193,24 +193,27 @@ export default function ChatWidget() {
     );
 }
 
-// Helper component for tool invocation
-function AddToCartButton({ productId }) {
-    const { addToCart, openCart } = useCart();
-    const { products } = useShop();
-    const [added, setAdded] = useState(false);
+interface AddToCartButtonProps {
+    productId: string | number;
+}
+
+function AddToCartButton({ productId }: AddToCartButtonProps) {
+    const { addToCart } = useCart();
+    const { openDrawer } = useModal();
+    const [added, setAdded] = useState<boolean>(false);
 
     const handleAdd = () => {
-        // Find product in ShopContext by ID (string or number safe check)
-        const product = products.find(p => String(p.id) === String(productId));
-        
+        // Safe check for product ID match (string vs number)
+        const product = productsData.find((p: any) => String(p.id) === String(productId));
+
         if (product) {
-            addToCart(product, 1);
+            addToCart(product);
             setAdded(true);
-            openCart();
+            setTimeout(() => {
+                openDrawer('cart');
+            }, 300); // Small delay for effect
         } else {
-             // Fallback: If product isn't in main context, we might need to fetch it.
-             // For this MVP, we assume context has it or we just log warning.
-             console.warn('Product not found in context', productId);
+            console.warn('Product not found in context', productId);
         }
     };
 
@@ -223,12 +226,11 @@ function AddToCartButton({ productId }) {
     }
 
     return (
-        <button 
+        <button
             onClick={handleAdd}
             className='w-full bg-[#800020] text-white py-2 rounded-md text-xs font-bold hover:bg-[#600018] transition-colors flex items-center justify-center gap-2'
         >
-           <ShoppingBag className='w-3 h-3' /> Adicionar ao Carrinho
+            <ShoppingBag className='w-3 h-3' /> Adicionar ao Carrinho
         </button>
     );
 }
-

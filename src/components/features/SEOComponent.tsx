@@ -3,6 +3,55 @@ import { Helmet } from 'react-helmet-async';
 
 const DOMAIN = 'https://lyvest.vercel.app';
 
+interface AdditionalProperty {
+    "@type": string;
+    name: string;
+    value: string;
+}
+
+interface ProductColor {
+    name: string;
+    hex?: string;
+}
+
+interface Product {
+    id: string | number;
+    name: string;
+    description?: string;
+    image: string | string[];
+    price: number;
+    rating?: number;
+    reviews?: number;
+    ean?: string;
+    category?: string;
+    slug?: string;
+    colors?: ProductColor[];
+    specs?: Record<string, string>;
+    [key: string]: any;
+}
+
+interface BreadcrumbItem {
+    label: string;
+    link?: string;
+}
+
+interface FAQItem {
+    question: string;
+    answer: string;
+}
+
+interface SEOProps {
+    title: string;
+    description?: string;
+    image?: string;
+    url?: string;
+    type?: 'website' | 'article' | 'product' | 'category';
+    product?: Product | Product[] | null;
+    breadcrumbs?: BreadcrumbItem[];
+    faq?: FAQItem[];
+    fullTitle?: boolean;
+}
+
 export default function SEO({
     title,
     description,
@@ -13,7 +62,7 @@ export default function SEO({
     breadcrumbs = [],
     faq = [],
     fullTitle = false
-}) {
+}: SEOProps) {
     const metaTitle = fullTitle ? title : `${title} | Ly Vest`;
     const metaDescription = description || "Ly Vest - Moda feminina com estilo e elegância. Vestidos, blusas, saias e muito mais.";
     const metaImage = image ? (image.startsWith('http') ? image : `${DOMAIN}${image}`) : `${DOMAIN}/og-default.jpg`;
@@ -52,11 +101,11 @@ export default function SEO({
         };
     };
 
-    const generateProductSchema = (prod) => {
+    const generateProductSchema = (prod: Product) => {
         if (!prod) return null;
 
         // Construct additional properties from specs
-        const additionalProperty = prod.specs ? Object.entries(prod.specs).map(([key, value]) => ({
+        const additionalProperty: AdditionalProperty[] = prod.specs ? Object.entries(prod.specs).map(([key, value]) => ({
             "@type": "PropertyValue",
             "name": key,
             "value": value
@@ -134,7 +183,7 @@ export default function SEO({
         };
     };
 
-    const generateFAQSchema = (faqs) => {
+    const generateFAQSchema = (faqs: FAQItem[]) => {
         if (!faqs || faqs.length === 0) return null;
         return {
             "@type": "FAQPage",
@@ -150,7 +199,7 @@ export default function SEO({
     };
 
 
-    const generateCollectionPageSchema = (prods) => {
+    const generateCollectionPageSchema = (prods: Product[]) => {
         if (!prods || prods.length === 0) return null;
         return {
             "@type": "CollectionPage",
@@ -169,7 +218,7 @@ export default function SEO({
     };
 
     // --- Context & Graph Construction ---
-    const graph = [
+    const graph: any[] = [
         generateOrganizationSchema(),
         {
             "@type": "WebSite",
@@ -186,12 +235,12 @@ export default function SEO({
     const breadcrumbSchema = generateBreadcrumbSchema();
     if (breadcrumbSchema) graph.push(breadcrumbSchema);
 
-    if (type === 'product' && product) {
-        const productSchema = generateProductSchema(product);
+    if (type === 'product' && product && !Array.isArray(product)) {
+        const productSchema = generateProductSchema(product as Product);
         if (productSchema) graph.push(productSchema);
     } else if (type === 'category' && product && Array.isArray(product)) {
         // 'product' prop is reused here to pass the list of products for category pages
-        const collectionSchema = generateCollectionPageSchema(product);
+        const collectionSchema = generateCollectionPageSchema(product as Product[]);
         if (collectionSchema) graph.push(collectionSchema);
     }
 
@@ -216,13 +265,13 @@ export default function SEO({
             <meta property="og:locale" content="pt_BR" />
 
             {/* Product Specific OG */}
-            {type === 'product' && product && (
+            {type === 'product' && product && !Array.isArray(product) && (
                 <>
-                    <meta property="product:price:amount" content={product.price.toFixed(2)} />
+                    <meta property="product:price:amount" content={(product as Product).price.toFixed(2)} />
                     <meta property="product:price:currency" content="BRL" />
                     <meta property="product:brand" content="Ly Vest" />
-                    <meta property="product:category" content={product.category} />
-                    {product.colors && product.colors.map(color => (
+                    <meta property="product:category" content={(product as Product).category} />
+                    {(product as Product).colors && (product as Product).colors?.map((color: ProductColor) => (
                         <meta property="product:color" content={color.name} key={color.name} />
                     ))}
                 </>

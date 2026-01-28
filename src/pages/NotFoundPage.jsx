@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Search, ArrowLeft } from 'lucide-react';
-import SEO from '../components/features/SEO';
+import SEO from '../components/features/SEOComponent';
 import { useI18n } from '../hooks/useI18n';
 
 export default function NotFoundPage() {

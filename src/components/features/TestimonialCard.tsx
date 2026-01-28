@@ -1,6 +1,18 @@
 import React from 'react';
 
-const TestimonialCard = ({ data }) => {
+interface TestimonialData {
+    id: number | string;
+    text: string;
+    avatar: string;
+    name: string;
+    role: string;
+}
+
+interface TestimonialCardProps {
+    data: TestimonialData;
+}
+
+const TestimonialCard = ({ data }: TestimonialCardProps) => {
     return (
         <div className="min-w-[300px] md:min-w-0 snap-center bg-stone-50 p-8 rounded-3xl relative mr-4 md:mr-0">
             <div className="absolute -top-6 left-8 bg-lyvest-500 text-white w-12 h-12 flex items-center justify-center rounded-full text-xl font-bold shadow-lg shadow-[#F5E6E8]">

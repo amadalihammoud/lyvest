@@ -1,23 +1,32 @@
-﻿// src/components/LanguageSelector.jsx
+﻿// src/components/features/LanguageSelector.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
 
-const LOCALE_NAMES = {
-    'pt-BR': { name: 'PortuguÃªs', flag: 'ðŸ‡§ðŸ‡·' },
-    'en-US': { name: 'English', flag: 'ðŸ‡ºðŸ‡¸' },
-    'es-ES': { name: 'EspaÃ±ol', flag: 'ðŸ‡ªðŸ‡¸' },
+interface LocaleInfo {
+    name: string;
+    flag: string;
+}
+
+const LOCALE_NAMES: Record<string, LocaleInfo> = {
+    'pt-BR': { name: 'Português', flag: '🇧🇷' },
+    'en-US': { name: 'English', flag: '🇺🇸' },
+    'es-ES': { name: 'Español', flag: '🇪🇸' },
 };
 
-function LanguageSelector({ className = '' }) {
+interface LanguageSelectorProps {
+    className?: string;
+}
+
+function LanguageSelector({ className = '' }: LanguageSelectorProps) {
     const { locale, locales, changeLocale } = useI18n();
     const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Fechar ao clicar fora
+    // Close on click outside
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         };
@@ -26,9 +35,9 @@ function LanguageSelector({ className = '' }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Fechar ao pressionar Escape
+    // Close on Escape press
     useEffect(() => {
-        const handleEscape = (event) => {
+        const handleEscape = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 setIsOpen(false);
             }
@@ -38,7 +47,7 @@ function LanguageSelector({ className = '' }) {
         return () => document.removeEventListener('keydown', handleEscape);
     }, []);
 
-    const handleSelect = (newLocale) => {
+    const handleSelect = (newLocale: string) => {
         changeLocale(newLocale);
         setIsOpen(false);
     };
@@ -62,7 +71,7 @@ function LanguageSelector({ className = '' }) {
                     role="listbox"
                     className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50 min-w-[160px] animate-scale-up"
                 >
-                    {locales.map((loc) => {
+                    {locales.map((loc: string) => {
                         const localeInfo = LOCALE_NAMES[loc];
                         const isSelected = loc === locale;
 
@@ -75,8 +84,8 @@ function LanguageSelector({ className = '' }) {
                                     role="option"
                                     aria-selected={isSelected}
                                 >
-                                    <span className="text-lg">{localeInfo.flag}</span>
-                                    <span className="flex-1 font-medium">{localeInfo.name}</span>
+                                    <span className="text-lg">{localeInfo?.flag}</span>
+                                    <span className="flex-1 font-medium">{localeInfo?.name || loc}</span>
                                     {isSelected && <Check className="w-4 h-4 text-lyvest-500" />}
                                 </button>
                             </li>

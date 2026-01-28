@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import CheckoutWizard from '../components/checkout/CheckoutWizard';
-import SEO from '../components/features/SEO';
+import SEO from '../components/features/SEOComponent';
 import { useI18n } from '../hooks/useI18n';
 
 export default function CheckoutPage() {

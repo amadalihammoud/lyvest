@@ -11,7 +11,7 @@ import AnnouncementBar from '../components/layout/AnnouncementBar';
 import CookieBanner from '../components/layout/CookieBanner';
 import FloatingWhatsApp from '../components/features/FloatingWhatsApp';
 import ChatWidget from '../components/features/ChatWidget';
-import SEO from '../components/features/SEO';
+import SEO from '../components/features/SEOComponent';
 import ModalManager from '../components/layout/ModalManager';
 import DrawerManager from '../components/layout/DrawerManager';
 import ErrorBoundary from '../components/ui/ErrorBoundary';

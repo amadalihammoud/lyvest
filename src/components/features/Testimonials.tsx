@@ -1,9 +1,17 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 
+interface TestimonialItem {
+    id: number;
+    name: string;
+    occupation: string;
+    quote: string;
+    initials: string;
+    color: string;
+}
 
 const Testimonials = () => {
     // Mock user for "Ana Silva" matches the screenshot provided by user usually
-    const testimonials = [
+    const testimonials: TestimonialItem[] = [
         {
             id: 1,
             name: "Ana Clara",
@@ -31,7 +39,7 @@ const Testimonials = () => {
     ];
 
     const [activeIndex, setActiveIndex] = useState(0);
-    const scrollRef = useRef(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     const handleScroll = () => {
         if (scrollRef.current) {

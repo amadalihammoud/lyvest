@@ -5,7 +5,7 @@ import { productsData } from '../data/mockData';
 import { generateSlug } from '../utils/slug';
 import ProductCard from '../components/product/ProductCard';
 import { useI18n } from '../hooks/useI18n';
-import SEO from '../components/features/SEO';
+import SEO from '../components/features/SEOComponent';
 import { Home } from 'lucide-react';
 import CategoryToolbar from '../components/CategoryToolbar';
 import FilterSidebar from '../components/FilterSidebar';

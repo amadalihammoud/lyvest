@@ -1,7 +1,19 @@
 ﻿import React, { useState } from 'react';
 import TestimonialCard from './TestimonialCard';
-import { testimonials } from '../../data/mockData';
+import { testimonials as rawTestimonials } from '../../data/mockData';
 import { useI18n } from '../../hooks/useI18n';
+
+// Define the shape explicitly to ensure compatibility with TestimonialCard
+interface TestimonialData {
+    id: number | string;
+    name: string;
+    role: string;
+    text: string;
+    avatar: string;
+}
+
+// Cast the imported data
+const testimonials = rawTestimonials as TestimonialData[];
 
 export default function TestimonialsSection() {
     const { t } = useI18n();
@@ -21,7 +33,7 @@ export default function TestimonialsSection() {
 
                 <div
                     className="flex overflow-x-auto pt-8 pb-6 -mx-4 px-4 md:grid md:grid-cols-3 gap-6 md:gap-8 overscroll-x-contain scroll-smooth snap-x snap-mandatory md:pb-0 md:mx-0 md:px-0 scrollbar-hide"
-                    onScroll={(e) => {
+                    onScroll={(e: React.UIEvent<HTMLDivElement>) => {
                         const scrollLeft = e.currentTarget.scrollLeft;
                         const width = e.currentTarget.offsetWidth;
                         const index = Math.round(scrollLeft / width);

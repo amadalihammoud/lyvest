@@ -3,6 +3,7 @@ import { useModal } from '../../hooks/useModal';
 import { X } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
 import { useCart } from '../../hooks/useCart';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 // Import Modals (Keep small modals static or lazy? Small ones are fine static)
 const LoginModal = lazy(() => import('../modals/LoginModal'));
@@ -56,13 +57,11 @@ export default function ModalManager({ onLoginSuccess }) {
                 return <AddedToCartModal />;
             case 'quickview':
                 return (
-                    <Suspense fallback={<div className="p-12 flex justify-center"><div className="w-12 h-12 border-4 border-slate-200 border-t-[#800020] rounded-full animate-spin"></div></div>}>
-                        <ProductQuickView
-                            product={modalData}
-                            onClose={closeModal}
-                            onAddToCart={addToCart}
-                        />
-                    </Suspense>
+                    <ProductQuickView
+                        product={modalData}
+                        onClose={closeModal}
+                        onAddToCart={addToCart}
+                    />
                 );
             default:
                 return null;
@@ -100,6 +99,8 @@ export default function ModalManager({ onLoginSuccess }) {
     else if (isDashboardModal) maxWidthClass = 'max-w-[95vw] lg:max-w-6xl h-[85vh]'; // Fixed height for complex UIs
     else if (isContentModal) maxWidthClass = 'max-w-[95vw] lg:max-w-7xl'; // Auto height for simple content pages
 
+
+
     return (
         <div
             className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
@@ -111,7 +112,9 @@ export default function ModalManager({ onLoginSuccess }) {
                 <button onClick={closeModal} className="absolute top-4 right-4 z-50 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors cursor-pointer" aria-label={t('aria.closeModal')}>
                     <X className="w-5 h-5 text-slate-500" />
                 </button>
-                {renderModalContent()}
+                <Suspense fallback={<div className="flex justify-center items-center h-64"><LoadingSpinner /></div>}>
+                    {renderModalContent()}
+                </Suspense>
             </div>
         </div>
     );

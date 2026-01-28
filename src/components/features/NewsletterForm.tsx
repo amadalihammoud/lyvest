@@ -1,4 +1,4 @@
-﻿// src/components/NewsletterForm.jsx
+﻿// src/components/features/NewsletterForm.tsx
 import React, { useState, useCallback } from 'react';
 import { Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { newsletterSchema, validateForm } from '../../utils/validation';
@@ -6,7 +6,7 @@ import { RateLimiter, createHoneypot, detectXSS } from '../../utils/security';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useI18n } from '../../hooks/useI18n';
 
-// Rate limiter: 3 tentativas por minuto
+// Rate limiter: 3 tentatives per minute
 const newsletterLimiter = new RateLimiter('newsletter', 3, 60000);
 
 // Honeypot anti-spam
@@ -14,21 +14,21 @@ const honeypot = createHoneypot();
 
 function NewsletterForm() {
     const { t } = useI18n();
-    const [email, setEmail] = useState('');
-    const [consent, setConsent] = useState(false);
-    const [honeypotValue, setHoneypotValue] = useState('');
-    const [status, setStatus] = useState('idle'); // idle, loading, success, error
-    const [errors, setErrors] = useState({});
-    const [rateLimitError, setRateLimitError] = useState(false);
+    const [email, setEmail] = useState<string>('');
+    const [consent, setConsent] = useState<boolean>(false);
+    const [honeypotValue, setHoneypotValue] = useState<string>('');
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+    const [rateLimitError, setRateLimitError] = useState<boolean>(false);
 
-    // Debounce do email para validaÃ§Ã£o em tempo real
+    // Debounce for real-time validation
     const debouncedEmail = useDebounce(email, 500);
 
-    // ValidaÃ§Ã£o em tempo real do email
+    // Real-time validation
     React.useEffect(() => {
         if (debouncedEmail) {
             const result = validateForm(newsletterSchema.pick({ email: true }), { email: debouncedEmail });
-            if (!result.success) {
+            if (!result.success && result.errors) {
                 setErrors(prev => ({ ...prev, email: result.errors?.email }));
             } else {
                 setErrors(prev => ({ ...prev, email: undefined }));
@@ -36,7 +36,7 @@ function NewsletterForm() {
         }
     }, [debouncedEmail]);
 
-    const handleSubmit = useCallback(async (e) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Check honeypot (anti-bot)
@@ -63,7 +63,7 @@ function NewsletterForm() {
         // Validate form
         const result = validateForm(newsletterSchema, { email, consent });
 
-        if (!result.success) {
+        if (!result.success && result.errors) {
             setErrors(result.errors);
             return;
         }
@@ -71,14 +71,14 @@ function NewsletterForm() {
         setStatus('loading');
         setErrors({});
 
-        // Simular envio
+        // Simulate submission
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         setStatus('success');
         setEmail('');
         setConsent(false);
 
-        // Reset apÃ³s 5 segundos
+        // Reset after 5 seconds
         setTimeout(() => setStatus('idle'), 5000);
     }, [email, consent, honeypotValue, t]);
 
@@ -96,7 +96,7 @@ function NewsletterForm() {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Honeypot - campo invisÃ­vel para bots */}
+            {/* Honeypot - invisible field for bots */}
             <div className="absolute -left-[9999px]" aria-hidden="true">
                 <label htmlFor={honeypot.fieldName}>{honeypot.fieldName}</label>
                 <input
@@ -110,7 +110,7 @@ function NewsletterForm() {
                 />
             </div>
 
-            {/* Campo de Email */}
+            {/* Email Field */}
             <div>
                 <div className="relative">
                     <input
@@ -138,7 +138,7 @@ function NewsletterForm() {
                 )}
             </div>
 
-            {/* Checkbox de Consentimento */}
+            {/* Consent Checkbox */}
             <label className="flex items-start gap-3 cursor-pointer group">
                 <input
                     type="checkbox"
@@ -158,7 +158,7 @@ function NewsletterForm() {
                 </p>
             )}
 
-            {/* Erro de Rate Limit */}
+            {/* Rate Limit Error */}
             {rateLimitError && errors.form && (
                 <p className="text-sm text-[#F5E6E8]/300 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
@@ -166,7 +166,7 @@ function NewsletterForm() {
                 </p>
             )}
 
-            {/* BotÃ£o de Envio */}
+            {/* Submit Button */}
             <button
                 type="submit"
                 disabled={status === 'loading'}

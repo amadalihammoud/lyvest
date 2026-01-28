@@ -1,11 +1,14 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
+import { mockProducts } from '../data/mockProducts.js';
 
 /**
  * Busca produtos ativos para contexto do chat
  * @returns {Promise<any[]>}
  */
 export async function getProductsForContext(limit = 20) {
-    if (!isSupabaseConfigured()) return [];
+    if (!isSupabaseConfigured()) {
+        return mockProducts.slice(0, limit);
+    }
 
     try {
         const { data, error } = await supabase
