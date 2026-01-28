@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 // Interface for future extensibility (e.g. custom phone number prop)
 interface FloatingWhatsAppProps {

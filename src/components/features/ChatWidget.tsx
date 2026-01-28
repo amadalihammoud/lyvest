@@ -23,7 +23,7 @@ export default function ChatWidget() {
                 content: 'Oi! Sou a Ly, assistente digital da Ly Vest.\n\nComo posso ajudar hoje?'
             }
         ]
-    }) as any; // Cast to any to avoid generic type complex conflicts for now if strict mode is harsh
+    } as any) as any; // Cast to any to avoid generic type complex conflicts for now if strict mode is harsh
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
