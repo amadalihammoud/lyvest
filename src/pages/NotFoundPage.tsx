@@ -1,5 +1,5 @@
-﻿// src/pages/NotFoundPage.jsx
-import React from 'react';
+﻿
+
 import { Link } from 'react-router-dom';
 import { Home, Search, ArrowLeft } from 'lucide-react';
 import SEO from '../components/features/SEOComponent';

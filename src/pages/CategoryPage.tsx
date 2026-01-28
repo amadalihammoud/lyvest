@@ -1,5 +1,6 @@
 ﻿// Forced refresh
-import React, { useMemo, useState } from 'react';
+
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { productsData } from '../data/mockData';
 import { generateSlug } from '../utils/slug';
@@ -14,7 +15,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import { useModal } from '../hooks/useModal';
 
 export default function CategoryPage() {
-    const { slug } = useParams();
+    const { slug } = useParams() as { slug: string };
     const { t } = useI18n();
     const { addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
@@ -23,7 +24,12 @@ export default function CategoryPage() {
     // State for Toolbar & Filters
     const [sortOption, setSortOption] = useState('relevance');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState<{
+        minPrice: number;
+        maxPrice: number;
+        sizes: string[];
+        colors: string[];
+    }>({
         minPrice: 0,
         maxPrice: 1000,
         sizes: [],
@@ -36,24 +42,24 @@ export default function CategoryPage() {
         return product ? product.category : null;
     }, [slug]);
 
-    const displayTitle = categoryName || slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+    const displayTitle = categoryName || (slug ? slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ') : '');
 
     // Filter Logic
     const { filteredAndSortedProducts, availableColors, availableSizes, priceRange } = useMemo(() => {
         // 1. Base Category Filtering
-        let result = productsData.filter(product => generateSlug(product.category) === slug);
+        let result = (productsData as any[]).filter(product => generateSlug(product.category) === slug);
 
         // Calculate available distinct options and price range based on current category
-        const allSizes = new Set();
-        const allColorsMap = new Map();
+        const allSizes = new Set<string>();
+        const allColorsMap = new Map<string, any>();
         let minPrice = Infinity;
         let maxPrice = -Infinity;
 
         result.forEach(p => {
             // Sizes
-            if (p.sizes) p.sizes.forEach(s => allSizes.add(s));
+            if (p.sizes) p.sizes.forEach((s: string) => allSizes.add(s));
             // Colors
-            if (p.colors) p.colors.forEach(c => allColorsMap.set(c.name, c));
+            if (p.colors) p.colors.forEach((c: { name: string }) => allColorsMap.set(c.name, c));
             // Prices
             if (p.price < minPrice) minPrice = p.price;
             if (p.price > maxPrice) maxPrice = p.price;
@@ -66,11 +72,11 @@ export default function CategoryPage() {
         }
 
         if (filters.sizes.length > 0) {
-            result = result.filter(p => p.sizes && p.sizes.some(s => filters.sizes.includes(s)));
+            result = result.filter(p => p.sizes && p.sizes.some((s: string) => filters.sizes.includes(s)));
         }
 
         if (filters.colors.length > 0) {
-            result = result.filter(p => p.colors && p.colors.some(c => filters.colors.includes(c.name)));
+            result = result.filter(p => p.colors && p.colors.some((c: { name: string }) => filters.colors.includes(c.name)));
         }
 
         // 3. Apply Sorting
@@ -135,8 +141,8 @@ export default function CategoryPage() {
                     setFilters={setFilters}
                     isOpen={isSidebarOpen}
                     onClose={() => setIsSidebarOpen(false)}
-                    availableColors={availableColors}
-                    availableSizes={availableSizes}
+                    availableColors={availableColors as any}
+                    availableSizes={availableSizes as any}
                     priceRange={priceRange.min === Infinity ? { min: 0, max: 1000 } : priceRange}
                     variant="mobile"
                 />
@@ -151,8 +157,8 @@ export default function CategoryPage() {
                     setFilters={setFilters}
                     isOpen={isSidebarOpen}
                     onClose={() => setIsSidebarOpen(false)}
-                    availableColors={availableColors}
-                    availableSizes={availableSizes}
+                    availableColors={availableColors as any}
+                    availableSizes={availableSizes as any}
                     priceRange={priceRange.min === Infinity ? { min: 0, max: 1000 } : priceRange}
                 />
 
@@ -164,8 +170,8 @@ export default function CategoryPage() {
                                 key={product.id}
                                 product={product}
                                 isFavorite={favorites.includes(product.id)}
-                                onToggleFavorite={(e) => toggleFavorite(e, product.id)}
-                                onAddToCart={(qty) => {
+                                onToggleFavorite={(e: React.MouseEvent) => toggleFavorite(e, product.id)}
+                                onAddToCart={(qty: number) => {
                                     addToCart({ ...product, qty: qty || 1 });
                                     openModal('addedToCart', { ...product, qty: qty || 1 });
                                 }}
@@ -179,7 +185,7 @@ export default function CategoryPage() {
                                 <h3 className="text-xl font-bold text-slate-700 mb-2">Nenhum produto encontrado</h3>
                                 <p className="text-slate-500">Tente ajustar os filtros para encontrar o que procura.</p>
                                 <button
-                                    onClick={() => setFilters({ maxPrice: 1000, sizes: [], colors: [] })}
+                                    onClick={() => setFilters({ minPrice: 0, maxPrice: 1000, sizes: [], colors: [] })}
                                     className="mt-4 text-lyvest-500 font-bold hover:underline"
                                 >
                                     Limpar Filtros

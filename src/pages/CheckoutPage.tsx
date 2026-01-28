@@ -1,5 +1,5 @@
-﻿// src/pages/CheckoutPage.jsx
-import React from 'react';
+﻿
+
 import { useNavigate } from 'react-router-dom';
 import CheckoutWizard from '../components/checkout/CheckoutWizard';
 import SEO from '../components/features/SEOComponent';

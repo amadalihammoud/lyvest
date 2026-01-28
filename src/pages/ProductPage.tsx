@@ -1,5 +1,5 @@
-﻿// src/pages/ProductPage.jsx
-import React, { useEffect } from 'react';
+﻿
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProductDetails from '../components/product/ProductDetails';
 import { productsData } from '../data/mockData';
@@ -16,7 +16,7 @@ export default function ProductPage() {
     const { openModal } = useModal();
     const product = productsData.find((p) => generateSlug(p.name) === slug);
 
-    const handleAddToCart = (item) => {
+    const handleAddToCart = (item: any) => {
         addToCart(item);
         openModal('addedToCart', item);
     };
@@ -45,8 +45,8 @@ export default function ProductPage() {
             <SEO
                 title={product.name}
                 description={product.description}
-                image={product.image}
-                product={product}
+                image={Array.isArray(product.image) ? product.image[0] : product.image}
+                product={product as any}
                 type="product"
                 breadcrumbs={breadcrumbItems}
             />
@@ -58,21 +58,11 @@ export default function ProductPage() {
                 </div>
                 <div className="w-full">
                     <ProductDetails
-                        product={product}
-                        onClose={() => navigate('/')}
+                        product={product as any}
                         onAddToCart={handleAddToCart}
-                        isModal={false}
                     />
                 </div>
             </div>
         </>
     );
 }
-
-
-
-
-
-
-
-

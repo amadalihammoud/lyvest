@@ -1,5 +1,5 @@
-﻿// src/pages/HomePage.jsx
-import React, { useState, useEffect } from 'react';
+﻿
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Hero from '../components/Hero';
 import ProductCard from '../components/product/ProductCard';
@@ -37,7 +37,7 @@ export default function HomePage() {
     }, [selectedCategory, searchQuery, setSearchParams]);
 
     // Filter products
-    const filteredProducts = React.useMemo(() => {
+    const filteredProducts = useMemo(() => {
         let result = productsData;
         if (selectedCategory !== 'Todos') {
             result = result.filter((p) => {
@@ -57,8 +57,8 @@ export default function HomePage() {
     }, [selectedCategory, searchQuery]);
 
     // Category mapping for translation
-    const getCategoryTranslation = (cat) => {
-        const map = {
+    const getCategoryTranslation = (cat: string) => {
+        const map: Record<string, string> = {
             'Todos': 'all',
             'Calcinha': 'panties',
             'SutiÃ£': 'bras',
@@ -75,7 +75,7 @@ export default function HomePage() {
         <>
             {/* Hero & Info Banner Wrapper - Gradiente Roxo */}
             <div className="bg-gradient-to-b from-lyvest-500 via-[#A0303C] to-white">
-                <Hero setSelectedCategory={setSelectedCategory} />
+                <Hero />
                 <InfoStrip />
             </div>
 
@@ -118,8 +118,8 @@ export default function HomePage() {
                                     key={product.id}
                                     product={product}
                                     isFavorite={favorites.includes(product.id)}
-                                    onToggleFavorite={(e) => toggleFavorite(e, product.id)}
-                                    onAddToCart={(qty) => {
+                                    onToggleFavorite={(e: React.MouseEvent) => toggleFavorite(e, product.id)}
+                                    onAddToCart={(qty: number) => {
                                         addToCart({ ...product, qty: qty || 1 });
                                         openModal('addedToCart', { ...product, qty: qty || 1 });
                                     }}
