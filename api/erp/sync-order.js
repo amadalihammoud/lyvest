@@ -6,7 +6,7 @@
  * Synchronizes confirmed orders with the ERP system (Bling/Tiny).
  * Usually triggered by a webhook or internal process.
  */
-import { getErpProvider } from '../services/erp'
+import { getErpProvider } from '../_services/erp'
 
 /**
  * ERP Sync Endpoint

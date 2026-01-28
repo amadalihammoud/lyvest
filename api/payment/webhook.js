@@ -1,4 +1,4 @@
-import allowCors from '../utils/cors'
+import allowCors from '../_utils/cors'
 
 // This would be your real Stripe/Gateway secret from env
 // const ENDPOINT_SECRET = process.env.WEBHOOK_SECRET

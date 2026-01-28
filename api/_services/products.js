@@ -1,5 +1,5 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
-import { mockProducts } from '../data/mockProducts.js';
+import { supabase, isSupabaseConfigured } from '../_lib/supabase.js';
+import { mockProducts } from '../_data/mockProducts.js';
 
 /**
  * Busca produtos ativos para contexto do chat

@@ -1,7 +1,7 @@
 /* global process */
 import { z } from 'zod'
-import allowCors from '../utils/cors'
-import { getShippingProvider } from '../services/shipping'
+import allowCors from '../_utils/cors'
+import { getShippingProvider } from '../_services/shipping'
 
 // Define validation schema for shipping
 const shippingSchema = z.object({

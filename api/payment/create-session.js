@@ -1,7 +1,7 @@
 /* global process */
 import { z } from 'zod'
-import allowCors from '../utils/cors'
-import { getPaymentProvider } from '../services/payment'
+import allowCors from '../_utils/cors'
+import { getPaymentProvider } from '../_services/payment'
 import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase Client for backend validation

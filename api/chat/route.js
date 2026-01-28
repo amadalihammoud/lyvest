@@ -1,12 +1,12 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
-import { getProductsForContext } from '../services/products.js';
+import { getProductsForContext } from '../_services/products.js';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-import { legalContent } from '../data/legal.js';
+import { legalContent } from '../_data/legal.js';
 
 // Format legal info for prompt
 const policies = `
