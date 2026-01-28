@@ -6,27 +6,46 @@ import { productsData } from '../data/mockData';
 import ProductCard from './ProductCard';
 import { useI18n } from '../hooks/useI18n';
 
-function ProductDetails({ product, onAddToCart }) {
+// Interfaces
+interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    video?: string;
+    specs?: Record<string, string | number | undefined>; // Loosen types for specs to handle mock data inference issues
+    ean?: string;
+    quantity?: number; // For cart items
+    [key: string]: any; // Allow other properties from mock data like 'badge', 'sizes', 'colors'
+}
+
+interface ProductDetailsProps {
+    product: Product;
+    onAddToCart: (product: Product) => void;
+}
+
+function ProductDetails({ product, onAddToCart }: ProductDetailsProps) {
     const navigate = useNavigate();
     const { t, isRTL, formatCurrency, getProductData } = useI18n();
     const [quantity, setQuantity] = useState(1);
     const [shippingZip, setShippingZip] = useState('');
     const [activeImage, setActiveImage] = useState(product ? product.image : '');
-    const [activeTab, setActiveTab] = useState('description'); // For mobile tabs
+    const [activeTab, setActiveTab] = useState<'description' | 'specs'>('description');
 
     if (!product) return null;
 
-    // Translated product data
-    const productName = getProductData(product.id, 'name') || product.name;
-    const productDescription = getProductData(product.id, 'description') || product.description;
-    const productSpecs = getProductData(product.id, 'specs') || product.specs;
+    // Translated product data - Cast to string/object as we know the improved type logic in I18nContext still returns unknown
+    const productName = (getProductData(product.id, 'name') as string) || product.name;
+    const productDescription = (getProductData(product.id, 'description') as string) || product.description;
+    const productSpecs = (getProductData(product.id, 'specs') as Record<string, string>) || product.specs;
 
     // Mock thumbnails (replicating the main image since we only have one per product in mock data)
     const thumbnails = [product.image, product.image, product.image];
 
     // Reference handleViewDetails removed as navigate is straightforward now if needed, but actually page view doesn't navigate to itself.
 
-    const handleQuantityChange = (delta) => {
+    const handleQuantityChange = (delta: number) => {
         setQuantity(prev => Math.max(1, prev + delta));
     };
 
@@ -293,10 +312,10 @@ function ProductDetails({ product, onAddToCart }) {
                             .map((relatedProduct) => (
                                 <ProductCard
                                     key={relatedProduct.id}
-                                    product={relatedProduct}
+                                    product={relatedProduct as Product} // Casting to Product
                                     isFavorite={false}
                                     onToggleFavorite={() => { }}
-                                    onAddToCart={(qty) => onAddToCart({ ...relatedProduct, quantity: qty })}
+                                    onAddToCart={(qty: number) => onAddToCart({ ...relatedProduct, quantity: qty } as Product)}
                                     onQuickView={() => {
                                         const slug = generateSlug(relatedProduct.name);
                                         navigate(`/produto/${slug}`);

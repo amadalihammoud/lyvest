@@ -3,10 +3,44 @@ import { ShoppingBag, Trash2, X } from 'lucide-react';
 import { useI18n } from '../hooks/useI18n';
 
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useCart } from '../context/CartContext';
 
 function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }) {
     const { t, formatCurrency, getProductData } = useI18n();
-    const cartTotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+    const {
+        cartTotal,
+        couponCode,
+        discount,
+        discountAmount,
+        finalTotal,
+        applyCoupon,
+        removeCoupon
+    } = useCart();
+
+    const [couponInput, setCouponInput] = React.useState('');
+    const [couponMessage, setCouponMessage] = React.useState('');
+
+    // Preencher input se já tiver cupom
+    React.useEffect(() => {
+        if (couponCode) {
+            setCouponInput(couponCode);
+            setCouponMessage('Cupom aplicado com sucesso!');
+        } else {
+            setCouponInput('');
+            setCouponMessage('');
+        }
+    }, [couponCode]);
+
+    const handleApplyCoupon = () => {
+        const result = applyCoupon(couponInput);
+        setCouponMessage(result.message);
+    };
+
+    const handleRemoveCoupon = () => {
+        removeCoupon();
+        setCouponInput('');
+        setCouponMessage('');
+    };
 
     const containerRef = React.useRef(null);
     useFocusTrap(isOpen);
@@ -59,11 +93,66 @@ function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }
                 </div>
 
                 <div className="p-6 border-t border-slate-100 bg-slate-50">
-                    <div className="flex justify-between items-center mb-4 text-lg font-bold text-lyvest-500">
-                        <span>{t('cart.total')}:</span>
-                        <span>{formatCurrency(cartTotal)}</span>
+                    {/* Coupon Input */}
+                    <div className="mb-6">
+                        <label htmlFor="coupon" className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">
+                            {t('cart.coupon') || 'Cupom de Desconto'}
+                        </label>
+                        <div className="flex gap-2">
+                            <input
+                                id="coupon"
+                                type="text"
+                                value={couponInput}
+                                onChange={(e) => setCouponInput(e.target.value)}
+                                placeholder="Ex: BEMVINDA10"
+                                className="flex-1 px-4 py-2 rounded-lg border border-slate-200 focus:border-lyvest-500 focus:outline-none uppercase"
+                                disabled={!!couponCode}
+                            />
+                            {couponCode ? (
+                                <button
+                                    onClick={handleRemoveCoupon}
+                                    className="px-4 py-2 bg-red-100 text-red-600 font-bold rounded-lg hover:bg-red-200 transition-colors"
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleApplyCoupon}
+                                    className="px-4 py-2 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-colors"
+                                >
+                                    Aplicar
+                                </button>
+                            )}
+                        </div>
+                        {couponMessage && (
+                            <p className={`text-xs mt-2 font-medium ${couponMessage.includes('aplicado') ? 'text-green-600' : 'text-red-500'}`}>
+                                {couponMessage}
+                            </p>
+                        )}
                     </div>
-                    <button onClick={onCheckout} className="w-full py-4 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-full hover:shadow-lg hover:shadow-[#F5E6E8] transition-all transform hover:-translate-y-0.5">
+
+                    {/* Summary */}
+                    <div className="space-y-2 mb-4">
+                        <div className="flex justify-between text-slate-600">
+                            <span>Subtotal:</span>
+                            <span>{formatCurrency(cartTotal)}</span>
+                        </div>
+                        {discount > 0 && (
+                            <div className="flex justify-between text-emerald-600 font-medium">
+                                <span>Desconto ({discount * 100}%):</span>
+                                <span>- {formatCurrency(discountAmount)}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between items-center text-lg font-bold text-lyvest-500 pt-2 border-t border-slate-200">
+                            <span>Total:</span>
+                            <span>{formatCurrency(finalTotal)}</span>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={onCheckout}
+                        className="w-full py-4 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-full hover:shadow-lg hover:shadow-[#F5E6E8] transition-all transform hover:-translate-y-0.5"
+                    >
                         {t('cart.checkout')}
                     </button>
                 </div>

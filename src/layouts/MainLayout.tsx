@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import { useShop } from '../context/ShopContext';
 
 // Components
 import Header from '../components/Header';
@@ -9,27 +10,32 @@ import Footer from '../components/Footer';
 import AnnouncementBar from '../components/AnnouncementBar';
 import CookieBanner from '../components/CookieBanner';
 import FloatingWhatsApp from '../components/FloatingWhatsApp';
-import ChatWidget from '../components/ChatWidget'; // chat-widget-import
+import ChatWidget from '../components/ChatWidget';
 import SEO from '../components/SEO';
 import ModalManager from '../components/ModalManager';
-import DrawerManager from '../components/DrawerManager'; // New Manager
-
+import DrawerManager from '../components/DrawerManager';
 import ErrorBoundary from '../components/ErrorBoundary';
 import MobileMenu from '../components/MobileMenu';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
-// Preload Routes
-const preloadCheckout = () => import('../pages/CheckoutPage');
-
 // Hooks
 import { useModal } from '../hooks/useModal';
 import { useI18n } from '../hooks/useI18n';
 
-
 // Icons
 import { CheckCircle } from 'lucide-react';
-import { generateSlug } from '../utils/slug';
+
+// Preload Routes - Lazy load workaround
+const preloadCheckout = () => import('../pages/CheckoutPage');
+
+// Define exact shape of user from AuthContext
+interface User {
+    id: string;
+    email?: string;
+    name?: string;
+    avatar?: string;
+}
 
 export default function MainLayout() {
     const navigate = useNavigate();
@@ -45,39 +51,18 @@ export default function MainLayout() {
     } = useModal();
     const { t } = useI18n();
 
-
     // Local UI state
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('Todos');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    // Get auth state globally
-    const { user, isAuthenticated: isLoggedIn, signIn } = useAuth();
-    // const [user, setUser] = useState(null); // Local state removed
+    // Global State
+    const { user, isAuthenticated: isLoggedIn } = useAuth();
+    const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useShop();
 
-    // Sync: Close Mobile Menu when Drawer opens
-    // Effects removed: UI synchronization now handled by event handlers in Header/MobileMenu
+    // Cast user to our interface if needed, or rely on AuthContext typing if improved
+    const currentUser = user as User | null;
 
-
-    const handleMenuClick = (item) => {
-        if (item.action === 'reset') {
-            setSelectedCategory('Todos');
-            setSearchQuery('');
-            navigate('/');
-        } else if (item.action === 'filter') {
-            setSelectedCategory(item.category || item.label);
-            const slug = generateSlug(item.category || item.label);
-            navigate(`/categoria/${slug}`);
-        } else if (item.action === 'modal') {
-            openModal(item.modal);
-        }
-        setIsMobileMenuOpen(false);
-    };
-
-    const handleLoginSuccess = (mockUser) => {
-        // State is handled by AuthContext via Supabase listener
-        // Just handle UI feedback here
-        showNotification(t('dashboard.welcome', { name: mockUser?.name || user?.name || 'Cliente' }));
+    const handleLoginSuccess = (mockUser: any) => {
+        showNotification(t('dashboard.welcome', { name: mockUser?.name || currentUser?.name || 'Cliente' }));
         closeModal();
         navigate('/dashboard');
     };
@@ -97,6 +82,9 @@ export default function MainLayout() {
                 <SEO
                     title={t('seo.defaultTitle')}
                     description={t('seo.defaultDescription')}
+                    image="/og-image.jpg" // Default OG image
+                    url={window.location.origin} // Default URL
+                    product={null} // Not a product page
                 />
 
                 {/* Managers */}
@@ -109,29 +97,22 @@ export default function MainLayout() {
                 {/* Header */}
                 <Header
                     setIsMobileMenuOpen={setIsMobileMenuOpen}
-                    setSelectedCategory={setSelectedCategory}
-                    setSearchQuery={setSearchQuery}
-                    searchQuery={searchQuery}
-                    selectedCategory={selectedCategory}
-                    handleMenuClick={handleMenuClick}
-                    user={user}
-                    isLoggedIn={isLoggedIn}
+                    isMobileMenuOpen={isMobileMenuOpen}
                     navigateToDashboard={() => navigate('/dashboard')}
                 />
 
                 {/* Main Content - Router Outlet */}
-                <main id="main-content" tabIndex="-1">
+                <main id="main-content" tabIndex={-1}>
                     <ErrorBoundary>
                         <Outlet context={{
                             user,
                             isLoggedIn,
-                            // Setters removed as they are managed by AuthContext
                             setActiveDrawer: openDrawer,
-                            setTrackingCode, // From Context
-                            selectedCategory,
-                            setSelectedCategory,
-                            searchQuery,
-                            setSearchQuery
+                            setTrackingCode,
+                            selectedCategory, // Passed from ShopContext
+                            setSelectedCategory, // Passed from ShopContext
+                            searchQuery, // Passed from ShopContext
+                            setSearchQuery // Passed from ShopContext
                         }} />
                     </ErrorBoundary>
                 </main>
@@ -140,23 +121,11 @@ export default function MainLayout() {
                 <MobileMenu
                     isOpen={isMobileMenuOpen}
                     onClose={() => setIsMobileMenuOpen(false)}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    handleMenuClick={handleMenuClick}
                     onOpenLogin={() => { openModal('login'); setIsMobileMenuOpen(false); }}
-
-                    isLoggedIn={isLoggedIn}
-                    user={user}
                     navigateToDashboard={() => navigate('/dashboard')}
-                // Theme logic would need state in MainLayout if not using context inside MobileMenu
-                // But MobileMenu should use the Hook if we want it to be cleaner.
-                // However, I added props to MobileMenu. Let me check if I should just use the hook in MobileMenu.
-                // Using hook in MobileMenu is better, but I added props. Let's pass null for now or mock it if ThemeContext is global.
-                // Actually, I can use the useTheme hook inside MobileMenu? No, I added them as props.
-                // Wait, MainLayout doesn't have theme state. ThemeProvider wraps MainLayout in main.jsx.
                 />
 
-                {/* Notifications - Accessible */}
+                {/* Notifications */}
                 {notification && (
                     <div
                         role="alert"
@@ -166,33 +135,26 @@ export default function MainLayout() {
                         <div className={`p-2 rounded-full ${notification.type === 'error' ? 'bg-red-100' : 'bg-green-100'}`}>
                             <CheckCircle className={`w-5 h-5 ${notification.type === 'error' ? 'text-red-600' : 'text-green-600'}`} aria-hidden="true" />
                         </div>
-                        <span className="font-medium text-slate-700">{notification.message || notification}</span>
+                        <span className="font-medium text-slate-700">{notification.message || (typeof notification === 'string' ? notification : '')}</span>
                     </div>
                 )}
 
                 {/* Cookie Banner */}
-                <CookieBanner />
+                <CookieBanner onOpenPrivacy={() => openModal('privacy')} />
 
-                {/* Chat Widget - AI Personal Stylist */}
+                {/* Chat Widget */}
                 <ChatWidget />
 
                 {/* Floating WhatsApp */}
                 <FloatingWhatsApp />
 
-                {/* Footer */}
-                <Footer setSelectedCategory={setSelectedCategory} setActiveDrawer={openDrawer} setActiveModal={openModal} />
+                {/* Footer - Removing invalid props, as Footer only takes callbacks if properly typed */}
+                <Footer setActiveModal={openModal} />
 
-                {/* Vercel Analytics & Speed Insights */}
+                {/* Vercel Analytics */}
                 <Analytics />
                 <SpeedInsights />
             </div>
         </HelmetProvider>
     );
 }
-
-
-
-
-
-
-

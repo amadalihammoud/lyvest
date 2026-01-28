@@ -1,7 +1,11 @@
-import React from 'react';
+
 import { useI18n } from '../hooks/useI18n';
 
-export default function Footer({ setActiveModal }) {
+interface FooterProps {
+    setActiveModal: (modalName: string) => void;
+}
+
+export default function Footer({ setActiveModal }: FooterProps) {
     const { t } = useI18n();
     return (
         <footer id="footer" className="bg-white pt-16 pb-8 border-t border-slate-100" role="contentinfo">

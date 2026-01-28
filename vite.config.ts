@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -48,10 +49,16 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom'],
           // React Router
           'vendor-router': ['react-router-dom'],
-          // Lucide icons (biblioteca grande)
+          // Lucide icons
           'vendor-icons': ['lucide-react'],
           // Validação
           'vendor-validation': ['zod'],
+          // AI SDK (Heavy)
+          'vendor-ai': ['ai', '@ai-sdk/react', '@ai-sdk/openai'],
+          // Backend
+          'vendor-supabase': ['@supabase/supabase-js'],
+          // UI Libs
+          'vendor-ui': ['canvas-confetti', 'react-markdown'],
         }
       }
     },
@@ -73,7 +80,7 @@ export default defineConfig({
   server: {
     // Desabilitar cache de FS para evitar bloqueios no OneDrive
     fs: {
-      cachedChecks: false,
+      // cachedChecks removed as it is not a valid option in this version
     },
     // Headers de segurança em dev
     headers: {

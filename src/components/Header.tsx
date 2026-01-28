@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, ChangeEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 'lucide-react';
-import { mainMenu } from '../data/mockData';
+import { mainMenu, productsData } from '../data/mockData';
 import { useDebounce } from '../hooks/useDebounce';
 import { detectXSS } from '../utils/security';
 import LanguageSelector from './LanguageSelector';
@@ -13,23 +13,57 @@ import Button from './ui/Button';
 import { getUserAvatar } from '../utils/userUtils';
 
 
+import { useShop } from '../context/ShopContext';
+import { useAuth } from '../context/AuthContext';
+import { useShopNavigation } from '../hooks/useShopNavigation';
+
+interface HeaderProps {
+    setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    isMobileMenuOpen: boolean;
+    navigateToDashboard: () => void;
+}
+
+interface User {
+    name?: string;
+    email?: string;
+    [key: string]: any;
+}
+
+interface MenuItem {
+    label: string;
+    translationKey: string;
+    action: string;
+    category?: string;
+    subcategories?: MenuItem[];
+}
+
 export default function Header({
     setIsMobileMenuOpen,
-    setSelectedCategory,
-    setSearchQuery,
-    searchQuery,
-    selectedCategory,
-    handleMenuClick,
-    user,
-    isLoggedIn,
-    navigateToDashboard,
-    isMobileMenuOpen // Added prop to fix usage in toggle
-}) {
+    isMobileMenuOpen,
+    navigateToDashboard
+}: HeaderProps) {
     const navigate = useNavigate();
     const { t } = useI18n();
     const { cartCount } = useCart();
     const { favorites } = useFavorites();
     const { openDrawer, closeDrawer, openModal } = useModal();
+    const { user, isAuthenticated: isLoggedIn } = useAuth();
+    const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useShop();
+    const { handleMenuClick } = useShopNavigation();
+
+    // Cast properties for stricter usage
+    const currentUser = user as User | null;
+    const menuItems = mainMenu as MenuItem[];
+
+    interface MockProduct {
+        id: number;
+        name: string;
+        category: string;
+        price: number;
+        image: string;
+    }
+    const safeProducts = productsData as MockProduct[];
+
 
     // Debounce da busca APENAS para navegação/URL
     const debouncedSearch = useDebounce(searchQuery, 500);
@@ -44,7 +78,7 @@ export default function Header({
         }
     }, [debouncedSearch, navigate, searchQuery]);
 
-    const handleSearch = (e) => {
+    const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value.slice(0, 50);
 
         // Proteção XSS
@@ -95,25 +129,70 @@ export default function Header({
                         </Link>
                     </div>
 
-                    {/* Barra de Busca */}
-                    <div className="hidden lg:flex flex-1 max-w-xs lg:max-w-sm xl:max-w-lg relative mx-4 lg:mx-8 group" role="search">
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={handleSearch}
-                            placeholder={t('common.search')}
-                            maxLength={50}
-                            className="w-full pl-12 pr-4 py-2.5 rounded-full bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#F5E6E8] focus:border-lyvest-200 transition-all text-sm placeholder:text-slate-400 group-hover:bg-white"
-                        />
-                        <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 transition-colors text-lyvest-500" />
-                        {searchQuery && (
-                            <button
-                                onClick={() => { setSearchQuery(''); navigate('/'); }}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-200 rounded-full hover:bg-slate-300"
-                                aria-label={t('aria.clearSearch')}
-                            >
-                                <X className="w-4 h-4 text-slate-500" />
-                            </button>
+                    {/* Barra de Busca Inteligente */}
+                    <div className="hidden lg:flex flex-1 max-w-xs lg:max-w-sm xl:max-w-lg relative mx-4 lg:mx-8 group z-50">
+                        <div className="relative w-full">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={handleSearch}
+                                placeholder={t('common.search')}
+                                maxLength={50}
+                                className="w-full pl-12 pr-4 py-2.5 rounded-full bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#F5E6E8] focus:border-lyvest-200 transition-all text-sm placeholder:text-slate-400 group-hover:bg-white"
+                            />
+                            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 transition-colors text-lyvest-500" />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => { setSearchQuery(''); navigate('/'); }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-200 rounded-full hover:bg-slate-300"
+                                    aria-label={t('aria.clearSearch')}
+                                >
+                                    <X className="w-4 h-4 text-slate-500" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Autocomplete Dropdown */}
+                        {searchQuery.length > 2 && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden animate-fade-in">
+                                {safeProducts
+                                    .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                    .slice(0, 5)
+                                    .map((product) => (
+                                        <Link
+                                            key={product.id}
+                                            to={`/produto/${product.name.toLowerCase().replace(/ /g, '-')}`}
+                                            onClick={() => setSearchQuery('')}
+                                            className="flex items-center gap-4 p-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
+                                        >
+                                            <div className="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0">
+                                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-bold text-slate-800 text-sm truncate">{product.name}</p>
+                                                <p className="text-xs text-slate-500 truncate">{product.category}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="font-bold text-lyvest-500 text-sm">
+                                                    R$ {product.price.toFixed(2).replace('.', ',')}
+                                                </span>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                {safeProducts.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                                    <div className="p-4 text-center text-slate-500 text-sm">
+                                        Nenhum produto encontrado.
+                                    </div>
+                                )}
+                                {safeProducts.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 && (
+                                    <button
+                                        onClick={() => navigate(`/?busca=${encodeURIComponent(searchQuery)}`)}
+                                        className="w-full p-3 bg-slate-50 text-lyvest-600 text-sm font-bold hover:bg-lyvest-50 transition-colors text-center"
+                                    >
+                                        Ver todos os resultados
+                                    </button>
+                                )}
+                            </div>
                         )}
                     </div>
 
@@ -160,22 +239,23 @@ export default function Header({
                             )}
                         </button>
 
-                        {isLoggedIn ? (
+                        {isLoggedIn && currentUser ? (
                             <button
                                 onClick={navigateToDashboard}
                                 className="hidden lg:flex items-center gap-2 pl-1 pr-3 py-1 bg-white hover:bg-slate-50 rounded-full border border-slate-200 transition-all shadow-sm group"
                             >
                                 <img
-                                    src={getUserAvatar(user)}
-                                    alt={user.name}
+                                    src={getUserAvatar(currentUser)}
+                                    alt={currentUser.name || 'User'}
                                     onError={(e) => {
-                                        e.target.onerror = null;
-                                        e.target.src = getUserAvatar({ name: user.name }); // Force regeneration
+                                        const target = e.target as HTMLImageElement;
+                                        target.onerror = null;
+                                        target.src = getUserAvatar({ name: currentUser.name }); // Force regeneration
                                     }}
                                     className="w-8 h-8 rounded-full object-cover relative z-10 bg-white"
                                 />
                                 <span className="text-sm font-bold text-slate-700 group-hover:text-lyvest-500 transition-colors">
-                                    {user.name}
+                                    {currentUser.name}
                                 </span>
                             </button>
                         ) : (
@@ -203,7 +283,7 @@ export default function Header({
                     <div className="container mx-auto px-4">
                         <nav aria-label={t('aria.mainMenu') || "Menu principal"}>
                             <ul className="flex items-center justify-center gap-4 lg:gap-6 xl:gap-10 text-sm font-bold text-white py-2 tracking-wide">
-                                {mainMenu.map((item, index) => (
+                                {menuItems.map((item, index) => (
                                     <li key={index} className="group relative cursor-pointer">
                                         <button
                                             onClick={() => handleMenuClick(item)}
@@ -212,7 +292,7 @@ export default function Header({
                                             aria-current={selectedCategory === item.category ? 'page' : undefined}
                                         >
                                             {t(item.translationKey) || item.label}
-                                            {item.subcategories?.length > 0 && (
+                                            {item.subcategories && item.subcategories.length > 0 && (
                                                 <ChevronDown className="w-3.5 h-3.5 text-white group-hover:text-[#FFE4E1] transition-colors" />
                                             )}
                                         </button>

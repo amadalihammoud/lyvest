@@ -105,6 +105,7 @@ export const esES = {
         priceBy: 'por',
         warrantyMessage: 'Todos los productos Ly Vest tienen garantía de 30 días contra defectos de fabricación. Oferecemos cambio fácil y soporte completo para garantizar su satisfacción.',
         paymentMessage: 'Aceptamos las principales tarjetas de crédito en hasta 3x sin interés, PIX con 5% de descuento y boleto bancario.',
+        coupon: 'Cupón de Descuento',
     },
     checkout: {
         title: 'Finalizar Compra',

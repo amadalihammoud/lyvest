@@ -4,17 +4,26 @@ import LanguageSelector from './LanguageSelector';
 import { X, Search, ChevronRight, User } from 'lucide-react';
 import { mainMenu } from '../data/mockData';
 
+import { useShop } from '../context/ShopContext';
+import { useAuth } from '../context/AuthContext';
+import { useShopNavigation } from '../hooks/useShopNavigation';
+
 export default function MobileMenu({
     isOpen,
     onClose,
-    searchQuery,
-    setSearchQuery,
-    handleMenuClick,
     onOpenLogin,
-    isLoggedIn,
-    user,
     navigateToDashboard
 }) {
+    const { user, isAuthenticated: isLoggedIn } = useAuth();
+    const { searchQuery, setSearchQuery } = useShop();
+    const { handleMenuClick: baseHandleMenuClick } = useShopNavigation();
+
+    // Wrap handleMenuClick to close menu
+    const handleMenuClick = (item) => {
+        baseHandleMenuClick(item);
+        onClose();
+    };
+
     const { t } = useI18n();
 
     const [headerHeight, setHeaderHeight] = React.useState(0);

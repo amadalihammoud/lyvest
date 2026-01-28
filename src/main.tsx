@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import { CartProvider } from './context/CartContext';
+import { ShopProvider } from './context/ShopContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { ModalProvider } from './context/ModalContext';
 
@@ -33,54 +34,56 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <I18nProvider>
       <AuthProvider>
-        <CartProvider>
-          <FavoritesProvider>
-            <ModalProvider>
-              <ErrorBoundary>
-                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                  <ScrollToTop />
-                  <Routes>
-                    <Route element={<MainLayout />}>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/produto/:slug" element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ProductPage />
-                        </Suspense>
-                      } />
-                      <Route path="/categoria/:slug" element={
-                        <Suspense fallback={<PageLoader />}>
-                          <CategoryPage />
-                        </Suspense>
-                      } />
-                      <Route path="/dashboard" element={
-                        <ProtectedRoute>
+        <ShopProvider>
+          <CartProvider>
+            <FavoritesProvider>
+              <ModalProvider>
+                <ErrorBoundary>
+                  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                    <ScrollToTop />
+                    <Routes>
+                      <Route element={<MainLayout />}>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/produto/:slug" element={
                           <Suspense fallback={<PageLoader />}>
-                            <DashboardPage />
+                            <ProductPage />
                           </Suspense>
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/checkout" element={
-                        <Suspense fallback={<PageLoader />}>
-                          <CheckoutPage />
-                        </Suspense>
-                      } />
-                      <Route path="/404" element={
-                        <Suspense fallback={<PageLoader />}>
-                          <NotFoundPage />
-                        </Suspense>
-                      } />
-                      <Route path="*" element={
-                        <Suspense fallback={<PageLoader />}>
-                          <NotFoundPage />
-                        </Suspense>
-                      } />
-                    </Route>
-                  </Routes>
-                </BrowserRouter>
-              </ErrorBoundary>
-            </ModalProvider>
-          </FavoritesProvider>
-        </CartProvider>
+                        } />
+                        <Route path="/categoria/:slug" element={
+                          <Suspense fallback={<PageLoader />}>
+                            <CategoryPage />
+                          </Suspense>
+                        } />
+                        <Route path="/dashboard" element={
+                          <ProtectedRoute>
+                            <Suspense fallback={<PageLoader />}>
+                              <DashboardPage />
+                            </Suspense>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/checkout" element={
+                          <Suspense fallback={<PageLoader />}>
+                            <CheckoutPage />
+                          </Suspense>
+                        } />
+                        <Route path="/404" element={
+                          <Suspense fallback={<PageLoader />}>
+                            <NotFoundPage />
+                          </Suspense>
+                        } />
+                        <Route path="*" element={
+                          <Suspense fallback={<PageLoader />}>
+                            <NotFoundPage />
+                          </Suspense>
+                        } />
+                      </Route>
+                    </Routes>
+                  </BrowserRouter>
+                </ErrorBoundary>
+              </ModalProvider>
+            </FavoritesProvider>
+          </CartProvider>
+        </ShopProvider>
       </AuthProvider>
     </I18nProvider>
   </StrictMode>

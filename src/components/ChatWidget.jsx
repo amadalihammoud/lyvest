@@ -2,8 +2,10 @@
 
 import { useChat } from '@ai-sdk/react';
 import { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send } from 'lucide-react';
+import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { useCart } from '../context/CartContext';
+import { useShop } from '../context/ShopContext';
 
 export default function ChatWidget() {
     const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
@@ -108,6 +110,23 @@ export default function ChatWidget() {
                                                     }`}
                                             >
                                                 <ReactMarkdown>{m.content}</ReactMarkdown>
+
+                                                {/* Tool Invocations (Add to Cart) */}
+                                                {m.toolInvocations?.map((toolInvocation) => {
+                                                    const { toolName, toolCallId, args } = toolInvocation;
+
+                                                    if (toolName === 'addToCart') {
+                                                        return (
+                                                            <div key={toolCallId} className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                                                <p className="font-semibold text-slate-700 text-xs mb-2">
+                                                                    Sugestão de Compra:
+                                                                </p>
+                                                                <AddToCartButton productId={args.productId} />
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })}
                                             </div>
                                         </div>
                                     </div>
@@ -171,5 +190,44 @@ export default function ChatWidget() {
                 </div>
             )}
         </>
+    );
+}
+
+// Helper component for tool invocation
+function AddToCartButton({ productId }) {
+    const { addToCart, openCart } = useCart();
+    const { products } = useShop();
+    const [added, setAdded] = useState(false);
+
+    const handleAdd = () => {
+        // Find product in ShopContext by ID (string or number safe check)
+        const product = products.find(p => String(p.id) === String(productId));
+        
+        if (product) {
+            addToCart(product, 1);
+            setAdded(true);
+            openCart();
+        } else {
+             // Fallback: If product isn't in main context, we might need to fetch it.
+             // For this MVP, we assume context has it or we just log warning.
+             console.warn('Product not found in context', productId);
+        }
+    };
+
+    if (added) {
+        return (
+            <button disabled className='w-full flex items-center justify-center gap-2 bg-green-100 text-green-700 py-2 rounded-md text-xs font-bold cursor-default'>
+                <Sparkles className='w-3 h-3' /> Adicionado!
+            </button>
+        );
+    }
+
+    return (
+        <button 
+            onClick={handleAdd}
+            className='w-full bg-[#800020] text-white py-2 rounded-md text-xs font-bold hover:bg-[#600018] transition-colors flex items-center justify-center gap-2'
+        >
+           <ShoppingBag className='w-3 h-3' /> Adicionar ao Carrinho
+        </button>
     );
 }

@@ -1,5 +1,7 @@
 // src/utils/security.js
 
+import DOMPurify from 'dompurify';
+
 /**
  * Utilitários de segurança para proteção adicional
  */
@@ -86,6 +88,7 @@ export class RateLimiter {
 export function detectXSS(input) {
     if (typeof input !== 'string') return false;
 
+    // Ainda útil para validação rápida antes da sanitização
     const xssPatterns = [
         // eslint-disable-next-line security/detect-unsafe-regex
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
@@ -101,32 +104,19 @@ export function detectXSS(input) {
 }
 
 /**
- * Sanitiza input removendo padrões perigosos
- * Mais agressivo que a versão em validation.js
+ * Sanitiza input utilizando DOMPurify (Padrão Industrial)
  * @param {string} input - String a sanitizar
- * @returns {string} String sanitizada
+ * @returns {string} String sanitizada e segura
  */
 export function sanitizeInput(input) {
     if (typeof input !== 'string') return '';
 
-    return input
-        // Remove tags HTML
-        .replace(/<[^>]*>/g, '')
-        // Remove javascript: protocol
-        .replace(/javascript:/gi, '')
-        // Remove event handlers
-        .replace(/on\w+\s*=/gi, '')
-        // Remove data: URLs
-        .replace(/data:/gi, '')
-        // Remove expressões CSS
-        .replace(/expression\s*\(/gi, '')
-        // Converte entidades HTML perigosas
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        .trim();
+    // Purificar HTML e remover scripts
+    return DOMPurify.sanitize(input, {
+        ALLOWED_TAGS: [], // Remove todas as tags HTML por padrão (texto puro)
+        ALLOWED_ATTR: [], // Remove todos os atributos
+        KEEP_CONTENT: true // Mantém o texto dentro das tags
+    }).trim();
 }
 
 /**

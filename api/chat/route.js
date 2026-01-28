@@ -1,11 +1,26 @@
 import { openai } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { streamText, tool } from 'ai';
+import { z } from 'zod';
+import { getProductsForContext } from '../services/products.js';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req) {
   const { messages } = await req.json();
+
+  // Buscar produtos do banco
+  const products = await getProductsForContext(10);
+
+  // Formatar catálogo para o prompt
+  const productCatalog = products.length > 0
+    ? products.map(p => `
+    - *${p.name}* (ID: ${p.id}) - R$ ${p.price.toFixed(2).replace('.', ',')}
+      ![${p.name}](${p.image})
+      ${p.description}
+      Specs: ${JSON.stringify(p.specs || {})}
+    `).join('\n')
+    : "Nenhum produto encontrado no momento.";
 
   // "Treinamento" (Contexto) do Chatbot
   const systemPrompt = `
@@ -17,38 +32,36 @@ export async function POST(req) {
   2. Formato: \`![Nome do Produto](URL_DA_IMAGEM)\`
   3. Coloque a foto logo após o nome do produto.
 
-  ### CATÁLOGO DE PRODUTOS (Com fotos):
-  - *Kit 3 Calcinhas Algodão Soft* (R$ 49,90)
-    ![Kit Calcinhas](https://placehold.co/600x400/f3e8ff/8A05BE?text=Kit+Calcinhas)
-    Conforto absoluto, 100% algodão no forro.
-    
-  - *Sutiã Renda Comfort Sem Bojo* (R$ 59,90)
-    ![Sutiã Renda](https://placehold.co/600x400/f3e8ff/8A05BE?text=Sutia+Renda)
-    Renda floral macia, sem aro.
-    
-  - *Cueca Boxer Feminina Modal* (R$ 29,90)
-    ![Cueca Boxer](https://placehold.co/600x400/f3e8ff/8A05BE?text=Cueca+Boxer)
-    Ideal para usar com vestidos.
-    
-  - *Sutiã Push-Up Básico* (R$ 69,90)
-    ![Sutiã Push-Up](https://placehold.co/600x400/f3e8ff/8A05BE?text=Push-Up)
-    Com bojo bolha, realça o colo.
-
-  - *Calcinha Fio Dental Renda* (R$ 19,90)
-    ![Fio Dental](https://placehold.co/600x400/f3e8ff/8A05BE?text=Fio+Dental)
-    Sensual e delicada.
+  ### CATÁLOGO DE PRODUTOS DISPONÍVEIS:
+  ${productCatalog}
 
   ### PRIMITIVAS DE ESTILO:
-  - Para conforto: Indique o Kit de Calcinhas ou Boxer.
-  - Para ocasiões especiais: Indique o Sutiã de Renda.
+  - Para conforto: Indique peças de algodão ou modal.
+  - Para ocasiões especiais: Indique peças de renda.
   
-  Seja breve e encantadora. Finalize sugerindo colocar no carrinho.
+  Se o cliente disser "quero comprar" ou "adicione ao carrinho", CHAME A FERRAMENTA \`addToCart\` com o ID do produto.
   `;
 
   const result = await streamText({
     model: openai('gpt-4o-mini'), // Modelo mais econômico e rápido
     system: systemPrompt,
     messages,
+    tools: {
+      addToCart: tool({
+        description: 'Adicionar produto ao carrinho de compras',
+        parameters: z.object({
+          productId: z.string().describe('O ID do produto a ser adicionado'),
+          quantity: z.number().default(1).describe('Quantidade do produto'),
+        }),
+        execute: async ({ productId }) => {
+          // O backend apenas registra a intenção, o frontend executa a ação via toolInvocation
+          return {
+            added: true,
+            message: `Produto ${productId} preparado para adição.`
+          };
+        },
+      }),
+    },
   });
 
   return result.toDataStreamResponse();

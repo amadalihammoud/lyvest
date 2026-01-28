@@ -1,11 +1,53 @@
-import React, { useState } from 'react';
-import { MapPin, User, Phone, Check, AlertCircle, FileText } from 'lucide-react';
+import { useState, ChangeEvent, FormEvent } from 'react';
+import { MapPin, User, Phone, Check, AlertCircle, FileText, LucideIcon } from 'lucide-react';
 import { addressSchema, validateForm, formatCEP, formatPhone, formatDocument, sanitizeString } from '../utils/validation';
 import { detectXSS } from '../utils/security';
 import { useI18n } from '../hooks/useI18n';
 
+// Types
+type AddressFormData = {
+    name: string;
+    document: string;
+    phone: string;
+    cep: string;
+    street: string;
+    number: string;
+    complement: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+};
+
+type AddressDataToSubmit = Omit<AddressFormData, 'document'> & {
+    document: string;
+};
+
+interface CheckoutAddressProps {
+    onSubmit: (data: AddressDataToSubmit) => void;
+    initialData?: AddressFormData;
+}
+
+interface InputFieldProps {
+    name: keyof AddressFormData;
+    placeholder: string;
+    type?: string;
+    icon?: LucideIcon;
+    autoComplete?: string;
+    required?: boolean;
+    inputMode?: 'text' | 'numeric' | 'tel' | 'email';
+    maxLength?: number;
+    value: string;
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    error?: string;
+    t: (key: string) => string;
+    isRTL: boolean;
+}
+
+// Validation errors type
+type ValidationErrors = Record<string, string | undefined>;
+
 // Component moved outside to prevent re-renders
-const InputField = ({ name, placeholder, type = 'text', icon: Icon, autoComplete, required = true, inputMode, maxLength, value, onChange, error, t, isRTL }) => (
+const InputField = ({ name, placeholder, type = 'text', icon: Icon, autoComplete, required = true, inputMode, maxLength, value, onChange, error, t, isRTL }: InputFieldProps) => (
     <div className="relative">
         {Icon && (
             <Icon className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400`} />
@@ -35,9 +77,9 @@ const InputField = ({ name, placeholder, type = 'text', icon: Icon, autoComplete
     </div>
 );
 
-export default function CheckoutAddress({ onSubmit, initialData }) {
+export default function CheckoutAddress({ onSubmit, initialData }: CheckoutAddressProps) {
     const { t, isRTL } = useI18n();
-    const [formData, setFormData] = useState(initialData || {
+    const [formData, setFormData] = useState<AddressFormData>(initialData || {
         name: '',
         document: '',
         phone: '',
@@ -50,20 +92,20 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
         state: ''
     });
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<ValidationErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Handler genérico com proteção XSS
-    const handleChange = (field) => (e) => {
+    // Generic handler with XSS protection
+    const handleChange = (field: keyof AddressFormData) => (e: ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;
 
-        // Detectar XSS
+        // Detect XSS
         if (detectXSS(value)) {
             setErrors(prev => ({ ...prev, [field]: t('errors.invalidCharacters') || 'Caracteres inválidos' }));
             return;
         }
 
-        // Formatação automática
+        // Automatic formatting
         if (field === 'cep') {
             value = formatCEP(value);
         } else if (field === 'phone') {
@@ -76,18 +118,18 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
 
         setFormData(prev => ({ ...prev, [field]: value }));
 
-        // Limpar erro do campo
+        // Clear field error
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: undefined }));
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
         setErrors({});
 
-        // Preparar dados para validação
+        // Prepare data for validation
         const dataToValidate = {
             name: formData.name,
             document: formData.document,
@@ -101,25 +143,27 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
             phone: formData.phone
         };
 
-        // Validar com Zod
+        // Validate with Zod
         const validation = validateForm(addressSchema, dataToValidate);
 
         if (!validation.success) {
-            setErrors(validation.errors);
+            setErrors(validation.errors as ValidationErrors);
             setIsSubmitting(false);
             return;
         }
 
-        // Sanitizar dados finais
+        // Sanitize final data
+        // We know validation.data matches the schema structure, basically AddressFormData but sanitized
+        // Casting loosely here as validation creates a new object
         const sanitizedData = {
             ...validation.data,
             name: sanitizeString(validation.data.name),
             street: sanitizeString(validation.data.street),
             neighborhood: sanitizeString(validation.data.neighborhood),
             city: sanitizeString(validation.data.city)
-        };
+        } as unknown as AddressDataToSubmit;
 
-        // Simular processamento
+        // Simulate processing
         setTimeout(() => {
             setIsSubmitting(false);
             onSubmit(sanitizedData);
@@ -132,16 +176,16 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
                 <MapPin className="w-6 h-6 text-lyvest-500" /> {t('checkout.address.title')}
             </h2>
 
-            {/* Erro geral */}
+            {/* General error */}
             {errors._form && (
                 <div className="bg-lyvest-100/30 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
                     <AlertCircle className="w-5 h-5" />
-                    <span>{t(errors._form)}</span>
+                    <span>{errors._form}</span>
                 </div>
             )}
 
             <div className="grid grid-cols-12 gap-4">
-                {/* Nome Completo - Full Width */}
+                {/* Full Name - Full Width */}
                 <div className="col-span-12">
                     <InputField
                         name="name"
@@ -157,7 +201,7 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
                     />
                 </div>
 
-                {/* Linha 2: CPF/CNPJ + Telefone */}
+                {/* Line 2: CPF/CNPJ + Phone */}
                 <div className="col-span-12 sm:col-span-6">
                     <InputField
                         name="document"
@@ -178,7 +222,7 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
                         type="tel"
                         icon={Phone}
                         autoComplete="tel"
-                        inputMode="numeric"
+                        inputMode="tel"
                         maxLength={15}
                         value={formData.phone}
                         onChange={handleChange('phone')}
@@ -188,8 +232,8 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
                     />
                 </div>
 
-                {/* Linha 3: CEP + Estado + Cidade */}
-                {/* Mobile: CEP (6) + Estado (6) | Cidade (12) */}
+                {/* Line 3: CEP + State + City */}
+                {/* Mobile: CEP (6) + State (6) | City (12) */}
                 <div className="col-span-6 sm:col-span-3">
                     <InputField
                         name="cep"
@@ -231,7 +275,7 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
                     />
                 </div>
 
-                {/* Linha 4: Rua + Número */}
+                {/* Line 4: Street + Number */}
                 <div className="col-span-12 sm:col-span-9">
                     <InputField
                         name="street"
@@ -259,7 +303,7 @@ export default function CheckoutAddress({ onSubmit, initialData }) {
                     />
                 </div>
 
-                {/* Linha 5: Complemento + Bairro */}
+                {/* Line 5: Complement + Neighborhood */}
                 <div className="col-span-12 sm:col-span-6">
                     <InputField
                         name="complement"

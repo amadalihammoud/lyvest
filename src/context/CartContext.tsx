@@ -22,6 +22,13 @@ interface CartContextType {
     clearCart: () => void;
     cartTotal: number;
     cartCount: number;
+    // Coupon properties
+    couponCode: string | null;
+    discount: number;
+    discountAmount: number;
+    finalTotal: number;
+    applyCoupon: (code: string) => { success: boolean; message: string };
+    removeCoupon: () => void;
 }
 
 export const CartContext = createContext<CartContextType | null>(null);
@@ -108,10 +115,50 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     // Inicializar do localStorage com validação
     const [cartItems, setCartItems] = useState<CartItem[]>(loadCartFromStorage);
 
+    // Estado para cupons
+    const [couponCode, setCouponCode] = useState<string | null>(null);
+    const [discount, setDiscount] = useState(0);
+
     // Persistir no localStorage quando mudar
     useEffect(() => {
         saveCartToStorage(cartItems);
     }, [cartItems]);
+
+    // Cupons Mockados (Simulação de Backend)
+    const VALID_COUPONS: Record<string, number> = {
+        'BEMVINDA10': 0.10,   // 10% off
+        'LYVEST2026': 0.15,   // 15% off
+        'PROMO5': 0.05,       // 5% off
+        'FRETE': 0,           // TODO: Implementar frete grátis depois
+    };
+
+    const applyCoupon = useCallback((code: string): { success: boolean, message: string } => {
+        const normalizedCode = code.toUpperCase().trim();
+
+        if (!normalizedCode) {
+            return { success: false, message: 'Digite um código válido.' };
+        }
+
+        if (Object.prototype.hasOwnProperty.call(VALID_COUPONS, normalizedCode)) {
+            // Verificar regras (ex: mínimo de compra) se necessário
+            const discountPercent = VALID_COUPONS[normalizedCode];
+
+            setCouponCode(normalizedCode);
+            setDiscount(discountPercent);
+
+            return {
+                success: true,
+                message: `Cupom ${normalizedCode} aplicado! (${discountPercent * 100}% OFF)`
+            };
+        }
+
+        return { success: false, message: 'Cupom inválido ou expirado.' };
+    }, []);
+
+    const removeCoupon = useCallback(() => {
+        setCouponCode(null);
+        setDiscount(0);
+    }, []);
 
     const addToCart = useCallback((product: Partial<CartItem>) => {
         // Validar produto antes de adicionar
@@ -162,12 +209,22 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
     const clearCart = useCallback(() => {
         setCartItems([]);
+        setCouponCode(null);
+        setDiscount(0);
     }, []);
 
     const cartTotal = useMemo(
         () => cartItems.reduce((acc, item) => acc + item.price * item.qty, 0),
         [cartItems]
     );
+
+    const discountAmount = useMemo(() => {
+        return cartTotal * discount;
+    }, [cartTotal, discount]);
+
+    const finalTotal = useMemo(() => {
+        return Math.max(0, cartTotal - discountAmount);
+    }, [cartTotal, discountAmount]);
 
     const cartCount = useMemo(
         () => cartItems.reduce((acc, item) => acc + item.qty, 0),
@@ -183,7 +240,14 @@ export const CartProvider = ({ children }: CartProviderProps) => {
                 updateQuantity,
                 clearCart,
                 cartTotal,
-                cartCount
+                cartCount,
+                // Coupon Props
+                couponCode,
+                discount,
+                discountAmount,
+                finalTotal,
+                applyCoupon,
+                removeCoupon
             }}
         >
             {children}
