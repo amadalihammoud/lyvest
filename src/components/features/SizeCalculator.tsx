@@ -37,7 +37,7 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
                     onChange={(e) =>
                         setMeasurements({ ...measurements, height: parseInt(e.target.value) })
                     }
-                    className="w-full h-2 bg-burgundy-100 rounded-lg appearance-none cursor-pointer accent-burgundy-600"
+                    className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
                 />
                 <div className="flex justify-between text-xs text-slate-500 mt-1">
                     <span>140cm</span>
@@ -59,7 +59,7 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
                     onChange={(e) =>
                         setMeasurements({ ...measurements, weight: parseInt(e.target.value) })
                     }
-                    className="w-full h-2 bg-burgundy-100 rounded-lg appearance-none cursor-pointer accent-burgundy-600"
+                    className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
                 />
                 <div className="flex justify-between text-xs text-slate-500 mt-1">
                     <span>40kg</span>
@@ -80,8 +80,8 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
                             type="button"
                             onClick={() => setMeasurements({ ...measurements, bustType: type })}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.bustType === type
-                                ? 'bg-burgundy-600 text-white border-burgundy-600'
-                                : 'bg-white text-slate-700 border-slate-300 hover:border-burgundy-400 hover:bg-burgundy-50'
+                                ? 'bg-lyvest-600 text-white border-lyvest-600'
+                                : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400 hover:bg-lyvest-50'
                                 }`}
                         >
                             {type === 'small' ? 'Pequeno' : type === 'medium' ? 'Médio' : 'Grande'}
@@ -103,8 +103,8 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
                             type="button"
                             onClick={() => setMeasurements({ ...measurements, hipType: type })}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.hipType === type
-                                ? 'bg-burgundy-600 text-white border-burgundy-600'
-                                : 'bg-white text-slate-700 border-slate-300 hover:border-burgundy-400 hover:bg-burgundy-50'
+                                ? 'bg-lyvest-600 text-white border-lyvest-600'
+                                : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400 hover:bg-lyvest-50'
                                 }`}
                         >
                             {type === 'narrow' ? 'Estreito' : type === 'medium' ? 'Médio' : 'Largo'}
@@ -125,8 +125,8 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
                             type="button"
                             onClick={() => setMeasurements({ ...measurements, fitPreference: pref })}
                             className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.fitPreference === pref
-                                ? 'bg-burgundy-600 text-white border-burgundy-600'
-                                : 'bg-white text-slate-700 border-slate-300 hover:border-burgundy-400 hover:bg-burgundy-50'
+                                ? 'bg-lyvest-600 text-white border-lyvest-600'
+                                : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400 hover:bg-lyvest-50'
                                 }`}
                         >
                             <div className="font-semibold">
@@ -144,7 +144,7 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
             <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-burgundy-600 text-white py-4 rounded-xl font-semibold hover:bg-burgundy-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-lyvest-600 text-white py-4 rounded-xl font-semibold hover:bg-lyvest-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {isLoading ? (
                     <span className="flex items-center justify-center gap-2">

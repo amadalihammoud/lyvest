@@ -33,11 +33,11 @@ export default function AIRecommendation({
                     <span className="text-sm font-medium">Tamanho Perfeito Encontrado!</span>
                 </div>
 
-                <div className="bg-gradient-to-br from-burgundy-50 to-burgundy-100 rounded-2xl p-8 mb-4">
-                    <div className="text-sm text-burgundy-700 font-medium mb-2">
+                <div className="bg-gradient-to-br from-lyvest-50 to-lyvest-100 rounded-2xl p-8 mb-4">
+                    <div className="text-sm text-lyvest-700 font-medium mb-2">
                         Seu tamanho ideal é:
                     </div>
-                    <div className="text-7xl font-bold text-burgundy-900 tracking-tight">
+                    <div className="text-7xl font-bold text-lyvest-900 tracking-tight">
                         {size}
                     </div>
                 </div>
@@ -83,7 +83,7 @@ export default function AIRecommendation({
             <div className="space-y-3">
                 <button
                     onClick={() => onAddToCart(size)}
-                    className="w-full bg-burgundy-600 text-white py-4 rounded-xl font-semibold hover:bg-burgundy-700 transition-colors"
+                    className="w-full bg-lyvest-600 text-white py-4 rounded-xl font-semibold hover:bg-lyvest-700 transition-colors"
                 >
                     Adicionar Tamanho {size} ao Carrinho
                 </button>

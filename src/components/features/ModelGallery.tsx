@@ -26,7 +26,7 @@ export default function ModelGallery({ models, productId }: ModelGalleryProps) {
                     return (
                         <div
                             key={model.id}
-                            className="bg-white border-2 border-slate-200 rounded-xl overflow-hidden hover:border-burgundy-300 transition-colors"
+                            className="bg-white border-2 border-slate-200 rounded-xl overflow-hidden hover:border-lyvest-300 transition-colors"
                         >
                             {/* Foto do Modelo */}
                             <div className="aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 relative">
@@ -42,7 +42,7 @@ export default function ModelGallery({ models, productId }: ModelGalleryProps) {
 
                                 {/* Badge de Tamanho */}
                                 {productUsed && (
-                                    <div className="absolute top-3 right-3 bg-burgundy-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                                    <div className="absolute top-3 right-3 bg-lyvest-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
                                         Tamanho {productUsed.size}
                                     </div>
                                 )}
@@ -85,7 +85,7 @@ export default function ModelGallery({ models, productId }: ModelGalleryProps) {
                                 {/* Ajuste */}
                                 {productUsed && (
                                     <div className="text-center">
-                                        <span className="inline-flex items-center gap-1 text-xs text-burgundy-700 bg-burgundy-50 px-2 py-1 rounded-full">
+                                        <span className="inline-flex items-center gap-1 text-xs text-lyvest-700 bg-lyvest-50 px-2 py-1 rounded-full">
                                             Ajuste: {productUsed.fit === 'snug' ? 'Justo' : 'Confortável'}
                                         </span>
                                     </div>

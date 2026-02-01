@@ -94,7 +94,7 @@ export default function VirtualFitting({
                 <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-burgundy-600" />
+                            <Sparkles className="w-5 h-5 text-lyvest-600" />
                             <h2 className="text-xl font-bold text-slate-900">
                                 {step === 'input' && 'Calculadora de Tamanho'}
                                 {step === 'recommendation' && 'Seu Tamanho Perfeito'}
@@ -115,8 +115,8 @@ export default function VirtualFitting({
                         <button
                             onClick={() => setStep('input')}
                             className={`${step === 'input'
-                                    ? 'text-burgundy-600 font-medium'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                ? 'text-lyvest-600 font-medium'
+                                : 'text-slate-500 hover:text-slate-700'
                                 }`}
                         >
                             Medidas
@@ -127,8 +127,8 @@ export default function VirtualFitting({
                                 <button
                                     onClick={() => setStep('recommendation')}
                                     className={`${step === 'recommendation'
-                                            ? 'text-burgundy-600 font-medium'
-                                            : 'text-slate-500 hover:text-slate-700'
+                                        ? 'text-lyvest-600 font-medium'
+                                        : 'text-slate-500 hover:text-slate-700'
                                         }`}
                                 >
                                     Resultado
@@ -138,7 +138,7 @@ export default function VirtualFitting({
                         {step === 'models' && (
                             <>
                                 <span className="text-slate-400">→</span>
-                                <span className="text-burgundy-600 font-medium">Modelos</span>
+                                <span className="text-lyvest-600 font-medium">Modelos</span>
                             </>
                         )}
                     </div>
