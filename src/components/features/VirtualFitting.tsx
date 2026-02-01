@@ -80,7 +80,7 @@ export default function VirtualFitting({
 
     return (
         <div
-            className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
             onClick={onClose}
         >
             <div
