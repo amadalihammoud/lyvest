@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Sparkles } from 'lucide-react';
 import { Product } from '../../services/ProductService';
 import { BodyMeasurements, SizeRecommendation, calculateSize } from '../../services/sizeAI';
@@ -78,9 +79,11 @@ export default function VirtualFitting({
             )
             : [];
 
-    return (
+    if (!isOpen) return null;
+
+    const modalContent = (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
             onClick={onClose}
         >
             <div
@@ -112,8 +115,8 @@ export default function VirtualFitting({
                         <button
                             onClick={() => setStep('input')}
                             className={`${step === 'input'
-                                ? 'text-burgundy-600 font-medium'
-                                : 'text-slate-500 hover:text-slate-700'
+                                    ? 'text-burgundy-600 font-medium'
+                                    : 'text-slate-500 hover:text-slate-700'
                                 }`}
                         >
                             Medidas
@@ -124,8 +127,8 @@ export default function VirtualFitting({
                                 <button
                                     onClick={() => setStep('recommendation')}
                                     className={`${step === 'recommendation'
-                                        ? 'text-burgundy-600 font-medium'
-                                        : 'text-slate-500 hover:text-slate-700'
+                                            ? 'text-burgundy-600 font-medium'
+                                            : 'text-slate-500 hover:text-slate-700'
                                         }`}
                                 >
                                     Resultado
@@ -181,4 +184,6 @@ export default function VirtualFitting({
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }
