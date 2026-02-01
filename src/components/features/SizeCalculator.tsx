@@ -1,15 +1,34 @@
 import React, { useState } from 'react';
-import { Ruler, Weight, User } from 'lucide-react';
+import { Ruler, Weight, User, HelpCircle } from 'lucide-react';
 import { BodyMeasurements } from '../../services/sizeAI';
+import { Product } from '../../services/ProductService';
 
 interface SizeCalculatorProps {
     onCalculate: (measurements: BodyMeasurements) => void;
     isLoading?: boolean;
     initialMeasurements?: BodyMeasurements | null;
+    product: Product;
 }
 
-export default function SizeCalculator({ onCalculate, isLoading, initialMeasurements }: SizeCalculatorProps) {
+export default function SizeCalculator({ onCalculate, isLoading, initialMeasurements, product }: SizeCalculatorProps) {
     const [mode, setMode] = useState<'simple' | 'advanced'>('simple');
+
+    // Identificar categoria do produto para mostrar campos relevantes
+    const getProductCategory = () => {
+        const cat = typeof product.category === 'string'
+            ? product.category.toLowerCase()
+            : Array.isArray(product.category)
+                ? product.category[0]?.slug
+                : 'lingerie';
+
+        if (cat?.includes('sutia') || cat?.includes('top')) return 'bra';
+        if (cat?.includes('calcinha') || cat?.includes('cueca')) return 'panty';
+        if (cat?.includes('meia')) return 'socks';
+        if (cat?.includes('pijama') || cat?.includes('camisola') || cat?.includes('robe')) return 'sleepwear';
+        return 'general';
+    };
+
+    const category = getProductCategory();
 
     const [measurements, setMeasurements] = useState<BodyMeasurements>(initialMeasurements || {
         height: 165,
@@ -19,7 +38,12 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
         fitPreference: 'comfortable',
         exactBust: 90,
         exactWaist: 70,
-        exactHips: 100
+        exactHips: 100,
+        // Novos campos
+        exactUnderBust: 75,
+        exactThigh: 55,
+        exactCalf: 35,
+        shoeSize: 36
     });
 
     // Atualizar estado se initialMeasurements mudar
@@ -35,12 +59,15 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Limpar dados irrelevantes baseado no modo
         const cleanMeasurements = { ...measurements };
         if (mode === 'simple') {
+            // Limpar dados avançados se estiver no modo simples
             delete cleanMeasurements.exactBust;
             delete cleanMeasurements.exactWaist;
             delete cleanMeasurements.exactHips;
+            delete cleanMeasurements.exactUnderBust;
+            delete cleanMeasurements.exactThigh;
+            delete cleanMeasurements.exactCalf;
         }
         onCalculate(cleanMeasurements);
     };
@@ -57,7 +84,7 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
                         : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
-                    Modo Simples
+                    Modo Rápido
                 </button>
                 <button
                     type="button"
@@ -67,151 +94,214 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
                         : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
-                    Fita Métrica (Mais Preciso)
+                    Fita Métrica
                 </button>
             </div>
 
             {mode === 'simple' ? (
                 /* MODO SIMPLES: ALTURA/PESO */
                 <>
-                    {/* Altura */}
-                    <div>
-                        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                            <Ruler className="w-4 h-4" />
-                            Altura: {measurements.height}cm
-                        </label>
-                        <input
-                            type="range"
-                            min="140"
-                            max="200"
-                            value={measurements.height}
-                            onChange={(e) =>
-                                setMeasurements({ ...measurements, height: parseInt(e.target.value) })
-                            }
-                            className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
-                        />
-                        <div className="flex justify-between text-xs text-slate-500 mt-1">
-                            <span>140cm</span>
-                            <span>200cm</span>
+                    {/* Altura e Peso */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
+                                <Ruler className="w-3.5 h-3.5" /> Altura: {measurements.height}cm
+                            </label>
+                            <input
+                                type="range"
+                                min="140"
+                                max="200"
+                                value={measurements.height}
+                                onChange={(e) => setMeasurements({ ...measurements, height: parseInt(e.target.value) })}
+                                className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
+                            />
+                        </div>
+                        <div>
+                            <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
+                                <Weight className="w-3.5 h-3.5" /> Peso: {measurements.weight}kg
+                            </label>
+                            <input
+                                type="range"
+                                min="40"
+                                max="120"
+                                value={measurements.weight}
+                                onChange={(e) => setMeasurements({ ...measurements, weight: parseInt(e.target.value) })}
+                                className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
+                            />
                         </div>
                     </div>
 
-                    {/* Peso */}
-                    <div>
-                        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                            <Weight className="w-4 h-4" />
-                            Peso: {measurements.weight}kg
-                        </label>
-                        <input
-                            type="range"
-                            min="40"
-                            max="120"
-                            value={measurements.weight}
-                            onChange={(e) =>
-                                setMeasurements({ ...measurements, weight: parseInt(e.target.value) })
-                            }
-                            className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
-                        />
-                        <div className="flex justify-between text-xs text-slate-500 mt-1">
-                            <span>40kg</span>
-                            <span>120kg</span>
+                    {/* Tipo de Busto (Apenas se for relevante) */}
+                    {(category === 'bra' || category === 'general' || category === 'sleepwear') && (
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                                <User className="w-4 h-4" />
+                                Tipo de Busto
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {(['small', 'medium', 'large'] as const).map((type) => (
+                                    <button
+                                        key={type}
+                                        type="button"
+                                        onClick={() => setMeasurements({ ...measurements, bustType: type })}
+                                        className={`px-2 py-2 rounded-lg text-xs font-medium transition-colors border-2 ${measurements.bustType === type
+                                            ? 'bg-lyvest-600 text-white border-lyvest-600'
+                                            : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400'
+                                            }`}
+                                    >
+                                        {type === 'small' ? 'Pequeno' : type === 'medium' ? 'Médio' : 'Grande'}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
-                    {/* Tipo de Busto */}
-                    <div>
-                        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                            <User className="w-4 h-4" />
-                            Tipo de Busto
-                        </label>
-                        <div className="grid grid-cols-3 gap-2">
-                            {(['small', 'medium', 'large'] as const).map((type) => (
-                                <button
-                                    key={type}
-                                    type="button"
-                                    onClick={() => setMeasurements({ ...measurements, bustType: type })}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.bustType === type
-                                        ? 'bg-lyvest-600 text-white border-lyvest-600'
-                                        : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400 hover:bg-lyvest-50'
-                                        }`}
-                                >
-                                    {type === 'small' ? 'Pequeno' : type === 'medium' ? 'Médio' : 'Grande'}
-                                </button>
-                            ))}
+                    {/* Tipo de Quadril (Apenas se for relevante) */}
+                    {(category === 'panty' || category === 'general' || category === 'sleepwear') && (
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                                <User className="w-4 h-4" />
+                                Tipo de Quadril
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {(['narrow', 'medium', 'wide'] as const).map((type) => (
+                                    <button
+                                        key={type}
+                                        type="button"
+                                        onClick={() => setMeasurements({ ...measurements, hipType: type })}
+                                        className={`px-2 py-2 rounded-lg text-xs font-medium transition-colors border-2 ${measurements.hipType === type
+                                            ? 'bg-lyvest-600 text-white border-lyvest-600'
+                                            : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400'
+                                            }`}
+                                    >
+                                        {type === 'narrow' ? 'Estreito' : type === 'medium' ? 'Médio' : 'Largo'}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Tipo de Quadril */}
-                    <div>
-                        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                            <User className="w-4 h-4" />
-                            Tipo de Quadril
-                        </label>
-                        <div className="grid grid-cols-3 gap-2">
-                            {(['narrow', 'medium', 'wide'] as const).map((type) => (
-                                <button
-                                    key={type}
-                                    type="button"
-                                    onClick={() => setMeasurements({ ...measurements, hipType: type })}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.hipType === type
-                                        ? 'bg-lyvest-600 text-white border-lyvest-600'
-                                        : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400 hover:bg-lyvest-50'
-                                        }`}
-                                >
-                                    {type === 'narrow' ? 'Estreito' : type === 'medium' ? 'Médio' : 'Largo'}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    )}
                 </>
             ) : (
-                /* MODO AVANÇADO: MEDIDAS EXATAS */
-                <div className="space-y-5 animate-fade-in">
+                /* MODO AVANÇADO: MEDIDAS EXATAS (DINÂMICO) */
+                <div className="space-y-4 animate-fade-in">
                     <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-700 mb-4 flex gap-3">
                         <span className="text-xl">📏</span>
                         <p>
-                            Use uma fita métrica para medir seu corpo. Não aperte a fita.
+                            {category === 'bra' && "Para sutiãs, o segredo é a relação entre Busto e Tórax (abaixo do seio)."}
+                            {category === 'panty' && "Para calcinhas, foque na medida do quadril (parte mais larga)."}
+                            {category === 'socks' && "Para meias, a panturrilha é essencial para não apertar."}
+                            {category === 'general' && "Use uma fita métrica para medir seu corpo. Não a deixe muito apertada."}
                         </p>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Busto (cm)
-                        </label>
-                        <input
-                            type="number"
-                            value={measurements.exactBust || ''}
-                            onChange={(e) => setMeasurements({ ...measurements, exactBust: Number(e.target.value) })}
-                            placeholder="Ex: 90"
-                            className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-lyvest-500 focus:border-transparent outline-none transition-all"
-                        />
-                    </div>
+                    {/* Inputs para Sutiãs/Tops */}
+                    {(category === 'bra' || category === 'general' || category === 'sleepwear') && (
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Busto (cm)
+                                    <HelpCircle className="w-3 h-3 inline ml-1 text-slate-400" />
+                                </label>
+                                <input
+                                    type="number"
+                                    value={measurements.exactBust || ''}
+                                    onChange={(e) => setMeasurements({ ...measurements, exactBust: Number(e.target.value) })}
+                                    placeholder="Ex: 90"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                                />
+                            </div>
+                            {category === 'bra' && (
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                                        Sub-Busto/Tórax (cm)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={measurements.exactUnderBust || ''}
+                                        onChange={(e) => setMeasurements({ ...measurements, exactUnderBust: Number(e.target.value) })}
+                                        placeholder="Ex: 80"
+                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Cintura (cm)
-                        </label>
-                        <input
-                            type="number"
-                            value={measurements.exactWaist || ''}
-                            onChange={(e) => setMeasurements({ ...measurements, exactWaist: Number(e.target.value) })}
-                            placeholder="Ex: 70"
-                            className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-lyvest-500 focus:border-transparent outline-none transition-all"
-                        />
-                    </div>
+                    {/* Inputs para Parte de Baixo */}
+                    {(category === 'panty' || category === 'general' || category === 'sleepwear') && (
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Cintura (Umbigo)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={measurements.exactWaist || ''}
+                                    onChange={(e) => setMeasurements({ ...measurements, exactWaist: Number(e.target.value) })}
+                                    placeholder="Ex: 70"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Quadril (cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={measurements.exactHips || ''}
+                                    onChange={(e) => setMeasurements({ ...measurements, exactHips: Number(e.target.value) })}
+                                    placeholder="Ex: 100"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                                />
+                            </div>
+                        </div>
+                    )}
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Quadril (cm)
-                        </label>
-                        <input
-                            type="number"
-                            value={measurements.exactHips || ''}
-                            onChange={(e) => setMeasurements({ ...measurements, exactHips: Number(e.target.value) })}
-                            placeholder="Ex: 100"
-                            className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-lyvest-500 focus:border-transparent outline-none transition-all"
-                        />
-                    </div>
+                    {/* Input Específico para Calcinha (Coxa) */}
+                    {category === 'panty' && (
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                                Coxa (Opcional - para não enrolar)
+                            </label>
+                            <input
+                                type="number"
+                                value={measurements.exactThigh || ''}
+                                onChange={(e) => setMeasurements({ ...measurements, exactThigh: Number(e.target.value) })}
+                                placeholder="Ex: 55"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                            />
+                        </div>
+                    )}
+
+                    {/* Inputs para Meias */}
+                    {category === 'socks' && (
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Nº Calçado
+                                </label>
+                                <input
+                                    type="number"
+                                    value={measurements.shoeSize || ''}
+                                    onChange={(e) => setMeasurements({ ...measurements, shoeSize: Number(e.target.value) })}
+                                    placeholder="Ex: 36"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Panturrilha (cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={measurements.exactCalf || ''}
+                                    onChange={(e) => setMeasurements({ ...measurements, exactCalf: Number(e.target.value) })}
+                                    placeholder="Ex: 35"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -251,15 +341,15 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
                 {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Calculando...
+                        O Especialista LyVest está analisando...
                     </span>
                 ) : (
-                    'Calcular Meu Tamanho'
+                    'Descobrir Meu Tamanho Ideal'
                 )}
             </button>
 
             <p className="text-xs text-slate-500 text-center">
-                💡 Nossa IA analisa suas medidas para recomendar o tamanho perfeito
+                💡 Baseado em modelagem técnica e dados de 20 anos de experiência
             </p>
         </form>
     );

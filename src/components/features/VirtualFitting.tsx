@@ -209,6 +209,7 @@ export default function VirtualFitting({
                                 onCalculate={handleCalculate}
                                 isLoading={isCalculating}
                                 initialMeasurements={measurements}
+                                product={product}
                             />
                         </div>
                     )}

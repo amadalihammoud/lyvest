@@ -14,10 +14,15 @@ export interface BodyMeasurements {
     bustType: 'small' | 'medium' | 'large';
     hipType: 'narrow' | 'medium' | 'wide';
     fitPreference: 'snug' | 'comfortable';
-    // Medidas exatas (opcionais p/ Modo Avançado)
-    exactBust?: number;
-    exactWaist?: number;
-    exactHips?: number;
+
+    // Medidas Avançadas (Especialista em Fit)
+    exactBust?: number;    // Busto Total
+    exactUnderBust?: number; // Tórax / Sub-busto (Novo)
+    exactWaist?: number;   // Cintura (Umbigo)
+    exactHips?: number;    // Quadril
+    exactThigh?: number;   // Coxa (Novo)
+    exactCalf?: number;    // Panturrilha (Novo)
+    shoeSize?: number;     // Calçado (Novo)
 }
 
 export interface SizeRecommendation {
@@ -37,7 +42,7 @@ export async function calculateSize(
     // Sempre tentar algoritmo offline primeiro (mais rápido)
     const offlineRecommendation = calculateOffline(measurements);
 
-    // Se tiver API configurada, refinar com IA
+    // Se tiver API configurada, refinar com IA Especialista
     if (import.meta.env.VITE_OPENAI_API_KEY) {
         try {
             const aiRecommendation = await getAIRecommendation(measurements, product);
@@ -181,7 +186,7 @@ function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRec
     return {
         size,
         confidence: 0.96, // Confiança alta pois são medidas exatas
-        reason: 'Baseado nas suas medidas exatas (busto, cintura e quadril), este é o tamanho tecnicamente perfeito.',
+        reason: 'Baseado nas suas medidas exatas, este é o tamanho tecnicamente perfeito.',
         alternativeSize: finalScore % 1 > 0.6 ? getNextSize(size) : undefined
     };
 }
@@ -193,7 +198,7 @@ function getNextSize(s: string): any {
 }
 
 /**
- * Recomendação usando GPT-4 (quando disponível)
+ * Recomendação usando GPT-4 com Prompt Especialista
  */
 async function getAIRecommendation(
     measurements: BodyMeasurements,
@@ -206,52 +211,92 @@ async function getAIRecommendation(
     }
 
     const categoryValue = product.category;
-    const category =
-        typeof categoryValue === 'string'
-            ? categoryValue.toLowerCase()
-            : Array.isArray(categoryValue)
-                ? (categoryValue[0]?.slug || 'lingerie')
-                : (categoryValue?.slug || 'lingerie');
-    const sizeGuide = SIZE_GUIDE[category] || SIZE_GUIDE.calcinhas;
+    const categoryName = typeof categoryValue === 'string'
+        ? categoryValue.toLowerCase()
+        : Array.isArray(categoryValue)
+            ? (categoryValue[0]?.slug || 'lingerie')
+            : (categoryValue?.slug || 'lingerie');
 
-    const measurementText = measurements.exactBust
-        ? `MEDIDAS EXATAS:\n- Busto: ${measurements.exactBust}cm\n- Cintura: ${measurements.exactWaist}cm\n- Quadril: ${measurements.exactHips}cm`
-        : `- Altura: ${measurements.height}cm\n- Peso: ${measurements.weight}kg`;
+    const sizeGuide = SIZE_GUIDE[categoryName] || SIZE_GUIDE.calcinhas;
 
-    const prompt = `Você é uma consultora especialista em moda íntima feminina brasileira com 20 anos de experiência.
+    // CONTEXTO DE MEDIÇÃO POR CATEGORIA
+    let contextPrompt = '';
+
+    if (categoryName.includes('sutia') || categoryName.includes('top')) {
+        contextPrompt = `
+        CONTEXTO SUTIÃS E TOPS:
+        - Sub-Busto (Tórax): ${measurements.exactUnderBust ? measurements.exactUnderBust + 'cm' : 'Não informado'} -> É a base. Define o número (40-52).
+        - Busto: ${measurements.exactBust ? measurements.exactBust + 'cm' : 'Não informado'} -> Define a taça.
+        - Priorize conforto da respiração se medida do tórax for limítrofe.
+        - Se diferença Busto/Tórax for grande, alerte sobre necessidade de taça maior.`;
+    }
+    else if (categoryName.includes('calcinha') || categoryName.includes('cueca')) {
+        contextPrompt = `
+        CONTEXTO CALCINHAS E CUECAS:
+        - Cintura: ${measurements.exactWaist ? measurements.exactWaist + 'cm' : 'Não informado'} -> Crucial para modeladores/hot pants.
+        - Quadril: ${measurements.exactHips ? measurements.exactHips + 'cm' : 'Não informado'} -> Maior circunferência do glúteo.
+        - Coxa: ${measurements.exactThigh ? measurements.exactThigh + 'cm' : 'Não informado'} -> Se disponível, use para evitar que enrole.`;
+    }
+    else if (categoryName.includes('pijama') || categoryName.includes('camisola') || categoryName.includes('robe')) {
+        contextPrompt = `
+        CONTEXTO PIJAMAS (CAMISOLAS/ROBES):
+        - Foco na FLUIDEZ. Ninguém dorme com roupa apertada.
+        - Use a maior medida (Busto ou Quadril) como determinante.`;
+    }
+    else if (categoryName.includes('meia')) {
+        contextPrompt = `
+        CONTEXTO MEIAS:
+        - Nº Calçado: ${measurements.shoeSize || 'Não informado'} -> Base principal.
+        - Panturrilha: ${measurements.exactCalf ? measurements.exactCalf + 'cm' : 'Não informado'} -> Determinante para 3/4 e 7/8. Evitar efeito garrote.`;
+    }
+
+    const measurementText = `
+    MEDIDAS FORNECIDAS:
+    - Altura/Peso: ${measurements.height}cm / ${measurements.weight}kg
+    - Busto: ${measurements.exactBust || 'N/A'}
+    - Tórax: ${measurements.exactUnderBust || 'N/A'}
+    - Cintura: ${measurements.exactWaist || 'N/A'}
+    - Quadril: ${measurements.exactHips || 'N/A'}
+    - Coxa: ${measurements.exactThigh || 'N/A'}
+    - Panturrilha: ${measurements.exactCalf || 'N/A'}
+    - Calçado: ${measurements.shoeSize || 'N/A'}
+    `;
+
+    const prompt = `Você é o Especialista em Fit e Modelagem da LyVest, uma inteligência artificial focada em encontrar o tamanho ideal de lingerie e moda íntima.
+
+MISSÃO: Garantir conforto absoluto, eliminando erro de compra e aumentando confiança.
+
+${contextPrompt}
 
 CLIENTE:
 ${measurementText}
-- Tipo de busto: ${translateBustType(measurements.bustType)}
-- Tipo de quadril: ${translateHipType(measurements.hipType)}
-- Preferência de ajuste: ${measurements.fitPreference === 'snug' ? 'mais justo/modelador' : 'confortável/solto'}
+- Tipo de corpo: ${translateBustType(measurements.bustType)} / ${translateHipType(measurements.hipType)}
+- Preferência: ${measurements.fitPreference === 'snug' ? 'mais justo/modelador' : 'confortável/solto'}
 
 PRODUTO:
 - Nome: ${product.name}
-- Categoria: ${category}
+- Categoria: ${categoryName}
 - Descrição: ${product.description || ''}
 
-TABELA DE MEDIDAS DISPONÍVEIS:
+TABELA DE MEDIDAS (REFERÊNCIA):
 ${JSON.stringify(sizeGuide, null, 2)}
 
-TAMANHOS DISPONÍVEIS: PP, P, M, G, GG
+INSTRUÇÕES DE SAÍDA:
+1. Retorne sempre o tamanho sugerido (PP, P, M, G, GG) com % de certeza.
+2. Justificativa: Explique de forma humanizada, focada em bem-estar.
+   Ex: "Sugerimos o 44 porque oferece sustentação para costas sem apertar."
+3. Dica Personalizada: Se houver desproporção (ex: costas finas, busto grande), dê uma dica de ouro.
+4. Tom de Voz: Profissional, acolhedor, técnico porém acessível.
 
-TAREFA:
-Recomende o tamanho PERFEITO para esta cliente, considerando:
-1. Conforto e caimento ideal
-2. Preferência de ajuste dela
-3. Tipo específico de produto
-4. Padrão brasileiro de numeração
-
-Retorne APENAS um objeto JSON válido (sem markdown):
+Retorne APENAS JSON válido:
 {
   "size": "P",
   "confidence": 0.92,
-  "reason": "Explicação clara e amigável do porquê este tamanho é ideal",
+  "reason": "Explicação humanizada...",
   "alternativeSize": "M"
 }
 
-IMPORTANTE: A confiança deve ser entre 0.75 e 0.98. Seja honesta se houver dúvida.`;
+A confiança deve ser entre 0.75 e 0.99.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
