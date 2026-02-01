@@ -29,17 +29,49 @@ export default function AIRecommendation({
         return 'text-orange-600 bg-orange-50';
     };
 
-    // Lógica simples de cross-sell
+    // Lógica de cross-sell (Simulada, mas contextual)
     const getCrossSellProduct = () => {
         if (!product) return null;
 
-        // Se for sutiã, sugere calcinha. Se for calcinha, sugere sutiã.
         const category = typeof product.category === 'string'
             ? product.category.toLowerCase()
             : Array.isArray(product.category)
                 ? product.category[0]?.slug
                 : 'lingerie';
 
+        const name = product.name.toLowerCase();
+
+        // 1. Se for Cueca ou Boxer -> Sugere Top Esportivo/Conforto (Não Sutiã de Renda!)
+        if (category?.includes('cueca') || name.includes('boxer') || name.includes('cueca')) {
+            return {
+                name: 'Top Conforto Sem Costura',
+                price: 59.90,
+                image: 'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&q=80&w=300', // Top básico/esportivo
+                type: 'Top'
+            };
+        }
+
+        // 2. Se for Pijama/Camisola -> Sugere Robe
+        if (category?.includes('pijama') || category?.includes('camisola') || category?.includes('sleepwear')) {
+            return {
+                name: 'Robe Cetim Toque de Seda',
+                price: 129.90,
+                image: 'https://images.unsplash.com/photo-1631215424560-658b375b43cd?auto=format&fit=crop&q=80&w=300', // Robe
+                type: 'Robe'
+            };
+        }
+
+        // 3. Se for Meia -> Sugere Kit Calcinhas Básicas
+        if (category?.includes('meia')) {
+            return {
+                name: 'Kit 3 Calcinhas Algodão',
+                price: 39.90,
+                image: 'https://images.unsplash.com/photo-1596482121084-2f2227d86f7f?auto=format&fit=crop&q=80&w=300', // Kit calcinhas
+                type: 'Kit'
+            };
+        }
+
+        // 4. Se for Sutiã/Top -> Sugere Calcinha (Padrão)
         if (category?.includes('sutia') || category?.includes('top')) {
             return {
                 name: 'Calcinha Renda Premium',
@@ -47,7 +79,10 @@ export default function AIRecommendation({
                 image: 'https://images.unsplash.com/photo-1582740735409-d0ae8d489ea6?auto=format&fit=crop&q=80&w=300',
                 type: 'Calcinha'
             };
-        } else {
+        }
+
+        // 5. Se for Calcinha (não Boxer) -> Sugere Sutiã (Padrão)
+        else {
             return {
                 name: 'Sutiã Comfort Lace',
                 price: 89.90,
@@ -57,7 +92,8 @@ export default function AIRecommendation({
         }
     };
 
-    const crossSell = getCrossSellProduct();
+    // Evitar loop/re-render desnecessário
+    const [crossSell] = useState(() => getCrossSellProduct());
 
     return (
         <div className="space-y-6">
@@ -116,8 +152,8 @@ export default function AIRecommendation({
                         <button
                             onClick={() => setAddedCrossSell(!addedCrossSell)}
                             className={`p-2 rounded-full transition-all ${addedCrossSell
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-lyvest-50 text-lyvest-700 hover:bg-lyvest-100'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-lyvest-50 text-lyvest-700 hover:bg-lyvest-100'
                                 }`}
                         >
                             {addedCrossSell ? <CheckCircle2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}

@@ -1,4 +1,3 @@
-```
 import React, { useState } from 'react';
 import { Ruler, Weight, HelpCircle } from 'lucide-react';
 import { BodyMeasurements } from '../../services/sizeAI';
@@ -225,11 +224,10 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
                             key={pref}
                             type="button"
                             onClick={() => setMeasurements({ ...measurements, fitPreference: pref })}
-                            className={`px - 4 py - 3 rounded - lg text - sm font - medium transition - colors border - 2 ${
-    measurements.fitPreference === pref
-    ? 'bg-lyvest-600 text-white border-lyvest-600'
-    : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400 hover:bg-lyvest-50'
-} `}
+                            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.fitPreference === pref
+                                ? 'bg-lyvest-600 text-white border-lyvest-600'
+                                : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400 hover:bg-lyvest-50'
+                                }`}
                         >
                             <div className="font-semibold">
                                 {pref === 'snug' ? 'Mais Justo' : 'Confortável'}
