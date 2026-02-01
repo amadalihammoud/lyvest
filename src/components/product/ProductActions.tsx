@@ -1,5 +1,5 @@
 
-import { Minus, Plus, Lock } from 'lucide-react';
+import { Minus, Plus, Lock, Sparkles } from 'lucide-react';
 // Use Product from services/ProductService instead of local definition
 import { Product } from '../../services/ProductService';
 
@@ -8,6 +8,7 @@ interface ProductActionsProps {
     quantity: number;
     setQuantity: (fn: (prev: number) => number) => void;
     onAddToCart: (product: any) => void; // Using any for now to match flexible usage, or Product
+    onOpenVirtualFitting?: () => void;
     shippingZip: string;
     setShippingZip: (zip: string) => void;
     t: (key: string) => string;
@@ -19,6 +20,7 @@ export function ProductActions({
     quantity,
     setQuantity,
     onAddToCart,
+    onOpenVirtualFitting,
     shippingZip,
     setShippingZip,
     t,
@@ -52,6 +54,18 @@ export function ProductActions({
                     {t('products.buy')}
                 </button>
             </div>
+
+            {/* Provador Virtual - Botão Premium */}
+            {onOpenVirtualFitting && (
+                <button
+                    onClick={onOpenVirtualFitting}
+                    className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold h-12 rounded-md hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg flex items-center justify-center gap-2 group"
+                >
+                    <Sparkles className="w-5 h-5 animate-pulse" />
+                    <span className="text-base">Encontre Seu Tamanho com IA</span>
+                    <Sparkles className="w-5 h-5 animate-pulse" />
+                </button>
+            )}
 
             {/* Shipping Calculator */}
             <div className="mt-6">

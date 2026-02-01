@@ -15,9 +15,10 @@ import { ProductTabs } from './ProductTabs';
 interface ProductDetailsProps {
     product: Product;
     onAddToCart: (product: Product) => void;
+    onOpenVirtualFitting?: () => void;
 }
 
-function ProductDetails({ product, onAddToCart }: ProductDetailsProps) {
+function ProductDetails({ product, onAddToCart, onOpenVirtualFitting }: ProductDetailsProps) {
     const navigate = useNavigate();
     const { t, isRTL, formatCurrency, getProductData } = useI18n();
     const [quantity, setQuantity] = useState(1);
@@ -68,6 +69,7 @@ function ProductDetails({ product, onAddToCart }: ProductDetailsProps) {
                             quantity={quantity}
                             setQuantity={setQuantity}
                             onAddToCart={onAddToCart}
+                            onOpenVirtualFitting={onOpenVirtualFitting}
                             shippingZip={shippingZip}
                             setShippingZip={setShippingZip}
                             t={t}

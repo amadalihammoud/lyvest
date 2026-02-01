@@ -1,5 +1,4 @@
-﻿
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import ProductDetails from '../components/product/ProductDetails';
@@ -10,14 +9,16 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import ProductDetailsSkeleton from '../components/product/ProductDetailsSkeleton';
 import { productsData } from '../data/mockData';
 import { generateSlug } from '../utils/slug';
-import { Product } from '../services/ProductService'; // Import interface
+import { Product } from '../services/ProductService';
+import VirtualFitting from '../components/features/VirtualFitting';
 
 export default function ProductPage() {
     const { slug } = useParams();
     const { addToCart } = useCart();
     const { openModal } = useModal();
-    const [product, setProduct] = useState<Product | null>(null); // Use strict type
+    const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isVirtualFittingOpen, setIsVirtualFittingOpen] = useState(false);
 
     useEffect(() => {
         async function loadProduct() {
@@ -59,6 +60,14 @@ export default function ProductPage() {
     const handleAddToCart = (item: any) => {
         addToCart(item);
         openModal('addedToCart', item);
+    };
+
+    const handleSizeSelected = () => {
+        if (product) {
+            // Adicionar produto ao carrinho quando selecionado via IA
+            addToCart(product as any);
+            openModal('addedToCart', product);
+        }
     };
 
     if (loading) {
@@ -109,8 +118,17 @@ export default function ProductPage() {
                     <ProductDetails
                         product={product}
                         onAddToCart={handleAddToCart}
+                        onOpenVirtualFitting={() => setIsVirtualFittingOpen(true)}
                     />
                 </div>
+
+                {/* Provador Virtual com IA */}
+                <VirtualFitting
+                    isOpen={isVirtualFittingOpen}
+                    onClose={() => setIsVirtualFittingOpen(false)}
+                    product={product}
+                    onSizeSelected={handleSizeSelected}
+                />
             </div>
         </>
     );
