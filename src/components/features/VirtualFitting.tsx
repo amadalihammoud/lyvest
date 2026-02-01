@@ -218,6 +218,7 @@ export default function VirtualFitting({
                             recommendation={recommendation}
                             onAddToCart={handleAddToCart}
                             onViewModels={handleViewModels}
+                            product={product}
                         />
                     )}
 
