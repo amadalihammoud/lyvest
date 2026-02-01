@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Sparkles } from 'lucide-react';
 import { Product } from '../../services/ProductService';
@@ -17,6 +17,14 @@ interface VirtualFittingProps {
 
 type Step = 'input' | 'recommendation' | 'models';
 
+const STORAGE_KEY = 'lyvest_user_measurements';
+
+// Simples sistema de analytics (pode ser expandido para GA4/Pixel)
+const trackEvent = (eventName: string, data: any) => {
+    console.log(`📊 [Analytics] ${eventName}:`, data);
+    // Aqui seria: window.gtag('event', eventName, data);
+};
+
 export default function VirtualFitting({
     isOpen,
     onClose,
@@ -28,11 +36,39 @@ export default function VirtualFitting({
     const [recommendation, setRecommendation] = useState<SizeRecommendation | null>(null);
     const [measurements, setMeasurements] = useState<BodyMeasurements | null>(null);
 
+    // Carregar medidas salvas ao abrir
+    useEffect(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                setMeasurements(parsed);
+            } catch (e) {
+                console.error('Erro ao carregar medidas:', e);
+            }
+        }
+    }, []);
+
+    // Tracking ao abrir
+    useEffect(() => {
+        if (isOpen) {
+            trackEvent('view_fitting_room', { productId: product.id, productName: product.name });
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const handleCalculate = async (userMeasurements: BodyMeasurements) => {
         setIsCalculating(true);
         setMeasurements(userMeasurements);
+
+        // Salvar persistência
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(userMeasurements));
+
+        trackEvent('calculate_size', {
+            measurements: userMeasurements,
+            productId: product.id
+        });
 
         try {
             // Simular delay mínimo para UX (mostrar loading)
@@ -43,6 +79,11 @@ export default function VirtualFitting({
 
             setRecommendation(result);
             setStep('recommendation');
+
+            trackEvent('view_recommendation', {
+                recommendedSize: result.size,
+                confidence: result.confidence
+            });
         } catch (error) {
             console.error('Erro ao calcular tamanho:', error);
             alert('Erro ao calcular tamanho. Tente novamente.');
@@ -52,11 +93,21 @@ export default function VirtualFitting({
     };
 
     const handleAddToCart = (size: string) => {
-        onSizeSelected(size);
-        onClose();
+        trackEvent('add_to_cart_from_fitting', {
+            size,
+            productId: product.id,
+            recommendation: recommendation?.size
+        });
+
+        // Pequeno delay para garantir tracking antes de fechar (opcional, mas bom pra analytics)
+        setTimeout(() => {
+            onSizeSelected(size);
+            onClose();
+        }, 100);
     };
 
     const handleViewModels = () => {
+        trackEvent('view_similar_models', { productId: product.id });
         setStep('models');
     };
 
@@ -154,7 +205,11 @@ export default function VirtualFitting({
                                     perfeito para você!
                                 </p>
                             </div>
-                            <SizeCalculator onCalculate={handleCalculate} isLoading={isCalculating} />
+                            <SizeCalculator
+                                onCalculate={handleCalculate}
+                                isLoading={isCalculating}
+                                initialMeasurements={measurements}
+                            />
                         </div>
                     )}
 

@@ -14,6 +14,10 @@ export interface BodyMeasurements {
     bustType: 'small' | 'medium' | 'large';
     hipType: 'narrow' | 'medium' | 'wide';
     fitPreference: 'snug' | 'comfortable';
+    // Medidas exatas (opcionais p/ Modo Avançado)
+    exactBust?: number;
+    exactWaist?: number;
+    exactHips?: number;
 }
 
 export interface SizeRecommendation {
@@ -53,6 +57,14 @@ export async function calculateSize(
 function calculateOffline(
     measurements: BodyMeasurements
 ): SizeRecommendation {
+    const { exactBust, exactHips, exactWaist } = measurements;
+
+    // SE tiver medidas exatas, usar lógica de fita métrica (Mais preciso)
+    if (exactBust || exactHips || exactWaist) {
+        return calculateFromExactMeasurements(measurements);
+    }
+
+    // SENÃO usar lógica estimativa (Peso/Altura)
     const { height, weight, bustType, hipType, fitPreference } = measurements;
 
     // Calcular BMI
@@ -117,6 +129,70 @@ function calculateOffline(
 }
 
 /**
+ * Lógica para cálculo via Fita Métrica (CM exatos)
+ */
+function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRecommendation {
+    const { exactBust, exactHips, exactWaist, fitPreference } = measurements;
+
+    // Pontuações: PP=1, P=2, M=3, G=4, GG=5
+    let scores: number[] = [];
+
+    // Tabela simplificada BR
+    if (exactBust && exactBust > 0) {
+        if (exactBust <= 82) scores.push(1); // PP
+        else if (exactBust <= 87) scores.push(2); // P
+        else if (exactBust <= 92) scores.push(3); // M
+        else if (exactBust <= 97) scores.push(4); // G
+        else scores.push(exactBust <= 104 ? 5 : 5.5); // GG ou +
+    }
+
+    if (exactHips && exactHips > 0) {
+        if (exactHips <= 90) scores.push(1); // PP
+        else if (exactHips <= 96) scores.push(2); // P
+        else if (exactHips <= 102) scores.push(3); // M
+        else if (exactHips <= 108) scores.push(4); // G
+        else scores.push(exactHips <= 116 ? 5 : 5.5); // GG
+    }
+
+    if (exactWaist && exactWaist > 0) {
+        if (exactWaist <= 64) scores.push(1); // PP
+        else if (exactWaist <= 70) scores.push(2); // P
+        else if (exactWaist <= 76) scores.push(3); // M
+        else if (exactWaist <= 82) scores.push(4); // G
+        else scores.push(exactWaist <= 90 ? 5 : 5.5); // GG
+    }
+
+    // Se não tiver nenhuma medida válida (não deveria acontecer), fallback
+    if (scores.length === 0) return calculateOffline({ ...measurements, exactBust: undefined, exactHips: undefined, exactWaist: undefined });
+
+    const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+    // Ajuste de preferência (se estiver entre tamanhos)
+    const finalScore = avgScore + (fitPreference === 'snug' ? -0.2 : 0.2);
+
+    let size: 'PP' | 'P' | 'M' | 'G' | 'GG';
+    // Rounding logic
+    if (finalScore <= 1.5) size = 'PP';
+    else if (finalScore <= 2.5) size = 'P';
+    else if (finalScore <= 3.5) size = 'M';
+    else if (finalScore <= 4.5) size = 'G';
+    else size = 'GG';
+
+    return {
+        size,
+        confidence: 0.96, // Confiança alta pois são medidas exatas
+        reason: 'Baseado nas suas medidas exatas (busto, cintura e quadril), este é o tamanho tecnicamente perfeito.',
+        alternativeSize: finalScore % 1 > 0.6 ? getNextSize(size) : undefined
+    };
+}
+
+function getNextSize(s: string): any {
+    const sizes = ['PP', 'P', 'M', 'G', 'GG'];
+    const idx = sizes.indexOf(s);
+    return idx < sizes.length - 1 ? sizes[idx + 1] : undefined;
+}
+
+/**
  * Recomendação usando GPT-4 (quando disponível)
  */
 async function getAIRecommendation(
@@ -138,11 +214,14 @@ async function getAIRecommendation(
                 : (categoryValue?.slug || 'lingerie');
     const sizeGuide = SIZE_GUIDE[category] || SIZE_GUIDE.calcinhas;
 
+    const measurementText = measurements.exactBust
+        ? `MEDIDAS EXATAS:\n- Busto: ${measurements.exactBust}cm\n- Cintura: ${measurements.exactWaist}cm\n- Quadril: ${measurements.exactHips}cm`
+        : `- Altura: ${measurements.height}cm\n- Peso: ${measurements.weight}kg`;
+
     const prompt = `Você é uma consultora especialista em moda íntima feminina brasileira com 20 anos de experiência.
 
 CLIENTE:
-- Altura: ${measurements.height}cm
-- Peso: ${measurements.weight}kg
+${measurementText}
 - Tipo de busto: ${translateBustType(measurements.bustType)}
 - Tipo de quadril: ${translateHipType(measurements.hipType)}
 - Preferência de ajuste: ${measurements.fitPreference === 'snug' ? 'mais justo/modelador' : 'confortável/solto'}
