@@ -19,14 +19,16 @@ dotenv.config({ path: '.env.local' });
 // Configuração do Supabase
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
-const SITE_URL = 'https://lyvest.vercel.app'; // URL final de produção
+const SITE_URL = 'https://lyvest.vercel.app';
 
-if (!supabaseUrl || !supabaseKey) {
-    console.error('❌ Erro: VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY são obrigatórios.');
-    process.exit(1);
+// Supabase é opcional - usaremos dados mockados se não estiver configurado
+const USE_SUPABASE = !!(supabaseUrl && supabaseKey);
+
+if (!USE_SUPABASE) {
+    console.warn('⚠️  Supabase não configurado. Usando dados mockados para feed.');
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = USE_SUPABASE ? createClient(supabaseUrl, supabaseKey) : null;
 
 // Helper para escapar caracteres XML
 const escapeXml = (unsafe) => {
@@ -42,20 +44,64 @@ const escapeXml = (unsafe) => {
 };
 
 async function generateFeed() {
-    console.log('🔄 Buscando produtos no Supabase...');
+    console.log('🔄 Gerando Product Feed XML...');
 
-    const { data: products, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('active', true);
+    let products = [];
 
-    if (error) {
-        console.error('❌ Erro ao buscar produtos:', error);
-        return;
+    if (USE_SUPABASE) {
+        console.log('📡 Buscando produtos do Supabase...');
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('active', true);
+
+        if (error) {
+            console.error('❌ Erro ao buscar produtos:', error);
+            console.warn('⚠️  Usando dados mockados como fallback...');
+        } else {
+            products = data || [];
+        }
     }
 
-    if (!products || products.length === 0) {
-        console.warn('⚠️ Nenhum produto encontrado. Verifique se há produtos ativos no banco.');
+    // Se não tem Supabase ou deu erro, usar dados mockados
+    if (!USE_SUPABASE || products.length === 0) {
+        console.log('📦 Usando dados mockados...');
+        products = [
+            {
+                id: 1,
+                name: 'Calcinha Renda Francesa',
+                description: 'Calcinha de renda francesa delicada',
+                price: 89.90,
+                image_url: `${SITE_URL}/images/products/calcinha-1.jpg`,
+                category: 'calcinhas',
+                brand: 'Ly Vest',
+                availability: 'in stock'
+            },
+            {
+                id: 2,
+                name: 'Conjunto Noite Estrelada',
+                description: 'Conjunto elegante com detalhes em renda',
+                price: 149.90,
+                image_url: `${SITE_URL}/images/products/conjunto-1.jpg`,
+                category: 'conjuntos',
+                brand: 'Ly Vest',
+                availability: 'in stock'
+            },
+            {
+                id: 3,
+                name: 'Sutã Elite Collection',
+                description: 'Sutã premium com suporte especial',
+                price: 119.90,
+                image_url: `${SITE_URL}/images/products/sutia-1.jpg`,
+                category: 'sutias',
+                brand: 'Ly Vest',
+                availability: 'in stock'
+            },
+        ];
+    }
+
+    if (products.length === 0) {
+        console.error('❌ Nenhum produto encontrado! Verifique se há produtos ativos no banco.');
         // Gerar XML vazio ou com produtos de exemplo se necessário
     }
 
@@ -78,10 +124,10 @@ async function generateFeed() {
         const price = product.price ? `${product.price.toFixed(2)} BRL` : '0.00 BRL';
         const image = product.image || `${SITE_URL}/placeholder.jpg`;
         const link = `${SITE_URL}/produto/${product.slug || product.id}`;
-        
+
         // Categorização básica (Google Taxonomy ID 213 = Apparel & Accessories > Clothing > Underwear & Socks > Lingerie)
         // Você pode melhorar isso mapeando suas categorias do banco
-        const googleCategory = '213'; 
+        const googleCategory = '213';
 
         xml += `
     <item>

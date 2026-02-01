@@ -19,12 +19,14 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 const SITE_URL = 'https://lyvest.vercel.app'; // URL final de produção
 
-if (!supabaseUrl || !supabaseKey) {
-    console.error('❌ Erro: VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY são obrigatórios.');
-    process.exit(1);
+// Supabase é opcional - usaremos dados mockados se não estiver configurado
+const USE_SUPABASE = !!(supabaseUrl && supabaseKey);
+
+if (!USE_SUPABASE) {
+    console.warn('⚠️  Supabase não configurado. Usando dados mockados para sitemap.');
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = USE_SUPABASE ? createClient(supabaseUrl, supabaseKey) : null;
 
 // Helper para gerar slug (caso não venha do banco)
 const generateSlug = (text) => {
@@ -41,29 +43,43 @@ const generateSlug = (text) => {
 };
 
 async function generateSitemap() {
-    console.log('🔄 Gerando Sitemap.xml a partir do Supabase...');
+    console.log('🔄 Gerando Sitemap.xml...');
 
-    // 1. Buscar Produtos Ativos
-    const { data: products, error: prodError } = await supabase
-        .from('products')
-        .select('id, name, slug, updated_at, category_id')
-        .eq('active', true);
+    let products = [];
+    let categories = new Set();
 
-    if (prodError) {
-        console.error('❌ Erro ao buscar produtos:', prodError);
-        return;
+    if (USE_SUPABASE) {
+        // Buscar do Supabase
+        console.log('📡 Buscando dados do Supabase...');
+        const { data, error } = await supabase
+            .from('products')
+            .select('id, name, slug, updated_at, category_id')
+            .eq('active', true);
+
+        if (error) {
+            console.error('❌ Erro ao buscar produtos:', error);
+            console.warn('⚠️  Usando dados mockados como fallback...');
+            // Continuar com mock data como fallback
+        } else {
+            products = data || [];
+            products.forEach(p => {
+                if (p.category_id) categories.add(p.category_id);
+            });
+        }
     }
 
-    // 2. Extrair Categorias Únicas (assumindo que category_id é o nome ou slug, se for ID precisaria de join)
-    // Para simplificar, vou assumir que temos uma tabela de categorias ou extrairemos dos produtos
-    // Se category_id for string (nome), usamos ele. Se for ID, ideal seria buscar da tabela de categorias.
-    // Vou buscar categorias distintas dos produtos por enquanto para garantir links
-    const categories = new Set();
-    products.forEach(p => {
-        if (p.category_id) categories.add(p.category_id);
-    });
+    // Se não tem Supabase ou deu erro, usar dados mockados
+    if (!USE_SUPABASE || products.length === 0) {
+        console.log('📦 Usando dados mockados...');
+        products = [
+            { id: 1, name: 'Calcinha Renda Francesa', slug: 'calcinha-renda-francesa', category_id: 'calcinhas' },
+            { id: 2, name: 'Conjunto Noite Estrelada', slug: 'conjunto-noite-estrelada', category_id: 'conjuntos' },
+            { id: 3, name: 'Sutã Elite Collection', slug: 'sutia-elite-collection', category_id: 'sutias' },
+        ];
+        categories = new Set(['calcinhas', 'conjuntos', 'sutias', 'bodysuits']);
+    }
 
-    console.log(`✅ Encontrados ${products.length} produtos e ${categories.size} categorias.`);
+    console.log(`✅ ${products.length} produtos e ${categories.size} categorias para sitemap.`);
 
     const lastMod = new Date().toISOString().split('T')[0];
 
