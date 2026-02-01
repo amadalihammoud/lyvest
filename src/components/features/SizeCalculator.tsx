@@ -79,9 +79,9 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
                             key={type}
                             type="button"
                             onClick={() => setMeasurements({ ...measurements, bustType: type })}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${measurements.bustType === type
-                                    ? 'bg-burgundy-600 text-white'
-                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.bustType === type
+                                ? 'bg-burgundy-600 text-white border-burgundy-600'
+                                : 'bg-white text-slate-700 border-slate-300 hover:border-burgundy-400 hover:bg-burgundy-50'
                                 }`}
                         >
                             {type === 'small' ? 'Pequeno' : type === 'medium' ? 'Médio' : 'Grande'}
@@ -102,9 +102,9 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
                             key={type}
                             type="button"
                             onClick={() => setMeasurements({ ...measurements, hipType: type })}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${measurements.hipType === type
-                                    ? 'bg-burgundy-600 text-white'
-                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.hipType === type
+                                ? 'bg-burgundy-600 text-white border-burgundy-600'
+                                : 'bg-white text-slate-700 border-slate-300 hover:border-burgundy-400 hover:bg-burgundy-50'
                                 }`}
                         >
                             {type === 'narrow' ? 'Estreito' : type === 'medium' ? 'Médio' : 'Largo'}
@@ -124,9 +124,9 @@ export default function SizeCalculator({ onCalculate, isLoading }: SizeCalculato
                             key={pref}
                             type="button"
                             onClick={() => setMeasurements({ ...measurements, fitPreference: pref })}
-                            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${measurements.fitPreference === pref
-                                    ? 'bg-burgundy-600 text-white'
-                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.fitPreference === pref
+                                ? 'bg-burgundy-600 text-white border-burgundy-600'
+                                : 'bg-white text-slate-700 border-slate-300 hover:border-burgundy-400 hover:bg-burgundy-50'
                                 }`}
                         >
                             <div className="font-semibold">
