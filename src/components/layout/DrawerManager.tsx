@@ -11,9 +11,6 @@ import { useNavigate } from 'react-router-dom';
 const DrawerCart = lazy(() => import('../DrawerCart'));
 const DrawerFavorites = lazy(() => import('../DrawerFavorites'));
 const DrawerTracking = lazy(() => import('../DrawerTracking'));
-// FilterSidebar is used in FilterSidebar.tsx, not managed here? Or is it? 
-// Original code had it, but lines 82+ don't seem to use it.
-const FilterSidebar = lazy(() => import('../FilterSidebar'));
 export default function DrawerManager() {
     const {
         activeDrawer,

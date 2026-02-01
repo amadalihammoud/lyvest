@@ -1,4 +1,4 @@
-﻿import React, { Suspense, lazy } from 'react';
+﻿import { Suspense, lazy } from 'react';
 import { useModal } from '../../hooks/useModal';
 import { X } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';

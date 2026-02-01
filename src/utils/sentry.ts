@@ -62,7 +62,7 @@ export function initSentry() {
         ],
 
         // Antes de enviar o erro, adicionar contexto adicional
-        beforeSend(event, hint) {
+        beforeSend(event) {
             // Adicionar informações personalizadas
             if (event.user) {
                 // Remover informações sensíveis

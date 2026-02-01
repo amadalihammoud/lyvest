@@ -108,7 +108,7 @@ export default function SEO({
         const additionalProperty: AdditionalProperty[] = prod.specs ? Object.entries(prod.specs).map(([key, value]) => ({
             "@type": "PropertyValue",
             "name": key,
-            "value": value
+            "value": String(value) // Convert to string for schema
         })) : [];
 
         // Add Color/Material logic if available
