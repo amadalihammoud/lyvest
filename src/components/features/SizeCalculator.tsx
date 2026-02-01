@@ -11,8 +11,6 @@ interface SizeCalculatorProps {
 }
 
 export default function SizeCalculator({ onCalculate, isLoading, initialMeasurements, product }: SizeCalculatorProps) {
-    const [mode, setMode] = useState<'simple' | 'advanced'>('simple');
-
     // Identificar categoria do produto para mostrar campos relevantes
     const getProductCategory = () => {
         const cat = typeof product.category === 'string'
@@ -33,8 +31,6 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
     const [measurements, setMeasurements] = useState<BodyMeasurements>(initialMeasurements || {
         height: 165,
         weight: 60,
-        bustType: 'medium',
-        hipType: 'medium',
         fitPreference: 'comfortable',
         exactBust: 90,
         exactWaist: 70,
@@ -50,262 +46,172 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
     React.useEffect(() => {
         if (initialMeasurements) {
             setMeasurements(prev => ({ ...prev, ...initialMeasurements }));
-            // Se tiver medidas exatas salvas, ativar modo avançado
-            if (initialMeasurements.exactBust) {
-                setMode('advanced');
-            }
         }
     }, [initialMeasurements]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const cleanMeasurements = { ...measurements };
-        if (mode === 'simple') {
-            // Limpar dados avançados se estiver no modo simples
-            delete cleanMeasurements.exactBust;
-            delete cleanMeasurements.exactWaist;
-            delete cleanMeasurements.exactHips;
-            delete cleanMeasurements.exactUnderBust;
-            delete cleanMeasurements.exactThigh;
-            delete cleanMeasurements.exactCalf;
-        }
-        onCalculate(cleanMeasurements);
+        onCalculate(measurements);
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Toggle Mode */}
-            <div className="flex p-1 bg-slate-100 rounded-xl mb-6">
-                <button
-                    type="button"
-                    onClick={() => setMode('simple')}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'simple'
-                        ? 'bg-white text-lyvest-600 shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                >
-                    Modo Rápido
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setMode('advanced')}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'advanced'
-                        ? 'bg-white text-lyvest-600 shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                >
-                    Fita Métrica
-                </button>
+
+            {/* 1. DADOS BÁSICOS (ALTURA E PESO) - Sempre visíveis */}
+            <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                <div>
+                    <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
+                        <Ruler className="w-3.5 h-3.5" /> Altura: {measurements.height}cm
+                    </label>
+                    <input
+                        type="range"
+                        min="140"
+                        max="200"
+                        value={measurements.height}
+                        onChange={(e) => setMeasurements({ ...measurements, height: parseInt(e.target.value) })}
+                        className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
+                    />
+                </div>
+                <div>
+                    <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
+                        <Weight className="w-3.5 h-3.5" /> Peso: {measurements.weight}kg
+                    </label>
+                    <input
+                        type="range"
+                        min="40"
+                        max="120"
+                        value={measurements.weight}
+                        onChange={(e) => setMeasurements({ ...measurements, weight: parseInt(e.target.value) })}
+                        className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
+                    />
+                </div>
             </div>
 
-            {mode === 'simple' ? (
-                /* MODO SIMPLES: ALTURA/PESO */
-                <>
-                    {/* Altura e Peso */}
+            <div className="border-t border-slate-100 my-4"></div>
+
+            {/* 2. MEDIDAS ESPECÍFICAS (DINÂMICO POR CATEGORIA) */}
+            <div className="space-y-4 animate-fade-in">
+                <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-700 mb-4 flex gap-3">
+                    <span className="text-xl">📏</span>
+                    <p>
+                        {category === 'bra' && "Para sutiãs, o segredo é a relação entre Busto e Tórax (abaixo do seio)."}
+                        {category === 'panty' && "Para calcinhas, foque na medida do quadril (parte mais larga)."}
+                        {category === 'socks' && "Para meias, a panturrilha é essencial para não apertar."}
+                        {category === 'general' && "Use uma fita métrica para medir seu corpo para maior precisão."}
+                    </p>
+                </div>
+
+                {/* Inputs para Sutiãs/Tops */}
+                {(category === 'bra' || category === 'general' || category === 'sleepwear') && (
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
-                                <Ruler className="w-3.5 h-3.5" /> Altura: {measurements.height}cm
-                            </label>
-                            <input
-                                type="range"
-                                min="140"
-                                max="200"
-                                value={measurements.height}
-                                onChange={(e) => setMeasurements({ ...measurements, height: parseInt(e.target.value) })}
-                                className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
-                            />
-                        </div>
-                        <div>
-                            <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
-                                <Weight className="w-3.5 h-3.5" /> Peso: {measurements.weight}kg
-                            </label>
-                            <input
-                                type="range"
-                                min="40"
-                                max="120"
-                                value={measurements.weight}
-                                onChange={(e) => setMeasurements({ ...measurements, weight: parseInt(e.target.value) })}
-                                className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Tipo de Busto (Apenas se for relevante) */}
-                    {(category === 'bra' || category === 'general' || category === 'sleepwear') && (
-                        <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                                <User className="w-4 h-4" />
-                                Tipo de Busto
-                            </label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {(['small', 'medium', 'large'] as const).map((type) => (
-                                    <button
-                                        key={type}
-                                        type="button"
-                                        onClick={() => setMeasurements({ ...measurements, bustType: type })}
-                                        className={`px-2 py-2 rounded-lg text-xs font-medium transition-colors border-2 ${measurements.bustType === type
-                                            ? 'bg-lyvest-600 text-white border-lyvest-600'
-                                            : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400'
-                                            }`}
-                                    >
-                                        {type === 'small' ? 'Pequeno' : type === 'medium' ? 'Médio' : 'Grande'}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Tipo de Quadril (Apenas se for relevante) */}
-                    {(category === 'panty' || category === 'general' || category === 'sleepwear') && (
-                        <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                                <User className="w-4 h-4" />
-                                Tipo de Quadril
-                            </label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {(['narrow', 'medium', 'wide'] as const).map((type) => (
-                                    <button
-                                        key={type}
-                                        type="button"
-                                        onClick={() => setMeasurements({ ...measurements, hipType: type })}
-                                        className={`px-2 py-2 rounded-lg text-xs font-medium transition-colors border-2 ${measurements.hipType === type
-                                            ? 'bg-lyvest-600 text-white border-lyvest-600'
-                                            : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400'
-                                            }`}
-                                    >
-                                        {type === 'narrow' ? 'Estreito' : type === 'medium' ? 'Médio' : 'Largo'}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </>
-            ) : (
-                /* MODO AVANÇADO: MEDIDAS EXATAS (DINÂMICO) */
-                <div className="space-y-4 animate-fade-in">
-                    <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-700 mb-4 flex gap-3">
-                        <span className="text-xl">📏</span>
-                        <p>
-                            {category === 'bra' && "Para sutiãs, o segredo é a relação entre Busto e Tórax (abaixo do seio)."}
-                            {category === 'panty' && "Para calcinhas, foque na medida do quadril (parte mais larga)."}
-                            {category === 'socks' && "Para meias, a panturrilha é essencial para não apertar."}
-                            {category === 'general' && "Use uma fita métrica para medir seu corpo. Não a deixe muito apertada."}
-                        </p>
-                    </div>
-
-                    {/* Inputs para Sutiãs/Tops */}
-                    {(category === 'bra' || category === 'general' || category === 'sleepwear') && (
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">
-                                    Busto (cm)
-                                    <HelpCircle className="w-3 h-3 inline ml-1 text-slate-400" />
-                                </label>
-                                <input
-                                    type="number"
-                                    value={measurements.exactBust || ''}
-                                    onChange={(e) => setMeasurements({ ...measurements, exactBust: Number(e.target.value) })}
-                                    placeholder="Ex: 90"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                                />
-                            </div>
-                            {category === 'bra' && (
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                                        Sub-Busto/Tórax (cm)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={measurements.exactUnderBust || ''}
-                                        onChange={(e) => setMeasurements({ ...measurements, exactUnderBust: Number(e.target.value) })}
-                                        placeholder="Ex: 80"
-                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Inputs para Parte de Baixo */}
-                    {(category === 'panty' || category === 'general' || category === 'sleepwear') && (
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">
-                                    Cintura (Umbigo)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={measurements.exactWaist || ''}
-                                    onChange={(e) => setMeasurements({ ...measurements, exactWaist: Number(e.target.value) })}
-                                    placeholder="Ex: 70"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">
-                                    Quadril (cm)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={measurements.exactHips || ''}
-                                    onChange={(e) => setMeasurements({ ...measurements, exactHips: Number(e.target.value) })}
-                                    placeholder="Ex: 100"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Input Específico para Calcinha (Coxa) */}
-                    {category === 'panty' && (
-                        <div>
                             <label className="block text-xs font-bold text-slate-700 mb-1">
-                                Coxa (Opcional - para não enrolar)
+                                Busto (cm)
+                                <HelpCircle className="w-3 h-3 inline ml-1 text-slate-400" />
                             </label>
                             <input
                                 type="number"
-                                value={measurements.exactThigh || ''}
-                                onChange={(e) => setMeasurements({ ...measurements, exactThigh: Number(e.target.value) })}
-                                placeholder="Ex: 55"
+                                value={measurements.exactBust || ''}
+                                onChange={(e) => setMeasurements({ ...measurements, exactBust: Number(e.target.value) })}
+                                placeholder="Ex: 90"
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
                             />
                         </div>
-                    )}
+                        {category === 'bra' && (
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Sub-Busto/Tórax (cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={measurements.exactUnderBust || ''}
+                                    onChange={(e) => setMeasurements({ ...measurements, exactUnderBust: Number(e.target.value) })}
+                                    placeholder="Ex: 80"
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
 
-                    {/* Inputs para Meias */}
-                    {category === 'socks' && (
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">
-                                    Nº Calçado
-                                </label>
-                                <input
-                                    type="number"
-                                    value={measurements.shoeSize || ''}
-                                    onChange={(e) => setMeasurements({ ...measurements, shoeSize: Number(e.target.value) })}
-                                    placeholder="Ex: 36"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">
-                                    Panturrilha (cm)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={measurements.exactCalf || ''}
-                                    onChange={(e) => setMeasurements({ ...measurements, exactCalf: Number(e.target.value) })}
-                                    placeholder="Ex: 35"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                                />
-                            </div>
+                {/* Inputs para Parte de Baixo */}
+                {(category === 'panty' || category === 'general' || category === 'sleepwear') && (
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                                Cintura (Umbigo)
+                            </label>
+                            <input
+                                type="number"
+                                value={measurements.exactWaist || ''}
+                                onChange={(e) => setMeasurements({ ...measurements, exactWaist: Number(e.target.value) })}
+                                placeholder="Ex: 70"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                            />
                         </div>
-                    )}
-                </div>
-            )}
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                                Quadril (cm)
+                            </label>
+                            <input
+                                type="number"
+                                value={measurements.exactHips || ''}
+                                onChange={(e) => setMeasurements({ ...measurements, exactHips: Number(e.target.value) })}
+                                placeholder="Ex: 100"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                            />
+                        </div>
+                    </div>
+                )}
 
-            {/* Preferência de Ajuste (Comum aos dois modos) */}
+                {/* Input Específico para Calcinha (Coxa) */}
+                {category === 'panty' && (
+                    <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Coxa (Opcional - para não enrolar)
+                        </label>
+                        <input
+                            type="number"
+                            value={measurements.exactThigh || ''}
+                            onChange={(e) => setMeasurements({ ...measurements, exactThigh: Number(e.target.value) })}
+                            placeholder="Ex: 55"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                        />
+                    </div>
+                )}
+
+                {/* Inputs para Meias */}
+                {category === 'socks' && (
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                                Nº Calçado
+                            </label>
+                            <input
+                                type="number"
+                                value={measurements.shoeSize || ''}
+                                onChange={(e) => setMeasurements({ ...measurements, shoeSize: Number(e.target.value) })}
+                                placeholder="Ex: 36"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                                Panturrilha (cm)
+                            </label>
+                            <input
+                                type="number"
+                                value={measurements.exactCalf || ''}
+                                onChange={(e) => setMeasurements({ ...measurements, exactCalf: Number(e.target.value) })}
+                                placeholder="Ex: 35"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Preferência de Ajuste (Comum) */}
             <div>
                 <label className="text-sm font-medium text-slate-700 mb-2 block">
                     Preferência de Ajuste
