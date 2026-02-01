@@ -70,7 +70,7 @@ export default function ModelGallery({ models, productId }: ModelGalleryProps) {
                                 <div className="flex items-center gap-1.5 text-xs text-slate-600">
                                     <User className="w-3.5 h-3.5" />
                                     <span>
-                                        Busto {translateType(model.bustType)} • Quadril{' '}
+                                        {model.gender === 'male' ? 'Peito' : 'Busto'} {translateType(model.bustType)} • Quadril{' '}
                                         {translateType(model.hipType)}
                                     </span>
                                 </div>

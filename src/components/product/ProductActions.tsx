@@ -1,5 +1,7 @@
 
-import { Minus, Plus, Lock, Sparkles } from 'lucide-react';
+import { Minus, Plus, Lock } from 'lucide-react';
+import { useState } from 'react';
+import SizeGuideModal from './SizeGuideModal';
 // Use Product from services/ProductService instead of local definition
 import { Product } from '../../services/ProductService';
 
@@ -27,6 +29,8 @@ export function ProductActions({
     isRTL = false
 }: ProductActionsProps) {
 
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
+
     const handleQuantityChange = (delta: number) => {
         setQuantity(prev => Math.max(1, prev + delta));
     };
@@ -48,24 +52,44 @@ export function ProductActions({
 
                 {/* Buy Button */}
                 <button
+                    data-testid="add-to-cart-button"
                     onClick={() => onAddToCart({ ...product, quantity })}
-                    className="flex-1 bg-lyvest-600 text-white font-bold h-12 rounded-md hover:bg-lyvest-600 transition-colors shadow-md text-lg uppercase tracking-wide"
+                    className="px-8 bg-lyvest-600 text-white font-bold h-12 rounded-md hover:bg-lyvest-700 transition-colors shadow-md text-base uppercase tracking-wide"
                 >
                     {t('products.buy')}
                 </button>
             </div>
 
-            {/* Provador Virtual - Botão Premium */}
-            {onOpenVirtualFitting && (
+            {/* Dois botões lado a lado - estilo link */}
+            <div className="flex gap-4 text-xs text-slate-500 mt-4 items-center">
+                {onOpenVirtualFitting && (
+                    <button
+                        onClick={onOpenVirtualFitting}
+                        className="flex items-center gap-1.5 hover:text-lyvest-600 transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span>Descubra o seu tamanho</span>
+                    </button>
+                )}
                 <button
-                    onClick={onOpenVirtualFitting}
-                    className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold h-12 rounded-md hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg flex items-center justify-center gap-2 group"
+                    onClick={() => setIsGuideOpen(true)}
+                    className="flex items-center gap-1.5 hover:text-lyvest-600 transition-colors"
                 >
-                    <Sparkles className="w-5 h-5 animate-pulse" />
-                    <span className="text-base">Encontre Seu Tamanho com IA</span>
-                    <Sparkles className="w-5 h-5 animate-pulse" />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <span>Guia de tamanhos</span>
                 </button>
-            )}
+            </div>
+
+            {/* Size Guide Modal */}
+            <SizeGuideModal
+                isOpen={isGuideOpen}
+                onClose={() => setIsGuideOpen(false)}
+                category={typeof product.category === 'string' ? product.category.toLowerCase() : 'lingerie'}
+            />
 
             {/* Shipping Calculator */}
             <div className="mt-6">

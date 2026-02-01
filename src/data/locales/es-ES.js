@@ -313,6 +313,8 @@ export const esES = {
         favoritesCount: 'Favoritos: {count} artículos',
         cartCount: 'Carrito con {count} artículos',
         trackOrder: 'Rastrear pedido',
+        decreaseQuantity: 'Disminuir cantidad',
+        increaseQuantity: 'Aumentar cantidad',
     },
     navbar: {
         searchPlaceholder: 'Buscar productos...',

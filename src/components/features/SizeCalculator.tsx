@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Ruler, Weight, HelpCircle } from 'lucide-react';
+import { Ruler, Weight } from 'lucide-react';
 import { BodyMeasurements } from '../../services/sizeAI';
 import { Product } from '../../services/ProductService';
+import BodyMannequin from './BodyMannequin';
 
 interface SizeCalculatorProps {
     onCalculate: (measurements: BodyMeasurements) => void;
@@ -10,17 +11,54 @@ interface SizeCalculatorProps {
     product: Product;
 }
 
+// Componente TunerInput FORA para evitar recriação
+const TunerInput = React.memo(({ label, value, onChange, min, max }: {
+    label: string;
+    value: number;
+    onChange: (val: number) => void;
+    min: number;
+    max: number;
+}) => (
+    <div className="mb-4">
+        <label className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+            <span>{label}</span>
+            <span className="text-lyvest-600">{Math.round(value)} cm</span>
+        </label>
+        <input
+            type="range"
+            min={min}
+            max={max}
+            step="1"
+            value={value}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className="w-full h-1.5 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
+        />
+    </div>
+));
+
+import { getProductGender } from '../../utils/productUtils';
+
 export default function SizeCalculator({ onCalculate, isLoading, initialMeasurements, product }: SizeCalculatorProps) {
+    const productGender = getProductGender(product);
+
     // Identificar categoria do produto para mostrar campos relevantes
     const getProductCategory = () => {
         const cat = typeof product.category === 'string'
             ? product.category.toLowerCase()
             : Array.isArray(product.category)
-                ? product.category[0]?.slug
+                ? product.category[0]?.slug?.toLowerCase()
                 : 'lingerie';
 
-        if (cat?.includes('sutia') || cat?.includes('top')) return 'bra';
-        if (cat?.includes('calcinha') || cat?.includes('cueca')) return 'panty';
+        const name = product.name?.toLowerCase() || '';
+
+        // Detectar SUTIÃ com mais variações
+        if (cat?.includes('sutia') || cat?.includes('sutiã') || cat?.includes('soutien') ||
+            cat?.includes('bra') || cat?.includes('top') || cat?.includes('bralette') ||
+            name.includes('sutia') || name.includes('sutiã') || name.includes('bra')) {
+            return 'bra';
+        }
+
+        if (cat?.includes('calcinha') || cat?.includes('cueca') || cat?.includes('panty')) return 'underwear';
         if (cat?.includes('meia')) return 'socks';
         if (cat?.includes('pijama') || cat?.includes('camisola') || cat?.includes('robe')) return 'sleepwear';
         return 'general';
@@ -28,9 +66,17 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
 
     const category = getProductCategory();
 
+    // Determinar quais campos mostrar baseado na categoria
+    const shouldShowBustField = category !== 'underwear'; // NÃO mostrar busto/peito para cuecas/calcinhas
+    const shouldShowUnderbustField = category === 'bra'; // Mostrar APENAS para sutiãs
+    const shouldShowWaistField = category !== 'bra'; // NÃO mostrar cintura para sutiãs
+    const shouldShowHipField = category !== 'bra'; // NÃO mostrar quadril para sutiãs
+    const shouldShowShoulderField = category === 'sleepwear'; // Mostrar APENAS para pijamas
+
     const [measurements, setMeasurements] = useState<BodyMeasurements>(initialMeasurements || {
         height: 165,
         weight: 60,
+        age: 30,
         bustType: 'medium', // Default para satisfazer interface
         hipType: 'medium',  // Default para satisfazer interface
         fitPreference: 'comfortable',
@@ -51,214 +97,192 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
         }
     }, [initialMeasurements]);
 
+    // Handlers otimizados com useCallback para evitar re-renders
+    const handleBustChange = React.useCallback((val: number) => {
+        setMeasurements(prev => ({ ...prev, exactBust: val }));
+    }, []);
+
+    const handleWaistChange = React.useCallback((val: number) => {
+        setMeasurements(prev => ({ ...prev, exactWaist: val }));
+    }, []);
+
+    const handleHipsChange = React.useCallback((val: number) => {
+        setMeasurements(prev => ({ ...prev, exactHips: val }));
+    }, []);
+
+    const handleUnderbustChange = React.useCallback((val: number) => {
+        setMeasurements(prev => ({ ...prev, exactUnderBust: val }));
+    }, []);
+
+    const handleShoulderChange = React.useCallback((val: number) => {
+        setMeasurements(prev => ({ ...prev, shoulderWidth: val }));
+    }, []);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onCalculate(measurements);
     };
 
+    // Memoizar props do BodyMannequin para evitar re-renders pesados
+    const mannequinProps = React.useMemo(() => ({
+        bust: measurements.exactBust || 90,
+        waist: measurements.exactWaist || 70,
+        hips: measurements.exactHips || 100,
+        gender: productGender
+    }), [measurements.exactBust, measurements.exactWaist, measurements.exactHips, productGender]);
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-            {/* 1. DADOS BÁSICOS (ALTURA E PESO) - Sempre visíveis */}
-            <div className="grid grid-cols-2 gap-4 animate-fade-in">
-                <div>
-                    <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
-                        <Ruler className="w-3.5 h-3.5" /> Altura: {measurements.height}cm
-                    </label>
-                    <input
-                        type="range"
-                        min="140"
-                        max="200"
-                        value={measurements.height}
-                        onChange={(e) => setMeasurements({ ...measurements, height: parseInt(e.target.value) })}
-                        className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
-                    />
-                </div>
-                <div>
-                    <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-2">
-                        <Weight className="w-3.5 h-3.5" /> Peso: {measurements.weight}kg
-                    </label>
-                    <input
-                        type="range"
-                        min="40"
-                        max="120"
-                        value={measurements.weight}
-                        onChange={(e) => setMeasurements({ ...measurements, weight: parseInt(e.target.value) })}
-                        className="w-full h-2 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
-                    />
-                </div>
-            </div>
-
-            <div className="border-t border-slate-100 my-4"></div>
-
-            {/* 2. MEDIDAS ESPECÍFICAS (DINÂMICO POR CATEGORIA) */}
-            <div className="space-y-4 animate-fade-in">
-                <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-700 mb-4 flex gap-3">
-                    <span className="text-xl">📏</span>
-                    <p>
-                        {category === 'bra' && "Para sutiãs, o segredo é a relação entre Busto e Tórax (abaixo do seio)."}
-                        {category === 'panty' && "Para calcinhas, foque na medida do quadril (parte mais larga)."}
-                        {category === 'socks' && "Para meias, a panturrilha é essencial para não apertar."}
-                        {category === 'general' && "Use uma fita métrica para medir seu corpo para maior precisão."}
-                    </p>
+        <form onSubmit={handleSubmit} className="animate-fade-in">
+            <div className="flex flex-col md:flex-row gap-8">
+                {/* COLUNA ESQUERDA: MANEQUIM VISUAL */}
+                <div className="w-full md:w-5/12">
+                    <div className="sticky top-4">
+                        <BodyMannequin {...mannequinProps} />
+                        <p className="text-[10px] text-slate-400 text-center mt-3">
+                            Visualização aproximada baseada nas suas medidas.
+                        </p>
+                    </div>
                 </div>
 
-                {/* Inputs para Sutiãs/Tops */}
-                {(category === 'bra' || category === 'general' || category === 'sleepwear') && (
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">
-                                Busto (cm)
-                                <HelpCircle className="w-3 h-3 inline ml-1 text-slate-400" />
-                            </label>
-                            <input
-                                type="number"
-                                value={measurements.exactBust || ''}
-                                onChange={(e) => setMeasurements({ ...measurements, exactBust: Number(e.target.value) })}
-                                placeholder="Ex: 90"
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                            />
-                        </div>
-                        {category === 'bra' && (
+                {/* COLUNA DIREITA: CONTROLES */}
+                <div className="w-full md:w-7/12 space-y-6">
+
+                    {/* 1. DADOS BÁSICOS */}
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                            Estrutura Corporal
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Altura */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">
-                                    Sub-Busto/Tórax (cm)
+                                <label className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+                                    <span className="flex items-center gap-1"><Ruler className="w-3 h-3" /> Altura</span>
+                                    <span className="text-lyvest-600">{measurements.height} cm</span>
                                 </label>
                                 <input
-                                    type="number"
-                                    value={measurements.exactUnderBust || ''}
-                                    onChange={(e) => setMeasurements({ ...measurements, exactUnderBust: Number(e.target.value) })}
-                                    placeholder="Ex: 80"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
+                                    type="range"
+                                    min="140"
+                                    max="200"
+                                    value={measurements.height}
+                                    onChange={(e) => setMeasurements({ ...measurements, height: parseInt(e.target.value) })}
+                                    className="w-full h-1.5 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
                                 />
                             </div>
+                            {/* Peso */}
+                            <div>
+                                <label className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+                                    <span className="flex items-center gap-1"><Weight className="w-3 h-3" /> Peso</span>
+                                    <span className="text-lyvest-600">{measurements.weight} kg</span>
+                                </label>
+                                <input
+                                    type="range"
+                                    min="40"
+                                    max="120"
+                                    value={measurements.weight}
+                                    onChange={(e) => setMeasurements({ ...measurements, weight: parseInt(e.target.value) })}
+                                    className="w-full h-1.5 bg-lyvest-100 rounded-lg appearance-none cursor-pointer accent-lyvest-600"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 2. TUNER DE MEDIDAS (Corpo) */}
+                    <div>
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-lyvest-500"></span>
+                            Ajuste Fino
+                        </h3>
+
+
+                        {/* Busto / Tórax / Peito - Apenas se relevante */}
+                        {shouldShowBustField && (
+                            <TunerInput
+                                label={productGender === 'male' ? 'Peito' : 'Tórax (Busto)'}
+                                value={measurements.exactBust || 90}
+                                onChange={handleBustChange}
+                                min={70} max={130}
+                            />
+                        )}
+
+                        {/* Baixo do Busto - APENAS para sutiãs */}
+                        {shouldShowUnderbustField && (
+                            <TunerInput
+                                label="Baixo do Busto"
+                                value={measurements.exactUnderBust || 75}
+                                onChange={handleUnderbustChange}
+                                min={60} max={100}
+                            />
+                        )}
+
+
+                        {/* Cintura - NÃO mostrar para sutiãs */}
+                        {shouldShowWaistField && (
+                            <TunerInput
+                                label="Cintura"
+                                value={measurements.exactWaist || 70}
+                                onChange={handleWaistChange}
+                                min={50} max={110}
+                            />
+                        )}
+
+                        {/* Quadril - NÃO mostrar para sutiãs */}
+                        {shouldShowHipField && (
+                            <TunerInput
+                                label="Quadril"
+                                value={measurements.exactHips || 100}
+                                onChange={handleHipsChange}
+                                min={80} max={140}
+                            />
+                        )}
+
+                        {/* Largura dos Ombros - APENAS para pijamas */}
+                        {shouldShowShoulderField && (
+                            <TunerInput
+                                label="Largura dos Ombros"
+                                value={measurements.shoulderWidth || 40}
+                                onChange={handleShoulderChange}
+                                min={30} max={55}
+                            />
                         )}
                     </div>
-                )}
 
-                {/* Inputs para Parte de Baixo */}
-                {(category === 'panty' || category === 'general' || category === 'sleepwear') && (
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">
-                                Cintura (Umbigo)
-                            </label>
-                            <input
-                                type="number"
-                                value={measurements.exactWaist || ''}
-                                onChange={(e) => setMeasurements({ ...measurements, exactWaist: Number(e.target.value) })}
-                                placeholder="Ex: 70"
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">
-                                Quadril (cm)
-                            </label>
-                            <input
-                                type="number"
-                                value={measurements.exactHips || ''}
-                                onChange={(e) => setMeasurements({ ...measurements, exactHips: Number(e.target.value) })}
-                                placeholder="Ex: 100"
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {/* Input Específico para Calcinha (Coxa) */}
-                {category === 'panty' && (
+                    {/* Preferência */}
                     <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                            Coxa (Opcional - para não enrolar)
-                        </label>
-                        <input
-                            type="number"
-                            value={measurements.exactThigh || ''}
-                            onChange={(e) => setMeasurements({ ...measurements, exactThigh: Number(e.target.value) })}
-                            placeholder="Ex: 55"
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                        />
-                    </div>
-                )}
-
-                {/* Inputs para Meias */}
-                {category === 'socks' && (
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">
-                                Nº Calçado
-                            </label>
-                            <input
-                                type="number"
-                                value={measurements.shoeSize || ''}
-                                onChange={(e) => setMeasurements({ ...measurements, shoeSize: Number(e.target.value) })}
-                                placeholder="Ex: 36"
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">
-                                Panturrilha (cm)
-                            </label>
-                            <input
-                                type="number"
-                                value={measurements.exactCalf || ''}
-                                onChange={(e) => setMeasurements({ ...measurements, exactCalf: Number(e.target.value) })}
-                                placeholder="Ex: 35"
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-lyvest-500 outline-none"
-                            />
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                            Como você prefere?
+                        </h3>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setMeasurements({ ...measurements, fitPreference: 'snug' })}
+                                className={`py-2 px-3 rounded-lg border text-sm transition-all ${measurements.fitPreference === 'snug' ? 'border-lyvest-600 bg-lyvest-50 text-lyvest-700 font-bold' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                            >
+                                Justinho
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setMeasurements({ ...measurements, fitPreference: 'comfortable' })}
+                                className={`py-2 px-3 rounded-lg border text-sm transition-all ${measurements.fitPreference === 'comfortable' ? 'border-lyvest-600 bg-lyvest-50 text-lyvest-700 font-bold' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                            >
+                                Confortável
+                            </button>
                         </div>
                     </div>
-                )}
-            </div>
 
-            {/* Preferência de Ajuste (Comum) */}
-            <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                    Preferência de Ajuste
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                    {(['snug', 'comfortable'] as const).map((pref) => (
+                    {/* Botão Submit */}
+                    <div className="pt-4 border-t border-slate-100">
                         <button
-                            key={pref}
-                            type="button"
-                            onClick={() => setMeasurements({ ...measurements, fitPreference: pref })}
-                            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors border-2 ${measurements.fitPreference === pref
-                                ? 'bg-lyvest-600 text-white border-lyvest-600'
-                                : 'bg-white text-slate-700 border-slate-300 hover:border-lyvest-400 hover:bg-lyvest-50'
-                                }`}
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-sm uppercase tracking-wide hover:bg-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                         >
-                            <div className="font-semibold">
-                                {pref === 'snug' ? 'Mais Justo' : 'Confortável'}
-                            </div>
-                            <div className="text-xs opacity-80 mt-1">
-                                {pref === 'snug' ? 'Efeito modelador' : 'Mais solto'}
-                            </div>
+                            {isLoading ? 'Calculando...' : 'Ver Meu Tamanho Ideal'}
                         </button>
-                    ))}
+                    </div>
                 </div>
             </div>
-
-            {/* Botão Submit */}
-            <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-lyvest-600 text-white py-4 rounded-xl font-semibold hover:bg-lyvest-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        O Especialista LyVest está analisando...
-                    </span>
-                ) : (
-                    'Descobrir Meu Tamanho Ideal'
-                )}
-            </button>
-
-            <p className="text-xs text-slate-500 text-center">
-                💡 Baseado em modelagem técnica e dados de 20 anos de experiência
-            </p>
         </form>
     );
 }

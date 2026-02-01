@@ -22,3 +22,25 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test outputs
+coverage/
+test-results/
+playwright-report/
+*.test-results.json
+
+# Lint outputs (never commit these)
+lint_*.json
+errors_only.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Debug files
+debug-*.js
+diagnostic.js
+
+# Build artifacts
+*.tsbuildinfo

@@ -11,6 +11,7 @@ import { SIZE_GUIDE } from '../data/sizeGuide';
 export interface BodyMeasurements {
     height: number; // cm
     weight: number; // kg
+    age?: number; // anos (Novo)
     bustType: 'small' | 'medium' | 'large';
     hipType: 'narrow' | 'medium' | 'wide';
     fitPreference: 'snug' | 'comfortable';
@@ -23,13 +24,17 @@ export interface BodyMeasurements {
     exactThigh?: number;   // Coxa (Novo)
     exactCalf?: number;    // Panturrilha (Novo)
     shoeSize?: number;     // Calçado (Novo)
+    shoulderWidth?: number; // Largura dos Ombros (Novo)
 }
+
+export type FitType = 'tight' | 'perfect' | 'loose';
 
 export interface SizeRecommendation {
     size: 'PP' | 'P' | 'M' | 'G' | 'GG';
     confidence: number; // 0-1
     reason: string;
     alternativeSize?: 'PP' | 'P' | 'M' | 'G' | 'GG';
+    fitMap?: Record<string, FitType>; // Novo: Mapa de fit relativo
 }
 
 /**
@@ -46,7 +51,11 @@ export async function calculateSize(
     if (import.meta.env.VITE_OPENAI_API_KEY) {
         try {
             const aiRecommendation = await getAIRecommendation(measurements, product);
-            return aiRecommendation;
+            // Mesclar o fitMap do offline na resposta da IA se a IA não retornar (ou se quisermos forçar o offline map)
+            return {
+                ...aiRecommendation,
+                fitMap: aiRecommendation.fitMap || offlineRecommendation.fitMap
+            };
         } catch (error) {
             console.warn('IA indisponível, usando algoritmo offline:', error);
             return offlineRecommendation;
@@ -70,7 +79,7 @@ function calculateOffline(
     }
 
     // SENÃO usar lógica estimativa (Peso/Altura)
-    const { height, weight, bustType, hipType, fitPreference } = measurements;
+    const { height, weight, age, bustType, hipType, fitPreference } = measurements;
 
     // Calcular BMI
     const heightInMeters = height / 100;
@@ -81,8 +90,12 @@ function calculateOffline(
     const hipAdjustment = getHipAdjustment(hipType);
     const fitAdjustment = fitPreference === 'snug' ? -0.5 : 0.5;
 
+    // Ajuste de idade: metabolismo tende a acumular mais peso central com idade
+    // Se > 40, assume que precisa de um pouco mais de conforto (score sobe levemente em direção a tamanhos maiores)
+    const ageAdjustment = (age && age > 40) ? 0.3 : 0;
+
     // Score final
-    const sizeScore = bmi + bustAdjustment + hipAdjustment + fitAdjustment;
+    const sizeScore = bmi + bustAdjustment + hipAdjustment + fitAdjustment + ageAdjustment;
 
     // Determinar tamanho
     let size: 'PP' | 'P' | 'M' | 'G' | 'GG';
@@ -130,6 +143,7 @@ function calculateOffline(
         confidence: Math.max(0.7, Math.min(0.95, confidence)),
         reason,
         alternativeSize,
+        fitMap: generateFitMap(sizeScore, 18, 21, 24, 27) // Passar thresholds
     };
 }
 
@@ -137,7 +151,7 @@ function calculateOffline(
  * Lógica para cálculo via Fita Métrica (CM exatos)
  */
 function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRecommendation {
-    const { exactBust, exactHips, exactWaist, fitPreference } = measurements;
+    const { exactBust, exactHips, exactWaist, fitPreference, age } = measurements;
 
     // Pontuações: PP=1, P=2, M=3, G=4, GG=5
     let scores: number[] = [];
@@ -173,7 +187,9 @@ function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRec
     const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
 
     // Ajuste de preferência (se estiver entre tamanhos)
-    const finalScore = avgScore + (fitPreference === 'snug' ? -0.2 : 0.2);
+    // Ajuste de idade (similar ao offline, idade avançada prefere conforto)
+    const ageAdjustment = (age && age > 50) ? 0.1 : 0;
+    const finalScore = avgScore + (fitPreference === 'snug' ? -0.2 : 0.2) + ageAdjustment;
 
     let size: 'PP' | 'P' | 'M' | 'G' | 'GG';
     // Rounding logic
@@ -183,12 +199,64 @@ function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRec
     else if (finalScore <= 4.5) size = 'G';
     else size = 'GG';
 
+    // Se temos 2 ou mais medidas exatas, confiança sobe para 98%
+    const validMeasurementsCount = (exactBust ? 1 : 0) + (exactHips ? 1 : 0) + (exactWaist ? 1 : 0);
+    const confidence = validMeasurementsCount >= 2 ? 0.98 : 0.94;
+
     return {
         size,
-        confidence: 0.96, // Confiança alta pois são medidas exatas
-        reason: 'Baseado nas suas medidas exatas, este é o tamanho tecnicamente perfeito.',
-        alternativeSize: finalScore % 1 > 0.6 ? getNextSize(size) : undefined
+        confidence,
+        reason: 'Baseado nas suas medidas exatas, este é o tamanho tecnicamente perfeito para seu corpo.',
+        alternativeSize: finalScore % 1 > 0.6 ? getNextSize(size) : undefined,
+        fitMap: generateFitMap(finalScore, 1.5, 2.5, 3.5, 4.5)
     };
+}
+
+/**
+ * Gera mapa de fit relativo baseado no score calculado
+ */
+function generateFitMap(score: number, t1: number, _t2: number, _t3: number, _t4: number): Record<string, FitType> {
+    const map: Record<string, FitType> = {
+        PP: 'tight',
+        P: 'tight',
+        M: 'tight',
+        G: 'tight',
+        GG: 'tight'
+    };
+
+    // Função auxiliar para determinar fit de um tamanho específico dado o score ideal do usuário
+    // Ex: score = 3.2 (Usuário é M um pouco folgado).
+    // Tamanho M (Center ~ 3.0) -> Perfeito
+    // Tamanho P (Center ~ 2.0) -> Apertado
+    // Tamanho G (Center ~ 4.0) -> Largo
+
+    // Simplificando lógica baseada em thresholds
+    const checkFit = (sizeCenter: number, userScore: number): FitType => {
+        const diff = userScore - sizeCenter;
+        if (diff > 0.6) return 'tight'; // Usuário é maior que o tamanho
+        if (diff < -0.6) return 'loose'; // Usuário é menor que o tamanho
+        return 'perfect';
+    };
+
+    // Deduzindo centros aproximados dos tamanhos baseados nos thresholds
+    // t1=1.5 (limit PP/P) -> PP~1.0, P~2.0, etc.
+    // Para offline mode os números são maiores (BMI ~20), então precisamos normalizar
+
+    let centers: Record<string, number>;
+
+    if (t1 > 10) { // Modo BMI (Scores ~18-27)
+        centers = { 'PP': 16.5, 'P': 19.5, 'M': 22.5, 'G': 25.5, 'GG': 28.5 };
+    } else { // Modo Exact (Scores 1-5)
+        centers = { 'PP': 1.0, 'P': 2.0, 'M': 3.0, 'G': 4.0, 'GG': 5.0 };
+    }
+
+    map.PP = checkFit(centers.PP, score);
+    map.P = checkFit(centers.P, score);
+    map.M = checkFit(centers.M, score);
+    map.G = checkFit(centers.G, score);
+    map.GG = checkFit(centers.GG, score);
+
+    return map;
 }
 
 function getNextSize(s: string): any {

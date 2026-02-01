@@ -44,7 +44,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
     };
 
     return (
-        <div className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-slate-100 flex flex-col h-full will-change-transform hover:-translate-y-1 min-w-[260px] sm:min-w-0">
+        <div data-testid="product-card" className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-slate-100 flex flex-col h-full will-change-transform hover:-translate-y-1 min-w-[260px] sm:min-w-0">
             {/* Badge (Mais Vendido / Novo) */}
             {productBadge && (
                 <span className="absolute top-3 left-3 bg-lyvest-500 text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full z-20 shadow-md animate-fade-in tracking-wider">
@@ -52,7 +52,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                 </span>
             )}
 
-            {/* BotÃ£o de Favoritar (CoraÃ§Ã£o) */}
+            {/* Botão de Favoritar (Coração) */}
             <button
                 onClick={(e) => {
                     e.preventDefault();
@@ -67,7 +67,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                 />
             </button>
 
-            {/* Link para pÃ¡gina do produto */}
+            {/* Link para página do produto */}
             <Link to={`/produto/${productSlug}`} className="block flex-1 flex flex-col">
                 {/* Imagem do Produto + Overlay */}
                 <div className="relative aspect-square overflow-hidden bg-slate-50">
@@ -85,7 +85,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                         className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out image-reveal ${isImageLoaded ? 'loaded' : ''}`}
                     />
 
-                    {/* Overlay de AÃ§Ãµes (Desktop) */}
+                    {/* Overlay de Ações (Desktop) */}
                     <div className="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[1px]">
                         <button
                             onClick={(e: React.MouseEvent) => {
@@ -96,6 +96,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                                 }
                             }}
                             className="p-3 bg-white text-slate-700 rounded-full hover:bg-lyvest-500 hover:text-white transition-all duration-300 shadow-lg transform hover:scale-110 flex items-center justify-center"
+                            aria-label={t('aria.quickView')}
                             title={t('aria.quickView')}
                         >
                             <Eye className="w-5 h-5" />
@@ -119,7 +120,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                         </span>
                     </div>
 
-                    {/* AÃ§Ãµes: Quantidade e BotÃ£o Comprar */}
+                    {/* Ações: Quantidade e Botão Comprar */}
                     <div className="flex items-center gap-2 mt-2">
                         {/* Selector de Quantidade */}
                         <div className="flex items-center border border-slate-200 rounded-full h-10 bg-slate-50 px-1">
@@ -127,6 +128,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                                 onClick={handleDecrement}
                                 className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-lyvest-500 transition-colors disabled:opacity-50"
                                 disabled={quantity <= 1}
+                                aria-label={t('aria.decreaseQuantity')}
                             >
                                 <Minus className="w-4 h-4" />
                             </button>
@@ -134,13 +136,15 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                             <button
                                 onClick={handleIncrement}
                                 className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-lyvest-500 transition-colors"
+                                aria-label={t('aria.increaseQuantity')}
                             >
                                 <Plus className="w-4 h-4" />
                             </button>
                         </div>
 
-                        {/* BotÃ£o Comprar */}
+                        {/* Botão Comprar */}
                         <button
+                            data-testid="add-to-cart-button"
                             onClick={handleAddToCart}
                             className="flex-1 h-10 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-full hover:brightness-90 transition-all shadow-sm hover:shadow-md active:scale-95 text-sm"
                         >
@@ -153,11 +157,3 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
     );
 }
 export default React.memo(ProductCard);
-
-
-
-
-
-
-
-

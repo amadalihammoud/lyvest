@@ -19,7 +19,7 @@ dotenv.config({ path: '.env.local' });
 // Configuração do Supabase
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
-const SITE_URL = 'https://lyvest.vercel.app';
+const SITE_URL = process.env.SITE_URL || 'https://lyvest.vercel.app';
 
 // Supabase é opcional - usaremos dados mockados se não estiver configurado
 const USE_SUPABASE = !!(supabaseUrl && supabaseKey);
@@ -41,6 +41,7 @@ const escapeXml = (unsafe) => {
             case '"': return '&quot;';
         }
     });
+    return unsafe;
 };
 
 async function generateFeed() {
@@ -129,6 +130,14 @@ async function generateFeed() {
         // Você pode melhorar isso mapeando suas categorias do banco
         const googleCategory = '213';
 
+        // Determinar disponibilidade (prioriza campo explícito, depois estoque)
+        let availability = 'out of stock';
+        if (product.availability) {
+            availability = product.availability;
+        } else if ((product.stock_quantity && product.stock_quantity > 0) || (product.stock && product.stock > 0)) {
+            availability = 'in stock';
+        }
+
         xml += `
     <item>
         <g:id>${product.id}</g:id>
@@ -138,7 +147,7 @@ async function generateFeed() {
         <g:image_link>${image}</g:image_link>
         <g:brand>Ly Vest</g:brand>
         <g:condition>new</g:condition>
-        <g:availability>${product.stock > 0 ? 'in stock' : 'out of stock'}</g:availability>
+        <g:availability>${availability}</g:availability>
         <g:price>${price}</g:price>
         <g:google_product_category>${googleCategory}</g:google_product_category>
         <g:custom_label_0>${product.category_id || 'Geral'}</g:custom_label_0>

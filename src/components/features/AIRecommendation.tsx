@@ -1,130 +1,203 @@
-import { useState } from 'react';
-import { CheckCircle2, TrendingUp, Info, ShoppingBag, Plus } from 'lucide-react';
-import { SizeRecommendation } from '../../services/sizeAI';
+import { useState, useEffect } from 'react';
+import { CheckCircle2, Info, ShoppingBag, Plus } from 'lucide-react';
+import { SizeRecommendation, FitType } from '../../services/sizeAI';
 import { Product } from '../../services/ProductService';
+import BodyMannequin from './BodyMannequin';
+import { productsData } from '../../data/mockData';
 
 interface AIRecommendationProps {
     recommendation: SizeRecommendation;
     onAddToCart: (size: string) => void;
     onViewModels: () => void;
     product?: Product;
+    gender?: 'male' | 'female'; // Novo prop
 }
 
 export default function AIRecommendation({
     recommendation,
     onAddToCart,
     onViewModels,
-    product
+    product,
+    gender = 'female' // Default
 }: AIRecommendationProps) {
-    const { size, confidence, reason, alternativeSize } = recommendation;
+    const { size, reason, fitMap } = recommendation;
     const [addedCrossSell, setAddedCrossSell] = useState(false);
 
-    // Converter confiança para percentual
-    const confidencePercent = Math.round(confidence * 100);
+    // Estado para o tamanho visualizado (permite ao usuário explorar outros tamanhos)
+    const [viewSize, setViewSize] = useState<string>(recommendation.size);
 
-    // Cor baseada em confiança
-    const getConfidenceColor = () => {
-        if (confidence >= 0.9) return 'text-green-600 bg-green-50';
-        if (confidence >= 0.8) return 'text-blue-600 bg-blue-50';
-        return 'text-orange-600 bg-orange-50';
-    };
+    // Efeito para resetar quando a recomendação mudar
+    useEffect(() => {
+        if (recommendation.size) setViewSize(recommendation.size);
+    }, [recommendation.size]);
 
-    // Lógica de cross-sell (Simulada, mas contextual)
+    // Lógica de cross-sell dinâmica
     const getCrossSellProduct = () => {
-        if (!product) return null;
+        if (!product) return productsData.find(p => p.id !== 1); // Fallback
 
         const category = typeof product.category === 'string'
             ? product.category.toLowerCase()
             : Array.isArray(product.category)
-                ? product.category[0]?.slug
+                ? product.category[0]?.slug.toLowerCase()
                 : 'lingerie';
 
-        const name = product.name.toLowerCase();
+        // Definir categoria alvo para Cross-Sell
+        let targetCategory = '';
+        if (gender === 'male') {
+            // Lógica masculina
+            if (category.includes('cueca')) targetCategory = 'meia';
+            else targetCategory = 'cuecas';
+        } else {
+            // Lógica feminina
+            if (category.includes('sutia') || category.includes('top')) targetCategory = 'calcinhas';
+            else if (category.includes('calcinha')) targetCategory = 'sutiãs';
+            else if (category.includes('meia')) targetCategory = 'calcinhas';
+            else targetCategory = 'kits';
+        }
 
-        // 1. Se for Cueca ou Boxer -> Sugere Top Esportivo/Conforto (Não Sutiã de Renda!)
-        if (category?.includes('cueca') || name.includes('boxer') || name.includes('cueca')) {
+        // Tentar encontrar produto na base mockada
+        const recommendation = productsData.find(p => {
+            const cat = typeof p.category === 'string' ? p.category.toLowerCase() : '';
+            return cat.includes(targetCategory.toLowerCase());
+        });
+
+        if (recommendation) {
             return {
-                name: 'Top Conforto Sem Costura',
-                price: 59.90,
-                image: 'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&q=80&w=300', // Top básico/esportivo
-                type: 'Top'
+                name: recommendation.name,
+                price: recommendation.price,
+                image: Array.isArray(recommendation.image) ? recommendation.image[0] : recommendation.image,
+                type: recommendation.category,
+                id: recommendation.id
             };
         }
 
-        // 2. Se for Pijama/Camisola -> Sugere Robe
-        if (category?.includes('pijama') || category?.includes('camisola') || category?.includes('sleepwear')) {
-            return {
-                name: 'Robe Cetim Toque de Seda',
-                price: 129.90,
-                image: 'https://images.unsplash.com/photo-1631215424560-658b375b43cd?auto=format&fit=crop&q=80&w=300', // Robe
-                type: 'Robe'
-            };
-        }
+        return productsData[0];
+    };
 
-        // 3. Se for Meia -> Sugere Kit Calcinhas Básicas
-        if (category?.includes('meia')) {
-            return {
-                name: 'Kit 3 Calcinhas Algodão',
-                price: 39.90,
-                image: 'https://images.unsplash.com/photo-1596482121084-2f2227d86f7f?auto=format&fit=crop&q=80&w=300', // Kit calcinhas
-                type: 'Kit'
-            };
-        }
+    const crossSell = getCrossSellProduct();
 
-        // 4. Se for Sutiã/Top -> Sugere Calcinha (Padrão)
-        if (category?.includes('sutia') || category?.includes('top')) {
-            return {
-                name: 'Calcinha Renda Premium',
-                price: 49.90,
-                image: 'https://images.unsplash.com/photo-1582740735409-d0ae8d489ea6?auto=format&fit=crop&q=80&w=300',
-                type: 'Calcinha'
-            };
-        }
-
-        // 5. Se for Calcinha (não Boxer) -> Sugere Sutiã (Padrão)
-        else {
-            return {
-                name: 'Sutiã Comfort Lace',
-                price: 89.90,
-                image: 'https://images.unsplash.com/photo-1616847253503-455b3dc2755e?auto=format&fit=crop&q=80&w=300',
-                type: 'Sutiã'
-            };
+    const getFitLabel = (fit: FitType) => {
+        switch (fit) {
+            case 'tight': return 'Justo';
+            case 'loose': return 'Largo';
+            case 'perfect': return 'Ideal (Perfeito)';
+            default: return '-';
         }
     };
 
-    // Evitar loop/re-render desnecessário
-    const [crossSell] = useState(() => getCrossSellProduct());
-
     return (
-        <div className="space-y-6">
-            {/* Tamanho Recomendado */}
-            <div className="text-center">
-                <div className="inline-flex items-center gap-2 text-green-600 mb-3">
-                    <CheckCircle2 className="w-6 h-6" />
-                    <span className="text-sm font-medium">Tamanho Perfeito Encontrado!</span>
+        <div className="bg-white rounded-2xl shadow-xl p-6 border border-slate-100 relative overflow-hidden">
+            {/* Header com Resultado Principal */}
+            <div className="text-center mb-8 relative z-10">
+                <div className="inline-flex items-center gap-2 bg-lyvest-50 px-4 py-1.5 rounded-full text-lyvest-700 text-sm font-bold mb-3 border border-lyvest-100">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Recomendação de IA
                 </div>
-
-                <div className="bg-gradient-to-br from-lyvest-50 to-lyvest-100 rounded-2xl p-8 mb-4">
-                    <div className="text-sm text-lyvest-700 font-medium mb-2">
-                        Seu tamanho ideal é:
-                    </div>
-                    <div className="text-7xl font-bold text-lyvest-900 tracking-tight">
-                        {size}
-                    </div>
-                </div>
-
-                {/* Confiança */}
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getConfidenceColor()}`}>
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-sm font-semibold">
-                        {confidencePercent}% de certeza
-                    </span>
-                </div>
+                <h3 className="text-4xl font-black text-slate-800 mb-1">
+                    Tamanho {size}
+                </h3>
+                <p className="text-slate-500 text-sm">{reason}</p>
             </div>
 
-            {/* Cross-Sell: Compre o Look (NOVO) */}
+            {/* Visualização Interativa do Manequim */}
+            {fitMap && (
+                <div className="flex flex-col md:flex-row gap-8 items-center justify-center bg-slate-50 p-8 rounded-3xl border border-slate-100 mb-6">
+                    {/* Coluna Visual (Manequim) */}
+                    <div className="w-48 flex-shrink-0 relative">
+                        <BodyMannequin
+                            bust={gender === 'male' ? 100 : 90} // Ajuste base
+                            waist={gender === 'male' ? 85 : 70}
+                            hips={gender === 'male' ? 95 : 100}
+                            viewMode="result"
+                            gender={gender} // Passar gênero
+                            fitResult={{
+                                bust: fitMap[viewSize] === 'tight' ? 'tight' : fitMap[viewSize] === 'loose' ? 'loose' : 'perfect',
+                                waist: fitMap[viewSize] as any,
+                                hips: fitMap[viewSize] === 'tight' ? 'tight' : fitMap[viewSize] === 'loose' ? 'loose' : 'perfect'
+                            }}
+                        />
+
+                        {/* Indicador de Tamanho Visualizado (Flutuante) */}
+                        <div className="absolute top-0 right-0 bg-white shadow-md rounded-lg px-2 py-1 border border-slate-100">
+                            <span className="text-xs font-bold text-slate-400 block mb-0.5">Vendo</span>
+                            <span className="text-xl font-black text-slate-800 block leading-none text-center">{viewSize}</span>
+                        </div>
+                    </div>
+
+                    {/* Coluna de Controle (Carrossel + Legenda) */}
+                    <div className="flex-1 space-y-6 w-full">
+
+                        {/* Seletor de Tamanhos (Carrossel) */}
+                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 text-center">
+                                Experimente outros tamanhos:
+                            </h4>
+                            <div className="flex justify-between items-center gap-2">
+                                {['PP', 'P', 'M', 'G', 'GG'].map((s) => {
+                                    const fit = fitMap[s];
+                                    if (!fit) return null;
+                                    const isSelected = s === viewSize;
+                                    const isRecommended = s === size;
+
+                                    return (
+                                        <button
+                                            key={s}
+                                            onClick={() => setViewSize(s)}
+                                            className={`relative w-12 h-12 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${isSelected
+                                                ? 'bg-slate-800 text-white shadow-lg scale-110 ring-2 ring-slate-800 ring-offset-2'
+                                                : 'bg-slate-50 text-slate-500 hover:bg-slate-100 hover:scale-105'
+                                                }`}
+                                        >
+                                            {s}
+                                            {isRecommended && (
+                                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" title="Recomendado" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Legenda Dinâmica */}
+                        <div>
+                            <h4 className="text-xs font-bold text-slate-700 mb-2">
+                                Detalhes do {viewSize}:
+                            </h4>
+                            <div className="space-y-2 bg-white/50 p-3 rounded-lg border border-slate-100">
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-500">Busto</span>
+                                    <span className={`font-bold ${fitMap[viewSize] === 'tight' ? 'text-orange-500' : fitMap[viewSize] === 'loose' ? 'text-blue-500' : 'text-emerald-600'}`}>
+                                        {getFitLabel(fitMap[viewSize])}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-500">Cintura</span>
+                                    <span className={`font-bold ${fitMap[viewSize] === 'tight' ? 'text-orange-500' : fitMap[viewSize] === 'loose' ? 'text-blue-500' : 'text-emerald-600'}`}>
+                                        {getFitLabel(fitMap[viewSize])}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-500">Quadril</span>
+                                    <span className={`font-bold ${fitMap[viewSize] === 'tight' ? 'text-orange-500' : fitMap[viewSize] === 'loose' ? 'text-blue-500' : 'text-emerald-600'}`}>
+                                        {getFitLabel(fitMap[viewSize])}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {!fitMap && (
+                <div className="bg-slate-50 p-4 rounded-lg text-center text-sm text-slate-500">
+                    <Info className="w-4 h-4 mx-auto mb-2 text-slate-400" />
+                    Não foi possível gerar análise detalhada de caimento.
+                </div>
+            )}
+
+            {/* Cross-Sell */}
             {crossSell && (
-                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm animate-fade-in relative overflow-hidden">
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm animate-fade-in relative overflow-hidden mb-6">
                     <div className="absolute top-0 right-0 bg-lyvest-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">
                         COMBINA COM VOCÊ
                     </div>
@@ -134,7 +207,7 @@ export default function AIRecommendation({
                     </h3>
                     <div className="flex gap-4 items-center">
                         <img
-                            src={crossSell.image}
+                            src={crossSell.image as string}
                             alt={crossSell.name}
                             className="w-16 h-16 rounded-lg object-cover bg-slate-100"
                         />
@@ -162,43 +235,15 @@ export default function AIRecommendation({
                 </div>
             )}
 
-            {/* Explicação da IA */}
-            <div className="bg-slate-50 rounded-xl p-4">
-                <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-slate-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <div className="text-sm font-medium text-slate-900 mb-1">
-                            Por que este tamanho?
-                        </div>
-                        <p className="text-sm text-slate-600 leading-relaxed">
-                            {reason}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Tamanho Alternativo */}
-            {alternativeSize && (
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                    <div className="text-sm text-blue-900 font-medium mb-1">
-                        💡 Dica Personalizada
-                    </div>
-                    <p className="text-sm text-blue-700">
-                        Se preferir um ajuste diferente, considere também o tamanho{' '}
-                        <strong>{alternativeSize}</strong>.
-                    </p>
-                </div>
-            )}
-
             {/* Ações */}
             <div className="space-y-3">
                 <button
-                    onClick={() => onAddToCart(size)}
+                    onClick={() => onAddToCart(viewSize)}
                     className="w-full bg-lyvest-600 text-white py-4 rounded-xl font-semibold hover:bg-lyvest-700 transition-colors shadow-lg shadow-lyvest-200"
                 >
                     {addedCrossSell
-                        ? `Adicionar Kit ao Carrinho (Tam ${size})`
-                        : `Adicionar Tamanho ${size} ao Carrinho`
+                        ? `Adicionar Kit ao Carrinho (Tam ${viewSize})`
+                        : `Adicionar Tamanho ${viewSize} ao Carrinho`
                     }
                 </button>
 
@@ -211,7 +256,7 @@ export default function AIRecommendation({
             </div>
 
             {/* Nota */}
-            <div className="text-xs text-slate-500 text-center space-y-1">
+            <div className="text-xs text-slate-500 text-center space-y-1 mt-6">
                 <p>✨ Recomendação gerada por inteligência artificial</p>
                 <p>📏 Baseada nas melhores práticas de moda íntima</p>
             </div>

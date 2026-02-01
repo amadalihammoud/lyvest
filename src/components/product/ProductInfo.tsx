@@ -17,12 +17,6 @@ export function ProductInfo({ product, productName, formatCurrency, t }: Product
             <p className="text-slate-500 text-sm">
                 {t('products.brand')}: <span className="text-lyvest-500 font-bold">Ly Vest</span>
             </p>
-            <p className="text-slate-500 text-sm mt-1">
-                {t('products.availability')}: <span className="text-green-600">{t('products.inStock')}</span>
-            </p>
-            <p className="text-slate-500 text-sm">
-                {t('products.warranty')}: 30 {t('products.days')}
-            </p>
 
             <div className="h-px bg-slate-100 w-full my-6" />
 

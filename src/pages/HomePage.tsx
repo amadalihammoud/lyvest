@@ -1,9 +1,8 @@
 ﻿
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Hero from '../components/Hero';
 import ProductCard from '../components/product/ProductCard';
-import TestimonialsSection from '../components/features/TestimonialsSection';
 import InfoStrip from '../components/features/InfoStrip';
 import { productsData } from '../data/mockData';
 import { useCart } from '../hooks/useCart';
@@ -11,7 +10,10 @@ import { useFavorites } from '../hooks/useFavorites';
 import { useModal } from '../hooks/useModal';
 import { Smile } from 'lucide-react';
 import { useI18n } from '../hooks/useI18n';
-import NewsletterForm from '../components/features/NewsletterForm';
+
+// Lazy load below-the-fold components
+const TestimonialsSection = lazy(() => import('../components/features/TestimonialsSection'));
+const NewsletterForm = lazy(() => import('../components/features/NewsletterForm'));
 
 export default function HomePage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -134,14 +136,18 @@ export default function HomePage() {
             </section>
 
             {/* Testimonials */}
-            <TestimonialsSection />
+            <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse" />}>
+                <TestimonialsSection />
+            </Suspense>
 
             {/* Newsletter */}
             <section className="py-20 bg-[#FDF5F5]">
                 <div className="container mx-auto px-4 text-center max-w-2xl">
                     <h2 className="text-[31px] md:text-5xl font-cookie text-lyvest-500 mb-4 whitespace-nowrap overflow-hidden text-ellipsis">{t('newsletter.title')}</h2>
                     <p className="text-slate-600 mb-8 font-lato">{t('newsletter.subtitle')}</p>
-                    <NewsletterForm />
+                    <Suspense fallback={<div className="h-12 w-full max-w-md mx-auto bg-slate-200 rounded-full animate-pulse" />}>
+                        <NewsletterForm />
+                    </Suspense>
                 </div>
             </section>
         </>

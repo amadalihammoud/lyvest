@@ -320,6 +320,8 @@ export const ptBR = {
         quickView: 'Espiar',
         watchVideo: 'Assistir vídeo',
         close: 'Fechar',
+        decreaseQuantity: 'Diminuir quantidade',
+        increaseQuantity: 'Aumentar quantidade',
     },
     navbar: {
         searchPlaceholder: 'Buscar produtos...',

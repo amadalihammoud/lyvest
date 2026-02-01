@@ -9,6 +9,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import ProductDetailsSkeleton from '../components/product/ProductDetailsSkeleton';
 import { productsData } from '../data/mockData';
 import { generateSlug } from '../utils/slug';
+import { CartItem } from '../context/CartContext';
 import { Product } from '../services/ProductService';
 import VirtualFitting from '../components/features/VirtualFitting';
 
@@ -57,7 +58,30 @@ export default function ProductPage() {
         loadProduct();
     }, [slug]);
 
+    const getCategoryName = (p: Product) => {
+        if (typeof p.category === 'string') return p.category;
+        if (Array.isArray(p.category)) return p.category[0]?.name || 'Departamento';
+        return p.category?.name || 'Departamento';
+    };
+
+    const getCategorySlug = (p: Product) => {
+        if (typeof p.category === 'string') return p.category; // Or slugify string
+        if (Array.isArray(p.category)) return p.category[0]?.slug || 'todos';
+        return p.category?.slug || 'todos';
+    };
+
+    const mapProductToCartItem = (p: Product): Partial<CartItem> => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        image: Array.isArray(p.image) ? p.image[0] : p.image,
+        category: getCategoryName(p),
+        qty: 1
+    });
+
     const handleAddToCart = (item: any) => {
+        // If item comes from ProductDetails, it might be constructed there. 
+        // We pass it through. Ideally ProductDetails should be typed too.
         addToCart(item);
         openModal('addedToCart', item);
     };
@@ -65,8 +89,9 @@ export default function ProductPage() {
     const handleSizeSelected = () => {
         if (product) {
             // Adicionar produto ao carrinho quando selecionado via IA
-            addToCart(product as any);
-            openModal('addedToCart', product);
+            const cartItem = mapProductToCartItem(product);
+            addToCart(cartItem);
+            openModal('addedToCart', product); // We notify with full product info
         }
     };
 
@@ -80,18 +105,6 @@ export default function ProductPage() {
         // return null;
         return <div className="text-center p-20">Produto não encontrado.</div>;
     }
-
-    const getCategoryName = (p: Product) => {
-        if (typeof p.category === 'string') return p.category;
-        if (Array.isArray(p.category)) return p.category[0]?.name || 'Departamento';
-        return p.category?.name || 'Departamento';
-    };
-
-    const getCategorySlug = (p: Product) => {
-        if (typeof p.category === 'string') return p.category; // Or slugify string
-        if (Array.isArray(p.category)) return p.category[0]?.slug || 'todos';
-        return p.category?.slug || 'todos';
-    };
 
     const breadcrumbItems = [
         { label: getCategoryName(product), link: `/categoria/${getCategorySlug(product)}` },

@@ -1,4 +1,4 @@
-import { useEffect, ReactNode } from 'react';
+import { useEffect, ReactNode, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { Analytics } from '@vercel/analytics/react';
@@ -17,10 +17,12 @@ import { I18nProvider, useI18n } from '@/context/I18nContext';
 import ModalManager from './ModalManager';
 import DrawerManager from './DrawerManager';
 import CookieBanner from './CookieBanner';
-import FloatingWhatsApp from '@/components/features/FloatingWhatsApp';
-import ChatWidget from '@/components/features/ChatWidget';
 import SEO from '@/components/features/SEOComponent';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
+
+// Lazy load non-critical widgets
+const FloatingWhatsApp = lazy(() => import('@/components/features/FloatingWhatsApp'));
+const ChatWidget = lazy(() => import('@/components/features/ChatWidget'));
 
 // Lazy load preload
 const preloadCheckout = () => import('../../pages/CheckoutPage');
@@ -86,10 +88,13 @@ function GlobalLogic({ children }: { children: ReactNode }) {
                 </div>
             )}
 
-            {/* Global Features */}
+            {/* Global Features (Lazy Loaded) */}
             <CookieBanner onOpenPrivacy={() => openModal('privacy')} />
-            <ChatWidget />
-            <FloatingWhatsApp />
+
+            <Suspense fallback={null}>
+                <ChatWidget />
+                <FloatingWhatsApp />
+            </Suspense>
 
             {/* Analytics */}
             <Analytics />

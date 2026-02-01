@@ -114,7 +114,7 @@ export default function AffiliateDashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-orange-100">
                     <p className="text-orange-600 font-medium mb-1">Saldo Pendente</p>
-                    <h3 className="text-3xl font-bold text-gray-800">Wait... {stats.pending.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</h3>
+                    <h3 className="text-3xl font-bold text-gray-800">{stats.pending.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</h3>
                     <p className="text-xs text-gray-500 mt-2">Libera 7 dias após entrega</p>
                 </div>
 
@@ -185,14 +185,13 @@ export default function AffiliateDashboardPage() {
 }
 
 function StatusBadge({ status, date }: { status: string, date: string }) {
-    const config = {
+    const config: Record<string, { color: string; label: string }> = {
         pending: { color: 'bg-orange-100 text-orange-800', label: 'Pendente' },
         available: { color: 'bg-green-100 text-green-800', label: 'Disponível' },
         paid: { color: 'bg-blue-100 text-blue-800', label: 'Pago' },
         cancelled: { color: 'bg-red-100 text-red-800', label: 'Cancelado' },
     };
 
-    // @ts-ignore
     const { color, label } = config[status] || config.pending;
 
     return (

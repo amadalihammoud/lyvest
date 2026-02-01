@@ -7,7 +7,11 @@ vi.mock('canvas-confetti', () => ({
 }));
 
 // Mock window.scrollTo
-Object.defineProperty(window, 'scrollTo', { value: vi.fn(), writable: true });
+if (typeof window !== 'undefined') {
+    Object.defineProperty(window, 'scrollTo', { value: vi.fn(), writable: true });
+}
 
 // Mock HTMLCanvasElement.getContext (creates a dummy context)
-HTMLCanvasElement.prototype.getContext = vi.fn();
+if (typeof HTMLCanvasElement !== 'undefined') {
+    HTMLCanvasElement.prototype.getContext = vi.fn();
+}

@@ -137,6 +137,7 @@ export default function Header({
                                 value={searchQuery}
                                 onChange={handleSearch}
                                 placeholder={t('common.search')}
+                                aria-label={t('common.search')}
                                 maxLength={50}
                                 className="w-full pl-12 pr-4 py-2.5 rounded-full bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#F5E6E8] focus:border-lyvest-200 transition-all text-sm placeholder:text-slate-400 group-hover:bg-white"
                             />
@@ -226,6 +227,7 @@ export default function Header({
 
                         {/* Carrinho */}
                         <button
+                            data-testid="cart-button"
                             onClick={() => { openDrawer('cart'); setIsMobileMenuOpen(false); }}
                             className="relative p-2 sm:p-3 hover:bg-lyvest-100/30 rounded-full transition-colors group touch-target"
                             title={t('nav.cart')}

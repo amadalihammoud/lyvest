@@ -292,6 +292,8 @@ export const enUS = {
         favoritesCount: 'Favorites: {count} items',
         cartCount: 'Cart with {count} items',
         trackOrder: 'Track order',
+        decreaseQuantity: 'Decrease quantity',
+        increaseQuantity: 'Increase quantity',
     },
     navbar: {
         searchPlaceholder: 'Search products...',

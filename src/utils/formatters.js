@@ -172,6 +172,69 @@ export function formatPercent(value, locale = DEFAULT_LOCALE) {
 // Export do locale padrão para uso em outros lugares
 export { DEFAULT_LOCALE, DEFAULT_CURRENCY };
 
+/**
+ * Formata CEP (00000-000)
+ */
+export function formatCEP(value) {
+    if (!value) return '';
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 5) return cleaned;
+    return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`;
+}
+
+/**
+ * Formata Telefone (DD) 90000-0000 ou (DD) 0000-0000
+ */
+export function formatPhone(value) {
+    if (!value) return '';
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 2) return `(${cleaned}`;
+    if (cleaned.length <= 6) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
+    // Fix: Para 10 dígitos (Fixo), formato (XX) XXXX-XXXX
+    if (cleaned.length === 10) {
+        return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    }
+    // Para 11 dígitos ou incompleto > 6
+    if (cleaned.length <= 10) { // Tratando digitação
+        return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    }
+    return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+}
+
+/**
+ * Formata CPF/CNPJ
+ */
+export function formatDocument(value) {
+    if (!value) return '';
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 11) {
+        return cleaned
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+            .replace(/(-\d{2})\d+?$/, '$1');
+    }
+    return cleaned
+        .replace(/^(\d{2})(\d)/, '$1.$2')
+        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1/$2')
+        .replace(/(\d{4})(\d)/, '$1-$2')
+        .replace(/(-\d{2})\d+?$/, '$1');
+}
+
+/**
+ * Formata Cartão de Crédito
+ */
+export function formatCardNumber(value) {
+    if (!value) return '';
+    const cleaned = value.replace(/\D/g, '');
+    const groups = [];
+    for (let i = 0; i < cleaned.length; i += 4) {
+        groups.push(cleaned.slice(i, i + 4));
+    }
+    return groups.join(' ').trim();
+}
+
 
 
 

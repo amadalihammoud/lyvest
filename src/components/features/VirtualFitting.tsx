@@ -7,6 +7,7 @@ import { findSimilarModels } from '../../data/sizeGuide';
 import SizeCalculator from './SizeCalculator';
 import AIRecommendation from './AIRecommendation';
 import ModelGallery from './ModelGallery';
+import { getProductGender } from '../../utils/productUtils';
 
 interface VirtualFittingProps {
     isOpen: boolean;
@@ -36,27 +37,19 @@ export default function VirtualFitting({
     const [recommendation, setRecommendation] = useState<SizeRecommendation | null>(null);
     const [measurements, setMeasurements] = useState<BodyMeasurements | null>(null);
 
-    // Carregar medidas salvas ao abrir
+    const productGender = getProductGender(product);
+
+    // Carregar dados salvos
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             try {
-                const parsed = JSON.parse(saved);
-                setMeasurements(parsed);
+                setMeasurements(JSON.parse(saved));
             } catch (e) {
-                console.error('Erro ao carregar medidas:', e);
+                console.error('Erro ao ler medidas salvas', e);
             }
         }
     }, []);
-
-    // Tracking ao abrir
-    useEffect(() => {
-        if (isOpen) {
-            trackEvent('view_fitting_room', { productId: product.id, productName: product.name });
-        }
-    }, [isOpen]);
-
-    if (!isOpen) return null;
 
     const handleCalculate = async (userMeasurements: BodyMeasurements) => {
         setIsCalculating(true);
@@ -79,45 +72,34 @@ export default function VirtualFitting({
 
             setRecommendation(result);
             setStep('recommendation');
-
-            trackEvent('view_recommendation', {
-                recommendedSize: result.size,
-                confidence: result.confidence
-            });
         } catch (error) {
             console.error('Erro ao calcular tamanho:', error);
-            alert('Erro ao calcular tamanho. Tente novamente.');
         } finally {
             setIsCalculating(false);
         }
     };
 
     const handleAddToCart = (size: string) => {
-        trackEvent('add_to_cart_from_fitting', {
+        onSizeSelected(size);
+        trackEvent('add_to_cart_recommendation', {
             size,
-            productId: product.id,
-            recommendation: recommendation?.size
+            productId: product.id
         });
-
-        // Pequeno delay para garantir tracking antes de fechar (opcional, mas bom pra analytics)
-        setTimeout(() => {
-            onSizeSelected(size);
-            onClose();
-        }, 100);
+        onClose();
     };
 
     const handleViewModels = () => {
-        trackEvent('view_similar_models', { productId: product.id });
         setStep('models');
+        trackEvent('view_models', { productId: product.id });
     };
 
     const handleBack = () => {
-        if (step === 'models') {
-            setStep('recommendation');
-        } else if (step === 'recommendation') {
-            setStep('input');
-        }
+        if (step === 'models') setStep('recommendation');
+        else if (step === 'recommendation') setStep('input');
     };
+
+    // Detectar gênero do produto
+    // REMOVIDO: Usando getProductGender de productUtils agora
 
     // Get similar models if we have measurements
     const similarModels =
@@ -126,7 +108,8 @@ export default function VirtualFitting({
                 measurements.height,
                 measurements.weight,
                 measurements.bustType,
-                measurements.hipType
+                measurements.hipType,
+                productGender // Passar gênero detectado
             )
             : [];
 
@@ -220,19 +203,25 @@ export default function VirtualFitting({
                             onAddToCart={handleAddToCart}
                             onViewModels={handleViewModels}
                             product={product}
+                            gender={productGender}
                         />
                     )}
 
                     {step === 'models' && (
                         <div>
                             <ModelGallery models={similarModels} productId={product.id} />
-
-                            <div className="mt-6">
+                            <div className="mt-8 flex gap-3">
                                 <button
                                     onClick={handleBack}
-                                    className="w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+                                    className="flex-1 py-3 border border-slate-200 rounded-xl font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                                 >
-                                    Voltar para Recomendação
+                                    Voltar
+                                </button>
+                                <button
+                                    onClick={() => handleAddToCart(recommendation?.size || 'M')}
+                                    className="flex-1 py-3 bg-lyvest-600 text-white rounded-xl font-bold hover:bg-lyvest-700 transition-colors shadow-lg shadow-lyvest-200"
+                                >
+                                    Comprar Agora
                                 </button>
                             </div>
                         </div>
