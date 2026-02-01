@@ -5,6 +5,7 @@ import { RateLimiter, detectXSS } from '../../utils/security';
 import { paymentService } from '../../services/payment';
 import { useI18n } from '../../hooks/useI18n';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 // Define types based on our validation schema
 type PaymentFormData = {
@@ -38,6 +39,7 @@ const checkoutLimiter = new RateLimiter('checkout', 3, 300000);
 export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProps) {
     const { t, formatCurrency } = useI18n();
     const { cartItems, finalTotal } = useCart();
+    const { user } = useAuth();
     // Use finalTotal from context if available (it handles discounts), otherwise fallback to prop
     const displayTotal = finalTotal !== undefined ? finalTotal : total;
     const [method, setMethod] = useState<'credit' | 'pix'>('credit');
@@ -140,7 +142,7 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
                     customer: {
                         firstName: formData.cardName.split(' ')[0],
                         lastName: formData.cardName.split(' ').slice(1).join(' '),
-                        email: 'cliente@exemplo.com', // TODO: Get from auth context
+                        email: user?.email || 'checkout@lyvest.com.br',
                     },
                     items: cartItems.map(item => ({
                         id: item.id,

@@ -1,13 +1,32 @@
+/*
+ * Script para gerar Sitemap XML dinâmico
+ *
+ * Busca produtos e categorias do Supabase para manter o Google atualizado.
+ * Execute: node scripts/generate-sitemap.js
+ */
 
+import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 
-// Get current directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Carregar variáveis de ambiente
+dotenv.config({ path: '.env.local' });
 
-// Helper to generate slug (simple version matching utils/slug.js)
+// Configuração do Supabase
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+const SITE_URL = 'https://lyvest.vercel.app'; // URL final de produção
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error('❌ Erro: VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY são obrigatórios.');
+    process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Helper para gerar slug (caso não venha do banco)
 const generateSlug = (text) => {
     return text
         .toString()
@@ -21,74 +40,52 @@ const generateSlug = (text) => {
         .replace(/-+$/, '');
 };
 
-// We need to read mockData but since it's a JSX file with imports, 
-// we'll use a regex approach to extract data to avoid babel/transpilation complexity in this simple script
-// or we can just duplicate the data for this MVP script if parsing is too complex.
-// BETTER APPROACH: Let's read the file content and extract the array using regex to be safe and simple.
+async function generateSitemap() {
+    console.log('🔄 Gerando Sitemap.xml a partir do Supabase...');
 
-const mockDataPath = path.join(__dirname, '../src/data/mockData.jsx');
-const publicPath = path.join(__dirname, '../public/sitemap.xml');
-const DOMAIN = 'https://lyvest.vercel.app';
+    // 1. Buscar Produtos Ativos
+    const { data: products, error: prodError } = await supabase
+        .from('products')
+        .select('id, name, slug, updated_at, category_id')
+        .eq('active', true);
 
-try {
-    const fileContent = fs.readFileSync(mockDataPath, 'utf8');
-
-    // 1. Extract Products
-    // This regex looks for: export const productsData = [...];
-    const productsMatch = fileContent.match(/export const productsData = \[\s*([\s\S]*?)\];/);
-
-    // 2. Extract Categories
-    // We'll extract categories from the products themselves to match the site structure
-
-    if (!productsMatch) {
-        throw new Error("Could not find productsData in mockData.jsx");
+    if (prodError) {
+        console.error('❌ Erro ao buscar produtos:', prodError);
+        return;
     }
 
-    // Rough parsing of the JS array string to objects
-    // We need to clean up the string to make it valid JSON-ish or just parse manually
-    // Since we only need names and categories, we can use regex to find them.
-
+    // 2. Extrair Categorias Únicas (assumindo que category_id é o nome ou slug, se for ID precisaria de join)
+    // Para simplificar, vou assumir que temos uma tabela de categorias ou extrairemos dos produtos
+    // Se category_id for string (nome), usamos ele. Se for ID, ideal seria buscar da tabela de categorias.
+    // Vou buscar categorias distintas dos produtos por enquanto para garantir links
     const categories = new Set();
-
-    const items = [];
-
-    // We'll split the content by objects to keep name/category paired
-    const objectStrings = productsMatch[1].split('},');
-
-    objectStrings.forEach(str => {
-        const nameMatch = /name:\s*"([^"]+)"/.exec(str);
-        const catMatch = /category:\s*"([^"]+)"/.exec(str);
-
-        if (nameMatch && catMatch) {
-            const name = nameMatch[1];
-            const category = catMatch[1];
-
-            items.push({ name, category });
-            categories.add(category);
-        }
+    products.forEach(p => {
+        if (p.category_id) categories.add(p.category_id);
     });
 
-    console.log(`Found ${items.length} products and ${categories.size} categories.`);
+    console.log(`✅ Encontrados ${products.length} produtos e ${categories.size} categorias.`);
 
-    // --- Generate XML ---
     const lastMod = new Date().toISOString().split('T')[0];
 
+    // Cabeçalho
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Home -->
   <url>
-    <loc>${DOMAIN}/</loc>
+    <loc>${SITE_URL}/</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 `;
 
-    // Categories
+    // Adicionar Categorias
     categories.forEach(cat => {
+        // Se a categoria for um ID numérico, isso vai gerar um link quebrado se o front esperar slug
+        // Ideal: Ter tabela de categorias com slug. Fallback: Slugify o que tiver.
         const slug = generateSlug(cat);
         xml += `  <url>
-    <loc>${DOMAIN}/categoria/${slug}</loc>
+    <loc>${SITE_URL}/categoria/${slug}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -96,12 +93,14 @@ try {
 `;
     });
 
-    // Products
-    items.forEach(item => {
-        const slug = generateSlug(item.name);
+    // Adicionar Produtos
+    products.forEach(product => {
+        const slug = product.slug || generateSlug(product.name);
+        const date = product.updated_at ? product.updated_at.split('T')[0] : lastMod;
+
         xml += `  <url>
-    <loc>${DOMAIN}/produto/${slug}</loc>
-    <lastmod>${lastMod}</lastmod>
+    <loc>${SITE_URL}/produto/${slug}</loc>
+    <lastmod>${date}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -110,10 +109,18 @@ try {
 
     xml += `</urlset>`;
 
-    fs.writeFileSync(publicPath, xml);
-    console.log(`Sitemap generated successfully at ${publicPath}`);
+    // Salvar arquivo
+    const __filename = fileURLToPath(import.meta.url); // Re-declare inside if needed or use from top
+    const __dirname = path.dirname(__filename);
+    const publicPath = path.resolve(__dirname, '../public/sitemap.xml');
 
-} catch (error) {
-    console.error("Error generating sitemap:", error);
-    process.exit(1);
+    try {
+        fs.writeFileSync(publicPath, xml);
+        console.log(`🚀 Sitemap gerado com sucesso em: ${publicPath}`);
+        console.log(`🔗 URL Pública: ${SITE_URL}/sitemap.xml`);
+    } catch (err) {
+        console.error('❌ Erro ao salvar sitemap:', err);
+    }
 }
+
+generateSitemap();

@@ -4,7 +4,17 @@ import { Heart, Eye, Minus, Plus } from 'lucide-react';
 import { generateSlug } from '../../utils/slug';
 import { useI18n } from '../../hooks/useI18n';
 
-const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQuickView }) => {
+import { Product } from '../../services/ProductService';
+
+interface ProductCardProps {
+    product: Product;
+    isFavorite: boolean;
+    onToggleFavorite: (e: React.MouseEvent) => void;
+    onAddToCart: (quantity: number) => void;
+    onQuickView?: () => void;
+}
+
+const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQuickView }: ProductCardProps) => {
     const { formatCurrency, getProductData, t } = useI18n();
     const [isImageLoaded, setIsImageLoaded] = React.useState(false);
     const [quantity, setQuantity] = useState(1);
@@ -12,22 +22,22 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
     const productSlug = generateSlug(product.name);
 
     // Use translated data if available, fallback to original
-    const productName = getProductData(product.id, 'name') || product.name;
-    const productBadge = getProductData(product.id, 'badge') || product.badge;
+    const productName = (getProductData(product.id, 'name') as string) || product.name;
+    const productBadge = (getProductData(product.id, 'badge') as string) || product.badge;
 
-    const handleIncrement = (e) => {
+    const handleIncrement = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         if (quantity < 10) setQuantity(prev => prev + 1);
     };
 
-    const handleDecrement = (e) => {
+    const handleDecrement = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         if (quantity > 1) setQuantity(prev => prev - 1);
     };
 
-    const handleAddToCart = (e) => {
+    const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         onAddToCart(quantity);
@@ -68,8 +78,9 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                         decoding="async"
                         onLoad={() => setIsImageLoaded(true)}
                         onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = 'https://placehold.co/400x400/fce7f3/ec4899?text=' + encodeURIComponent(product.name.split(' ')[0]);
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            target.src = 'https://placehold.co/400x400/fce7f3/ec4899?text=' + encodeURIComponent(product.name.split(' ')[0]);
                         }}
                         className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out image-reveal ${isImageLoaded ? 'loaded' : ''}`}
                     />
@@ -77,7 +88,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                     {/* Overlay de AÃ§Ãµes (Desktop) */}
                     <div className="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[1px]">
                         <button
-                            onClick={(e) => {
+                            onClick={(e: React.MouseEvent) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 if (onQuickView) {

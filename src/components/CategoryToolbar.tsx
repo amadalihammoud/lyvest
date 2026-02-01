@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowUpDown, ChevronDown, Check, Filter } from 'lucide-react';
 import { useI18n } from '../hooks/useI18n';
 import Breadcrumbs from './Breadcrumbs';
+
+interface CategoryToolbarProps {
+    categoryTitle: string;
+    sortOption: string;
+    onSortChange: (option: string) => void;
+    onOpenFilters: () => void;
+}
 
 export default function CategoryToolbar({
     categoryTitle,
     sortOption,
     onSortChange,
     onOpenFilters
-}) {
+}: CategoryToolbarProps) {
     const { t } = useI18n();
     const [isSortOpen, setIsSortOpen] = useState(false);
 

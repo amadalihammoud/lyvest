@@ -5,7 +5,17 @@ import { useI18n } from '../hooks/useI18n';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { useCart } from '../context/CartContext';
 
-function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }) {
+import { Product } from '../services/ProductService';
+
+interface DrawerCartProps {
+    isOpen: boolean;
+    onClose: () => void;
+    cartItems: (Product & { qty: number })[];
+    onRemoveFromCart: (id: number) => void;
+    onCheckout: () => void;
+}
+
+function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }: DrawerCartProps) {
     const { t, formatCurrency, getProductData } = useI18n();
     const {
         cartTotal,
@@ -74,10 +84,10 @@ function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }
                     ) : (
                         cartItems.map(item => (
                             <div key={item.id} className="flex gap-4 items-center animate-fade-in mb-4">
-                                <img src={item.image} srcSet={`${item.image}?w=200 200w, ${item.image}?w=400 400w`} alt={getProductData(item.id, 'name') || item.name} className="w-20 h-20 rounded-xl object-cover bg-slate-50 border border-slate-100" />
+                                <img src={item.image} srcSet={`${item.image}?w=200 200w, ${item.image}?w=400 400w`} alt={(getProductData(item.id, 'name') as string) || item.name} className="w-20 h-20 rounded-xl object-cover bg-slate-50 border border-slate-100" />
                                 <div className="flex-1">
-                                    <h4 className="font-bold text-slate-800 text-sm line-clamp-2">{getProductData(item.id, 'name') || item.name}</h4>
-                                    <p className="text-xs text-lyvest-500 font-medium mb-1">{getProductData(item.id, 'category') || item.category}</p>
+                                    <h4 className="font-bold text-slate-800 text-sm line-clamp-2">{(getProductData(item.id, 'name') as string) || item.name}</h4>
+                                    <p className="text-xs text-lyvest-500 font-medium mb-1">{String(getProductData(item.id, 'category') || item.category)}</p>
                                     <div className="flex items-center justify-between mt-2">
                                         <span className="text-sm font-semibold text-lyvest-500">
                                             {item.qty}x {formatCurrency(item.price)}

@@ -23,10 +23,10 @@ interface Product {
     rating?: number;
     reviews?: number;
     ean?: string;
-    category?: string;
+    category?: string | { name: string; slug: string; } | { name: string; slug: string; }[] | any; // Allow complex category
     slug?: string;
-    colors?: ProductColor[];
-    specs?: Record<string, string>;
+    colors?: ProductColor[] | any[]; // Allow loose structure for compatibility
+    specs?: Record<string, string | number | undefined>; // Match Service
     [key: string]: any;
 }
 

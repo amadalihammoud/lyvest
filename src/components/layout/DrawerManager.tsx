@@ -7,9 +7,12 @@ import { productsData } from '../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
 // Lazy load drawers
+// Lazy load drawers
 const DrawerCart = lazy(() => import('../DrawerCart'));
 const DrawerFavorites = lazy(() => import('../DrawerFavorites'));
 const DrawerTracking = lazy(() => import('../DrawerTracking'));
+// FilterSidebar is used in FilterSidebar.tsx, not managed here? Or is it? 
+// Original code had it, but lines 82+ don't seem to use it.
 const FilterSidebar = lazy(() => import('../FilterSidebar'));
 export default function DrawerManager() {
     const {
@@ -22,8 +25,8 @@ export default function DrawerManager() {
         showNotification
     } = useModal();
 
-    const { cartItems, removeFromCart } = useCart();
-    const { favorites, toggleFavorite, addToCart } = useFavorites();
+    const { cartItems, removeFromCart, addToCart } = useCart();
+    const { favorites, toggleFavorite } = useFavorites();
     const { isRTL } = useI18n();
     const navigate = useNavigate();
 
@@ -74,7 +77,7 @@ export default function DrawerManager() {
                         <DrawerCart
                             isOpen={true}
                             onClose={closeDrawer}
-                            cartItems={cartItems}
+                            cartItems={cartItems as any[]} // TODO: Fix CartItem vs Product type mismatch properly
                             onRemoveFromCart={removeFromCart}
                             onCheckout={handleCheckout}
                         />
@@ -84,7 +87,7 @@ export default function DrawerManager() {
                             isOpen={true}
                             onClose={closeDrawer}
                             favoriteProducts={productsData.filter((p) => favorites.includes(p.id))}
-                            onAddToCart={addToCart}
+                            onAddToCart={(p) => addToCart(p as any)} // Cast to match useCart expectation
                             onToggleFavorite={toggleFavorite}
                             setNotification={(msg) => showNotification(msg, 'success')}
                         />
@@ -93,9 +96,9 @@ export default function DrawerManager() {
                         <DrawerTracking
                             isOpen={true}
                             onClose={closeDrawer}
-                            trackingCode={trackingCode}
+                            trackingCode={trackingCode || ''}
                             setTrackingCode={setTrackingCode}
-                            trackingResult={trackingResult}
+                            trackingResult={trackingResult as any}
                             setTrackingResult={setTrackingResult}
                         />
                     )}

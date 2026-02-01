@@ -8,18 +8,25 @@ import { useShop } from '../../context/ShopContext';
 import { useAuth } from '../../context/AuthContext';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
+interface MobileMenuProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onOpenLogin: () => void;
+    navigateToDashboard: () => void;
+}
+
 export default function MobileMenu({
     isOpen,
     onClose,
     onOpenLogin,
     navigateToDashboard
-}) {
+}: MobileMenuProps) {
     const { user, isAuthenticated: isLoggedIn } = useAuth();
     const { searchQuery, setSearchQuery } = useShop();
     const { handleMenuClick: baseHandleMenuClick } = useShopNavigation();
 
     // Wrap handleMenuClick to close menu
-    const handleMenuClick = (item) => {
+    const handleMenuClick = (item: any) => {
         baseHandleMenuClick(item);
         onClose();
     };

@@ -76,7 +76,7 @@ export async function initWebVitals() {
         onINP(sendToAnalytics); // Interaction to Next Paint (substitui FID)
 
         if (import.meta.env.DEV) {
-            console.log('[Web Vitals] Monitoramento iniciado');
+            webVitalsLogger.info('Monitoramento iniciado');
         }
     } catch {
         // Biblioteca não instalada - falha silenciosa

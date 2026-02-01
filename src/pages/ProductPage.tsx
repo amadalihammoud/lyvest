@@ -1,42 +1,91 @@
 ﻿
-import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import ProductDetails from '../components/product/ProductDetails';
-import { productsData } from '../data/mockData';
 import { useCart } from '../hooks/useCart';
 import { useModal } from '../hooks/useModal';
 import SEO from '../components/features/SEOComponent';
-import { generateSlug } from '../utils/slug';
 import Breadcrumbs from '../components/Breadcrumbs';
+import ProductDetailsSkeleton from '../components/product/ProductDetailsSkeleton';
+import { productsData } from '../data/mockData';
+import { generateSlug } from '../utils/slug';
+import { Product } from '../services/ProductService'; // Import interface
 
 export default function ProductPage() {
     const { slug } = useParams();
-    const navigate = useNavigate();
     const { addToCart } = useCart();
     const { openModal } = useModal();
-    const product = productsData.find((p) => generateSlug(p.name) === slug);
+    const [product, setProduct] = useState<Product | null>(null); // Use strict type
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function loadProduct() {
+            if (!slug) return;
+            setLoading(true);
+
+            // 1. Try to find by slug in Supabase
+            const { data, error } = await supabase
+                .from('products')
+                .select('*')
+                .eq('slug', slug)
+                .single();
+
+            if (data) {
+                setProduct(data);
+                setLoading(false);
+                return;
+            }
+
+            // 2. Fallback: Try to find by name (slugified) in mockData
+            const mockProduct = productsData.find(p => generateSlug(p.name) === slug);
+
+            if (mockProduct) {
+                setProduct(mockProduct);
+                setLoading(false);
+                return;
+            }
+
+            // 3. Not found
+            console.error('Product not found in Supabase or Mock Data:', error);
+            setLoading(false);
+            // Don't auto-redirect to 404 here to avoid flickering if it's just slow, 
+            // but if loading is done and no product, we render 404 or redirect.
+        }
+
+        loadProduct();
+    }, [slug]);
 
     const handleAddToCart = (item: any) => {
         addToCart(item);
         openModal('addedToCart', item);
     };
 
-    useEffect(() => {
-        if (!product) {
-            navigate('/404', { replace: true });
-        }
-    }, [product, navigate]);
-
-    if (!product) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-lyvest-100 border-t-[#800020] rounded-full animate-spin" />
-            </div>
-        );
+    if (loading) {
+        return <ProductDetailsSkeleton />;
     }
 
+    if (!product) {
+        // Redirect or show not found
+        // navigate('/404', { replace: true });
+        // return null;
+        return <div className="text-center p-20">Produto não encontrado.</div>;
+    }
+
+    const getCategoryName = (p: Product) => {
+        if (typeof p.category === 'string') return p.category;
+        if (Array.isArray(p.category)) return p.category[0]?.name || 'Departamento';
+        return p.category?.name || 'Departamento';
+    };
+
+    const getCategorySlug = (p: Product) => {
+        if (typeof p.category === 'string') return p.category; // Or slugify string
+        if (Array.isArray(p.category)) return p.category[0]?.slug || 'todos';
+        return p.category?.slug || 'todos';
+    };
+
     const breadcrumbItems = [
-        { label: product.category, link: `/categoria/${generateSlug(product.category)}` },
+        { label: getCategoryName(product), link: `/categoria/${getCategorySlug(product)}` },
         { label: product.name }
     ];
 
@@ -46,7 +95,7 @@ export default function ProductPage() {
                 title={product.name}
                 description={product.description}
                 image={Array.isArray(product.image) ? product.image[0] : product.image}
-                product={product as any}
+                product={product}
                 type="product"
                 breadcrumbs={breadcrumbItems}
             />
@@ -58,7 +107,7 @@ export default function ProductPage() {
                 </div>
                 <div className="w-full">
                     <ProductDetails
-                        product={product as any}
+                        product={product}
                         onAddToCart={handleAddToCart}
                     />
                 </div>

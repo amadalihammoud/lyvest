@@ -18,7 +18,7 @@ export interface Product {
     sizes?: string[];
     colors?: any[]; // Allow strings or objects {name, hex}
     quantity?: number;
-    badge?: string;
+    badge?: string | null;
     rating?: number;
     reviews?: number;
     video?: string;

@@ -2,6 +2,7 @@
 // Serviço para integração com transportadoras e rastreamento
 
 import { SHIPPING_CONFIG } from '../config/constants';
+import { shippingLogger } from '../utils/logger';
 
 /**
  * Serviço de cálculo de frete e rastreamento
@@ -18,7 +19,7 @@ class ShippingService {
      * @returns {Promise<Array>} - Opções de frete
      */
     async calculateShipping(cep, items) {
-        console.log('[Shipping] Calculando frete via API...', { cep, items });
+        shippingLogger.debug('Calculando frete via API...', { cep, items });
 
         try {
             const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -74,7 +75,7 @@ class ShippingService {
      */
     async trackOrder(trackingCode) {
         // Simulação - será substituído por integração real
-        console.log('[Shipping] Rastreando...', trackingCode);
+        shippingLogger.info('Rastreando...', trackingCode);
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -120,7 +121,7 @@ class ShippingService {
      */
     async validateCep(cep) {
         // Simulação - será substituído por ViaCEP ou similar
-        console.log('[Shipping] Validando CEP...', cep);
+        shippingLogger.debug('Validando CEP...', cep);
 
         await new Promise(resolve => setTimeout(resolve, 500));
 

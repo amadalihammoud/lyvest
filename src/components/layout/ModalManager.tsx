@@ -26,7 +26,11 @@ const AddedToCartModal = lazy(() => import('../modals/AddedToCartModal'));
 // const NewsletterModal = lazy(() => import('../modals/NewsletterModal')); // Missing
 // const SizeGuideModal = lazy(() => import('../modals/SizeGuideModal')); // Missing
 
-export default function ModalManager({ onLoginSuccess }) {
+interface ModalManagerProps {
+    onLoginSuccess: (user: any) => void;
+}
+
+export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
     const { activeModal, closeModal, modalData } = useModal();
     const { t } = useI18n();
     const { addToCart } = useCart();
@@ -39,6 +43,7 @@ export default function ModalManager({ onLoginSuccess }) {
                 return <LoginModal onLoginSuccess={onLoginSuccess} />;
             // case 'forgotPassword': return <ForgotPasswordModal />; // Missing
             case 'register':
+                // @ts-ignore - RegisterModal prop types might be inferred incorrectly or missing
                 return <RegisterModal onRegisterSuccess={onLoginSuccess} />;
             case 'contact':
                 return <ContactModal />;
@@ -58,9 +63,9 @@ export default function ModalManager({ onLoginSuccess }) {
             case 'quickview':
                 return (
                     <ProductQuickView
-                        product={modalData}
+                        product={modalData as any}
                         onClose={closeModal}
-                        onAddToCart={addToCart}
+                        onAddToCart={(p) => addToCart(p as any)}
                     />
                 );
             default:

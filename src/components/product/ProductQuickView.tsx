@@ -5,7 +5,21 @@ import { generateSlug } from '../../utils/slug';
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
 
-function ProductQuickView({ product, onClose, onAddToCart }) {
+import { Product } from '../../services/ProductService';
+
+interface ProductQuickViewProps {
+    product: Product | null;
+    onClose: () => void;
+    onAddToCart: (product: Product) => void;
+}
+
+interface Slide {
+    type: 'image' | 'video';
+    src: string;
+    thumb?: string;
+}
+
+function ProductQuickView({ product, onClose, onAddToCart }: ProductQuickViewProps) {
     const navigate = useNavigate();
     const { t, formatCurrency, getProductData } = useI18n();
     const { openModal } = useModal();
@@ -20,32 +34,33 @@ function ProductQuickView({ product, onClose, onAddToCart }) {
     if (!product) return null;
 
     // Translated product data
-    const productName = getProductData(product.id, 'name') || product.name;
-    const productDescription = getProductData(product.id, 'description') || product.description;
-    const productBadge = getProductData(product.id, 'badge') || product.badge;
+    const productName = product ? (getProductData(product.id, 'name') as string) || product.name : '';
+    const productDescription = product ? (getProductData(product.id, 'description') as string) || product.description : '';
+    const productBadge = product ? (getProductData(product.id, 'badge') as string) || product.badge : '';
 
     // Construct Carousel Slides (Mocking multiple images + Video)
-    const slides = [
+    const slides: Slide[] = product ? [
         { type: 'image', src: product.image },
         { type: 'image', src: product.image }, // Mock duplicate 1
         { type: 'image', src: product.image }, // Mock duplicate 2
-    ];
+    ] : [];
 
-    if (product.video) {
+    if (product?.video) {
         slides.push({ type: 'video', src: product.video, thumb: product.image });
     }
 
-    const nextSlide = (e) => {
+    const nextSlide = (e?: React.MouseEvent) => {
         e?.stopPropagation();
         setCurrentSlide((prev) => (prev + 1) % slides.length);
     };
 
-    const prevSlide = (e) => {
+    const prevSlide = (e?: React.MouseEvent) => {
         e?.stopPropagation();
         setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
     };
 
     const handleViewDetails = () => {
+        if (!product) return;
         const slug = generateSlug(product.name);
         if (onClose) onClose();
         navigate(`/produto/${slug}`);
@@ -105,7 +120,7 @@ function ProductQuickView({ product, onClose, onAddToCart }) {
 
                 {/* Thumbnails / Dots */}
                 <div className="h-16 flex items-center justify-center gap-2 pb-4">
-                    {slides.map((slide, idx) => (
+                    {slides.map((_, idx) => (
                         <button
                             key={idx}
                             onClick={(e) => { e.stopPropagation(); setCurrentSlide(idx); }}

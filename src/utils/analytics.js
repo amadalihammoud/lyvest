@@ -2,6 +2,7 @@
 // Serviço de analytics preparado para integração com GA4, Plausible, etc.
 
 import { ANALYTICS_CONFIG } from '../config/constants';
+import { analyticsLogger } from './logger';
 
 /**
  * Eventos de analytics do e-commerce
@@ -47,7 +48,7 @@ class AnalyticsService {
      */
     init() {
         if (!this.enabled) {
-            console.log('[Analytics] Desabilitado');
+            analyticsLogger.info('Desabilitado');
             return;
         }
 
@@ -55,7 +56,7 @@ class AnalyticsService {
         this.queue.forEach(event => this._send(event));
         this.queue = [];
 
-        console.log('[Analytics] Inicializado');
+        analyticsLogger.info('Inicializado');
     }
 
     /**
@@ -68,9 +69,7 @@ class AnalyticsService {
         // window.gtag?.('event', event.name, event.params);
 
         // Log para desenvolvimento
-        if (import.meta.env.DEV) {
-            console.log('[Analytics]', event.name, event.params);
-        }
+        analyticsLogger.debug(event.name, event.params);
     }
 
     /**

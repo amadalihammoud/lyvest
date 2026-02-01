@@ -2,6 +2,25 @@ import React, { useState, useLayoutEffect } from 'react';
 import { X, Filter, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import Button from './ui/Button';
 
+
+interface FilterState {
+    minPrice: number;
+    maxPrice: number;
+    sizes: string[];
+    colors: string[];
+}
+
+interface FilterSidebarProps {
+    filters: FilterState;
+    setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+    isOpen: boolean;
+    onClose: () => void;
+    availableColors?: { name: string; hex: string }[];
+    availableSizes?: string[];
+    priceRange?: { min: number; max: number };
+    variant?: 'desktop' | 'mobile';
+}
+
 export default function FilterSidebar({
     filters,
     setFilters,
@@ -10,8 +29,8 @@ export default function FilterSidebar({
     availableColors = [],
     availableSizes = [],
     priceRange = { min: 0, max: 1000 },
-    variant = 'desktop' // 'desktop' (responsive sidebar) or 'mobile' (dropdown panel)
-}) {
+    variant = 'desktop'
+}: FilterSidebarProps) {
     const [mobileTop, setMobileTop] = useState('225px');
 
     // "iOS-proof" Scroll Lock & Dynamic Positioning
@@ -50,14 +69,14 @@ export default function FilterSidebar({
         color: true
     });
 
-    const toggleSection = (section) => {
+    const toggleSection = (section: keyof typeof expandedSections) => {
         setExpandedSections(prev => ({
             ...prev,
             [section]: !prev[section]
         }));
     };
 
-    const handleMinPriceChange = (e) => {
+    const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = parseInt(e.target.value);
         if (isNaN(value)) value = 0;
         setFilters(prev => ({
@@ -66,7 +85,7 @@ export default function FilterSidebar({
         }));
     };
 
-    const handleMaxPriceChange = (e) => {
+    const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = parseInt(e.target.value);
         if (isNaN(value)) value = priceRange.max;
         setFilters(prev => ({
@@ -75,7 +94,7 @@ export default function FilterSidebar({
         }));
     };
 
-    const handleSizeToggle = (size) => {
+    const handleSizeToggle = (size: string) => {
         setFilters(prev => {
             const currentSizes = prev.sizes || [];
             if (currentSizes.includes(size)) {
@@ -86,7 +105,7 @@ export default function FilterSidebar({
         });
     };
 
-    const handleColorToggle = (colorName) => {
+    const handleColorToggle = (colorName: string) => {
         setFilters(prev => {
             const currentColors = prev.colors || [];
             if (currentColors.includes(colorName)) {
@@ -149,12 +168,12 @@ export default function FilterSidebar({
                                     <div className="flex items-center gap-2 mb-3">
                                         <div className="flex-1">
                                             <label htmlFor="mobile-min-price" className="text-[10px] text-slate-500 font-medium mb-1 block">Mínimo</label>
-                                            <input id="mobile-min-price" type="number" min={0} max={filters.maxPrice} value={filters.minPrice || ''} placeholder={priceRange.min} onChange={handleMinPriceChange} className="w-full h-8 px-2 border border-slate-200 rounded-md text-sm" />
+                                            <input id="mobile-min-price" type="number" min={0} max={filters.maxPrice} value={filters.minPrice || ''} placeholder={priceRange.min.toString()} onChange={handleMinPriceChange} className="w-full h-8 px-2 border border-slate-200 rounded-md text-sm" />
                                         </div>
                                         <span className="text-slate-300 mt-3">-</span>
                                         <div className="flex-1">
                                             <label htmlFor="mobile-max-price" className="text-[10px] text-slate-500 font-medium mb-1 block">Máximo</label>
-                                            <input id="mobile-max-price" type="number" min={filters.minPrice} max={priceRange.max} value={filters.maxPrice || ''} placeholder={priceRange.max} onChange={handleMaxPriceChange} className="w-full h-8 px-2 border border-slate-200 rounded-md text-sm" />
+                                            <input id="mobile-max-price" type="number" min={filters.minPrice} max={priceRange.max} value={filters.maxPrice || ''} placeholder={priceRange.max.toString()} onChange={handleMaxPriceChange} className="w-full h-8 px-2 border border-slate-200 rounded-md text-sm" />
                                         </div>
                                     </div>
                                     <input type="range" min={0} max={priceRange.max} value={filters.maxPrice || priceRange.max} onChange={handleMaxPriceChange} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-lyvest-500" />
@@ -268,7 +287,7 @@ export default function FilterSidebar({
                                             min={0}
                                             max={filters.maxPrice}
                                             value={filters.minPrice || ''}
-                                            placeholder={priceRange.min}
+                                            placeholder={priceRange.min.toString()}
                                             onChange={handleMinPriceChange}
                                             className="w-full h-9 px-2 border border-slate-200 rounded-lg text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
                                         />
@@ -282,7 +301,7 @@ export default function FilterSidebar({
                                             min={filters.minPrice}
                                             max={priceRange.max}
                                             value={filters.maxPrice || ''}
-                                            placeholder={priceRange.max}
+                                            placeholder={priceRange.max.toString()}
                                             onChange={handleMaxPriceChange}
                                             className="w-full h-9 px-2 border border-slate-200 rounded-lg text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
                                         />

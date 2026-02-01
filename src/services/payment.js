@@ -2,6 +2,7 @@
 // Serviço para integração com gateways de pagamento
 
 import { PAYMENT_CONFIG } from '../config/constants';
+import { paymentLogger } from '../utils/logger';
 
 
 /**
@@ -36,7 +37,7 @@ class PaymentService {
      * @returns {Promise<object>} - Sessão de pagamento
      */
     async createPaymentSession(orderData) {
-        console.log(`[${this.gateway}] Iniciando pagamento seguro via Backend...`, orderData);
+        paymentLogger.info(`Iniciando pagamento seguro via Backend (${this.gateway})`, orderData);
 
         try {
             const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -51,7 +52,7 @@ class PaymentService {
             // Tratamento de erro 404 (comum em dev se api não rodar)
             if (!response.ok) {
                 if (response.status === 404 && isLocalhost) {
-                    console.warn('[DEV] API Backend não encontrada. Usando MOCK local para desenvolvimento.');
+                    paymentLogger.warn('API Backend não encontrada. Usando MOCK local para desenvolvimento.');
                     // Simula delay de rede
                     await new Promise(r => setTimeout(r, 800));
                     return {
@@ -68,7 +69,7 @@ class PaymentService {
             return result.data; // A API retorna { success: true, data: { ... } }
 
         } catch (error) {
-            console.error('Payment Service Error:', error);
+            paymentLogger.error('Payment Service Error:', error);
             throw error;
         }
     }
@@ -81,7 +82,7 @@ class PaymentService {
      */
     async processCardPayment(sessionId, paymentData) {
         // Simulação - será substituído por integração real
-        console.log(`[${this.gateway}] Processando pagamento...`, { sessionId, paymentData });
+        paymentLogger.debug(`Processando pagamento (${this.gateway})`, { sessionId, paymentData });
 
         await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -100,7 +101,7 @@ class PaymentService {
      */
     async generatePixCode(orderData) {
         // Simulação - será substituído por integração real
-        console.log(`[${this.gateway}] Gerando código PIX...`, orderData);
+        paymentLogger.info(`Gerando código PIX (${this.gateway})`, orderData);
 
         await new Promise(resolve => setTimeout(resolve, 800));
 
@@ -123,7 +124,7 @@ class PaymentService {
      */
     async checkPaymentStatus(transactionId) {
         // Simulação - será substituído por integração real
-        console.log(`[${this.gateway}] Verificando status...`, transactionId);
+        paymentLogger.debug(`Verificando status (${this.gateway})`, transactionId);
 
         return {
             transactionId,
@@ -140,7 +141,7 @@ class PaymentService {
      */
     async requestRefund(transactionId, amount = null) {
         // Simulação - será substituído por integração real
-        console.log(`[${this.gateway}] Solicitando reembolso...`, { transactionId, amount });
+        paymentLogger.info(`Solicitando reembolso (${this.gateway})`, { transactionId, amount });
 
         return {
             refundId: `ref_${Date.now()}`,

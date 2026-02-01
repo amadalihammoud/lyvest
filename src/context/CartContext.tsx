@@ -29,6 +29,9 @@ interface CartContextType {
     finalTotal: number;
     applyCoupon: (code: string) => { success: boolean; message: string };
     removeCoupon: () => void;
+    // Free shipping
+    freeShippingEligible: boolean;
+    freeShippingMinimum: number;
 }
 
 export const CartContext = createContext<CartContextType | null>(null);
@@ -129,8 +132,10 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         'BEMVINDA10': 0.10,   // 10% off
         'LYVEST2026': 0.15,   // 15% off
         'PROMO5': 0.05,       // 5% off
-        'FRETE': 0,           // TODO: Implementar frete grátis depois
     };
+
+    // Constante de frete grátis
+    const FREE_SHIPPING_MIN = 199;
 
     const applyCoupon = useCallback((code: string): { success: boolean, message: string } => {
         const normalizedCode = code.toUpperCase().trim();
@@ -231,6 +236,9 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         [cartItems]
     );
 
+    // Verifica se é elegível para frete grátis
+    const freeShippingEligible = useMemo(() => cartTotal >= FREE_SHIPPING_MIN, [cartTotal]);
+
     return (
         <CartContext.Provider
             value={{
@@ -247,7 +255,10 @@ export const CartProvider = ({ children }: CartProviderProps) => {
                 discountAmount,
                 finalTotal,
                 applyCoupon,
-                removeCoupon
+                removeCoupon,
+                // Free Shipping
+                freeShippingEligible,
+                freeShippingMinimum: FREE_SHIPPING_MIN
             }}
         >
             {children}

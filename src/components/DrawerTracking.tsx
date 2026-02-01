@@ -5,7 +5,30 @@ import { useI18n } from '../hooks/useI18n';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { mockOrders } from '../data/mockData';
 
-export default function DrawerTracking({ isOpen, onClose, trackingCode, setTrackingCode, trackingResult, setTrackingResult }) {
+interface TrackingHistory {
+    status: string;
+    date: string;
+    label?: string;
+    location?: string;
+}
+
+interface TrackingResult {
+    status: string;
+    date: string;
+    location?: string;
+    history?: TrackingHistory[];
+}
+
+interface DrawerTrackingProps {
+    isOpen: boolean;
+    onClose: () => void;
+    trackingCode: string;
+    setTrackingCode: (code: string) => void;
+    trackingResult: TrackingResult | null;
+    setTrackingResult: (result: TrackingResult | null) => void;
+}
+
+export default function DrawerTracking({ isOpen, onClose, trackingCode, setTrackingCode, trackingResult, setTrackingResult }: DrawerTrackingProps) {
     const { t, isRTL } = useI18n();
 
     const containerRef = React.useRef(null);
@@ -13,13 +36,13 @@ export default function DrawerTracking({ isOpen, onClose, trackingCode, setTrack
 
     if (!isOpen) return null;
 
-    const handleTrackingSubmit = (e) => {
+    const handleTrackingSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!trackingCode) return;
         // Simulação de rastreio
         // Simulação de rastreio inteligente
-        const foundOrder = window.mockOrders?.find(o => o.trackingCode === trackingCode) ||
-            (mockOrders && mockOrders.find(o => o.trackingCode === trackingCode));
+        const foundOrder = (window as any).mockOrders?.find((o: any) => o.trackingCode === trackingCode) ||
+            (mockOrders && mockOrders.find((o: any) => o.trackingCode === trackingCode));
 
         if (foundOrder) {
             setTrackingResult({

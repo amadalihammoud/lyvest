@@ -6,7 +6,18 @@ import { generateSlug } from '../utils/slug';
 
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
-function DrawerFavorites({ isOpen, onClose, favoriteProducts, onAddToCart, onToggleFavorite, setNotification }) {
+import { Product } from '../services/ProductService';
+
+interface DrawerFavoritesProps {
+    isOpen: boolean;
+    onClose: () => void;
+    favoriteProducts: Product[];
+    onAddToCart: (product: Product) => void;
+    onToggleFavorite: (e: React.MouseEvent, id: number) => void;
+    setNotification: (msg: string) => void;
+}
+
+function DrawerFavorites({ isOpen, onClose, favoriteProducts, onAddToCart, onToggleFavorite, setNotification }: DrawerFavoritesProps) {
     const { t, formatCurrency, getProductData } = useI18n();
 
     const containerRef = React.useRef(null);
@@ -46,12 +57,12 @@ function DrawerFavorites({ isOpen, onClose, favoriteProducts, onAddToCart, onTog
                         favoriteProducts.map(item => (
                             <div key={item.id} className="flex gap-4 items-center animate-fade-in p-2 hover:bg-slate-50 rounded-xl transition-colors mb-2">
                                 <Link to={`/produto/${generateSlug(item.name)}`} onClick={onClose} className="shrink-0">
-                                    <img src={item.image} alt={getProductData(item.id, 'name') || item.name} className="w-20 h-20 rounded-xl object-cover bg-slate-50 border border-slate-100" />
+                                    <img src={item.image} alt={(getProductData(item.id, 'name') as string) || item.name} className="w-20 h-20 rounded-xl object-cover bg-slate-50 border border-slate-100" />
                                 </Link>
                                 <div className="flex-1">
                                     <Link to={`/produto/${generateSlug(item.name)}`} onClick={onClose}>
                                         <h4 className="font-bold text-slate-800 text-sm line-clamp-2 hover:text-lyvest-500 transition-colors">
-                                            {getProductData(item.id, 'name') || item.name}
+                                            {(getProductData(item.id, 'name') as string) || item.name}
                                         </h4>
                                     </Link>
                                     <p className="font-bold text-lyvest-500 text-sm">
