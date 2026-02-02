@@ -46,10 +46,7 @@ test.describe('Seção de Perfil', () => {
 
         if (await profileSection.first().isVisible()) {
             // Verificar elementos do perfil
-            const avatar = page.locator('img[alt*="avatar" i], img[alt*="foto" i], [data-testid="user-avatar"]');
-            const userName = page.locator('text=/nome|usuário/i');
-
-            // Pode haver avatar ou nome visível
+            await expect(avatar.first().or(page.locator('text=/nome|usuário/i').first())).toBeVisible();
         }
     });
 
@@ -131,6 +128,7 @@ test.describe('Seção de Endereços', () => {
                     // Campos devem ser preenchidos automaticamente
                     const ruaInput = page.locator('input[name="rua"], input[name="logradouro"]');
                     // Se auto-preenchimento funcionar, o campo terá valor
+                    await expect(ruaInput).toBeVisible();
                 }
             }
         }

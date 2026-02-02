@@ -147,6 +147,8 @@ test.describe('Fluxo de Registro', () => {
                 const termsCheckbox = page.locator('input[type="checkbox"]');
                 const termsText = page.locator('text=/termos|privacidade|aceito/i');
 
+                await expect(termsCheckbox).toBeVisible();
+
                 // Deve haver menção a termos
                 await expect(termsText.first()).toBeVisible();
             }

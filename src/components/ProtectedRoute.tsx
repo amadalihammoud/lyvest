@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, ReactElement } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PageLoader from './ui/PageLoader';
@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 /**
  * Componente para proteger rotas que requerem autenticação
  */
-export default function ProtectedRoute({ children }: ProtectedRouteProps): React.ReactElement {
+export default function ProtectedRoute({ children }: ProtectedRouteProps): ReactElement {
     const { isAuthenticated, loading } = useAuth();
     const location = useLocation();
 

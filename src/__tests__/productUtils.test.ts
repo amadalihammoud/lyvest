@@ -9,10 +9,10 @@ interface MockProduct {
     description: string;
     price: number;
     image: string;
-    category?: any;
+    category?: string | { name: string; slug: string }[] | string[];
 }
 
-const createMockProduct = (overrides: Partial<MockProduct> = {}): any => ({
+const createMockProduct = (overrides: Partial<MockProduct> = {}): MockProduct => ({
     id: 1,
     name: 'Test Product',
     description: 'Test Description',

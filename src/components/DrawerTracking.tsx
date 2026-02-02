@@ -41,7 +41,9 @@ export default function DrawerTracking({ isOpen, onClose, trackingCode, setTrack
         if (!trackingCode) return;
         // Simulação de rastreio
         // Simulação de rastreio inteligente
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const foundOrder = (window as any).mockOrders?.find((o: any) => o.trackingCode === trackingCode) ||
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (mockOrders && mockOrders.find((o: any) => o.trackingCode === trackingCode));
 
         if (foundOrder) {

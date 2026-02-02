@@ -2,9 +2,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
     formatCurrency,
-    formatDate,
-    formatShortDate,
-    formatDateTime,
     formatNumber,
     formatPercent,
     formatCEP,
@@ -13,7 +10,7 @@ import {
     formatCardNumber
 } from '../utils/formatters';
 import { generateSlug } from '../utils/slug';
-import { validateForm, loginSchema, addressSchema, paymentSchema } from '../utils/validation';
+import { validateForm, loginSchema, paymentSchema } from '../utils/validation';
 
 // Mock security utils to avoid DOMPurify dependency in Node
 vi.mock('../utils/security', () => ({
@@ -35,7 +32,7 @@ describe('Utils Test Suite', () => {
         it('formatNumber should format with separators', () => {
             expect(formatNumber(1234.56)).toBe('1.234,56');
             expect(formatNumber(1000000)).toBe('1.000.000');
-            expect(formatNumber('invalid' as any)).toBe('0');
+            expect(formatNumber('invalid' as unknown as number)).toBe('0');
         });
 
         it('formatPercent should format percentages', () => {

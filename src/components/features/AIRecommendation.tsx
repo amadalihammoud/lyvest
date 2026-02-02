@@ -28,7 +28,9 @@ export default function AIRecommendation({
 
     // Efeito para resetar quando a recomendação mudar
     useEffect(() => {
-        if (recommendation.size) setViewSize(recommendation.size);
+        if (recommendation.size) {
+            requestAnimationFrame(() => setViewSize(recommendation.size));
+        }
     }, [recommendation.size]);
 
     // Lógica de cross-sell dinâmica

@@ -62,7 +62,7 @@ test.describe('Fluxo de Checkout Completo', () => {
         await page.click('button:has-text("Finalizar Pedido")');
 
         // 12. Verificar página de confirmação
-        await expect(page).toHaveURL(/\/confirmacao|\/sucesso/);
+        await expect(page).toHaveURL(new RegExp('/confirmacao|/sucesso'));
         await expect(page.locator('text=/pedido.*confirmado|sucesso/i')).toBeVisible();
     });
 

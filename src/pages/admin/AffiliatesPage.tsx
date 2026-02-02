@@ -20,10 +20,6 @@ export default function AffiliatesPage() {
         pix_key: ''
     });
 
-    useEffect(() => {
-        fetchAffiliates();
-    }, []);
-
     async function fetchAffiliates() {
         setLoading(true);
         const { data, error } = await supabase
@@ -39,6 +35,10 @@ export default function AffiliatesPage() {
         }
         setLoading(false);
     }
+
+    useEffect(() => {
+        fetchAffiliates();
+    }, []);
 
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault();

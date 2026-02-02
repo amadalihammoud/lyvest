@@ -30,7 +30,7 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handlePaymentSubmit = (_data: any) => {
+    const handlePaymentSubmit = (_data: unknown) => {
         // data would be { method: 'credit' | 'pix', lastFour?: string }
         // We don't store payment details here for security, just success status
         const newOrderNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');

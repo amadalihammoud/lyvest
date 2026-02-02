@@ -34,7 +34,7 @@ const SectionLoader = memo(function SectionLoader() {
 });
 
 // Componente de header memoizado
-const DashboardHeader = memo(function DashboardHeader({ user, t }: { user: User; t: (key: string, params?: any) => string }) {
+const DashboardHeader = memo(function DashboardHeader({ user, t }: { user: User; t: (key: string, params?: Record<string, string | number>) => string }) {
     return (
         <div className="flex items-center gap-4 mb-8">
             <img
@@ -49,7 +49,7 @@ const DashboardHeader = memo(function DashboardHeader({ user, t }: { user: User;
             />
             <div>
                 <h1 className="text-2xl font-bold text-slate-800">
-                    {t('dashboard.welcome', { name: user.name }) || `Olá, ${user.name}!`}
+                    {t('dashboard.welcome', { name: user.name || '' }) || `Olá, ${user.name}!`}
                 </h1>
                 <p className="text-slate-500 text-sm">{t('dashboard.subtitle')}</p>
             </div>

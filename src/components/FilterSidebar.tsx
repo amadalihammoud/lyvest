@@ -42,8 +42,7 @@ export default function FilterSidebar({
                 const rect = toolbar.getBoundingClientRect();
                 // Ensure we never go above a sensible minimum (e.g. header height) if something is weird
                 const safeTop = Math.max(rect.bottom, 0);
-                // eslint-disable-next-line
-                setMobileTop(`${safeTop}px`);
+                requestAnimationFrame(() => setMobileTop(`${safeTop}px`));
             }
 
             // 2. Lock Body (Standard + iOS Polyfill)

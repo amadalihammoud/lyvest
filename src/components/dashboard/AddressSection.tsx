@@ -84,7 +84,7 @@ export default function AddressSection() {
         loadAddresses();
     }, [loadAddresses]);
 
-    const handleChange = (field: keyof UserAddress, value: any) => {
+    const handleChange = (field: keyof UserAddress, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -202,8 +202,8 @@ export default function AddressSection() {
                 setIsFormOpen(false);
                 setMessage({ type: '', text: '' });
             }, 1500);
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.message || 'Erro ao salvar endereço' });
+        } catch (err: unknown) {
+            setMessage({ type: 'error', text: (err as Error).message || 'Erro ao salvar endereço' });
         } finally {
             setIsSaving(false);
         }

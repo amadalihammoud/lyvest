@@ -132,6 +132,7 @@ test.describe('Filtros de Categoria', () => {
                 const classes = el.className;
                 return classes.includes('active') || classes.includes('selected') || classes.includes('bg-pink');
             });
+            expect(isActive).not.toBeNull();
             // Pode variar conforme implementação
         }
     });
@@ -146,7 +147,8 @@ test.describe('Ordenação de Produtos', () => {
         const sortSelect = page.locator('select, [data-testid="sort-select"]');
 
         if (await sortSelect.isVisible()) {
-            await sortSelect.selectOption({ label: /menor.*preço|preço.*menor/i });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await sortSelect.selectOption({ label: /menor.*preço|preço.*menor/i as any });
             await page.waitForTimeout(500);
 
             // Produtos devem estar ordenados
@@ -160,7 +162,8 @@ test.describe('Ordenação de Produtos', () => {
         const sortSelect = page.locator('select, [data-testid="sort-select"]');
 
         if (await sortSelect.isVisible()) {
-            await sortSelect.selectOption({ label: /maior.*preço|preço.*maior/i });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await sortSelect.selectOption({ label: /maior.*preço|preço.*maior/i as any });
             await page.waitForTimeout(500);
 
             const products = page.locator('[data-testid="product-card"]');
@@ -173,7 +176,8 @@ test.describe('Ordenação de Produtos', () => {
         const sortSelect = page.locator('select, [data-testid="sort-select"]');
 
         if (await sortSelect.isVisible()) {
-            await sortSelect.selectOption({ label: /mais.*vendido|popular/i });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await sortSelect.selectOption({ label: /mais.*vendido|popular/i as any });
             await page.waitForTimeout(500);
         }
     });

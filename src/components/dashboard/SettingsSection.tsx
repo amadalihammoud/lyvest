@@ -66,8 +66,8 @@ function SettingsSection({ user }: SettingsSectionProps) {
             setSuccessMsg('Senha alterada com sucesso!');
             e.currentTarget.reset();
             setTimeout(() => setSuccessMsg(''), 3000);
-        } catch (err: any) {
-            setErrorMsg(err.message || 'Erro ao alterar senha');
+        } catch (err: unknown) {
+            setErrorMsg((err as Error).message || 'Erro ao alterar senha');
         } finally {
             setIsLoading(false);
         }
@@ -85,10 +85,10 @@ function SettingsSection({ user }: SettingsSectionProps) {
         try {
             // Coletar dados
             const userData: {
-                profile: any;
+                profile: Record<string, unknown>;
                 addresses: UserAddress[];
                 orders: Order[];
-                favorites: any[];
+                favorites: unknown[];
             } = {
                 profile: {
                     email: authUser?.email || user?.email || '',
@@ -138,7 +138,6 @@ function SettingsSection({ user }: SettingsSectionProps) {
             }
 
             // Criar PDF com import dinâmico (reduz bundle inicial)
-            // @ts-ignore - Ignoring missing types for jsPDF dynamic import for now
             const { jsPDF } = await import('jspdf');
             const doc = new jsPDF();
             const pageWidth = doc.internal.pageSize.getWidth();
@@ -183,12 +182,12 @@ function SettingsSection({ user }: SettingsSectionProps) {
             doc.setTextColor(51, 51, 51);
 
             const profileFields = [
-                { label: 'Nome', value: userData.profile.full_name || userData.profile.name },
-                { label: 'E-mail', value: userData.profile.email },
-                { label: 'Telefone', value: userData.profile.phone || 'Não informado' },
-                { label: 'CPF', value: userData.profile.cpf ? `***.***.${userData.profile.cpf.slice(-5)}` : 'Não informado' },
-                { label: 'Data de Nascimento', value: userData.profile.birth_date ? new Date(userData.profile.birth_date).toLocaleDateString('pt-BR') : 'Não informado' },
-                { label: 'Gênero', value: userData.profile.gender === 'male' ? 'Masculino' : userData.profile.gender === 'female' ? 'Feminino' : userData.profile.gender || 'Não informado' },
+                { label: 'Nome', value: (userData.profile.full_name as string) || (userData.profile.name as string) },
+                { label: 'E-mail', value: userData.profile.email as string },
+                { label: 'Telefone', value: (userData.profile.phone as string) || 'Não informado' },
+                { label: 'CPF', value: userData.profile.cpf ? `***.***.${(userData.profile.cpf as string).slice(-5)}` : 'Não informado' },
+                { label: 'Data de Nascimento', value: userData.profile.birth_date ? new Date(userData.profile.birth_date as string).toLocaleDateString('pt-BR') : 'Não informado' },
+                { label: 'Gênero', value: userData.profile.gender === 'male' ? 'Masculino' : userData.profile.gender === 'female' ? 'Feminino' : (userData.profile.gender as string) || 'Não informado' },
             ];
 
             profileFields.forEach(field => {
@@ -259,7 +258,7 @@ function SettingsSection({ user }: SettingsSectionProps) {
                     doc.setFont('helvetica', 'bold');
                     doc.text(`Pedido #${order.id}`, 15, y);
                     doc.setFont('helvetica', 'normal');
-                    // @ts-ignore created_at not strictly in Order type but mostly there in DB
+                    // @ts-expect-error created_at not strictly in Order type but mostly there in DB
                     doc.text(`${order.created_at ? new Date(order.created_at).toLocaleDateString('pt-BR') : '-'} - R$ ${order.total?.toFixed(2) || '0,00'}`, 80, y);
                     y += 8;
                 });
@@ -499,7 +498,7 @@ function SettingsSection({ user }: SettingsSectionProps) {
                                 <span className="sr-only">{item.label}</span>
                                 <input
                                     type="checkbox"
-                                    checked={(notifications as any)[item.id]}
+                                    checked={notifications[item.id as keyof typeof notifications]}
                                     onChange={() => toggleNotification(item.id as keyof typeof notifications)}
                                     className="peer opacity-0 absolute w-0 h-0"
                                 />
