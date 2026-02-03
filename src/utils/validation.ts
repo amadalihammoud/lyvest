@@ -47,7 +47,7 @@ const DISPOSABLE_EMAIL_DOMAINS = new Set([
  */
 export function isValidEmail(email: string): boolean {
     if (!email || typeof email !== 'string') return false;
-    // eslint-disable-next-line security/detect-unsafe-regex
+     
     return PATTERNS.email.test(email.trim());
 }
 
@@ -108,7 +108,7 @@ export function isValidCEP(cep: string): boolean {
  */
 export function isValidPhone(phone: string): boolean {
     if (!phone || typeof phone !== 'string') return false;
-    // eslint-disable-next-line security/detect-unsafe-regex
+     
     return PATTERNS.phone.test(phone.trim());
 }
 

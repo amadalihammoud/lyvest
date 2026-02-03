@@ -154,7 +154,7 @@ function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRec
     const { exactBust, exactHips, exactWaist, fitPreference, age } = measurements;
 
     // Pontuações: PP=1, P=2, M=3, G=4, GG=5
-    let scores: number[] = [];
+    const scores: number[] = [];
 
     // Tabela simplificada BR
     if (exactBust && exactBust > 0) {
