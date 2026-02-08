@@ -135,6 +135,7 @@ export function sanitizeInput(input: string): string {
 export function detectXSS(input: string): boolean {
     if (typeof input !== 'string') return false;
 
+    // eslint-disable-next-line security/detect-unsafe-regex
     const xssPatterns = [
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
         /javascript:/gi,
@@ -196,7 +197,7 @@ export function escapeHTML(str: string): string {
         '=': '&#x3D;',
     };
 
-    return String(str).replace(/[&<>"'`=\/]/g, (char) => htmlEntities[char]);
+    return String(str).replace(/[&<>"'`=/]/g, (char) => htmlEntities[char]);
 }
 
 /**

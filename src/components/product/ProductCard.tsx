@@ -1,8 +1,9 @@
 ﻿import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Heart, Eye, Minus, Plus } from 'lucide-react';
 import { generateSlug } from '../../utils/slug';
 import { useI18n } from '../../hooks/useI18n';
+import OptimizedProductImage from '../ui/OptimizedProductImage';
 
 import { Product } from '../../services/ProductService';
 
@@ -16,7 +17,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQuickView }: ProductCardProps) => {
     const { formatCurrency, getProductData, t } = useI18n();
-    const [isImageLoaded, setIsImageLoaded] = React.useState(false);
     const [quantity, setQuantity] = useState(1);
 
     const productSlug = generateSlug(product.name);
@@ -68,21 +68,16 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
             </button>
 
             {/* Link para página do produto */}
-            <Link to={`/produto/${productSlug}`} className="block flex-1 flex flex-col">
+            <Link href={`/produto/${productSlug}`} className="block flex-1 flex flex-col">
                 {/* Imagem do Produto + Overlay */}
                 <div className="relative aspect-square overflow-hidden bg-slate-50">
-                    <img
+                    <OptimizedProductImage
                         src={product.image}
                         alt={productName}
-                        loading="lazy"
-                        decoding="async"
-                        onLoad={() => setIsImageLoaded(true)}
-                        onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.onerror = null;
-                            target.src = 'https://placehold.co/400x400/fce7f3/ec4899?text=' + encodeURIComponent(product.name.split(' ')[0]);
-                        }}
-                        className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out image-reveal ${isImageLoaded ? 'loaded' : ''}`}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                        fallbackText={product.name.split(' ')[0]}
                     />
 
                     {/* Overlay de Ações (Desktop) */}

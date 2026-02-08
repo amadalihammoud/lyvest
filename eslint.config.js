@@ -4,7 +4,9 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import security from 'eslint-plugin-security';
+import importPlugin from 'eslint-plugin-import';
 import tseslint from 'typescript-eslint';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   { ignores: ['dist', 'coverage', 'node_modules'] },
@@ -24,7 +26,8 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'jsx-a11y': jsxA11y,
-      'security': security
+      'security': security,
+      'import': importPlugin,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -37,7 +40,25 @@ export default tseslint.config(
       // TypeScript specific rules adjustments
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'no-unused-vars': 'off' // Disable base rule in favor of TS rule
+      'no-unused-vars': 'off', // Disable base rule in favor of TS rule
+      // Import ordering for clean code
+      'import/order': ['warn', {
+        'groups': [
+          'builtin',
+          'external',
+          'internal',
+          ['parent', 'sibling'],
+          'index',
+          'type'
+        ],
+        'newlines-between': 'always',
+        'alphabetize': { 'order': 'asc', 'caseInsensitive': true }
+      }],
+      'import/no-duplicates': 'error',
+      // Code quality
+      'complexity': ['warn', 15],
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
+  eslintConfigPrettier,
 );

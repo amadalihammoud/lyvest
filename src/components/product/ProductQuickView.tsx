@@ -1,9 +1,10 @@
 ﻿import React from 'react';
 import { ShoppingBag } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { generateSlug } from '../../utils/slug';
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
+import OptimizedProductImage from '../ui/OptimizedProductImage';
 
 import { Product } from '../../services/ProductService';
 
@@ -20,7 +21,7 @@ interface Slide {
 }
 
 function ProductQuickView({ product, onClose, onAddToCart }: ProductQuickViewProps) {
-    const navigate = useNavigate();
+    const router = useRouter();
     const { t, formatCurrency, getProductData } = useI18n();
     const { openModal } = useModal();
 
@@ -63,7 +64,7 @@ function ProductQuickView({ product, onClose, onAddToCart }: ProductQuickViewPro
         if (!product) return;
         const slug = generateSlug(product.name);
         if (onClose) onClose();
-        navigate(`/produto/${slug}`);
+        router.push(`/produto/${slug}`);
     };
 
     return (
@@ -92,11 +93,16 @@ function ProductQuickView({ product, onClose, onAddToCart }: ProductQuickViewPro
                             <span className="absolute bottom-10 font-bold text-slate-500 uppercase tracking-widest text-sm">Assistir VÃ­deo</span>
                         </div>
                     ) : (
-                        <img
-                            src={slides[currentSlide].src}
-                            alt={`${productName} view ${currentSlide + 1}`}
-                            className="max-h-[50vh] md:max-h-[60vh] max-w-full object-contain transition-transform duration-500"
-                        />
+                        <div className="relative w-full h-[50vh] md:h-[60vh]">
+                            <OptimizedProductImage
+                                src={slides[currentSlide].src}
+                                alt={`${productName} view ${currentSlide + 1}`}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                className="object-contain transition-transform duration-500"
+                                fallbackText={productName.split(' ')[0]}
+                            />
+                        </div>
                     )}
 
                     {/* Navigation Arrows */}

@@ -1,12 +1,15 @@
 ﻿
 import { useI18n } from '../../hooks/useI18n';
 
-interface FooterProps {
-    setActiveModal: (modalName: string) => void;
-}
+import { useModal } from '../../context/ModalContext';
 
-export default function Footer({ setActiveModal }: FooterProps) {
+export default function Footer() {
     const { t } = useI18n();
+    const { openModal } = useModal();
+
+    // Helper to open modal
+    const setActiveModal = (modalName: string) => openModal(modalName as any);
+
     return (
         <footer id="footer" className="bg-white pt-16 pb-8 border-t border-slate-100" role="contentinfo">
             <div className="container mx-auto px-4">

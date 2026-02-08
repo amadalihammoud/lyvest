@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { generateSlug } from '../../utils/slug';
 import { productsData } from '../../data/mockData';
 import ProductCard from './ProductCard';
@@ -19,7 +19,7 @@ interface ProductDetailsProps {
 }
 
 function ProductDetails({ product, onAddToCart, onOpenVirtualFitting }: ProductDetailsProps) {
-    const navigate = useNavigate();
+    const router = useRouter();
     const { t, isRTL, formatCurrency, getProductData } = useI18n();
     const [quantity, setQuantity] = useState(1);
     const [shippingZip, setShippingZip] = useState('');
@@ -108,7 +108,7 @@ function ProductDetails({ product, onAddToCart, onOpenVirtualFitting }: ProductD
                                     onAddToCart={(qty: number) => onAddToCart({ ...relatedProduct, quantity: qty } as Product)}
                                     onQuickView={() => {
                                         const slug = generateSlug(relatedProduct.name);
-                                        navigate(`/produto/${slug}`);
+                                        router.push(`/produto/${slug}`);
                                         window.scrollTo({ top: 0, behavior: 'smooth' });
                                     }}
                                 />

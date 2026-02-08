@@ -1,7 +1,33 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, vi } from 'vitest';
-import ProductCard from '../ProductCard';
+import ProductCard from '../product/ProductCard';
+
+// Mock next/link
+vi.mock('next/link', () => ({
+    default: ({ children, href }: { children: React.ReactNode; href: string }) => (
+        <a href={href}>{children}</a>
+    ),
+}));
+
+// Mock hooks
+vi.mock('../../hooks/useI18n', () => ({
+    useI18n: () => ({
+        t: (key: string) => {
+            const translations: Record<string, string> = {
+                'aria.addToFavorites': 'Adicionar aos favoritos',
+                'aria.removeFromFavorites': 'Remover dos favoritos',
+                'aria.quickView': 'Visualização rápida',
+                'aria.decreaseQuantity': 'Diminuir quantidade',
+                'aria.increaseQuantity': 'Aumentar quantidade',
+                'products.buy': 'Comprar',
+                'products.installments': '12x de R$ {amount}',
+            };
+            return translations[key] || key;
+        },
+        formatCurrency: (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`,
+        getProductData: () => null,
+    }),
+}));
 
 const mockProduct = {
     id: 1,
@@ -11,19 +37,13 @@ const mockProduct = {
     image: 'https://placehold.co/400x400',
     category: 'Planners',
     rating: 5,
-    reviews: 10
-};
-
-// Wrapper with Router for components using Link
-const renderWithRouter = (ui) => {
-    return render(
-        <BrowserRouter>{ui}</BrowserRouter>
-    );
+    reviews: 10,
+    description: 'Test description',
 };
 
 describe('ProductCard', () => {
     it('renders product information correctly', () => {
-        renderWithRouter(
+        render(
             <ProductCard
                 product={mockProduct}
                 isFavorite={false}
@@ -37,9 +57,9 @@ describe('ProductCard', () => {
         expect(screen.getByText('R$ 89,90')).toBeInTheDocument();
     });
 
-    it('calls onAddToCart when add button is clicked', () => {
+    it('calls onAddToCart when buy button is clicked', () => {
         const handleAddToCart = vi.fn();
-        renderWithRouter(
+        render(
             <ProductCard
                 product={mockProduct}
                 isFavorite={false}
@@ -49,7 +69,7 @@ describe('ProductCard', () => {
             />
         );
 
-        const addButton = screen.getByLabelText(`Adicionar ${mockProduct.name} ao carrinho`);
+        const addButton = screen.getByTestId('add-to-cart-button');
         fireEvent.click(addButton);
 
         expect(handleAddToCart).toHaveBeenCalledTimes(1);
@@ -57,7 +77,7 @@ describe('ProductCard', () => {
 
     it('calls onToggleFavorite when heart icon is clicked', () => {
         const handleToggleFavorite = vi.fn();
-        renderWithRouter(
+        render(
             <ProductCard
                 product={mockProduct}
                 isFavorite={false}
@@ -73,8 +93,8 @@ describe('ProductCard', () => {
         expect(handleToggleFavorite).toHaveBeenCalledTimes(1);
     });
 
-    it('navigates to product page when clicked', () => {
-        renderWithRouter(
+    it('has correct link to product page', () => {
+        render(
             <ProductCard
                 product={mockProduct}
                 isFavorite={false}
@@ -89,7 +109,7 @@ describe('ProductCard', () => {
     });
 
     it('shows filled heart when product is favorite', () => {
-        renderWithRouter(
+        render(
             <ProductCard
                 product={mockProduct}
                 isFavorite={true}
@@ -103,10 +123,3 @@ describe('ProductCard', () => {
         expect(favButton).toBeInTheDocument();
     });
 });
-
-
-
-
-
-
-

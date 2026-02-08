@@ -1,5 +1,6 @@
 
 import { Play } from 'lucide-react';
+import OptimizedProductImage from '../ui/OptimizedProductImage';
 
 interface ProductGalleryProps {
     images: string[];
@@ -37,12 +38,15 @@ export function ProductGallery({ images, activeImage, setActiveImage, video, pro
             </div>
 
             {/* Main Image */}
-            <div className="flex-1 bg-white flex items-center justify-center relative group h-[350px] lg:h-auto">
-                <img
+            <div className="flex-1 bg-white flex items-center justify-center relative group h-[350px] lg:h-auto overflow-hidden">
+                <OptimizedProductImage
                     src={activeImage}
                     alt={productName}
-                    loading="eager"
-                    className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-105"
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-contain transition-transform duration-500 hover:scale-105"
+                    fallbackText={productName.split(' ')[0]}
                 />
             </div>
 

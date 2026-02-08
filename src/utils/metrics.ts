@@ -59,7 +59,9 @@ export function reportWebVitals(metric: Metric): void {
     );
 
     // Enviar para Vercel Analytics (se disponível)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof window !== 'undefined' && (window as any).va) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).va('send', {
             name: metric.name,
             value: metric.value,

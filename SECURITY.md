@@ -2,25 +2,59 @@
 
 ## Relatar uma Vulnerabilidade
 
-Levamos a segurança do nosso e-commerce muito a sério. Se você descobrir uma vulnerabilidade, agradecemos que nos informe imediatamente para podermos corrigi-la.
+Levamos a segurança do nosso e-commerce muito a sério. Se você descobrir uma vulnerabilidade, agradecemos que nos informe imediatamente.
 
-Para relatar uma vulnerabilidade de segurança, por favor envie um e-mail para: **security@lyvest.com.br**
+**Email**: security@lyvest.com.br
 
-Por favor, inclua as seguintes informações no seu relatório:
+### O que incluir no relatório:
 - Descrição da vulnerabilidade
 - Passos para reproduzir
 - Impacto potencial
+- Sugestão de correção (opcional)
 
-Nós nos comprometemos a:
-- Ler todos os relatórios dentro de 24 horas.
-- Corrigir as vulnerabilidades confirmadas o mais rápido possível.
-- Notificá-lo quando a correção for aplicada.
+### Nosso Compromisso:
+| Ação | Prazo |
+|------|-------|
+| Leitura do relatório | 24 horas |
+| Avaliação inicial | 72 horas |
+| Correção (crítico) | 7 dias |
+| Correção (alto) | 14 dias |
+| Correção (médio/baixo) | 30 dias |
 
-## Boas Práticas
+---
 
-Pedimos gentilmente que:
-- Não explore a vulnerabilidade além do necessário para provar sua existência.
-- Não acesse dados de outros usuários.
-- Não degrade a performance do nosso site.
+## Medidas de Segurança Implementadas
 
-Obrigado por ajudar a manter o Tutti & Nino seguro!
+### Headers HTTP
+- ✅ Content-Security-Policy (CSP)
+- ✅ Strict-Transport-Security (HSTS)
+- ✅ X-Content-Type-Options
+- ✅ X-Frame-Options
+- ✅ X-XSS-Protection
+- ✅ Referrer-Policy
+- ✅ Permissions-Policy
+
+### Proteções Ativas
+- ✅ Rate limiting (100 req/min por IP em rotas API)
+- ✅ Detecção e bloqueio de bots maliciosos
+- ✅ Proteção CSRF em mutações
+- ✅ Sanitização de inputs com DOMPurify
+- ✅ Validação de dados com Zod
+
+### Dependências
+- `npm audit` executado regularmente
+- Atualizações automáticas via Dependabot
+
+---
+
+## Boas Práticas para Contribuidores
+
+1. **Nunca commite secrets** - Use variáveis de ambiente
+2. **Valide todos os inputs** - Use schemas Zod
+3. **Sanitize outputs** - Use DOMPurify para conteúdo do usuário
+4. **Mantenha dependências atualizadas** - Execute `npm audit` regularmente
+5. **Revise o código** - Todos os PRs requerem revisão de segurança
+
+---
+
+Obrigado por ajudar a manter o Ly Vest seguro! 🔒

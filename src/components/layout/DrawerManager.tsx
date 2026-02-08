@@ -4,13 +4,13 @@ import { useCart } from '../../hooks/useCart';
 import { useFavorites } from '../../hooks/useFavorites';
 import { useI18n } from '../../hooks/useI18n';
 import { productsData } from '../../data/mockData';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 // Lazy load drawers
 // Lazy load drawers
-const DrawerCart = lazy(() => import('../DrawerCart'));
-const DrawerFavorites = lazy(() => import('../DrawerFavorites'));
-const DrawerTracking = lazy(() => import('../DrawerTracking'));
+const DrawerCart = lazy(() => import('./DrawerCart'));
+const DrawerFavorites = lazy(() => import('./DrawerFavorites'));
+const DrawerTracking = lazy(() => import('./DrawerTracking'));
 export default function DrawerManager() {
     const {
         activeDrawer,
@@ -25,11 +25,11 @@ export default function DrawerManager() {
     const { cartItems, removeFromCart, addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
     const { isRTL } = useI18n();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const handleCheckout = () => {
         closeDrawer();
-        navigate('/checkout');
+        router.push('/checkout');
     };
 
     const [headerHeight, setHeaderHeight] = React.useState(0);

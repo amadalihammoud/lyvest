@@ -43,7 +43,6 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
                 return <LoginModal onLoginSuccess={onLoginSuccess} />;
             // case 'forgotPassword': return <ForgotPasswordModal />; // Missing
             case 'register':
-                // @ts-ignore - RegisterModal prop types might be inferred incorrectly or missing
                 return <RegisterModal onRegisterSuccess={onLoginSuccess} />;
             case 'contact':
                 return <ContactModal />;

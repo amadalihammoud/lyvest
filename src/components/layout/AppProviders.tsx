@@ -1,6 +1,6 @@
+'use client';
 import { useEffect, ReactNode, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
+import { useRouter } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { CheckCircle } from 'lucide-react';
@@ -17,22 +17,24 @@ import { I18nProvider, useI18n } from '@/context/I18nContext';
 import ModalManager from './ModalManager';
 import DrawerManager from './DrawerManager';
 import CookieBanner from './CookieBanner';
-import SEO from '@/components/features/SEOComponent';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
 // Lazy load non-critical widgets
 const FloatingWhatsApp = lazy(() => import('@/components/features/FloatingWhatsApp'));
 const ChatWidget = lazy(() => import('@/components/features/ChatWidget'));
 
+
 // Lazy load preload
-const preloadCheckout = () => import('../../pages/CheckoutPage');
+// const preloadCheckout = () => import('../../pages/CheckoutPage'); // Removed for Next.js
+
 
 interface AppProvidersProps {
     children: ReactNode;
 }
 
+
 function GlobalLogic({ children }: { children: ReactNode }) {
-    const navigate = useNavigate();
+    const router = useRouter();
     const {
         notification,
         showNotification,
@@ -48,27 +50,22 @@ function GlobalLogic({ children }: { children: ReactNode }) {
     const handleLoginSuccess = (mockUser: User) => {
         showNotification(t('dashboard.welcome', { name: mockUser?.name || currentUser?.name || 'Cliente' }));
         closeModal();
-        navigate('/dashboard');
+        router.push('/dashboard');
     };
 
     // Idle Preload effect
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            preloadCheckout();
-        }, 2000);
-        return () => clearTimeout(timer);
-    }, []);
+
+    // Idle Preload effect (Removed for Next.js)
+    // useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //         preloadCheckout();
+    //     }, 2000);
+    //     return () => clearTimeout(timer);
+    // }, []);
+
 
     return (
         <>
-            {/* SEO Default */}
-            <SEO
-                title={t('seo.defaultTitle')}
-                description={t('seo.defaultDescription')}
-                image="/og-image.jpg"
-                url={window.location.origin}
-                product={null}
-            />
 
             {/* Managers */}
             <ModalManager onLoginSuccess={handleLoginSuccess} />
@@ -108,24 +105,22 @@ function GlobalLogic({ children }: { children: ReactNode }) {
 
 export default function AppProviders({ children }: AppProvidersProps) {
     return (
-        <HelmetProvider>
-            <I18nProvider>
-                <AuthProvider>
-                    <ShopProvider>
-                        <CartProvider>
-                            <FavoritesProvider>
-                                <ModalProvider>
-                                    <ErrorBoundary>
-                                        <GlobalLogic>
-                                            {children}
-                                        </GlobalLogic>
-                                    </ErrorBoundary>
-                                </ModalProvider>
-                            </FavoritesProvider>
-                        </CartProvider>
-                    </ShopProvider>
-                </AuthProvider>
-            </I18nProvider>
-        </HelmetProvider>
+        <I18nProvider>
+            <AuthProvider>
+                <ShopProvider>
+                    <CartProvider>
+                        <FavoritesProvider>
+                            <ModalProvider>
+                                <ErrorBoundary>
+                                    <GlobalLogic>
+                                        {children}
+                                    </GlobalLogic>
+                                </ErrorBoundary>
+                            </ModalProvider>
+                        </FavoritesProvider>
+                    </CartProvider>
+                </ShopProvider>
+            </AuthProvider>
+        </I18nProvider>
     );
 }

@@ -1,7 +1,7 @@
 // src/components/__tests__/DrawerTracking.test.jsx
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import DrawerTracking from '../DrawerTracking';
+import DrawerTracking from '../layout/DrawerTracking';
 import { I18nProvider } from '../../context/I18nContext';
 
 const defaultProps = {

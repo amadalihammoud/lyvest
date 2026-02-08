@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
 
 // Pre-calculate price valid date at module load (not during render)
 const PRICE_VALID_DATE = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -72,11 +71,10 @@ export default function ProductStructuredData({ product }: ProductStructuredData
     if (!structuredData) return null;
 
     return (
-        <Helmet>
-            <script type="application/ld+json">
-                {JSON.stringify(structuredData)}
-            </script>
-        </Helmet>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
     );
 }
 
@@ -105,11 +103,10 @@ export function OrganizationStructuredData(): React.ReactElement {
     };
 
     return (
-        <Helmet>
-            <script type="application/ld+json">
-                {JSON.stringify(orgData)}
-            </script>
-        </Helmet>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(orgData) }}
+        />
     );
 }
 
@@ -131,10 +128,9 @@ export function BreadcrumbStructuredData({ items }: BreadcrumbStructuredDataProp
     };
 
     return (
-        <Helmet>
-            <script type="application/ld+json">
-                {JSON.stringify(breadcrumbData)}
-            </script>
-        </Helmet>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }}
+        />
     );
 }

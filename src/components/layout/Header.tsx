@@ -1,5 +1,7 @@
-﻿import React, { useEffect, ChangeEvent } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+﻿'use client';
+import { useState, useEffect, useTransition, ChangeEvent } from 'react';
+import Link from 'next/link';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 'lucide-react';
 import { mainMenu, productsData } from '../../data/mockData';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -17,10 +19,9 @@ import { useShop } from '../../context/ShopContext';
 import { useAuth } from '../../context/AuthContext';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
+// Props are now optional - Header manages its own state internally
 interface HeaderProps {
-    setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    isMobileMenuOpen: boolean;
-    navigateToDashboard: () => void;
+    // Kept for backwards compatibility but not required
 }
 
 interface User {
@@ -37,19 +38,24 @@ interface MenuItem {
     subcategories?: MenuItem[];
 }
 
-export default function Header({
-    setIsMobileMenuOpen,
-    isMobileMenuOpen,
-    navigateToDashboard
-}: HeaderProps) {
-    const navigate = useNavigate();
+export default function Header(_props?: HeaderProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const { t } = useI18n();
     const { cartCount } = useCart();
     const { favorites } = useFavorites();
     const { openDrawer, closeDrawer, openModal } = useModal();
     const { user, isAuthenticated: isLoggedIn } = useAuth();
-    const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useShop();
+    const { selectedCategory, setSelectedCategory } = useShop();
+    const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
     const { handleMenuClick } = useShopNavigation();
+
+    // Internal state for mobile menu
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Internal navigation function
+    const navigateToDashboard = () => router.push('/dashboard');
 
     // Cast properties for stricter usage
     const currentUser = user as User | null;
@@ -65,44 +71,42 @@ export default function Header({
     const safeProducts = productsData as MockProduct[];
 
 
-    // Debounce da busca APENAS para navegaÃ§Ã£o/URL
+    // Debounce da busca APENAS para navegação/URL
     const debouncedSearch = useDebounce(searchQuery, 500);
 
     // Atualizar URL quando o termo debounced mudar
     useEffect(() => {
         if (debouncedSearch) {
-            navigate(`/?busca=${encodeURIComponent(debouncedSearch)}`);
-        } else if (searchQuery === '' && window.location.search.includes('busca=')) {
+            router.push(`/?busca=${encodeURIComponent(debouncedSearch)}`);
+        } else if (searchQuery === '' && searchParams?.has('busca')) {
             // Se limpou a busca, volta para home limpa
-            navigate('/');
+            router.push('/');
         }
-    }, [debouncedSearch, navigate, searchQuery]);
+    }, [debouncedSearch, router, searchQuery, searchParams]);
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value.slice(0, 50);
-
-        // ProteÃ§Ã£o XSS
+        const value = e.target.value.slice(0, 50);
+        // Proteção XSS
         if (detectXSS(value)) {
-            value = '';
+            setSearchQuery('');
+            return;
         }
-
         setSearchQuery(value);
     };
 
     const handleLogoClick = () => {
         setSelectedCategory("Todos");
         setSearchQuery("");
-        navigate('/');
+        router.push('/');
     };
 
-    const location = useLocation();
-    const isCheckout = location.pathname === '/checkout';
+    const isCheckout = pathname === '/checkout';
 
     return (
         <header className="sticky top-0 z-50 bg-white transition-all shadow-sm" role="banner" dir="ltr">
             <div className="container mx-auto px-4 py-2 lg:py-4">
                 <a href="#main-content" className="sr-only focus:not-sr-only bg-white text-lyvest-500 px-4 py-2 absolute z-[100] top-0 left-0 shadow-md">
-                    {t('a11y.skipToContent') || 'Pular para o conteÃºdo principal'}
+                    {t('a11y.skipToContent') || 'Pular para o conteúdo principal'}
                 </a>
                 <div className="flex items-center justify-between gap-4">
 
@@ -121,7 +125,7 @@ export default function Header({
                             <Menu className="w-7 h-7" />
                         </button>
                         <Link
-                            to="/"
+                            href="/"
                             aria-label="Ly Vest Home"
                             onClick={handleLogoClick}
                         >
@@ -144,7 +148,7 @@ export default function Header({
                             <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 transition-colors text-lyvest-500" />
                             {searchQuery && (
                                 <button
-                                    onClick={() => { setSearchQuery(''); navigate('/'); }}
+                                    onClick={() => { setSearchQuery(''); router.push('/'); }}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-200 rounded-full hover:bg-slate-300"
                                     aria-label={t('aria.clearSearch')}
                                 >
@@ -162,7 +166,7 @@ export default function Header({
                                     .map((product) => (
                                         <Link
                                             key={product.id}
-                                            to={`/produto/${product.name.toLowerCase().replace(/ /g, '-')}`}
+                                            href={`/produto/${product.name.toLowerCase().replace(/ /g, '-')}`}
                                             onClick={() => setSearchQuery('')}
                                             className="flex items-center gap-4 p-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
                                         >
@@ -187,7 +191,7 @@ export default function Header({
                                 )}
                                 {safeProducts.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 && (
                                     <button
-                                        onClick={() => navigate(`/?busca=${encodeURIComponent(searchQuery)}`)}
+                                        onClick={() => router.push(`/?busca=${encodeURIComponent(searchQuery)}`)}
                                         className="w-full p-3 bg-slate-50 text-lyvest-600 text-sm font-bold hover:bg-lyvest-50 transition-colors text-center"
                                     >
                                         Ver todos os resultados
@@ -197,7 +201,7 @@ export default function Header({
                         )}
                     </div>
 
-                    {/* AÃ§Ãµes (Direita) */}
+                    {/* Ações (Direita) */}
                     <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
 
                         {/* Rastreio */}
@@ -219,7 +223,7 @@ export default function Header({
                         >
                             <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${favorites.length > 0 ? 'fill-lyvest-500 text-lyvest-500' : ''}`} />
                             {favorites.length > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-lyvest-500 text-white text-[10px] font-bold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full shadow-sm">
+                                <span className="absolute -top-1 -right-1 bg-lyvest-500 text-white text-[10px] sm:text-xs font-bold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full shadow-sm">
                                     {favorites.length}
                                 </span>
                             )}
@@ -310,11 +314,3 @@ export default function Header({
         </header>
     );
 }
-
-
-
-
-
-
-
-
