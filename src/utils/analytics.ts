@@ -62,12 +62,11 @@ export interface AnalyticsEvent {
  */
 export class AnalyticsService {
     private enabled: boolean;
-    private _gaId: string; // Reserved for future GA4 integration
+    // GA ID configured in ANALYTICS_CONFIG.GA_ID
     private queue: AnalyticsEvent[];
 
     constructor() {
         this.enabled = ANALYTICS_CONFIG.ENABLED;
-        this._gaId = ANALYTICS_CONFIG.GA_ID;
         this.queue = [];
     }
 
