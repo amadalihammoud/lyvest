@@ -45,11 +45,7 @@ export interface AddressData {
  * Serviço de cálculo de frete e rastreamento
  */
 export class ShippingService {
-    private carriers: string[];
-
-    constructor() {
-        this.carriers = ['correios', 'jadlog', 'sedex'];
-    }
+    // Carriers disponíveis: correios, jadlog, sedex
 
     /**
      * Calcula opções de frete
