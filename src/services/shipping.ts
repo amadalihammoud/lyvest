@@ -85,7 +85,7 @@ export class ShippingService {
         }
     }
 
-    private _getMockShipping(cep: string, items: any[]): ShippingOption[] {
+    private _getMockShipping(_cep: string, items: any[]): ShippingOption[] {
         const total = items.reduce((acc, item) => acc + (item.price * item.qty), 0);
         const isFreeShipping = total >= SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
 
