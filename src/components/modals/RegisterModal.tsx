@@ -1,16 +1,21 @@
+'use client';
 import { useState, FormEvent, ChangeEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useModal } from '../../hooks/useModal';
 import { useAuth } from '../../context/AuthContext';
 import { User, Mail, Lock, FileText } from 'lucide-react';
 
+interface RegisterModalProps {
+    onRegisterSuccess?: (user?: unknown) => void;
+}
+
 /**
  * Registration modal with email/password and Google authentication
  */
-export default function RegisterModal(): React.ReactElement {
+export default function RegisterModal({ onRegisterSuccess }: RegisterModalProps = {}): React.ReactElement {
     const { closeModal, openModal } = useModal();
     const { signUp, signInWithGoogle, isConfigured } = useAuth();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
@@ -62,7 +67,7 @@ export default function RegisterModal(): React.ReactElement {
             if (data?.user) {
                 if (data.user.email_confirmed_at || data.session) {
                     closeModal();
-                    navigate('/dashboard');
+                    router.push('/dashboard');
                 } else {
                     setRegistrationSuccess(true);
                 }
