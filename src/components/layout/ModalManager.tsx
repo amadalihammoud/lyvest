@@ -43,7 +43,7 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
                 return <LoginModal onLoginSuccess={onLoginSuccess} />;
             // case 'forgotPassword': return <ForgotPasswordModal />; // Missing
             case 'register':
-                return <RegisterModal onRegisterSuccess={onLoginSuccess} />;
+                return <RegisterModal />;
             case 'contact':
                 return <ContactModal />;
             case 'about':
