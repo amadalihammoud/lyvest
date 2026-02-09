@@ -1,5 +1,5 @@
 import { useState, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useI18n } from '../../hooks/useI18n';
 import { useAuth, User } from '../../context/AuthContext';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
@@ -14,7 +14,7 @@ interface SettingsSectionProps {
 
 function SettingsSection({ user }: SettingsSectionProps) {
     const { t } = useI18n();
-    const navigate = useNavigate();
+    const router = useRouter();
     const { signOut, user: authUser } = useAuth();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -348,7 +348,7 @@ function SettingsSection({ user }: SettingsSectionProps) {
             await signOut();
 
             // Redirecionar
-            navigate('/');
+            router.push('/');
 
         } catch {
             setErrorMsg('Erro ao excluir conta. Entre em contato com o suporte.');

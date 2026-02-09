@@ -1,6 +1,6 @@
 import EmptyState from './EmptyState';
 import { Heart, ShoppingBag } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useI18n } from '../../hooks/useI18n';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useCart } from '../../context/CartContext';
@@ -31,7 +31,7 @@ export default function FavoritesSection() {
             {favoriteProducts.map(product => (
                 <div key={product.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
                     <div className="relative aspect-square bg-slate-50 overflow-hidden">
-                        <Link to={`/produto/${generateSlug(product.name)}`}>
+                        <Link href={`/produto/${generateSlug(product.name)}`}>
                             <img
                                 src={product.image}
                                 alt={product.name}
@@ -48,7 +48,7 @@ export default function FavoritesSection() {
                     </div>
 
                     <div className="p-4">
-                        <Link to={`/produto/${generateSlug(product.name)}`}>
+                        <Link href={`/produto/${generateSlug(product.name)}`}>
                             <h3 className="font-bold text-slate-800 text-sm mb-1 line-clamp-2 hover:text-lyvest-500 transition-colors">{product.name}</h3>
                         </Link>
                         <p className="font-bold text-lyvest-500 text-lg mb-4">{formatCurrency(product.price)}</p>

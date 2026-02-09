@@ -2,7 +2,7 @@ import { useState, lazy, Suspense, memo } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import DashboardSidebar from './DashboardSidebar';
 import { getUserAvatar } from '../../utils/userUtils';
-import Breadcrumbs from '../Breadcrumbs';
+import Breadcrumbs from '../ui/Breadcrumbs';
 import { Order } from '../../types/dashboard';
 import { User } from '../../context/AuthContext';
 
