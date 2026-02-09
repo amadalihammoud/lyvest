@@ -62,11 +62,12 @@ export interface AnalyticsEvent {
  */
 export class AnalyticsService {
     private enabled: boolean;
-    // GA ID configured in ANALYTICS_CONFIG.GA_ID
+    private gaId: string;
     private queue: AnalyticsEvent[];
 
     constructor() {
         this.enabled = ANALYTICS_CONFIG.ENABLED;
+        this.gaId = ANALYTICS_CONFIG.GA_ID;
         this.queue = [];
     }
 

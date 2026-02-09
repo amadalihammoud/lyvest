@@ -1,5 +1,5 @@
 'use client';
-import { ReactNode, lazy, Suspense } from 'react';
+import { useEffect, ReactNode, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';

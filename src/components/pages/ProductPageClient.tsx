@@ -71,6 +71,12 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
         return p.category?.name || 'Departamento';
     };
 
+    const getCategorySlug = (p: Product) => {
+        if (typeof p.category === 'string') return p.category; // Or slugify string if needed, but mockData categories are names
+        if (Array.isArray(p.category)) return p.category[0]?.slug || 'todos';
+        return p.category?.slug || 'todos';
+    };
+
     const mapProductToCartItem = (p: Product): Partial<CartItem> => ({
         id: p.id,
         name: p.name,

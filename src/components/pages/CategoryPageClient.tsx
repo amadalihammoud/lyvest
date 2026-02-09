@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-
+import { useRouter } from 'next/navigation';
 import { productsData } from '@/data/mockData';
 import { generateSlug } from '@/utils/slug';
 import ProductCard from '@/components/product/ProductCard';
@@ -25,7 +25,7 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
     const { addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
     const { openModal } = useModal();
-
+    const router = useRouter();
 
     // State for Toolbar & Filters
     const [sortOption, setSortOption] = useState('relevance');

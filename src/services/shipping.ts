@@ -45,7 +45,11 @@ export interface AddressData {
  * Serviço de cálculo de frete e rastreamento
  */
 export class ShippingService {
-    // Carriers disponíveis: correios, jadlog, sedex
+    private carriers: string[];
+
+    constructor() {
+        this.carriers = ['correios', 'jadlog', 'sedex'];
+    }
 
     /**
      * Calcula opções de frete
@@ -85,7 +89,7 @@ export class ShippingService {
         }
     }
 
-    private _getMockShipping(_cep: string, items: any[]): ShippingOption[] {
+    private _getMockShipping(cep: string, items: any[]): ShippingOption[] {
         const total = items.reduce((acc, item) => acc + (item.price * item.qty), 0);
         const isFreeShipping = total >= SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
 

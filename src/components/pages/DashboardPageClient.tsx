@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import UserDashboard from '@/components/dashboard/UserDashboard';
 
 import { mockOrders } from '@/data/mockData';
-import { useAuth } from '@/context/AuthContext';
+import { useI18n } from '@/context/I18nContext';
+import { useAuth, User } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 
 export default function DashboardPageClient() {
     const router = useRouter();
-
+    const { t } = useI18n();
     const { user, profile, signOut } = useAuth();
     const { openDrawer, setTrackingCode } = useModal();
 
