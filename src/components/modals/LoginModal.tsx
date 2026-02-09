@@ -1,5 +1,6 @@
+'use client';
 import { useState, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useModal } from '../../hooks/useModal';
 import { useI18n } from '../../hooks/useI18n';
 import { useAuth } from '../../context/AuthContext';
@@ -25,7 +26,7 @@ export default function LoginModal({ onLoginSuccess }: LoginModalProps): React.R
     const { closeModal, openModal } = useModal();
     const { t } = useI18n();
     const { signIn, signInWithGoogle, resetPassword, isConfigured } = useAuth();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const [view, setView] = useState<ViewType>('login');
     const [email, setEmail] = useState<string>('');
@@ -61,7 +62,7 @@ export default function LoginModal({ onLoginSuccess }: LoginModalProps): React.R
                     });
                 }
                 closeModal();
-                navigate('/dashboard');
+                router.push('/dashboard');
             }
         } catch {
             setError('Erro inesperado. Tente novamente.');
