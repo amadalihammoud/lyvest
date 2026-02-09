@@ -1,6 +1,6 @@
-import { ptBR } from './locales/pt-BR.js';
-import { enUS } from './locales/en-US.js';
-import { esES } from './locales/es-ES.js';
+import { ptBR } from './locales/pt-BR';
+import { enUS } from './locales/en-US';
+import { esES } from './locales/es-ES';
 
 /**
  * Traduções da aplicação

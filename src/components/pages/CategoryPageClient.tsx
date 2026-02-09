@@ -25,7 +25,7 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
     const { addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
     const { openModal } = useModal();
-    const router = useRouter();
+    // router removed - was unused
 
     // State for Toolbar & Filters
     const [sortOption, setSortOption] = useState('relevance');

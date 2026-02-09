@@ -1,3 +1,4 @@
+'use client';
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { RefreshCw, Home, AlertTriangle } from 'lucide-react';
 import { analytics } from '../../utils/analytics';
@@ -31,7 +32,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
         this.setState({ error, errorInfo });
 
-        if (import.meta.env.DEV) {
+        if (process.env.NODE_ENV === 'development') {
             console.error("Uncaught error:", error, errorInfo);
         }
 

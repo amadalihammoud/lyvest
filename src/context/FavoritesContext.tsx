@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 // src/context/FavoritesContext.tsx
+'use client';
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
 import { FAVORITES_CONFIG } from '../config/constants';
 
@@ -31,6 +32,9 @@ function isValidId(id: unknown): boolean {
  * Carrega e valida favoritos do localStorage
  */
 function loadFavoritesFromStorage(): number[] {
+    // SSR-safe: só acessar localStorage no cliente
+    if (typeof window === 'undefined') return [];
+
     try {
         const saved = localStorage.getItem(FAVORITES_STORAGE_KEY);
         if (!saved) return [];
@@ -39,7 +43,11 @@ function loadFavoritesFromStorage(): number[] {
 
         // Validar que é um array
         if (!Array.isArray(parsed)) {
-            localStorage.removeItem(FAVORITES_STORAGE_KEY);
+            try {
+                localStorage.removeItem(FAVORITES_STORAGE_KEY);
+            } catch {
+                // Ignore
+            }
             return [];
         }
 
@@ -52,7 +60,11 @@ function loadFavoritesFromStorage(): number[] {
         return [...new Set(validIds)] as number[];
     } catch {
         // Se falhar, limpar dados corrompidos
-        localStorage.removeItem(FAVORITES_STORAGE_KEY);
+        try {
+            localStorage.removeItem(FAVORITES_STORAGE_KEY);
+        } catch {
+            // Ignore
+        }
         return [];
     }
 }
@@ -61,6 +73,9 @@ function loadFavoritesFromStorage(): number[] {
  * Salva favoritos no localStorage com validação
  */
 function saveFavoritesToStorage(favorites: number[]) {
+    // SSR-safe: só acessar localStorage no cliente
+    if (typeof window === 'undefined') return;
+
     try {
         // Validar antes de salvar
         const validFavorites = favorites
@@ -78,13 +93,25 @@ interface FavoritesProviderProps {
 }
 
 export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
-    // Inicializar do localStorage com validação
-    const [favorites, setFavorites] = useState<number[]>(loadFavoritesFromStorage);
+    // Inicializar vazio - será preenchido pelo useEffect no cliente
+    const [favorites, setFavorites] = useState<number[]>([]);
+    const [isHydrated, setIsHydrated] = useState(false);
 
-    // Persistir no localStorage quando mudar
+    // Hidratar do localStorage apenas no cliente
     useEffect(() => {
-        saveFavoritesToStorage(favorites);
-    }, [favorites]);
+        const savedFavorites = loadFavoritesFromStorage();
+        if (savedFavorites.length > 0) {
+            setFavorites(savedFavorites);
+        }
+        setIsHydrated(true);
+    }, []);
+
+    // Persistir no localStorage quando mudar (apenas após hidratação)
+    useEffect(() => {
+        if (isHydrated) {
+            saveFavoritesToStorage(favorites);
+        }
+    }, [favorites, isHydrated]);
 
     const toggleFavorite = useCallback((event: React.SyntheticEvent | number, productId?: number) => {
         // Se vier de um evento, evitar propagação

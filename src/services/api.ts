@@ -1,13 +1,57 @@
-// src/services/api.js
+
+// src/services/api.ts
 // Serviço base para futuras integrações com backend
 
 import { API_URLS } from '../config/constants';
 
+interface ApiOptions extends RequestInit {
+    headers?: Record<string, string>;
+}
+
+/**
+ * Erro customizado para respostas de API
+ */
+export class ApiError extends Error {
+    status: number;
+    data: any;
+
+    constructor(message: string, status: number, data: any = {}) {
+        super(message);
+        this.name = 'ApiError';
+        this.status = status;
+        this.data = data;
+    }
+
+    /**
+     * Verifica se é erro de autenticação
+     */
+    isUnauthorized(): boolean {
+        return this.status === 401;
+    }
+
+    /**
+     * Verifica se é erro de validação
+     */
+    isValidationError(): boolean {
+        return this.status === 422;
+    }
+
+    /**
+     * Verifica se é erro de rate limiting
+     */
+    isRateLimited(): boolean {
+        return this.status === 429;
+    }
+}
+
 /**
  * Cliente HTTP base com configurações padrão
  */
-class ApiClient {
-    constructor(baseUrl = API_URLS.BASE) {
+export class ApiClient {
+    private baseUrl: string;
+    private defaultHeaders: Record<string, string>;
+
+    constructor(baseUrl: string = API_URLS.BASE) {
         this.baseUrl = baseUrl;
         this.defaultHeaders = {
             'Content-Type': 'application/json',
@@ -17,14 +61,13 @@ class ApiClient {
 
     /**
      * Faz uma requisição HTTP
-     * @param {string} endpoint - Endpoint da API
-     * @param {object} options - Opções do fetch
-     * @returns {Promise<any>}
+     * @param endpoint - Endpoint da API
+     * @param options - Opções do fetch
      */
-    async request(endpoint, options = {}) {
+    async request<T = any>(endpoint: string, options: ApiOptions = {}): Promise<T | null> {
         const url = `${this.baseUrl}${endpoint}`;
 
-        const config = {
+        const config: ApiOptions = {
             ...options,
             headers: {
                 ...this.defaultHeaders,
@@ -61,17 +104,17 @@ class ApiClient {
     /**
      * GET request
      */
-    get(endpoint, params = {}) {
+    get<T = any>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
         const queryString = new URLSearchParams(params).toString();
         const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-        return this.request(url, { method: 'GET' });
+        return this.request<T>(url, { method: 'GET' });
     }
 
     /**
      * POST request
      */
-    post(endpoint, data) {
-        return this.request(endpoint, {
+    post<T = any>(endpoint: string, data: any): Promise<T | null> {
+        return this.request<T>(endpoint, {
             method: 'POST',
             body: JSON.stringify(data)
         });
@@ -80,8 +123,8 @@ class ApiClient {
     /**
      * PUT request
      */
-    put(endpoint, data) {
-        return this.request(endpoint, {
+    put<T = any>(endpoint: string, data: any): Promise<T | null> {
+        return this.request<T>(endpoint, {
             method: 'PUT',
             body: JSON.stringify(data)
         });
@@ -90,14 +133,14 @@ class ApiClient {
     /**
      * DELETE request
      */
-    delete(endpoint) {
-        return this.request(endpoint, { method: 'DELETE' });
+    delete<T = any>(endpoint: string): Promise<T | null> {
+        return this.request<T>(endpoint, { method: 'DELETE' });
     }
 
     /**
      * Define header de autorização
      */
-    setAuthToken(token) {
+    setAuthToken(token: string | null): void {
         if (token) {
             this.defaultHeaders['Authorization'] = `Bearer ${token}`;
         } else {
@@ -106,48 +149,5 @@ class ApiClient {
     }
 }
 
-/**
- * Erro customizado para respostas de API
- */
-export class ApiError extends Error {
-    constructor(message, status, data = {}) {
-        super(message);
-        this.name = 'ApiError';
-        this.status = status;
-        this.data = data;
-    }
-
-    /**
-     * Verifica se é erro de autenticação
-     */
-    isUnauthorized() {
-        return this.status === 401;
-    }
-
-    /**
-     * Verifica se é erro de validação
-     */
-    isValidationError() {
-        return this.status === 422;
-    }
-
-    /**
-     * Verifica se é erro de rate limiting
-     */
-    isRateLimited() {
-        return this.status === 429;
-    }
-}
-
 // Instância singleton do cliente
 export const api = new ApiClient();
-
-// Exportar classe para testes ou instâncias customizadas
-export { ApiClient };
-
-
-
-
-
-
-

@@ -7,9 +7,9 @@ import * as Sentry from '@sentry/react';
  * incluindo stack traces, contexto do usuário e breadcrumbs
  */
 
-const isDevelopment = import.meta.env.DEV;
-const sentryDSN = import.meta.env.VITE_SENTRY_DSN;
-const environment = import.meta.env.VITE_SENTRY_ENVIRONMENT || 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
+const sentryDSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
+const environment = process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT || 'production';
 
 export function initSentry() {
     // Só inicializar em produção e se DSN estiver configurado

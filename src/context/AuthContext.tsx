@@ -1,5 +1,6 @@
 // src/context/AuthContext.tsx
 /* eslint-disable react-refresh/only-export-components, react-hooks/set-state-in-effect */
+'use client';
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { AuthError } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
@@ -92,15 +93,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Inicializar sessão
     useEffect(() => {
         if (!isConfigured) {
-            // Modo mock para desenvolvimento
-            const mockUser = localStorage.getItem('lyvest_mock_user');
-            if (mockUser) {
-                try {
-                    const parsed = JSON.parse(mockUser);
-                    setUser(parsed);
-                    setProfile(parsed);
-                } catch {
-                    // Ignorar erro de parse
+            // Modo mock para desenvolvimento - SSR-safe
+            if (typeof window !== 'undefined') {
+                const mockUser = localStorage.getItem('lyvest_mock_user');
+                if (mockUser) {
+                    try {
+                        const parsed = JSON.parse(mockUser);
+                        setUser(parsed);
+                        setProfile(parsed);
+                    } catch {
+                        // Ignorar erro de parse
+                    }
                 }
             }
             setLoading(false);
@@ -136,14 +139,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Login com email/senha
     const signIn = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
         if (!isConfigured) {
-            // Modo mock
+            // Modo mock - SSR-safe
             const mockUser = {
                 id: 'mock-user-id',
                 email,
                 name: email.split('@')[0],
                 avatar: undefined
             };
-            localStorage.setItem('lyvest_mock_user', JSON.stringify(mockUser));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('lyvest_mock_user', JSON.stringify(mockUser));
+            }
             setUser(mockUser);
             setProfile(mockUser);
             return { data: { user: mockUser }, error: null };
@@ -167,14 +172,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Registro com email/senha
     const signUp = useCallback(async (email: string, password: string, metadata: Record<string, unknown> = {}): Promise<AuthResponse> => {
         if (!isConfigured) {
-            // Modo mock
+            // Modo mock - SSR-safe
             const mockUser = {
                 id: 'mock-user-id',
                 email,
                 name: (metadata.full_name as string) || email.split('@')[0],
                 avatar: undefined
             };
-            localStorage.setItem('lyvest_mock_user', JSON.stringify(mockUser));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('lyvest_mock_user', JSON.stringify(mockUser));
+            }
             setUser(mockUser);
             setProfile(mockUser);
             return { data: { user: mockUser }, error: null };
@@ -209,7 +216,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `${window.location.origin}/dashboard`
+                redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : '/dashboard'
             }
         });
         return { data, error };
@@ -218,7 +225,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Logout
     const signOut = useCallback(async () => {
         if (!isConfigured) {
-            localStorage.removeItem('lyvest_mock_user');
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('lyvest_mock_user');
+            }
             setUser(null);
             setProfile(null);
             return { error: null };

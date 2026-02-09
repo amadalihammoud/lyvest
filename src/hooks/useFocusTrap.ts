@@ -1,4 +1,5 @@
 // src/hooks/useFocusTrap.ts
+'use client';
 import { useEffect, useRef, RefObject } from 'react';
 
 /**

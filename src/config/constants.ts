@@ -1,4 +1,5 @@
-// src/config/constants.js
+
+// src/config/constants.ts
 // Arquivo centralizado de constantes da aplicação
 
 /**
@@ -9,7 +10,7 @@ export const CART_CONFIG = {
     MAX_QUANTITY_PER_ITEM: 99,
     MAX_PRICE: 100000,
     STORAGE_KEY: 'lyvest_cart'
-};
+} as const;
 
 /**
  * Configurações de Favoritos
@@ -17,7 +18,7 @@ export const CART_CONFIG = {
 export const FAVORITES_CONFIG = {
     MAX_ITEMS: 100,
     STORAGE_KEY: 'lyvest_favorites'
-};
+} as const;
 
 /**
  * Configurações de Rate Limiting
@@ -35,7 +36,7 @@ export const RATE_LIMIT_CONFIG = {
         MAX_ATTEMPTS: 5,
         WINDOW_MS: 900000 // 15 minutos
     }
-};
+} as const;
 
 /**
  * Configurações de Validação
@@ -51,7 +52,7 @@ export const VALIDATION_CONFIG = {
     CARD_NUMBER_LENGTH: 16,
     CVV_MIN_LENGTH: 3,
     CVV_MAX_LENGTH: 4
-};
+} as const;
 
 /**
  * Configurações de Busca
@@ -59,7 +60,7 @@ export const VALIDATION_CONFIG = {
 export const SEARCH_CONFIG = {
     MAX_LENGTH: 50,
     DEBOUNCE_MS: 300
-};
+} as const;
 
 /**
  * Configurações de Frete
@@ -67,18 +68,18 @@ export const SEARCH_CONFIG = {
 export const SHIPPING_CONFIG = {
     FREE_SHIPPING_THRESHOLD: 150,
     DEFAULT_SHIPPING_COST: 15.90
-};
+} as const;
 
 /**
  * URLs de API (para futura integração)
  */
 export const API_URLS = {
-    BASE: import.meta.env.VITE_API_URL || '/api',
+    BASE: process.env.NEXT_PUBLIC_API_URL || '/api',
     PRODUCTS: '/products',
     ORDERS: '/orders',
     TRACKING: '/tracking',
     NEWSLETTER: '/newsletter'
-};
+} as const;
 
 /**
  * Configurações de PWA
@@ -87,15 +88,15 @@ export const PWA_CONFIG = {
     THEME_COLOR: '#faf5ff',
     BACKGROUND_COLOR: '#ffffff',
     APP_NAME: 'Ly Vest'
-};
+} as const;
 
 /**
  * Configurações de Analytics (futura integração)
  */
 export const ANALYTICS_CONFIG = {
-    ENABLED: import.meta.env.VITE_ANALYTICS_ENABLED === 'true',
-    GA_ID: import.meta.env.VITE_GA_ID || ''
-};
+    ENABLED: process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === 'true',
+    GA_ID: process.env.NEXT_PUBLIC_GA_ID || ''
+} as const;
 
 /**
  * Configurações de Pagamento (gateways suportados)
@@ -104,7 +105,7 @@ export const PAYMENT_CONFIG = {
     GATEWAYS: ['stripe', 'pagseguro', 'mercadopago'],
     DEFAULT_GATEWAY: 'mercadopago',
     PIX_DISCOUNT: 0.05 // 5% de desconto
-};
+} as const;
 
 /**
  * Configurações de Internacionalização
@@ -113,11 +114,4 @@ export const I18N_CONFIG = {
     DEFAULT_LOCALE: 'pt-BR',
     SUPPORTED_LOCALES: ['pt-BR', 'en-US', 'es-ES'],
     CURRENCY: 'BRL'
-};
-
-
-
-
-
-
-
+} as const;

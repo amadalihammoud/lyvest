@@ -27,42 +27,42 @@ body {
   color: #334155;
 
   /* default text */
-  /* Custom WCAG contrast overrides */
-  .bg-[#800020] {
-    background-color: hsl(340, 70%, 45%) !important;
-  }
-
-  .bg-[#600018] {
-    background-color: hsl(340, 70%, 35%) !important;
-  }
-
-  .text-[#800020] {
-    color: hsl(340, 70%, 20%) !important;
-  }
-
-  .text-[#600018] {
-    color: hsl(340, 70%, 15%) !important;
-  }
-
-  .bg-sky-500 {
-    background-color: hsl(200, 70%, 45%) !important;
-  }
-
-  .bg-sky-600 {
-    background-color: hsl(200, 70%, 35%) !important;
-  }
-
-  .text-sky-500 {
-    color: hsl(200, 70%, 20%) !important;
-  }
-
-  .text-sky-600 {
-    color: hsl(200, 70%, 15%) !important;
-  }
-
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom WCAG contrast overrides */
+.bg-\[\#800020\] {
+  background-color: hsl(340, 70%, 45%) !important;
+}
+
+.bg-\[\#600018\] {
+  background-color: hsl(340, 70%, 35%) !important;
+}
+
+.text-\[\#800020\] {
+  color: hsl(340, 70%, 20%) !important;
+}
+
+.text-\[\#600018\] {
+  color: hsl(340, 70%, 15%) !important;
+}
+
+.bg-sky-500 {
+  background-color: hsl(200, 70%, 45%) !important;
+}
+
+.bg-sky-600 {
+  background-color: hsl(200, 70%, 35%) !important;
+}
+
+.text-sky-500 {
+  color: hsl(200, 70%, 20%) !important;
+}
+
+.text-sky-600 {
+  color: hsl(200, 70%, 15%) !important;
 }
 
 /* Screen Reader Only - visually hidden but accessible */

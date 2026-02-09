@@ -1,4 +1,5 @@
-// src/utils/webVitals.js
+
+// src/utils/webVitals.ts
 
 /**
  * Utilitário para monitorar Core Web Vitals
@@ -12,11 +13,27 @@
  * - TTFB (Time to First Byte): resposta do servidor
  */
 
+export interface Metric {
+    name: string;
+    value: number;
+    delta: number;
+    id: string;
+    navigationType?: string;
+    rating: 'good' | 'needs-improvement' | 'poor';
+    entries?: any[];
+}
+
+declare global {
+    interface Window {
+        gtag?: (command: string, category: string, params?: Record<string, any>) => void;
+    }
+}
+
 /**
  * Reporta uma métrica vital para o sistema de analytics
- * @param {object} metric - Objeto da métrica web vitals
+ * @param metric - Objeto da métrica web vitals
  */
-function sendToAnalytics(metric) {
+function sendToAnalytics(metric: Metric) {
     const analyticsData = {
         name: metric.name,
         value: metric.value,
@@ -37,7 +54,7 @@ function sendToAnalytics(metric) {
     }
 
     // Log para desenvolvimento
-    if (import.meta.env.DEV) {
+    if (process.env.NODE_ENV === 'development') {
         const colors = {
             good: '#0cce6b',
             'needs-improvement': '#ffa400',
@@ -50,9 +67,9 @@ function sendToAnalytics(metric) {
     }
 
     // Beacon API para envio confiável mesmo ao sair da página
-    if (navigator.sendBeacon && import.meta.env.VITE_ANALYTICS_ENDPOINT) {
+    if (navigator.sendBeacon && process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT) {
         navigator.sendBeacon(
-            import.meta.env.VITE_ANALYTICS_ENDPOINT,
+            process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT,
             JSON.stringify(analyticsData)
         );
     }
@@ -62,25 +79,25 @@ function sendToAnalytics(metric) {
  * Inicializa o monitoramento de Web Vitals
  * Importa dinamicamente a biblioteca para não impactar o bundle inicial
  */
-export async function initWebVitals() {
+export async function initWebVitals(): Promise<void> {
     try {
         // Importação dinâmica para não afetar o bundle principal
-        const { onCLS, onFID, onFCP, onLCP, onTTFB, onINP } = await import('web-vitals');
+        const { onCLS, onFCP, onLCP, onTTFB, onINP } = await import('web-vitals');
 
         // Registra callbacks para cada métrica
         onCLS(sendToAnalytics);
-        onFID(sendToAnalytics);
+        onFCP(sendToAnalytics);
         onFCP(sendToAnalytics);
         onLCP(sendToAnalytics);
         onTTFB(sendToAnalytics);
         onINP(sendToAnalytics); // Interaction to Next Paint (substitui FID)
 
-        if (import.meta.env.DEV) {
-            webVitalsLogger.info('Monitoramento iniciado');
+        if (process.env.NODE_ENV === 'development') {
+            console.info('Web Vitals Monitoramento iniciado');
         }
     } catch {
         // Biblioteca não instalada - falha silenciosa
-        if (import.meta.env.DEV) {
+        if (process.env.NODE_ENV === 'development') {
             console.warn('[Web Vitals] Biblioteca não encontrada. Instale com: npm install web-vitals');
         }
     }
@@ -97,15 +114,15 @@ export const WEB_VITALS_THRESHOLDS = {
     FCP: { good: 1800, poor: 3000 },      // ms
     TTFB: { good: 800, poor: 1800 },      // ms
     INP: { good: 200, poor: 500 },        // ms
-};
+} as const;
 
 /**
  * Avalia a qualidade de uma métrica
- * @param {string} name - Nome da métrica (LCP, FID, CLS, etc)
- * @param {number} value - Valor medido
- * @returns {'good' | 'needs-improvement' | 'poor'}
+ * @param name - Nome da métrica (LCP, FID, CLS, etc)
+ * @param value - Valor medido
+ * @returns 'good' | 'needs-improvement' | 'poor'
  */
-export function getRating(name, value) {
+export function getRating(name: keyof typeof WEB_VITALS_THRESHOLDS, value: number): 'good' | 'needs-improvement' | 'poor' {
     const threshold = WEB_VITALS_THRESHOLDS[name];
     if (!threshold) return 'good';
 
@@ -113,10 +130,3 @@ export function getRating(name, value) {
     if (value <= threshold.poor) return 'needs-improvement';
     return 'poor';
 }
-
-
-
-
-
-
-

@@ -48,7 +48,7 @@ export async function calculateSize(
     const offlineRecommendation = calculateOffline(measurements);
 
     // Se tiver API configurada, refinar com IA Especialista
-    if (import.meta.env.VITE_OPENAI_API_KEY) {
+    if (process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
         try {
             const aiRecommendation = await getAIRecommendation(measurements, product);
             // Mesclar o fitMap do offline na resposta da IA se a IA não retornar (ou se quisermos forçar o offline map)
@@ -272,7 +272,7 @@ async function getAIRecommendation(
     measurements: BodyMeasurements,
     product: Product
 ): Promise<SizeRecommendation> {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 
     if (!apiKey) {
         throw new Error('OpenAI API key not configured');

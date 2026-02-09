@@ -1,13 +1,20 @@
-// src/utils/analytics.js
+
+// src/utils/analytics.ts
 // Serviço de analytics preparado para integração com GA4, Plausible, etc.
 
 import { ANALYTICS_CONFIG } from '../config/constants';
 import { analyticsLogger } from './logger';
 
+declare global {
+    interface Window {
+        gtag?: (command: string, eventName: string, params?: Record<string, any>) => void;
+    }
+}
+
 /**
  * Eventos de analytics do e-commerce
  */
-const EVENTS = {
+export const EVENTS = {
     // Navegação
     PAGE_VIEW: 'page_view',
 
@@ -31,12 +38,33 @@ const EVENTS = {
 
     // Erros
     EXCEPTION: 'exception'
-};
+} as const;
+
+export interface ProductItem {
+    id: string | number;
+    name: string;
+    category?: string;
+    price: number;
+    [key: string]: any;
+}
+
+export interface CartItem extends ProductItem {
+    qty: number;
+}
+
+export interface AnalyticsEvent {
+    name: string;
+    params: Record<string, any>;
+}
 
 /**
  * Serviço de Analytics
  */
-class AnalyticsService {
+export class AnalyticsService {
+    private enabled: boolean;
+    private gaId: string;
+    private queue: AnalyticsEvent[];
+
     constructor() {
         this.enabled = ANALYTICS_CONFIG.ENABLED;
         this.gaId = ANALYTICS_CONFIG.GA_ID;
@@ -46,7 +74,7 @@ class AnalyticsService {
     /**
      * Inicializa o serviço (chamado no app startup)
      */
-    init() {
+    init(): void {
         if (!this.enabled) {
             analyticsLogger.info('Desabilitado');
             return;
@@ -62,11 +90,13 @@ class AnalyticsService {
     /**
      * Envia evento (ou adiciona à fila se não inicializado)
      */
-    _send(event) {
+    private _send(event: AnalyticsEvent): void {
         if (!this.enabled) return;
 
         // Em produção, enviar para GA4/Plausible
-        // window.gtag?.('event', event.name, event.params);
+        if (typeof window !== 'undefined' && window.gtag) {
+            // window.gtag('event', event.name, event.params);
+        }
 
         // Log para desenvolvimento
         analyticsLogger.debug(event.name, event.params);
@@ -75,8 +105,8 @@ class AnalyticsService {
     /**
      * Registra evento
      */
-    track(eventName, params = {}) {
-        const event = {
+    track(eventName: string, params: Record<string, any> = {}): void {
+        const event: AnalyticsEvent = {
             name: eventName,
             params: {
                 ...params,
@@ -98,7 +128,7 @@ class AnalyticsService {
     /**
      * Visualização de página
      */
-    pageView(pagePath, pageTitle) {
+    pageView(pagePath: string, pageTitle: string): void {
         this.track(EVENTS.PAGE_VIEW, {
             page_path: pagePath,
             page_title: pageTitle
@@ -108,7 +138,7 @@ class AnalyticsService {
     /**
      * Visualização de produto
      */
-    viewItem(product) {
+    viewItem(product: ProductItem): void {
         this.track(EVENTS.VIEW_ITEM, {
             currency: 'BRL',
             value: product.price,
@@ -119,7 +149,7 @@ class AnalyticsService {
     /**
      * Adicionar ao carrinho
      */
-    addToCart(product, quantity = 1) {
+    addToCart(product: ProductItem, quantity: number = 1): void {
         this.track(EVENTS.ADD_TO_CART, {
             currency: 'BRL',
             value: product.price * quantity,
@@ -130,7 +160,7 @@ class AnalyticsService {
     /**
      * Remover do carrinho
      */
-    removeFromCart(product, quantity = 1) {
+    removeFromCart(product: ProductItem, quantity: number = 1): void {
         this.track(EVENTS.REMOVE_FROM_CART, {
             currency: 'BRL',
             value: product.price * quantity,
@@ -141,7 +171,7 @@ class AnalyticsService {
     /**
      * Ver carrinho
      */
-    viewCart(items, total) {
+    viewCart(items: CartItem[], total: number): void {
         this.track(EVENTS.VIEW_CART, {
             currency: 'BRL',
             value: total,
@@ -152,7 +182,7 @@ class AnalyticsService {
     /**
      * Iniciar checkout
      */
-    beginCheckout(items, total) {
+    beginCheckout(items: CartItem[], total: number): void {
         this.track(EVENTS.BEGIN_CHECKOUT, {
             currency: 'BRL',
             value: total,
@@ -163,7 +193,7 @@ class AnalyticsService {
     /**
      * Adicionar info de pagamento
      */
-    addPaymentInfo(paymentMethod, items, total) {
+    addPaymentInfo(paymentMethod: string, items: CartItem[], total: number): void {
         this.track(EVENTS.ADD_PAYMENT_INFO, {
             currency: 'BRL',
             value: total,
@@ -175,7 +205,7 @@ class AnalyticsService {
     /**
      * Compra concluída
      */
-    purchase(orderId, items, total, shipping = 0) {
+    purchase(orderId: string, items: CartItem[], total: number, shipping: number = 0): void {
         this.track(EVENTS.PURCHASE, {
             transaction_id: orderId,
             currency: 'BRL',
@@ -188,7 +218,7 @@ class AnalyticsService {
     /**
      * Busca
      */
-    search(searchTerm) {
+    search(searchTerm: string): void {
         this.track(EVENTS.SEARCH, {
             search_term: searchTerm
         });
@@ -197,7 +227,7 @@ class AnalyticsService {
     /**
      * Adicionar aos favoritos
      */
-    addToWishlist(product) {
+    addToWishlist(product: ProductItem): void {
         this.track(EVENTS.ADD_TO_WISHLIST, {
             currency: 'BRL',
             value: product.price,
@@ -208,7 +238,7 @@ class AnalyticsService {
     /**
      * Inscrição newsletter
      */
-    newsletterSignup(email) {
+    newsletterSignup(email: string): void {
         this.track(EVENTS.NEWSLETTER_SIGNUP, {
             method: 'email',
             // Não enviar email completo por privacidade
@@ -219,7 +249,7 @@ class AnalyticsService {
     /**
      * Registrar erro/exceção
      */
-    exception(description, fatal = false) {
+    exception(description: string, fatal: boolean = false): void {
         this.track(EVENTS.EXCEPTION, {
             description,
             fatal
@@ -233,7 +263,7 @@ class AnalyticsService {
     /**
      * Formata item para padrão GA4
      */
-    _formatItem(product, quantity = 1) {
+    private _formatItem(product: ProductItem, quantity: number = 1) {
         return {
             item_id: String(product.id),
             item_name: product.name,
@@ -248,14 +278,7 @@ class AnalyticsService {
 export const analytics = new AnalyticsService();
 
 // Exportar eventos para uso externo
-export { EVENTS };
+// export { EVENTS }; // Already exported as const
 
 // Exportar classe para testes
-export { AnalyticsService };
-
-
-
-
-
-
-
+// export { AnalyticsService }; // Already exported class

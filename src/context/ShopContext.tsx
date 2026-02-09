@@ -1,3 +1,4 @@
+'use client';
 import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 
 // Define context shape

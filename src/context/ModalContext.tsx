@@ -1,3 +1,4 @@
+'use client';
 /* eslint-disable react-refresh/only-export-components */
 // src/context/ModalContext.tsx
 import React, { createContext, useState, useCallback, ReactNode, useContext } from 'react';

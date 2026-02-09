@@ -1,4 +1,5 @@
-﻿import { useState, ChangeEvent, FormEvent } from 'react';
+﻿'use client';
+import { useState, ChangeEvent, FormEvent } from 'react';
 import { MapPin, User, Phone, Check, AlertCircle, FileText, LucideIcon } from 'lucide-react';
 import { addressSchema, validateForm, formatCEP, formatPhone, formatDocument, sanitizeString } from '../../utils/validation';
 import { detectXSS } from '../../utils/security';

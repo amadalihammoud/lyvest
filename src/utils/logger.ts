@@ -7,7 +7,7 @@
  * - Pode ser facilmente desabilitado
  */
 
-const isDevelopment = import.meta.env.DEV;
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 

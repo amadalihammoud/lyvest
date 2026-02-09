@@ -1,25 +1,59 @@
-// src/services/payment.js
+
+// src/services/payment.ts
 // Serviço para integração com gateways de pagamento
 
 import { PAYMENT_CONFIG } from '../config/constants';
 import { paymentLogger } from '../utils/logger';
 
+export interface OrderData {
+    total: number;
+    items: any[];
+    [key: string]: any;
+}
+
+export interface PaymentSession {
+    sessionId: string;
+    checkoutUrl: string;
+    status: string;
+}
+
+export interface PaymentResult {
+    transactionId: string;
+    status: string;
+    message?: string;
+    timestamp?: string;
+    pixCode?: string;
+    qrCodeUrl?: string;
+    amount?: number;
+    discount?: number;
+    expiresAt?: string;
+}
+
+export interface RefundResult {
+    refundId: string;
+    transactionId: string;
+    amount: number | null;
+    status: string;
+    message: string;
+}
 
 /**
  * Interface para gateways de pagamento
  * Cada gateway implementa estes métodos
  */
-class PaymentService {
+export class PaymentService {
+    private gateway: string;
+
     constructor() {
         this.gateway = PAYMENT_CONFIG.DEFAULT_GATEWAY;
     }
 
     /**
      * Define o gateway a ser usado
-     * @param {string} gateway - 'stripe' | 'pagseguro' | 'mercadopago'
+     * @param gateway - 'stripe' | 'pagseguro' | 'mercadopago'
      */
-    setGateway(gateway) {
-        if (PAYMENT_CONFIG.GATEWAYS.includes(gateway)) {
+    setGateway(gateway: string): void {
+        if ((PAYMENT_CONFIG.GATEWAYS as readonly string[]).includes(gateway)) {
             this.gateway = gateway;
         } else {
             throw new Error(`Gateway não suportado: ${gateway}`);
@@ -27,16 +61,11 @@ class PaymentService {
     }
 
     /**
-     * Cria uma sessão de pagamento (para integração futura)
-     * @param {object} orderData - Dados do pedido
-     * @returns {Promise<object>} - Sessão de pagamento
-     */
-    /**
      * Cria uma sessão de pagamento (via Backend Seguro)
-     * @param {object} orderData - Dados do pedido
-     * @returns {Promise<object>} - Sessão de pagamento
+     * @param orderData - Dados do pedido
+     * @returns Sessão de pagamento
      */
-    async createPaymentSession(orderData) {
+    async createPaymentSession(orderData: OrderData): Promise<PaymentSession> {
         paymentLogger.info(`Iniciando pagamento seguro via Backend (${this.gateway})`, orderData);
 
         try {
@@ -76,11 +105,11 @@ class PaymentService {
 
     /**
      * Processa pagamento com cartão (tokenizado)
-     * @param {string} sessionId - ID da sessão
-     * @param {object} paymentData - Dados do pagamento (token do cartão)
-     * @returns {Promise<object>} - Resultado do pagamento
+     * @param sessionId - ID da sessão
+     * @param paymentData - Dados do pagamento (token do cartão)
+     * @returns Resultado do pagamento
      */
-    async processCardPayment(sessionId, paymentData) {
+    async processCardPayment(sessionId: string, paymentData: any): Promise<PaymentResult> {
         // Simulação - será substituído por integração real
         paymentLogger.debug(`Processando pagamento (${this.gateway})`, { sessionId, paymentData });
 
@@ -96,10 +125,10 @@ class PaymentService {
 
     /**
      * Gera código PIX
-     * @param {object} orderData - Dados do pedido
-     * @returns {Promise<object>} - Código PIX
+     * @param orderData - Dados do pedido
+     * @returns Código PIX
      */
-    async generatePixCode(orderData) {
+    async generatePixCode(orderData: OrderData): Promise<PaymentResult> {
         // Simulação - será substituído por integração real
         paymentLogger.info(`Gerando código PIX (${this.gateway})`, orderData);
 
@@ -109,6 +138,8 @@ class PaymentService {
         const finalAmount = orderData.total - pixDiscount;
 
         return {
+            transactionId: `pix_${Date.now()}`,
+            status: 'pending',
             pixCode: `00020126580014br.gov.bcb.pix0136${Date.now()}520400005303986540${finalAmount.toFixed(2)}5802BR5907LY VEST6009SAO PAULO62070503***6304`,
             qrCodeUrl: '/pix-qr-placeholder.png',
             amount: finalAmount,
@@ -119,27 +150,26 @@ class PaymentService {
 
     /**
      * Verifica status de um pagamento
-     * @param {string} transactionId - ID da transação
-     * @returns {Promise<object>} - Status do pagamento
+     * @param transactionId - ID da transação
+     * @returns Status do pagamento
      */
-    async checkPaymentStatus(transactionId) {
+    async checkPaymentStatus(transactionId: string): Promise<PaymentResult> {
         // Simulação - será substituído por integração real
         paymentLogger.debug(`Verificando status (${this.gateway})`, transactionId);
 
         return {
             transactionId,
-            status: 'approved',
-            paidAt: new Date().toISOString()
+            status: 'approved'
         };
     }
 
     /**
      * Solicita reembolso
-     * @param {string} transactionId - ID da transação
-     * @param {number} amount - Valor a reembolsar (opcional, total se não informado)
-     * @returns {Promise<object>} - Resultado do reembolso
+     * @param transactionId - ID da transação
+     * @param amount - Valor a reembolsar (opcional, total se não informado)
+     * @returns Resultado do reembolso
      */
-    async requestRefund(transactionId, amount = null) {
+    async requestRefund(transactionId: string, amount: number | null = null): Promise<RefundResult> {
         // Simulação - será substituído por integração real
         paymentLogger.info(`Solicitando reembolso (${this.gateway})`, { transactionId, amount });
 
@@ -155,13 +185,3 @@ class PaymentService {
 
 // Instância singleton
 export const paymentService = new PaymentService();
-
-// Exportar classe para testes
-export { PaymentService };
-
-
-
-
-
-
-

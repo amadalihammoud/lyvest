@@ -1,4 +1,5 @@
-// src/utils/formatters.js
+
+// src/utils/formatters.ts
 
 /**
  * Utilitários de formatação para internacionalização
@@ -11,12 +12,12 @@ const DEFAULT_CURRENCY = 'BRL';
 
 /**
  * Formata um valor monetário
- * @param {number} value - Valor a formatar
- * @param {string} locale - Locale (padrão: pt-BR)
- * @param {string} currency - Código da moeda (padrão: BRL)
- * @returns {string} Valor formatado (ex: "R$ 89,90")
+ * @param value - Valor a formatar
+ * @param locale - Locale (padrão: pt-BR)
+ * @param currency - Código da moeda (padrão: BRL)
+ * @returns Valor formatado (ex: "R$ 89,90")
  */
-export function formatCurrency(value, locale = DEFAULT_LOCALE, currency = DEFAULT_CURRENCY) {
+export function formatCurrency(value: number, locale: string = DEFAULT_LOCALE, currency: string = DEFAULT_CURRENCY): string {
     if (typeof value !== 'number' || isNaN(value)) {
         return formatCurrency(0, locale, currency);
     }
@@ -31,11 +32,11 @@ export function formatCurrency(value, locale = DEFAULT_LOCALE, currency = DEFAUL
 
 /**
  * Formata uma data completa
- * @param {Date|string} date - Data a formatar
- * @param {string} locale - Locale (padrão: pt-BR)
- * @returns {string} Data formatada (ex: "12 de janeiro de 2026")
+ * @param date - Data a formatar
+ * @param locale - Locale (padrão: pt-BR)
+ * @returns Data formatada (ex: "12 de janeiro de 2026")
  */
-export function formatDate(date, locale = DEFAULT_LOCALE) {
+export function formatDate(date: Date | string, locale: string = DEFAULT_LOCALE): string {
     const dateObj = date instanceof Date ? date : new Date(date);
 
     if (isNaN(dateObj.getTime())) {
@@ -51,11 +52,11 @@ export function formatDate(date, locale = DEFAULT_LOCALE) {
 
 /**
  * Formata uma data curta
- * @param {Date|string} date - Data a formatar
- * @param {string} locale - Locale (padrão: pt-BR)
- * @returns {string} Data formatada (ex: "12/01/2026")
+ * @param date - Data a formatar
+ * @param locale - Locale (padrão: pt-BR)
+ * @returns Data formatada (ex: "12/01/2026")
  */
-export function formatShortDate(date, locale = DEFAULT_LOCALE) {
+export function formatShortDate(date: Date | string, locale: string = DEFAULT_LOCALE): string {
     const dateObj = date instanceof Date ? date : new Date(date);
 
     if (isNaN(dateObj.getTime())) {
@@ -71,11 +72,11 @@ export function formatShortDate(date, locale = DEFAULT_LOCALE) {
 
 /**
  * Formata data e hora
- * @param {Date|string} date - Data a formatar  
- * @param {string} locale - Locale (padrão: pt-BR)
- * @returns {string} Data e hora formatadas (ex: "12/01/2026 às 14:30")
+ * @param date - Data a formatar  
+ * @param locale - Locale (padrão: pt-BR)
+ * @returns Data e hora formatadas (ex: "12/01/2026 às 14:30")
  */
-export function formatDateTime(date, locale = DEFAULT_LOCALE) {
+export function formatDateTime(date: Date | string, locale: string = DEFAULT_LOCALE): string {
     const dateObj = date instanceof Date ? date : new Date(date);
 
     if (isNaN(dateObj.getTime())) {
@@ -98,11 +99,11 @@ export function formatDateTime(date, locale = DEFAULT_LOCALE) {
 
 /**
  * Formata data relativa (ex: "há 2 dias", "amanhã")
- * @param {Date|string} date - Data a formatar
- * @param {string} locale - Locale (padrão: pt-BR)
- * @returns {string} Data relativa
+ * @param date - Data a formatar
+ * @param locale - Locale (padrão: pt-BR)
+ * @returns Data relativa
  */
-export function formatRelativeDate(date, locale = DEFAULT_LOCALE) {
+export function formatRelativeDate(date: Date | string, locale: string = DEFAULT_LOCALE): string {
     const dateObj = date instanceof Date ? date : new Date(date);
 
     if (isNaN(dateObj.getTime())) {
@@ -139,11 +140,11 @@ export function formatRelativeDate(date, locale = DEFAULT_LOCALE) {
 
 /**
  * Formata número com separadores
- * @param {number} value - Número a formatar
- * @param {string} locale - Locale (padrão: pt-BR)
- * @returns {string} Número formatado (ex: "1.234.567")
+ * @param value - Número a formatar
+ * @param locale - Locale (padrão: pt-BR)
+ * @returns Número formatado (ex: "1.234.567")
  */
-export function formatNumber(value, locale = DEFAULT_LOCALE) {
+export function formatNumber(value: number, locale: string = DEFAULT_LOCALE): string {
     if (typeof value !== 'number' || isNaN(value)) {
         return '0';
     }
@@ -153,11 +154,11 @@ export function formatNumber(value, locale = DEFAULT_LOCALE) {
 
 /**
  * Formata porcentagem
- * @param {number} value - Valor em decimal (0.15 = 15%)
- * @param {string} locale - Locale (padrão: pt-BR)
- * @returns {string} Porcentagem formatada (ex: "15%")
+ * @param value - Valor em decimal (0.15 = 15%)
+ * @param locale - Locale (padrão: pt-BR)
+ * @returns Porcentagem formatada (ex: "15%")
  */
-export function formatPercent(value, locale = DEFAULT_LOCALE) {
+export function formatPercent(value: number, locale: string = DEFAULT_LOCALE): string {
     if (typeof value !== 'number' || isNaN(value)) {
         return '0%';
     }
@@ -175,7 +176,7 @@ export { DEFAULT_LOCALE, DEFAULT_CURRENCY };
 /**
  * Formata CEP (00000-000)
  */
-export function formatCEP(value) {
+export function formatCEP(value: string): string {
     if (!value) return '';
     const cleaned = value.replace(/\D/g, '');
     if (cleaned.length <= 5) return cleaned;
@@ -185,7 +186,7 @@ export function formatCEP(value) {
 /**
  * Formata Telefone (DD) 90000-0000 ou (DD) 0000-0000
  */
-export function formatPhone(value) {
+export function formatPhone(value: string): string {
     if (!value) return '';
     const cleaned = value.replace(/\D/g, '');
     if (cleaned.length <= 2) return `(${cleaned}`;
@@ -204,7 +205,7 @@ export function formatPhone(value) {
 /**
  * Formata CPF/CNPJ
  */
-export function formatDocument(value) {
+export function formatDocument(value: string): string {
     if (!value) return '';
     const cleaned = value.replace(/\D/g, '');
     if (cleaned.length <= 11) {
@@ -225,19 +226,12 @@ export function formatDocument(value) {
 /**
  * Formata Cartão de Crédito
  */
-export function formatCardNumber(value) {
+export function formatCardNumber(value: string): string {
     if (!value) return '';
     const cleaned = value.replace(/\D/g, '');
-    const groups = [];
+    const groups: string[] = [];
     for (let i = 0; i < cleaned.length; i += 4) {
         groups.push(cleaned.slice(i, i + 4));
     }
     return groups.join(' ').trim();
 }
-
-
-
-
-
-
-

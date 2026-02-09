@@ -1,3 +1,4 @@
+'use client';
 /* eslint-disable react-refresh/only-export-components */
 // src/context/I18nContext.tsx
 import { useState, useCallback, useMemo, useEffect, useContext, createContext, ReactNode } from 'react';
@@ -27,44 +28,54 @@ interface I18nProviderProps {
 }
 
 export const I18nProvider = ({ children }: I18nProviderProps) => {
-    // Detectar locale do navegador ou usar salvo
-    const [locale, setLocale] = useState<string>(() => {
-        try {
-            const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
-            if (saved && SUPPORTED_LOCALES.includes(saved)) {
-                return saved;
-            }
-            // Forçar PT-BR como padrão inicial, ignorando navegador
-            return DEFAULT_LOCALE;
-        } catch {
-            return DEFAULT_LOCALE;
-        }
-    });
+    // Inicializar com padrão - será atualizado no cliente via useEffect
+    const [locale, setLocale] = useState<string>(DEFAULT_LOCALE);
+    const [isHydrated, setIsHydrated] = useState(false);
 
-    // Persistir mudanças e configurar direção (RTL/LTR)
+    // Hidratar do localStorage apenas no cliente
     useEffect(() => {
         try {
-            localStorage.setItem(LOCALE_STORAGE_KEY, locale);
-            document.documentElement.lang = locale;
-
-            // Configurar direção
-            const isRTL = locale === 'ar-SA';
-            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
-
-            // Adicionar classe para estilização específica se necessário
-            if (isRTL) {
-                document.documentElement.classList.add('rtl');
-            } else {
-                document.documentElement.classList.remove('rtl');
+            if (typeof window !== 'undefined') {
+                const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
+                if (saved && (SUPPORTED_LOCALES as readonly string[]).includes(saved)) {
+                    setLocale(saved);
+                }
             }
         } catch {
             // Falha silenciosa
         }
-    }, [locale]);
+        setIsHydrated(true);
+    }, []);
+
+    // Persistir mudanças e configurar direção (RTL/LTR)
+    useEffect(() => {
+        // Só persistir após hidratação
+        if (!isHydrated) return;
+
+        try {
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+                document.documentElement.lang = locale;
+
+                // Configurar direção
+                const isRTL = locale === 'ar-SA';
+                document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+
+                // Adicionar classe para estilização específica se necessário
+                if (isRTL) {
+                    document.documentElement.classList.add('rtl');
+                } else {
+                    document.documentElement.classList.remove('rtl');
+                }
+            }
+        } catch {
+            // Falha silenciosa
+        }
+    }, [locale, isHydrated]);
 
     // Mudar idioma
     const changeLocale = useCallback((newLocale: string) => {
-        if (SUPPORTED_LOCALES.includes(newLocale)) {
+        if ((SUPPORTED_LOCALES as readonly string[]).includes(newLocale)) {
             setLocale(newLocale);
         }
     }, []);
@@ -160,7 +171,7 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
 
     const value = useMemo(() => ({
         locale,
-        locales: SUPPORTED_LOCALES,
+        locales: SUPPORTED_LOCALES as unknown as string[],
         changeLocale,
         t,
         formatCurrency,

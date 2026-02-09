@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';

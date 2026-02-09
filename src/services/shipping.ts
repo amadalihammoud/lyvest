@@ -1,24 +1,63 @@
-// src/services/shipping.js
+
+// src/services/shipping.ts
 // Serviço para integração com transportadoras e rastreamento
 
 import { SHIPPING_CONFIG } from '../config/constants';
 import { shippingLogger } from '../utils/logger';
 
+export interface ShippingOption {
+    id: string;
+    carrier: string;
+    service: string;
+    price: number;
+    originalPrice: number;
+    deliveryDays: number;
+    deliveryRange: string;
+    isFree: boolean;
+}
+
+export interface TrackingEvent {
+    date: string;
+    time: string;
+    location: string;
+    status: string;
+    description: string;
+}
+
+export interface TrackingHistory {
+    trackingCode: string;
+    carrier: string;
+    estimatedDelivery: string;
+    status: string;
+    events: TrackingEvent[];
+}
+
+export interface AddressData {
+    cep: string;
+    street: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    ibge: string;
+}
+
 /**
  * Serviço de cálculo de frete e rastreamento
  */
-class ShippingService {
+export class ShippingService {
+    private carriers: string[];
+
     constructor() {
         this.carriers = ['correios', 'jadlog', 'sedex'];
     }
 
     /**
      * Calcula opções de frete
-     * @param {string} cep - CEP de destino
-     * @param {Array} items - Itens do carrinho
-     * @returns {Promise<Array>} - Opções de frete
+     * @param cep - CEP de destino
+     * @param items - Itens do carrinho
+     * @returns Opções de frete
      */
-    async calculateShipping(cep, items) {
+    async calculateShipping(cep: string, items: any[]): Promise<ShippingOption[]> {
         shippingLogger.debug('Calculando frete via API...', { cep, items });
 
         try {
@@ -50,7 +89,7 @@ class ShippingService {
         }
     }
 
-    _getMockShipping(cep, items) {
+    private _getMockShipping(cep: string, items: any[]): ShippingOption[] {
         const total = items.reduce((acc, item) => acc + (item.price * item.qty), 0);
         const isFreeShipping = total >= SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
 
@@ -70,10 +109,10 @@ class ShippingService {
 
     /**
      * Rastreia um pedido
-     * @param {string} trackingCode - Código de rastreamento
-     * @returns {Promise<object>} - Histórico de rastreamento
+     * @param trackingCode - Código de rastreamento
+     * @returns Histórico de rastreamento
      */
-    async trackOrder(trackingCode) {
+    async trackOrder(trackingCode: string): Promise<TrackingHistory> {
         // Simulação - será substituído por integração real
         shippingLogger.info('Rastreando...', trackingCode);
 
@@ -81,7 +120,7 @@ class ShippingService {
 
         // Simular histórico baseado no código
         const now = new Date();
-        const daysAgo = (days) => new Date(now - days * 24 * 60 * 60 * 1000);
+        const daysAgo = (days: number) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 
         return {
             trackingCode,
@@ -116,10 +155,10 @@ class ShippingService {
 
     /**
      * Valida CEP e retorna endereço
-     * @param {string} cep - CEP a validar
-     * @returns {Promise<object>} - Dados do endereço
+     * @param cep - CEP a validar
+     * @returns Dados do endereço
      */
-    async validateCep(cep) {
+    async validateCep(cep: string): Promise<AddressData> {
         // Simulação - será substituído por ViaCEP ou similar
         shippingLogger.debug('Validando CEP...', cep);
 
@@ -144,31 +183,21 @@ class ShippingService {
 
     /**
      * Verifica se o frete é grátis
-     * @param {number} total - Valor total do pedido
-     * @returns {boolean}
+     * @param total - Valor total do pedido
+     * @returns boolean
      */
-    isFreeShipping(total) {
+    isFreeShipping(total: number): boolean {
         return total >= SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
     }
 
     /**
      * Retorna valor mínimo para frete grátis
-     * @returns {number}
+     * @returns number
      */
-    getFreeShippingThreshold() {
+    getFreeShippingThreshold(): number {
         return SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
     }
 }
 
 // Instância singleton
 export const shippingService = new ShippingService();
-
-// Exportar classe para testes
-export { ShippingService };
-
-
-
-
-
-
-

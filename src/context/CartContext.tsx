@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 // src/context/CartContext.tsx
+'use client';
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
 import { CART_CONFIG } from '../config/constants';
 
@@ -70,6 +71,9 @@ function validateCartItem(item: unknown): CartItem | null {
  * Carrega e valida carrinho do localStorage
  */
 function loadCartFromStorage(): CartItem[] {
+    // SSR-safe: só acessar localStorage no cliente
+    if (typeof window === 'undefined') return [];
+
     try {
         const saved = localStorage.getItem(CART_STORAGE_KEY);
         if (!saved) return [];
@@ -88,7 +92,11 @@ function loadCartFromStorage(): CartItem[] {
         return validItems;
     } catch {
         // Se falhar, limpar dados corrompidos
-        localStorage.removeItem(CART_STORAGE_KEY);
+        try {
+            localStorage.removeItem(CART_STORAGE_KEY);
+        } catch {
+            // Ignore se não conseguir remover
+        }
         return [];
     }
 }
@@ -97,6 +105,9 @@ function loadCartFromStorage(): CartItem[] {
  * Salva carrinho no localStorage com validação
  */
 function saveCartToStorage(items: CartItem[]) {
+    // SSR-safe: só acessar localStorage no cliente
+    if (typeof window === 'undefined') return;
+
     try {
         // Validar antes de salvar
         const validItems = items
@@ -115,17 +126,29 @@ interface CartProviderProps {
 }
 
 export const CartProvider = ({ children }: CartProviderProps) => {
-    // Inicializar do localStorage com validação
-    const [cartItems, setCartItems] = useState<CartItem[]>(loadCartFromStorage);
+    // Inicializar vazio - será preenchido pelo useEffect no cliente
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [isHydrated, setIsHydrated] = useState(false);
 
     // Estado para cupons
     const [couponCode, setCouponCode] = useState<string | null>(null);
     const [discount, setDiscount] = useState(0);
 
-    // Persistir no localStorage quando mudar
+    // Hidratar do localStorage apenas no cliente
     useEffect(() => {
-        saveCartToStorage(cartItems);
-    }, [cartItems]);
+        const savedCart = loadCartFromStorage();
+        if (savedCart.length > 0) {
+            setCartItems(savedCart);
+        }
+        setIsHydrated(true);
+    }, []);
+
+    // Persistir no localStorage quando mudar (apenas após hidratação)
+    useEffect(() => {
+        if (isHydrated) {
+            saveCartToStorage(cartItems);
+        }
+    }, [cartItems, isHydrated]);
 
     // Cupons Mockados (Simulação de Backend)
     const VALID_COUPONS: Record<string, number> = {

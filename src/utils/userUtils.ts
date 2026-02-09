@@ -1,12 +1,17 @@
 
-export const getUserAvatar = (user) => {
+export interface User {
+    avatar?: string;
+    name?: string;
+}
+
+export const getUserAvatar = (user: User | null | undefined): string => {
     if (!user) return '';
 
     // Check if avatar is valid and not the broken pravatar link
     const isPravatar = user.avatar && user.avatar.includes('pravatar.cc');
     const isValid = user.avatar && !isPravatar && !user.avatar.includes('ui-avatars.com');
 
-    if (isValid) {
+    if (isValid && user.avatar) {
         return user.avatar;
     }
 
@@ -29,10 +34,3 @@ export const getUserAvatar = (user) => {
 
     return `data:image/svg+xml;base64,${btoa(svg)}`;
 };
-
-
-
-
-
-
-
