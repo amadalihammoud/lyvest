@@ -1,4 +1,5 @@
-﻿import { useChat } from '@ai-sdk/react';
+﻿'use client';
+import { useChat } from '@ai-sdk/react';
 import { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';

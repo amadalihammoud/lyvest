@@ -1,4 +1,5 @@
 ﻿// src/components/features/LanguageSelector.tsx
+'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
