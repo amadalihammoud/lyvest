@@ -2,7 +2,7 @@ import { useModal } from '../../hooks/useModal';
 import { useI18n } from '../../hooks/useI18n';
 import { useCart } from '../../context/CartContext';
 import { ArrowRight, Check, Truck } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const FREE_SHIPPING_THRESHOLD = 350;
 
@@ -21,7 +21,7 @@ export default function AddedToCartModal(): React.ReactElement | null {
     const { closeModal, modalData } = useModal();
     const { formatCurrency } = useI18n();
     const { cartTotal, cartCount } = useCart();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     if (!modalData) return null;
 
@@ -31,7 +31,7 @@ export default function AddedToCartModal(): React.ReactElement | null {
 
     const handleCheckout = (): void => {
         closeModal();
-        navigate('/checkout');
+        router.push('/checkout');
     };
 
     const limitText = (text: string, limit: number): string => {
