@@ -12,7 +12,7 @@ interface RegisterModalProps {
 /**
  * Registration modal with email/password and Google authentication
  */
-export default function RegisterModal({ onRegisterSuccess }: RegisterModalProps = {}): React.ReactElement {
+export default function RegisterModal(_props: RegisterModalProps = {}): React.ReactElement {
     const { closeModal, openModal } = useModal();
     const { signUp, signInWithGoogle, isConfigured } = useAuth();
     const router = useRouter();
