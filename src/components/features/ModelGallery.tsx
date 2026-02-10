@@ -3,7 +3,7 @@ import { ReferenceModel } from '../../data/sizeGuide';
 
 interface ModelGalleryProps {
     models: ReferenceModel[];
-    productId?: number;
+    productId?: number | string;
 }
 
 export default function ModelGallery({ models, productId }: ModelGalleryProps) {
@@ -20,8 +20,8 @@ export default function ModelGallery({ models, productId }: ModelGalleryProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {models.map((model) => {
-                    // Encontrar produto usado por este modelo
-                    const productUsed = model.products.find((p) => p.productId === productId);
+                    // Encontrar produto usado por este modelo (comparação robusta string/number)
+                    const productUsed = model.products.find((p) => String(p.productId) === String(productId));
 
                     return (
                         <div

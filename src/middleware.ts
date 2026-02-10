@@ -114,7 +114,7 @@ export function middleware(request: NextRequest) {
         return new NextResponse('Forbidden', { status: 403 });
     }
 
-    // Apply rate limiting to API routes
+    // 3. Rate Limiting for API routes
     if (path.startsWith('/api/')) {
         if (isRateLimited(ip)) {
             console.warn(`[SECURITY] Rate limited IP: ${ip}`);
@@ -127,19 +127,28 @@ export function middleware(request: NextRequest) {
         }
     }
 
-    // Add security headers to response
-    const response = NextResponse.next();
-
-    // CSRF-like protection: require origin header for mutations
-    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
+    // 4. CSRF & Origin Validation for API mutations
+    // Protege rotas de API contra solicitações de origens desconhecidas
+    if (path.startsWith('/api/') && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
         const origin = request.headers.get('origin');
         const host = request.headers.get('host');
-
+        // Allow requests from same host or null (server-to-server often null, but browser mutations strictly have origin)
         if (origin && host && !origin.includes(host)) {
             console.warn(`[SECURITY] Cross-origin request blocked from ${origin} to ${host}`);
             return new NextResponse('Forbidden', { status: 403 });
         }
     }
+
+    const response = NextResponse.next();
+
+    // 5. Security Headers (Defense in Depth)
+    // Mesmo configurados no next.config.js, forçar aqui garante aplicação em Edge
+    response.headers.set('X-DNS-Prefetch-Control', 'on');
+    response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
     return response;
 }

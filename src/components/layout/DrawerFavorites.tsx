@@ -13,7 +13,7 @@ interface DrawerFavoritesProps {
     onClose: () => void;
     favoriteProducts: Product[];
     onAddToCart: (product: Product) => void;
-    onToggleFavorite: (e: React.MouseEvent, id: number) => void;
+    onToggleFavorite: (e: React.MouseEvent, id: number | string) => void;
     setNotification: (msg: string) => void;
 }
 

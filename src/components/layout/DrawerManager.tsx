@@ -74,7 +74,7 @@ export default function DrawerManager() {
                         <DrawerCart
                             isOpen={true}
                             onClose={closeDrawer}
-                            cartItems={cartItems as any[]} // TODO: Fix CartItem vs Product type mismatch properly
+                            cartItems={cartItems}
                             onRemoveFromCart={removeFromCart}
                             onCheckout={handleCheckout}
                         />
@@ -84,7 +84,17 @@ export default function DrawerManager() {
                             isOpen={true}
                             onClose={closeDrawer}
                             favoriteProducts={productsData.filter((p) => favorites.includes(p.id))}
-                            onAddToCart={(p) => addToCart(p as any)} // Cast to match useCart expectation
+                            onAddToCart={(p) => addToCart({
+                                id: p.id,
+                                name: p.name,
+                                price: p.price,
+                                image: p.image,
+                                category: typeof p.category === 'string'
+                                    ? p.category
+                                    : Array.isArray(p.category)
+                                        ? p.category[0]?.name || 'Geral'
+                                        : p.category?.name || 'Geral'
+                            })}
                             onToggleFavorite={toggleFavorite}
                             setNotification={(msg) => showNotification(msg, 'success')}
                         />

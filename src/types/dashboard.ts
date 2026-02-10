@@ -37,7 +37,7 @@ export interface UserAddress {
     neighborhood: string;
     street: string;
     number: string;
-    complement?: string;
+    complement?: string | null;
     is_default: boolean;
     created_at?: string;
 }

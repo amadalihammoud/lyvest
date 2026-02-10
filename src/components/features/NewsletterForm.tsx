@@ -10,7 +10,8 @@ import { useI18n } from '../../hooks/useI18n';
 const newsletterLimiter = new RateLimiter('newsletter', 3, 60000);
 
 // Honeypot anti-spam
-const honeypot = createHoneypot();
+import Honeypot from '../ui/Honeypot';
+const honeypotFieldName = '_gotcha';
 
 function NewsletterForm() {
     const { t } = useI18n();
@@ -40,7 +41,7 @@ function NewsletterForm() {
         e.preventDefault();
 
         // Check honeypot (anti-bot)
-        if (!honeypot.validate(honeypotValue)) {
+        if (honeypotValue) {
             // Silently fail for bots
             setStatus('success');
             return;
@@ -97,18 +98,11 @@ function NewsletterForm() {
     return (
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* Honeypot - invisible field for bots */}
-            <div className="absolute -left-[9999px]" aria-hidden="true">
-                <label htmlFor={honeypot.fieldName}>{honeypot.fieldName}</label>
-                <input
-                    type="text"
-                    id={honeypot.fieldName}
-                    name={honeypot.fieldName}
-                    value={honeypotValue}
-                    onChange={(e) => setHoneypotValue(e.target.value)}
-                    tabIndex={-1}
-                    autoComplete="off"
-                />
-            </div>
+            <Honeypot
+                fieldName={honeypotFieldName}
+                value={honeypotValue}
+                onChange={(e) => setHoneypotValue(e.target.value)}
+            />
 
             {/* Email Field */}
             <div>

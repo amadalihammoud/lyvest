@@ -5,13 +5,13 @@ import { useI18n } from '../../hooks/useI18n';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useCart } from '../../context/CartContext';
 
-import { Product } from '../../services/ProductService';
+import { CartItem } from '../../context/CartContext';
 
 interface DrawerCartProps {
     isOpen: boolean;
     onClose: () => void;
-    cartItems: (Product & { qty: number })[];
-    onRemoveFromCart: (id: number) => void;
+    cartItems: CartItem[];
+    onRemoveFromCart: (id: number | string) => void;
     onCheckout: () => void;
 }
 

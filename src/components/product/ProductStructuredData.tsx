@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { sanitizeString } from '@/utils/validation';
 
 // Pre-calculate price valid date at module load (not during render)
 const PRICE_VALID_DATE = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -36,8 +37,8 @@ export default function ProductStructuredData({ product }: ProductStructuredData
         return {
             '@context': 'https://schema.org/',
             '@type': 'Product',
-            name: product.name,
-            description: product.description,
+            name: sanitizeString(product.name),
+            description: sanitizeString(product.description || ''),
             image: product.image ? [window.location.origin + product.image] : [],
             brand: {
                 '@type': 'Brand',

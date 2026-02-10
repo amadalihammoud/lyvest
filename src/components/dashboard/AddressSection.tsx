@@ -211,6 +211,7 @@ export default function AddressSection() {
 
     const handleDelete = async (address: UserAddress) => {
         if (!confirm('Tem certeza que deseja excluir este endereço?')) return;
+        if (!address.id) return;
 
         if (!isSupabaseConfigured()) {
             setAddresses(addresses.filter(a => a.id !== address.id));
@@ -233,7 +234,7 @@ export default function AddressSection() {
     };
 
     const handleSetDefault = async (address: UserAddress) => {
-        if (!isSupabaseConfigured() || address.is_default || !user) return;
+        if (!isSupabaseConfigured() || address.is_default || !user || !address.id) return;
 
         try {
             // Desmarcar todos

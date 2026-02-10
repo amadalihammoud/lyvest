@@ -2,7 +2,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 // Define the Product interface matching our application usage and DB structure
 export interface Product {
-    id: number;
+    id: number | string;
     name: string;
     description: string;
     price: number;
@@ -10,13 +10,13 @@ export interface Product {
     category?: {
         name: string;
         slug: string;
-    } | { name: string; slug: string; }[] | string; // Handle both expanded and flat category
+    } | { name: string; slug: string; }[] | string;
     specs?: Record<string, string | number | undefined>;
     ean?: string;
     active?: boolean;
     stock_quantity?: number;
     sizes?: string[];
-    colors?: any[]; // Allow strings or objects {name, hex}
+    colors?: any[];
     quantity?: number;
     badge?: string | null;
     rating?: number;
@@ -39,7 +39,6 @@ export const ProductService = {
      */
     async searchProducts(query: string): Promise<Product[]> {
         if (!isSupabaseConfigured()) {
-            console.warn('ProductService: Supabase not configured, returning empty search.');
             return [];
         }
 
@@ -55,7 +54,14 @@ export const ProductService = {
                 .limit(10);
 
             if (error) throw error;
-            return data as Product[];
+
+            // Map DB fields to App fields
+            return (data || []).map((p: any) => ({
+                ...p,
+                image: p.image_url || p.image || '', // Fallback
+                id: p.id,
+                category: p.category
+            })) as Product[];
         } catch (error) {
             console.error('ProductService search error:', error);
             return [];
@@ -77,11 +83,18 @@ export const ProductService = {
                     *,
                     category:categories(name, slug)
                 `)
-                .eq('id', id)
+                .eq('id', String(id))
                 .single();
 
             if (error) throw error;
-            return data as Product;
+
+            const p = data as any;
+            return {
+                ...p,
+                image: p.image_url || p.image || '',
+                id: p.id,
+                category: p.category
+            } as Product;
         } catch (error) {
             console.error('ProductService getById error:', error);
             return null;
@@ -100,19 +113,20 @@ export const ProductService = {
             const { data, error } = await supabase
                 .from('products')
                 .select(`
-                    id,
-                    name,
-                    description,
-                    price,
-                    image,
-                    category:categories(name, slug),
-                    specs
+                    *,
+                    category:categories(name, slug)
                 `)
                 .eq('active', true)
                 .limit(limit);
 
             if (error) throw error;
-            return data as Product[];
+
+            return (data || []).map((p: any) => ({
+                ...p,
+                image: p.image_url || p.image || '',
+                id: p.id,
+                category: p.category
+            })) as Product[];
         } catch (error) {
             console.error('ProductService getAll error:', error);
             return [];

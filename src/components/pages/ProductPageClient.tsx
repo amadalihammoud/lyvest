@@ -37,12 +37,18 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
             // Note: Ensure supabase client is configured for client-side usage if RLS allows public access
             const { data, error } = await supabase
                 .from('products')
-                .select('*')
+                .select('*, category:categories(name, slug)')
                 .eq('slug', slug)
                 .single();
 
             if (data) {
-                setProduct(data);
+                const mappedProduct = {
+                    ...data,
+                    image: data.image_url || (data as any).image || '',
+                    category: data.category
+                } as unknown as Product;
+
+                setProduct(mappedProduct);
                 setLoading(false);
                 return;
             }

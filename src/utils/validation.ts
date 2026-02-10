@@ -47,7 +47,7 @@ const DISPOSABLE_EMAIL_DOMAINS = new Set([
  */
 export function isValidEmail(email: string): boolean {
     if (!email || typeof email !== 'string') return false;
-     
+
     return PATTERNS.email.test(email.trim());
 }
 
@@ -108,7 +108,7 @@ export function isValidCEP(cep: string): boolean {
  */
 export function isValidPhone(phone: string): boolean {
     if (!phone || typeof phone !== 'string') return false;
-     
+
     return PATTERNS.phone.test(phone.trim());
 }
 
@@ -361,6 +361,12 @@ export function formatDocument(value: string): string {
  */
 export function sanitizeString(value: string): string {
     if (typeof value !== 'string') return '';
+
+    // SSR Safe: DOMPurify needs window. If on server, basic strip tags.
+    if (typeof window === 'undefined') {
+        return value.replace(/<[^>]*>?/gm, '').trim();
+    }
+
     return DOMPurify.sanitize(value, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }).trim();
 }
 

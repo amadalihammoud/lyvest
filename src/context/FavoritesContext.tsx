@@ -5,11 +5,11 @@ import React, { createContext, useState, useCallback, useMemo, useEffect, ReactN
 import { FAVORITES_CONFIG } from '../config/constants';
 
 interface FavoritesContextType {
-    favorites: number[];
-    toggleFavorite: (event: React.SyntheticEvent | number, productId?: number) => void;
-    addFavorite: (productId: number) => void;
-    removeFavorite: (productId: number) => void;
-    isFavorite: (productId: number) => boolean;
+    favorites: (number | string)[];
+    toggleFavorite: (event: React.SyntheticEvent | number | string, productId?: number | string) => void;
+    addFavorite: (productId: number | string) => void;
+    removeFavorite: (productId: number | string) => void;
+    isFavorite: (productId: number | string) => boolean;
     favoritesCount: number;
     clearFavorites: () => void;
     maxFavorites: number;
@@ -22,16 +22,22 @@ const FAVORITES_STORAGE_KEY = FAVORITES_CONFIG.STORAGE_KEY;
 const MAX_FAVORITES = FAVORITES_CONFIG.MAX_ITEMS;
 
 /**
- * Valida que um ID é um número positivo válido
+ * Valida que um ID é válido (número positivo ou string não vazia)
  */
 function isValidId(id: unknown): boolean {
-    return typeof id === 'number' && Number.isInteger(id) && id > 0 && id < Number.MAX_SAFE_INTEGER;
+    if (typeof id === 'number') {
+        return Number.isInteger(id) && id > 0 && id < Number.MAX_SAFE_INTEGER;
+    }
+    if (typeof id === 'string') {
+        return id.trim().length > 0;
+    }
+    return false;
 }
 
 /**
  * Carrega e valida favoritos do localStorage
  */
-function loadFavoritesFromStorage(): number[] {
+function loadFavoritesFromStorage(): (number | string)[] {
     // SSR-safe: só acessar localStorage no cliente
     if (typeof window === 'undefined') return [];
 
@@ -57,7 +63,7 @@ function loadFavoritesFromStorage(): number[] {
             .slice(0, MAX_FAVORITES);
 
         // Remover duplicatas
-        return [...new Set(validIds)] as number[];
+        return [...new Set(validIds)] as (number | string)[];
     } catch {
         // Se falhar, limpar dados corrompidos
         try {
@@ -72,7 +78,7 @@ function loadFavoritesFromStorage(): number[] {
 /**
  * Salva favoritos no localStorage com validação
  */
-function saveFavoritesToStorage(favorites: number[]) {
+function saveFavoritesToStorage(favorites: (number | string)[]) {
     // SSR-safe: só acessar localStorage no cliente
     if (typeof window === 'undefined') return;
 
@@ -94,7 +100,8 @@ interface FavoritesProviderProps {
 
 export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
     // Inicializar vazio - será preenchido pelo useEffect no cliente
-    const [favorites, setFavorites] = useState<number[]>([]);
+    // MUDANÇA: Aceita number ou string
+    const [favorites, setFavorites] = useState<(number | string)[]>([]);
     const [isHydrated, setIsHydrated] = useState(false);
 
     // Hidratar do localStorage apenas no cliente
@@ -113,7 +120,7 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         }
     }, [favorites, isHydrated]);
 
-    const toggleFavorite = useCallback((event: React.SyntheticEvent | number, productId?: number) => {
+    const toggleFavorite = useCallback((event: React.SyntheticEvent | number | string, productId?: number | string) => {
         // Se vier de um evento, evitar propagação
         if (typeof event === 'object' && event !== null && 'stopPropagation' in event) {
             (event as React.SyntheticEvent).stopPropagation();
@@ -121,7 +128,7 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         }
 
         // Se productId for passado diretamente (sem evento)
-        const id = typeof event === 'number' ? event : productId;
+        const id = (typeof event === 'number' || typeof event === 'string') ? event : productId;
 
         // Validar ID
         if (!id || !isValidId(id)) return;
@@ -138,7 +145,7 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         });
     }, []);
 
-    const addFavorite = useCallback((productId: number) => {
+    const addFavorite = useCallback((productId: number | string) => {
         if (!isValidId(productId)) return;
 
         setFavorites((prev) => {
@@ -148,13 +155,13 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         });
     }, []);
 
-    const removeFavorite = useCallback((productId: number) => {
+    const removeFavorite = useCallback((productId: number | string) => {
         if (!isValidId(productId)) return;
         setFavorites((prev) => prev.filter((id) => id !== productId));
     }, []);
 
     const isFavorite = useCallback(
-        (productId: number) => isValidId(productId) && favorites.includes(productId),
+        (productId: number | string) => isValidId(productId) && favorites.includes(productId),
         [favorites]
     );
 

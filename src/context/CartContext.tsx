@@ -6,7 +6,7 @@ import { CART_CONFIG } from '../config/constants';
 
 // Interface para o item do carrinho
 export interface CartItem {
-    id: number;
+    id: number | string;
     name: string;
     price: number;
     qty: number;
@@ -18,8 +18,8 @@ export interface CartItem {
 interface CartContextType {
     cartItems: CartItem[];
     addToCart: (product: Partial<CartItem>) => void;
-    removeFromCart: (id: number) => void;
-    updateQuantity: (id: number, qty: number) => void;
+    removeFromCart: (id: number | string) => void;
+    updateQuantity: (id: number | string, qty: number) => void;
     clearCart: () => void;
     cartTotal: number;
     cartCount: number;
@@ -51,14 +51,16 @@ function validateCartItem(item: unknown): CartItem | null {
     const i = item as Record<string, unknown>;
 
     // Validar campos obrigatórios
-    if (typeof i.id !== 'number' || i.id <= 0) return null;
+    if ((typeof i.id !== 'number' && typeof i.id !== 'string') || !i.id) return null;
+    if (typeof i.id === 'number' && i.id <= 0) return null; // ID numérico deve ser positivo
+
     if (typeof i.name !== 'string' || i.name.length === 0 || i.name.length > 200) return null;
     if (typeof i.price !== 'number' || i.price < 0 || i.price > 100000) return null;
     if (typeof i.qty !== 'number' || i.qty <= 0 || i.qty > CART_MAX_QUANTITY) return null;
 
     // Sanitizar e retornar apenas campos necessários
     return {
-        id: Math.floor(i.id),
+        id: typeof i.id === 'number' ? Math.floor(i.id) : String(i.id),
         name: String(i.name).slice(0, 200).replace(/<[^>]*>/g, ''), // Remove HTML
         price: Math.abs(Number(i.price)),
         qty: Math.min(Math.floor(i.qty), CART_MAX_QUANTITY),
@@ -214,13 +216,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         });
     }, []);
 
-    const removeFromCart = useCallback((id: number) => {
-        if (typeof id !== 'number') return;
+    const removeFromCart = useCallback((id: number | string) => {
         setCartItems((prev) => prev.filter((item) => item.id !== id));
     }, []);
 
-    const updateQuantity = useCallback((id: number, qty: number) => {
-        if (typeof id !== 'number') return;
+    const updateQuantity = useCallback((id: number | string, qty: number) => {
         if (typeof qty !== 'number' || qty < 0) return;
 
         setCartItems((prev) => {

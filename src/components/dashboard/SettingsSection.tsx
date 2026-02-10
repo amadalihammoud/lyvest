@@ -98,9 +98,9 @@ function SettingsSection({ user }: SettingsSectionProps) {
                     birth_date: '',
                     gender: '',
                 },
-                addresses: [],
-                orders: [],
-                favorites: [],
+                addresses: [] as any[],
+                orders: [] as any[],
+                favorites: [] as any[],
             };
 
             if (isSupabaseConfigured() && authUser?.id) {
@@ -127,7 +127,7 @@ function SettingsSection({ user }: SettingsSectionProps) {
                     .from('orders')
                     .select('*')
                     .eq('user_id', authUser.id);
-                if (orders) userData.orders = orders;
+                if (orders) userData.orders = orders as any;
 
                 // Buscar favoritos
                 const { data: favorites } = await supabase
@@ -332,7 +332,7 @@ function SettingsSection({ user }: SettingsSectionProps) {
                 await supabase.from('reviews').delete().eq('user_id', authUser.id);
                 await supabase.from('addresses').delete().eq('user_id', authUser.id);
                 // Orders são mantidos para histórico fiscal, mas anonimizados
-                await supabase.from('orders').update({ user_id: null }).eq('user_id', authUser.id);
+                await supabase.from('orders').update({ user_id: null as any }).eq('user_id', authUser.id);
                 // Deletar perfil
                 await supabase.from('profiles').delete().eq('id', authUser.id);
 

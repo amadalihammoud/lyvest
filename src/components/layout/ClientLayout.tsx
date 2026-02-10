@@ -24,7 +24,14 @@ function HeaderSkeleton() {
     );
 }
 
+import { initSentry } from '@/utils/sentry';
+
 export default function ClientLayout({ children }: ClientLayoutProps) {
+    // Initialize Sentry monitoring
+    if (typeof window !== 'undefined') {
+        initSentry();
+    }
+
     return (
         <AppProviders>
             <div className="flex flex-col min-h-screen">

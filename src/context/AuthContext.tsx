@@ -7,8 +7,8 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface Profile {
     id: string;
-    full_name?: string;
-    phone?: string;
+    full_name?: string | null;
+    phone?: string | null;
     avatar?: string | null;
     [key: string]: unknown;
 }
@@ -199,8 +199,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (data?.user && !error) {
             await supabase.from('profiles').insert({
                 id: data.user.id,
-                full_name: metadata.full_name || '',
-                phone: metadata.phone || ''
+                full_name: (metadata.full_name as string) || '',
+                phone: (metadata.phone as string) || ''
             });
         }
 
