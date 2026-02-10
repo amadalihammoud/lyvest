@@ -1,33 +1,5 @@
-[
-    {
-        "StartLine": 1,
-        "EndLine": 1,
-        "TargetContent": "import { supabase, isSupabaseConfigured } from '../lib/supabase';",
-        "ReplacementContent": "import { supabase, isSupabaseConfigured } from '../lib/supabase';\nimport { logger } from '../utils/logger';",
-        "AllowMultiple": false
-    },
-    {
-        "StartLine": 66,
-        "EndLine": 66,
-        "TargetContent": "            console.error('ProductService search error:', error);",
-        "ReplacementContent": "            logger.error('ProductService search error:', error);",
-        "AllowMultiple": false
-    },
-    {
-        "StartLine": 99,
-        "EndLine": 99,
-        "TargetContent": "            console.error('ProductService getById error:', error);",
-        "ReplacementContent": "            logger.error('ProductService getById error:', error);",
-        "AllowMultiple": false
-    },
-    {
-        "StartLine": 131,
-        "EndLine": 131,
-        "TargetContent": "            console.error('ProductService getAll error:', error);",
-        "ReplacementContent": "            logger.error('ProductService getAll error:', error);",
-        "AllowMultiple": false
-    }
-]
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { logger } from '../utils/logger';
 
 // Define the Product interface matching our application usage and DB structure
 export interface Product {
@@ -92,7 +64,7 @@ export const ProductService = {
                 category: p.category
             })) as Product[];
         } catch (error) {
-            console.error('ProductService search error:', error);
+            logger.error('ProductService search error:', error);
             return [];
         }
     },
@@ -125,7 +97,7 @@ export const ProductService = {
                 category: p.category
             } as Product;
         } catch (error) {
-            console.error('ProductService getById error:', error);
+            logger.error('ProductService getById error:', error);
             return null;
         }
     },
@@ -157,7 +129,7 @@ export const ProductService = {
                 category: p.category
             })) as Product[];
         } catch (error) {
-            console.error('ProductService getAll error:', error);
+            logger.error('ProductService getAll error:', error);
             return [];
         }
     }

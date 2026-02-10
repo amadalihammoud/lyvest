@@ -2,37 +2,10 @@
 // src/lib/supabase.ts
 // Configuração do cliente Supabase com Tipagem Forte (Road to 10/10)
 
-[
-    {
-        "StartLine": 5,
-        "EndLine": 6,
-        "TargetContent": "import { createClient, SupabaseClient } from '@supabase/supabase-js';\nimport { Database } from '../types/supabase';",
-        "ReplacementContent": "import { createClient, SupabaseClient } from '@supabase/supabase-js';\nimport { Database } from '../types/supabase';\nimport { logger } from '../utils/logger';",
-        "AllowMultiple": false
-    },
-    {
-        "StartLine": 25,
-        "EndLine": 25,
-        "TargetContent": "            console.error('⚠️ Supabase URLs/Keys missing! Check your .env setup.');",
-        "ReplacementContent": "            logger.error('⚠️ Supabase URLs/Keys missing! Check your .env setup.');",
-        "AllowMultiple": false
-    },
-    {
-        "StartLine": 72,
-        "EndLine": 72,
-        "TargetContent": "        console.error('Erro ao buscar produtos:', error);",
-        "ReplacementContent": "        logger.error('Erro ao buscar produtos:', error);",
-        "AllowMultiple": false
-    },
-    {
-        "StartLine": 106,
-        "EndLine": 106,
-        "TargetContent": "        console.error('Error fetching financial rules:', error);",
-        "ReplacementContent": "        logger.error('Error fetching financial rules:', error);",
-        "AllowMultiple": false
-    }
-]
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
+import { logger } from '../utils/logger';
+
 
 // Tipo auxiliar para retorno de produtos com categoria
 export type ProductWithCategory = Database['public']['Tables']['products']['Row'] & {

@@ -2,7 +2,7 @@
 /* eslint-disable react-refresh/only-export-components, react-hooks/set-state-in-effect */
 'use client';
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { AuthError } from '@supabase/supabase-js';
+import { AuthError, Session } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface Profile {
@@ -111,7 +111,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         // Verificar sessão existente
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
+            const { session } = data;
             setUser(session?.user ?? null);
             if (session?.user) {
                 fetchProfile(session.user.id).then(setProfile);
@@ -121,7 +122,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         // Escutar mudanças de auth
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (_, session) => {
+            async (_: any, session: Session | null) => {
                 setUser(session?.user ?? null);
                 if (session?.user) {
                     const profileData = await fetchProfile(session.user.id);
