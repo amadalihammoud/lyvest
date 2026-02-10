@@ -1,6 +1,6 @@
 
 import type { Metadata } from 'next';
-import { Inter, Lato } from 'next/font/google';
+import { Inter, Lato, Cookie } from 'next/font/google';
 import '@/index.css';
 import ClientLayout from '@/components/layout/ClientLayout';
 
@@ -14,6 +14,12 @@ const lato = Lato({
     weight: ['300', '400', '700', '900'],
     subsets: ['latin'],
     variable: '--font-lato',
+    display: 'swap',
+});
+const cookie = Cookie({
+    weight: ['400'],
+    subsets: ['latin'],
+    variable: '--font-cookie',
     display: 'swap',
 });
 
@@ -73,7 +79,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="pt-BR" className={`${inter.variable} ${lato.variable}`}>
+        <html lang="pt-BR" className={`${inter.variable} ${lato.variable} ${cookie.variable}`}>
             <head>
                 <link rel="icon" type="image/svg+xml" href="/logo.svg" />
             </head>
