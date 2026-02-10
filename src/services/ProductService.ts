@@ -1,4 +1,33 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+[
+    {
+        "StartLine": 1,
+        "EndLine": 1,
+        "TargetContent": "import { supabase, isSupabaseConfigured } from '../lib/supabase';",
+        "ReplacementContent": "import { supabase, isSupabaseConfigured } from '../lib/supabase';\nimport { logger } from '../utils/logger';",
+        "AllowMultiple": false
+    },
+    {
+        "StartLine": 66,
+        "EndLine": 66,
+        "TargetContent": "            console.error('ProductService search error:', error);",
+        "ReplacementContent": "            logger.error('ProductService search error:', error);",
+        "AllowMultiple": false
+    },
+    {
+        "StartLine": 99,
+        "EndLine": 99,
+        "TargetContent": "            console.error('ProductService getById error:', error);",
+        "ReplacementContent": "            logger.error('ProductService getById error:', error);",
+        "AllowMultiple": false
+    },
+    {
+        "StartLine": 131,
+        "EndLine": 131,
+        "TargetContent": "            console.error('ProductService getAll error:', error);",
+        "ReplacementContent": "            logger.error('ProductService getAll error:', error);",
+        "AllowMultiple": false
+    }
+]
 
 // Define the Product interface matching our application usage and DB structure
 export interface Product {
