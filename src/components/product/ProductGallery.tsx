@@ -1,5 +1,6 @@
 
 import { Play } from 'lucide-react';
+import Image from 'next/image';
 import OptimizedProductImage from '../ui/OptimizedProductImage';
 
 interface ProductGalleryProps {
@@ -19,10 +20,16 @@ export function ProductGallery({ images, activeImage, setActiveImage, video, pro
                 {images.map((thumb, idx) => (
                     <button
                         key={idx}
-                        className={`w-20 h-20 border-2 rounded-lg cursor-pointer transition-all p-1 ${activeImage === thumb && idx === 0 ? 'border-lyvest-500' : 'border-slate-100 hover:border-lyvest-200'}`}
+                        className={`w-20 h-20 border-2 rounded-lg cursor-pointer transition-all p-1 ${activeImage === thumb && idx === 0 ? 'border-lyvest-500' : 'border-slate-100 hover:border-lyvest-200'} relative overflow-hidden`}
                         onClick={() => setActiveImage(thumb)}
                     >
-                        <img src={thumb} alt="thumbnail" loading="lazy" decoding="async" className="w-full h-full object-contain" />
+                        <Image
+                            src={thumb}
+                            alt="thumbnail"
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-contain"
+                        />
                     </button>
                 ))}
                 {video && (
@@ -55,10 +62,16 @@ export function ProductGallery({ images, activeImage, setActiveImage, video, pro
                 {images.map((thumb, idx) => (
                     <button
                         key={idx}
-                        className={`flex-shrink-0 w-16 h-16 border-2 rounded-lg cursor-pointer transition-all p-1 ${activeImage === thumb && idx === 0 ? 'border-lyvest-500' : 'border-slate-100 hover:border-lyvest-200'}`}
+                        className={`flex-shrink-0 w-16 h-16 border-2 rounded-lg cursor-pointer transition-all p-1 ${activeImage === thumb && idx === 0 ? 'border-lyvest-500' : 'border-slate-100 hover:border-lyvest-200'} relative overflow-hidden`}
                         onClick={() => setActiveImage(thumb)}
                     >
-                        <img src={thumb} alt="thumbnail" loading="lazy" decoding="async" className="w-full h-full object-contain" />
+                        <Image
+                            src={thumb}
+                            alt="thumbnail"
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-contain"
+                        />
                     </button>
                 ))}
             </div>

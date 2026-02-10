@@ -1,6 +1,5 @@
-'use client';
-
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import React, { useState, useCallback, useEffect } from 'react';
 
 interface OptimizedProductImageProps {
     src: string;
@@ -15,32 +14,27 @@ interface OptimizedProductImageProps {
 }
 
 /**
- * Componente de imagem otimizado
+ * Componente de imagem otimizado (Next.js Image)
+ * - Automaticamente serve WebP/AVIF
  * - Fallback visual em caso de erro
  * - Skeleton loading animado
- * - Usa img nativo para compatibilidade máxima
  */
 export default function OptimizedProductImage({
     src,
     alt,
+    width,
+    height,
     fill = false,
     className = '',
     priority = false,
+    sizes,
     fallbackText,
 }: OptimizedProductImageProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
-    const imgRef = useRef<HTMLImageElement>(null);
 
     // Gera texto para fallback baseado no alt
     const placeholderText = fallbackText || alt.split(' ')[0] || 'Produto';
-
-    // Verifica se a imagem já está carregada (cache do browser)
-    useEffect(() => {
-        if (imgRef.current?.complete && imgRef.current?.naturalHeight > 0) {
-            setIsLoading(false);
-        }
-    }, []);
 
     const handleLoad = useCallback(() => {
         setIsLoading(false);
@@ -55,7 +49,8 @@ export default function OptimizedProductImage({
     if (hasError) {
         return (
             <div
-                className={`${fill ? 'absolute inset-0' : 'w-full h-full'} bg-gradient-to-br from-lyvest-50 to-lyvest-100 flex items-center justify-center`}
+                className={`${fill ? 'absolute inset-0' : 'w-full h-full'} bg-gradient-to-br from-lyvest-50 to-lyvest-100 flex items-center justify-center rounded-lg`}
+                style={!fill && width && height ? { width, height } : undefined}
             >
                 <div className="flex flex-col items-center justify-center text-lyvest-400 p-4 text-center">
                     <svg
@@ -77,27 +72,35 @@ export default function OptimizedProductImage({
         );
     }
 
+    // Prepare styles for loading state
+    const styles = {
+        transition: 'opacity 0.3s ease-in-out',
+        opacity: isLoading ? 0 : 1,
+    };
+
     return (
-        <>
+        <div className={`relative overflow-hidden ${!fill ? 'inline-block' : ''} ${className}`}>
             {/* Skeleton loading */}
             {isLoading && (
                 <div
-                    className={`${fill ? 'absolute inset-0' : 'absolute inset-0'} bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-pulse z-10`}
+                    className="absolute inset-0 bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-pulse z-10"
                     aria-hidden="true"
                 />
             )}
 
-            {/* Imagem nativa com loading eager */}
-            <img
-                ref={imgRef}
+            <Image
                 src={src}
                 alt={alt}
-                loading={priority ? 'eager' : 'eager'} // Forcing eager to fix loading issues
-                decoding="async"
+                width={!fill ? width : undefined}
+                height={!fill ? height : undefined}
+                fill={fill}
+                priority={priority}
+                sizes={sizes}
                 onLoad={handleLoad}
                 onError={handleError}
-                className={`${fill ? 'absolute inset-0 w-full h-full object-cover' : 'w-full h-full object-cover'} transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+                className={`object-cover ${className}`} // Apply className to Image too for object-fit etc
+                style={styles}
             />
-        </>
+        </div>
     );
 }

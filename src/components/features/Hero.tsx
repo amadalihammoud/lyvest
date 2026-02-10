@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 // No icons needed
 
 
@@ -39,10 +40,13 @@ function Hero() {
                                         }`}
                                 >
                                     <div className="relative h-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
-                                        <img
+                                        <Image
                                             src={slide.image}
                                             alt={slide.alt}
-                                            className="rounded-lg sm:rounded-2xl w-full h-full object-cover shadow-sm"
+                                            fill
+                                            priority={index === 0} // Prioritize first slide LCP
+                                            className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
+                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
                                         />
                                     </div>
                                 </div>

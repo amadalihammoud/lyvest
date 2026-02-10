@@ -10,6 +10,17 @@ const nextConfig = {
                 hostname: '**',
             },
         ],
+        minimumCacheTTL: 60,
+        formats: ['image/avif', 'image/webp'],
+    },
+    // Advanced Compiler Options
+    compiler: {
+        removeConsole: process.env.NODE_ENV === 'production',
+    },
+    experimental: {
+        optimizePackageImports: [
+            'lucide-react',
+        ],
     },
     // Security Headers for Production
     async headers() {
