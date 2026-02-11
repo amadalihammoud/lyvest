@@ -276,7 +276,7 @@ export default function Header(_props?: HeaderProps) {
                         ) : (
                             <div className="hidden lg:block">
                                 <a
-                                    href="/sign-in"
+                                    href="/signin"
                                     className="inline-block bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95 text-center"
                                 >
                                     {t('nav.login')}
