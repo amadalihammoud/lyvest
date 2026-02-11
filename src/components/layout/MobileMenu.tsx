@@ -1,11 +1,11 @@
 ﻿import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useI18n } from '../../hooks/useI18n';
 import LanguageSelector from '../features/LanguageSelector';
 import { X, Search, ChevronRight, User } from 'lucide-react';
 import { mainMenu } from '../../data/mockData';
 
 import { useShop } from '../../context/ShopContext';
-// import { useAuth } from '../../context/AuthContext';
 import { useUser, useClerk } from '@clerk/nextjs';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
@@ -22,8 +22,15 @@ export default function MobileMenu({
     onOpenLogin,
     navigateToDashboard
 }: MobileMenuProps) {
+    const router = useRouter(); // Initialize router
     const { user, isSignedIn } = useUser();
-    const { openSignIn } = useClerk();
+
+    // Get Clerk object safely
+    const clerk = useClerk();
+    // Force cast to any to avoid TS errors if types are outdated, 
+    // but try to use safe access pattern
+    const safeClerk = clerk as any;
+
     const isLoggedIn = isSignedIn;
 
     // Helper to get user name
@@ -89,7 +96,15 @@ export default function MobileMenu({
                             </button>
                         ) : (
                             <button
-                                onClick={() => { onClose(); openSignIn(); }}
+                                onClick={() => {
+                                    onClose();
+                                    if (safeClerk.openSignIn) {
+                                        safeClerk.openSignIn();
+                                    } else {
+                                        console.warn('Clerk openSignIn not found, redirecting to /sign-in');
+                                        router.push('/sign-in');
+                                    }
+                                }}
                                 className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs whitespace-nowrap"
                             >
                                 <div className="pl-3 flex items-center gap-2">
@@ -138,11 +153,3 @@ export default function MobileMenu({
         </div>
     );
 }
-
-
-
-
-
-
-
-

@@ -275,7 +275,14 @@ export default function Header(_props?: HeaderProps) {
                         ) : (
                             <div className="hidden lg:block">
                                 <Button
-                                    onClick={() => openSignIn()}
+                                    onClick={() => {
+                                        if (openSignIn) {
+                                            openSignIn();
+                                        } else {
+                                            console.warn('Clerk openSignIn not found, redirecting to /sign-in');
+                                            router.push('/sign-in');
+                                        }
+                                    }}
                                     variant="primary"
                                 >
                                     {t('nav.login')}
