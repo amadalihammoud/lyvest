@@ -277,15 +277,23 @@ export default function Header(_props?: HeaderProps) {
                             <div className="hidden lg:block">
                                 <button
                                     onClick={() => {
+                                        alert("Debug: Botão clicado!");
                                         if (openSignIn) {
-                                            openSignIn();
+                                            alert("Debug: Tendo abrir modal...");
+                                            try {
+                                                openSignIn();
+                                            } catch (e) {
+                                                alert("Erro ao abrir: " + e);
+                                                window.location.href = '/signin';
+                                            }
                                         } else {
-                                            alert("Sistema de login indisponível. Verifique a configuração da API Key.");
+                                            alert("Debug: openSignIn não existe. Redirecionando...");
+                                            window.location.href = '/signin';
                                         }
                                     }}
-                                    className="bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95"
                                 >
-                                    {t('nav.login')}
+                                    {t('nav.login')} (Debug)
                                 </button>
                             </div>
                         )}
