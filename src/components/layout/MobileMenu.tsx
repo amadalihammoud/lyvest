@@ -95,7 +95,7 @@ export default function MobileMenu({
                                 <span className="text-xs font-bold truncate max-w-[80px]">{userName}</span>
                             </button>
                         ) : (
-                            <SignInButton mode="modal">
+                            <SignInButton>
                                 <button
                                     className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs whitespace-nowrap"
                                 >

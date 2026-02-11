@@ -275,7 +275,7 @@ export default function Header(_props?: HeaderProps) {
                             </button>
                         ) : (
                             <div className="hidden lg:block">
-                                <SignInButton mode="modal">
+                                <SignInButton>
                                     <button
                                         className="bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95"
                                     >
