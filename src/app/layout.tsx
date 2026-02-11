@@ -90,6 +90,11 @@ export default function RootLayout({
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
                 </head>
                 <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
+                    {!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
+                        <div style={{ background: 'red', color: 'white', padding: '10px', textAlign: 'center', fontWeight: 'bold', zIndex: 9999, position: 'relative' }}>
+                            CRITICAL ERROR: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is missing in Vercel Environment Variables! Login will not work.
+                        </div>
+                    )}
                     <ClientLayout>
                         {children}
                     </ClientLayout>

@@ -275,12 +275,18 @@ export default function Header(_props?: HeaderProps) {
                             </button>
                         ) : (
                             <div className="hidden lg:block">
-                                <a
-                                    href="/signin"
-                                    className="inline-block bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95 text-center"
+                                <button
+                                    onClick={() => {
+                                        if (openSignIn) {
+                                            openSignIn();
+                                        } else {
+                                            alert("Sistema de login indisponível. Verifique a configuração da API Key.");
+                                        }
+                                    }}
+                                    className="bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95"
                                 >
                                     {t('nav.login')}
-                                </a>
+                                </button>
                             </div>
                         )}
 
