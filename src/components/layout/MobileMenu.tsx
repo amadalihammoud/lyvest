@@ -1,12 +1,13 @@
 ﻿import React from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useI18n } from '../../hooks/useI18n';
 import LanguageSelector from '../features/LanguageSelector';
 import { X, Search, ChevronRight, User } from 'lucide-react';
 import { mainMenu } from '../../data/mockData';
 
 import { useShop } from '../../context/ShopContext';
-import { useUser, useClerk, SignInButton } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 interface MobileMenuProps {

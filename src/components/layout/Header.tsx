@@ -18,7 +18,7 @@ import MobileMenu from './MobileMenu';
 
 import { useShop } from '../../context/ShopContext';
 // import { useAuth } from '../../context/AuthContext'; // Removed
-import { UserButton, useUser, useClerk, SignInButton } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Props are now optional - Header manages its own state internally
