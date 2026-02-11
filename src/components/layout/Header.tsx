@@ -50,7 +50,7 @@ export default function Header(_props?: HeaderProps) {
     const { openDrawer, closeDrawer, openModal } = useModal();
     // const { user, isAuthenticated: isLoggedIn } = useAuth(); // Removed
     const { user, isSignedIn } = useUser();
-    const { signOut } = useClerk();
+    const { signOut, openSignIn } = useClerk();
 
     const { selectedCategory, setSelectedCategory } = useShop();
     const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
@@ -275,7 +275,7 @@ export default function Header(_props?: HeaderProps) {
                         ) : (
                             <div className="hidden lg:block">
                                 <Button
-                                    onClick={() => openModal('login')} // Keep opening modal, but modal should render Clerk SignIn
+                                    onClick={() => openSignIn()}
                                     variant="primary"
                                 >
                                     {t('nav.login')}

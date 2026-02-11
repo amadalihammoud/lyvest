@@ -89,7 +89,7 @@ export default function MobileMenu({
                             </button>
                         ) : (
                             <button
-                                onClick={() => { onClose(); onOpenLogin(); }}
+                                onClick={() => { onClose(); openSignIn(); }}
                                 className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs whitespace-nowrap"
                             >
                                 <div className="pl-3 flex items-center gap-2">
