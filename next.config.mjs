@@ -52,18 +52,18 @@ const nextConfig = {
                         key: 'Strict-Transport-Security',
                         value: 'max-age=31536000; includeSubDomains',
                     },
-                    // Content Security Policy - Proteção contra XSS
+                    // Content Security Policy - Relaxada para evitar bloqueios
                     {
                         key: 'Content-Security-Policy',
                         value: [
                             "default-src 'self'",
-                            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://*.vercel-insights.com https://*.supabase.co https://clerk.accounts.dev https://*.clerk.accounts.dev https://clerk.com",
-                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-                            "font-src 'self' https://fonts.gstatic.com",
-                            "img-src 'self' data: blob: https: https://img.clerk.com",
-                            "connect-src 'self' https://*.supabase.co https://*.vercel-insights.com https://api.openai.com wss://*.supabase.co https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com",
+                            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http:",
+                            "style-src 'self' 'unsafe-inline' https: http:",
+                            "font-src 'self' https: data:",
+                            "img-src 'self' data: blob: https: http:",
+                            "connect-src 'self' https: http: wss:",
                             "worker-src 'self' blob:",
-                            "frame-src 'self' https://*.clerk.accounts.dev https://clerk.com",
+                            "frame-src 'self' https: http:",
                             "base-uri 'self'",
                             "form-action 'self'",
                             "object-src 'none'",
