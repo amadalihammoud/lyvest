@@ -1,7 +1,8 @@
 import { useState, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '../../hooks/useI18n';
-import { useAuth, User } from '../../context/AuthContext';
+// import { useAuth, User } from '../../context/AuthContext';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 // jsPDF is loaded dynamically when needed to reduce bundle size
 import { Shield, Lock, Bell, Camera, Download, Trash2, CheckCircle, AlertTriangle, AlertCircle, X, FileText } from 'lucide-react';
@@ -9,13 +10,15 @@ import { getUserAvatar } from '../../utils/userUtils';
 import { UserAddress, Order } from '../../types/dashboard';
 
 interface SettingsSectionProps {
-    user: User;
+    user: any;
 }
 
 function SettingsSection({ user }: SettingsSectionProps) {
     const { t } = useI18n();
     const router = useRouter();
-    const { signOut, user: authUser } = useAuth();
+    // const { signOut, user: authUser } = useAuth();
+    const { signOut } = useClerk();
+    const { user: authUser } = useUser();
 
     const [isLoading, setIsLoading] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
@@ -91,8 +94,8 @@ function SettingsSection({ user }: SettingsSectionProps) {
                 favorites: unknown[];
             } = {
                 profile: {
-                    email: authUser?.email || user?.email || '',
-                    name: user?.name || '',
+                    email: authUser?.primaryEmailAddress?.emailAddress || user?.email || '',
+                    name: authUser?.fullName || user?.name || '',
                     phone: '',
                     cpf: '',
                     birth_date: '',
@@ -426,56 +429,15 @@ function SettingsSection({ user }: SettingsSectionProps) {
                     <h3 className="font-bold text-slate-800 text-lg">{t('dashboard.settings.security.title')}</h3>
                 </div>
 
-                <form onSubmit={handlePasswordChange} className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-                    <div className="space-y-2">
-                        <label htmlFor="currentPassword" className="text-sm font-bold text-slate-700 ml-1">{t('dashboard.settings.security.currentPassword')}</label>
-                        <div className="relative">
-                            <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                            <input
-                                id="currentPassword"
-                                name="currentPassword"
-                                type="password"
-                                className="w-full pl-12 pr-4 py-3 rounded-full border border-slate-200 focus:outline-none focus:border-lyvest-500 focus:ring-4 focus:ring-[#F5E6E8]/30/50 transition-all"
-                                placeholder="••••••••"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label htmlFor="newPassword" className="text-sm font-bold text-slate-700 ml-1">{t('dashboard.settings.security.newPassword')}</label>
-                        <div className="relative">
-                            <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                            <input
-                                id="newPassword"
-                                name="newPassword"
-                                type="password"
-                                className="w-full pl-12 pr-4 py-3 rounded-full border border-slate-200 focus:outline-none focus:border-lyvest-500 focus:ring-4 focus:ring-[#F5E6E8]/30/50 transition-all"
-                                placeholder="••••••••"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label htmlFor="confirmPassword" className="text-sm font-bold text-slate-700 ml-1">{t('dashboard.settings.security.confirmPassword')}</label>
-                        <div className="relative">
-                            <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                            <input
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                type="password"
-                                className="w-full pl-12 pr-4 py-3 rounded-full border border-slate-200 focus:outline-none focus:border-lyvest-500 focus:ring-4 focus:ring-[#F5E6E8]/30/50 transition-all"
-                                placeholder="••••••••"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex items-end">
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full md:w-auto px-8 py-3 bg-slate-800 text-white font-bold rounded-full hover:bg-slate-700 transition-colors disabled:opacity-70 shadow-lg shadow-slate-200 hover:shadow-xl hover:-translate-y-0.5 transform"
-                        >
-                            {isLoading ? t('dashboard.settings.security.updating') : t('dashboard.settings.security.update')}
-                        </button>
-                    </div>
-                </form>
+                <div className="p-6 bg-slate-50 rounded-2xl text-center">
+                    <Lock className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                    <h4 className="font-bold text-slate-800 mb-2">Gerenciamento de Senha</h4>
+                    <p className="text-sm text-slate-500 mb-4">
+                        Sua conta é segura e gerenciada pelo nosso novo sistema de autenticação.
+                        Para alterar sua senha ou métodos de login, utilize o perfil do usuário.
+                    </p>
+                    {/* Clerk UserProfile could be opened here, or just a generic message */}
+                </div>
             </div>
 
             {/* Notifications Section */}

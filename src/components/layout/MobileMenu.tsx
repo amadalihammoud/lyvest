@@ -5,7 +5,8 @@ import { X, Search, ChevronRight, User } from 'lucide-react';
 import { mainMenu } from '../../data/mockData';
 
 import { useShop } from '../../context/ShopContext';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 interface MobileMenuProps {
@@ -21,7 +22,13 @@ export default function MobileMenu({
     onOpenLogin,
     navigateToDashboard
 }: MobileMenuProps) {
-    const { user, isAuthenticated: isLoggedIn } = useAuth();
+    const { user, isSignedIn } = useUser();
+    const { openSignIn } = useClerk();
+    const isLoggedIn = isSignedIn;
+
+    // Helper to get user name
+    const userName = user?.fullName || user?.firstName || 'Usuário';
+    const userAvatar = user?.imageUrl;
     const { searchQuery, setSearchQuery } = useShop();
     const { handleMenuClick: baseHandleMenuClick } = useShopNavigation();
 
@@ -74,11 +81,11 @@ export default function MobileMenu({
                                 className="flex items-center gap-2 px-4 py-1.5 bg-[#800020] hover:bg-[#600018] text-white rounded-full transition-colors shadow-sm"
                             >
                                 <img
-                                    src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`}
-                                    alt={user?.name}
+                                    src={userAvatar}
+                                    alt={userName}
                                     className="w-5 h-5 rounded-full object-cover border border-white/20"
                                 />
-                                <span className="text-xs font-bold truncate max-w-[80px]">{user?.name}</span>
+                                <span className="text-xs font-bold truncate max-w-[80px]">{userName}</span>
                             </button>
                         ) : (
                             <button

@@ -2,7 +2,7 @@
 
 import { ReactNode, ReactElement } from 'react';
 import { redirect } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext';
+import { useUser } from '@clerk/nextjs';
 import PageLoader from '../ui/PageLoader';
 
 interface ProtectedRouteProps {
@@ -13,13 +13,13 @@ interface ProtectedRouteProps {
  * Componente para proteger rotas que requerem autenticação
  */
 export default function ProtectedRoute({ children }: ProtectedRouteProps): ReactElement {
-    const { isAuthenticated, loading } = useAuth();
+    const { isSignedIn, isLoaded } = useUser();
 
-    if (loading) {
+    if (!isLoaded) {
         return <PageLoader />;
     }
 
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
         // Redireciona para home - em Next.js, o modal de login pode ser aberto via query param ou estado
         redirect('/');
     }

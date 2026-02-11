@@ -1,21 +1,34 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Smartphone, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
-import { useAuth } from '../../context/AuthContext';
-import { isSupabaseConfigured } from '../../lib/supabase';
-import { User as UserType } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
+import { useUser } from '@clerk/nextjs';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+// import { User as UserType } from '../../context/AuthContext';
 
 interface ProfileSectionProps {
-    user: UserType;
+    user: any; // Relaxed type for compatibility
 }
 
 export default function ProfileSection({ user: propUser }: ProfileSectionProps) {
     const { t } = useI18n();
-    const { user, profile, updateProfile } = useAuth();
+    const { user } = useUser();
+    const [profile, setProfile] = useState<any>(null);
 
-    // Use user from hook or prop, preferring hook but falling back to prop if hook is null (though auth context should guard this)
-    // Actually the prop is passed from UserDashboard which passes its prop.
-    // Let's use the local state initialization based on available data.
+    // Fetch profile effect
+    useEffect(() => {
+        async function fetchProfile() {
+            if (user?.id && isSupabaseConfigured()) {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                if (data) setProfile(data);
+            }
+        }
+        fetchProfile();
+    }, [user]);
 
     const [formData, setFormData] = useState({
         full_name: '',
@@ -31,7 +44,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
     useEffect(() => {
         if (profile) {
             setFormData({
-                full_name: profile.full_name || user?.user_metadata?.full_name || '',
+                full_name: profile.full_name || user?.fullName || '',
                 phone: profile.phone || '',
                 birth_date: (profile.birth_date as string) || '',
                 gender: (profile.gender as string) || 'male',
@@ -39,7 +52,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
         } else if (user) {
             setFormData(prev => ({
                 ...prev,
-                full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
+                full_name: user.fullName || user.primaryEmailAddress?.emailAddress?.split('@')[0] || '',
             }));
         } else if (propUser) {
             setFormData(prev => ({
@@ -85,6 +98,12 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                 return;
             }
 
+            if (!user?.id) {
+                setError('Usuário não identificado.');
+                setIsSaving(false);
+                return;
+            }
+
             // Primeiro tentar salvar com gender, se falhar tentar sem
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const updateData: any = {
@@ -99,17 +118,30 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                 updateData.gender = formData.gender;
             }
 
-            const { error: updateError } = await updateProfile(updateData);
+            // Direct Supabase update
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .upsert({ id: user.id, ...updateData })
+                .select()
+                .single();
+
+            // const { error: updateError } = await updateProfile(updateData); // Removed context call
 
             if (updateError) {
                 // Se o erro for sobre coluna gender, tentar sem ela
                 if (updateError.message?.includes('gender')) {
-                    const { error: retryError } = await updateProfile({
-                        full_name: formData.full_name,
-                        phone: formData.phone.replace(/\D/g, ''),
-                        birth_date: formData.birth_date || null,
-                        updated_at: new Date().toISOString(),
-                    });
+                    const { error: retryError } = await supabase
+                        .from('profiles')
+                        .upsert({
+                            id: user.id,
+                            full_name: formData.full_name,
+                            phone: formData.phone.replace(/\D/g, ''),
+                            birth_date: formData.birth_date || null,
+                            updated_at: new Date().toISOString()
+                        })
+                        .select()
+                        .single();
+
                     if (retryError) {
                         setError('Erro ao salvar. Tente novamente.');
                     } else {
@@ -247,7 +279,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                                     <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                                     <input
                                         type="email"
-                                        value={user?.email || propUser?.email || ''}
+                                        value={user?.primaryEmailAddress?.emailAddress || propUser?.email || ''}
                                         className="w-full pl-12 pr-4 py-3 rounded-full border border-slate-200 uppercase text-slate-500 bg-slate-50"
                                         disabled
                                     />

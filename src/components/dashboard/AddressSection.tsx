@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapPin, Plus, Edit2, Trash2, X, CheckCircle, AlertCircle, Star } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
+import { useUser } from '@clerk/nextjs';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { UserAddress } from '../../types/dashboard';
 
@@ -20,7 +21,7 @@ const emptyAddress: UserAddress = {
 
 export default function AddressSection() {
     const { t } = useI18n();
-    const { user } = useAuth();
+    const { user } = useUser();
 
     const [addresses, setAddresses] = useState<UserAddress[]>([]);
     const [isLoading, setIsLoading] = useState(true);

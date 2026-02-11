@@ -4,7 +4,22 @@ import DashboardSidebar from './DashboardSidebar';
 import { getUserAvatar } from '../../utils/userUtils';
 import Breadcrumbs from '../ui/Breadcrumbs';
 import { Order } from '../../types/dashboard';
-import { User } from '../../context/AuthContext';
+// import { User } from '../../context/AuthContext';
+
+export interface User {
+    id: string;
+    email?: string;
+    name?: string;
+    avatar?: string;
+    user_metadata?: {
+        full_name?: string;
+        phone?: string;
+        cpf?: string;
+        birth_date?: string;
+        [key: string]: any;
+    };
+    [key: string]: any;
+}
 
 // Lazy load das seções para melhorar performance
 const OrdersSection = lazy(() => import('./OrdersSection'));
