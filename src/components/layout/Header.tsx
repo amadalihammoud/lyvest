@@ -279,7 +279,7 @@ export default function Header(_props?: HeaderProps) {
                                     onClick={() => {
                                         console.log('Login button clicked');
                                         try {
-                                            const clerk = window.Clerk as any;
+                                            const clerk = (window as any).Clerk;
                                             if (openSignIn) {
                                                 console.log('Attempting Clerk openSignIn');
                                                 openSignIn();
