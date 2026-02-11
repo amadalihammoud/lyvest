@@ -275,30 +275,12 @@ export default function Header(_props?: HeaderProps) {
                             </button>
                         ) : (
                             <div className="hidden lg:block">
-                                <button
-                                    onClick={() => {
-                                        console.log('Login button clicked');
-                                        try {
-                                            const clerk = (window as any).Clerk;
-                                            if (openSignIn) {
-                                                console.log('Attempting Clerk openSignIn');
-                                                openSignIn();
-                                            } else if (clerk && clerk.openSignIn) {
-                                                console.log('Attempting window.Clerk.openSignIn');
-                                                clerk.openSignIn();
-                                            } else {
-                                                console.warn('Clerk not found, forcing redirect');
-                                                window.location.href = '/sign-in';
-                                            }
-                                        } catch (error) {
-                                            console.error('Login error:', error);
-                                            window.location.href = '/sign-in';
-                                        }
-                                    }}
-                                    className="bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95"
+                                <a
+                                    href="/sign-in"
+                                    className="inline-block bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95 text-center"
                                 >
                                     {t('nav.login')}
-                                </button>
+                                </a>
                             </div>
                         )}
 
