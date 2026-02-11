@@ -1,3 +1,4 @@
+'use client';
 import { SignIn, ClerkLoaded, ClerkLoading, useClerk } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 
