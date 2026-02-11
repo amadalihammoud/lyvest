@@ -275,19 +275,30 @@ export default function Header(_props?: HeaderProps) {
                             </button>
                         ) : (
                             <div className="hidden lg:block">
-                                <Button
+                                <button
                                     onClick={() => {
-                                        if (openSignIn) {
-                                            openSignIn();
-                                        } else {
-                                            // Nuclear fallback: force browser navigation
+                                        console.log('Login button clicked');
+                                        try {
+                                            const clerk = window.Clerk as any;
+                                            if (openSignIn) {
+                                                console.log('Attempting Clerk openSignIn');
+                                                openSignIn();
+                                            } else if (clerk && clerk.openSignIn) {
+                                                console.log('Attempting window.Clerk.openSignIn');
+                                                clerk.openSignIn();
+                                            } else {
+                                                console.warn('Clerk not found, forcing redirect');
+                                                window.location.href = '/sign-in';
+                                            }
+                                        } catch (error) {
+                                            console.error('Login error:', error);
                                             window.location.href = '/sign-in';
                                         }
                                     }}
-                                    variant="primary"
+                                    className="bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95"
                                 >
                                     {t('nav.login')}
-                                </Button>
+                                </button>
                             </div>
                         )}
 
