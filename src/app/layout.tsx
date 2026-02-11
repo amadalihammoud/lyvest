@@ -82,7 +82,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <ClerkProvider localization={ptBR}>
+        <ClerkProvider
+            localization={ptBR}
+            publishableKey={process.env.NEXT_PUBLIC_CLERK_PK_PROD || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+        >
             <html lang="pt-BR" className={`${inter.variable} ${lato.variable} ${cookie.variable}`}>
                 <head>
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
