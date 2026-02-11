@@ -15,6 +15,9 @@ export default clerkMiddleware(async (auth, req) => {
     }
 
     return NextResponse.next();
+}, {
+    publishableKey: process.env.NEXT_PUBLIC_CLERK_PK_PROD || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    secretKey: process.env.CLERK_SK_PROD || process.env.CLERK_SECRET_KEY,
 });
 
 export const config = {
