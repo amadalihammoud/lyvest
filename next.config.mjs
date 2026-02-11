@@ -52,7 +52,8 @@ const nextConfig = {
                         key: 'Strict-Transport-Security',
                         value: 'max-age=31536000; includeSubDomains',
                     },
-                    // Content Security Policy - Relaxada para evitar bloqueios
+                    // Content Security Policy - Temporarily disabled for debugging Clerk
+                    /*
                     {
                         key: 'Content-Security-Policy',
                         value: [
@@ -70,6 +71,7 @@ const nextConfig = {
                             "upgrade-insecure-requests",
                         ].join('; '),
                     },
+                    */
                 ],
             },
             // Cache headers for static images (1 year)
