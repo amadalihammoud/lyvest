@@ -12,6 +12,7 @@ import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useModal } from '../../context/ModalContext';
 import Button from '../ui/Button';
+import MobileMenu from './MobileMenu';
 // import { getUserAvatar } from '../../utils/userUtils'; // Removed
 
 
@@ -326,6 +327,16 @@ export default function Header(_props?: HeaderProps) {
                     </div>
                 </div>
             )}
+            {/* Mobile Menu Overlay */}
+            <MobileMenu
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
+                onOpenLogin={() => {
+                    if (openSignIn) openSignIn();
+                    else window.location.href = '/sign-in';
+                }}
+                navigateToDashboard={navigateToDashboard}
+            />
         </header>
     );
 }
