@@ -1,10 +1,9 @@
--- 🏗️ LY VEST DATABASE SETUP (Clerk Compatible)
+-- 🏗️ LY VEST DATABASE SETUP (Clerk Compatible - Final)
 -- --------------------------------------------------------
--- Este script cria todas as tabelas necessárias para o E-commerce Ly Vest.
--- Adaptado para funcionar com autenticação via Clerk (IDs como TEXT).
--- Copie e cole todo o conteúdo abaixo no "SQL Editor" do Supabase e clique em "RUN".
+-- Este script cria todas as tabelas e políticas necessárias
+-- Compatível com Clerk e sem erros de permissão de schema
 
--- 1. LIMPEZA (Se quiser começar do zero, descomente as linhas abaixo)
+-- 1. LIMPEZA (Cuidado: apaga dados)
 -- DROP TABLE IF EXISTS public.reviews;
 -- DROP TABLE IF EXISTS public.favorites;
 -- DROP TABLE IF EXISTS public.addresses;
@@ -14,7 +13,19 @@
 -- DROP TABLE IF EXISTS public.financial_configs;
 -- DROP TABLE IF EXISTS public.profiles;
 
--- 2. CRIAÇÃO DAS TABELAS
+-- 2. FUNÇÃO AUXILIAR DE AUTENTICAÇÃO
+-- Lê o ID do usuário do Token do Clerk (claim 'sub')
+CREATE OR REPLACE FUNCTION public.clerk_uid() RETURNS TEXT AS $$
+  SELECT NULLIF(
+    COALESCE(
+      current_setting('request.jwt.claim.sub', true),
+      (current_setting('request.jwt.claims', true)::jsonb ->> 'sub')
+    ),
+    ''
+  )::text;
+$$ LANGUAGE sql STABLE;
+
+-- 3. CRIAÇÃO DAS TABELAS
 
 -- CATEGORIAS
 CREATE TABLE IF NOT EXISTS public.categories (
@@ -25,7 +36,7 @@ CREATE TABLE IF NOT EXISTS public.categories (
     description TEXT
 );
 
--- PERFIS DE USUÁRIO (IDs são strings do Clerk, ex: 'user_2...')
+-- PERFIS (ID = ID do Clerk, ex: 'user_2...')
 CREATE TABLE IF NOT EXISTS public.profiles (
     id TEXT NOT NULL PRIMARY KEY,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -98,7 +109,7 @@ CREATE TABLE IF NOT EXISTS public.financial_configs (
     description TEXT
 );
 
--- 3. SEGURANÇA (RLS - ROW LEVEL SECURITY)
+-- 4. SEGURANÇA (RLS)
 
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
@@ -108,34 +119,27 @@ ALTER TABLE public.addresses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.financial_configs ENABLE ROW LEVEL SECURITY;
 
--- POLÍTICAS DE ACESSO PÚBLICO (Leitura)
+-- Políticas Públicas
 CREATE POLICY "Public Categories Access" ON public.categories FOR SELECT USING (true);
 CREATE POLICY "Public Products Access" ON public.products FOR SELECT USING (active = true);
 CREATE POLICY "Public Financial Configs" ON public.financial_configs FOR SELECT USING (true);
 
--- POLÍTICAS DE ACESSO PRIVADO (Usuário logado via Clerk)
--- Utilizamos (auth.jwt() ->> 'sub') para pegar o ID do usuário do token Clerk
+-- Políticas Privadas (Usando public.clerk_uid())
+CREATE POLICY "User View Own Profile" ON public.profiles FOR SELECT USING (public.clerk_uid() = id);
+CREATE POLICY "User Update Own Profile" ON public.profiles FOR UPDATE USING (public.clerk_uid() = id);
+CREATE POLICY "User Insert Own Profile" ON public.profiles FOR INSERT WITH CHECK (public.clerk_uid() = id);
 
--- Perfil
-CREATE POLICY "User View Own Profile" ON public.profiles FOR SELECT USING ((select auth.jwt() ->> 'sub') = id);
-CREATE POLICY "User Update Own Profile" ON public.profiles FOR UPDATE USING ((select auth.jwt() ->> 'sub') = id);
-CREATE POLICY "User Insert Own Profile" ON public.profiles FOR INSERT WITH CHECK ((select auth.jwt() ->> 'sub') = id);
+CREATE POLICY "User View Own Orders" ON public.orders FOR SELECT USING (public.clerk_uid() = user_id);
+CREATE POLICY "User Create Orders" ON public.orders FOR INSERT WITH CHECK (public.clerk_uid() = user_id);
 
--- Pedidos
-CREATE POLICY "User View Own Orders" ON public.orders FOR SELECT USING ((select auth.jwt() ->> 'sub') = user_id);
-CREATE POLICY "User Create Orders" ON public.orders FOR INSERT WITH CHECK ((select auth.jwt() ->> 'sub') = user_id);
+CREATE POLICY "User View Own Addresses" ON public.addresses FOR SELECT USING (public.clerk_uid() = user_id);
+CREATE POLICY "User Manage Own Addresses" ON public.addresses FOR ALL USING (public.clerk_uid() = user_id);
 
--- Endereços
-CREATE POLICY "User View Own Addresses" ON public.addresses FOR SELECT USING ((select auth.jwt() ->> 'sub') = user_id);
-CREATE POLICY "User Manage Own Addresses" ON public.addresses FOR ALL USING ((select auth.jwt() ->> 'sub') = user_id);
+CREATE POLICY "User View Own Favorites" ON public.favorites FOR SELECT USING (public.clerk_uid() = user_id);
+CREATE POLICY "User Manage Own Favorites" ON public.favorites FOR ALL USING (public.clerk_uid() = user_id);
 
--- Favoritos
-CREATE POLICY "User View Own Favorites" ON public.favorites FOR SELECT USING ((select auth.jwt() ->> 'sub') = user_id);
-CREATE POLICY "User Manage Own Favorites" ON public.favorites FOR ALL USING ((select auth.jwt() ->> 'sub') = user_id);
+-- 5. DADOS INICIAIS (SEED)
 
--- 4. DADOS INICIAIS (SEED)
-
--- Inserir Categorias Básicas
 INSERT INTO public.categories (name, slug, description) VALUES
 ('Sutiãs', 'sutias', 'Sutiãs confortáveis e elegantes'),
 ('Calcinhas', 'calcinhas', 'Calcinhas para o dia a dia e ocasiões especiais'),
@@ -143,16 +147,7 @@ INSERT INTO public.categories (name, slug, description) VALUES
 ('Meias', 'meias', 'Meias invisíveis e confortáveis')
 ON CONFLICT (slug) DO NOTHING;
 
--- Inserir Regras Financeiras
 INSERT INTO public.financial_configs (rule_key, rule_value, description) VALUES
 ('free_shipping_threshold', 199.90, 'Valor mínimo para frete grátis'),
 ('pix_discount', 0.05, 'Desconto de 5% no PIX')
 ON CONFLICT (rule_key) DO NOTHING;
-
--- Inserir Produtos de Exemplo
-INSERT INTO public.products (name, slug, description, price, image_url, category_id, active, stock, highlight) 
-VALUES
-('Kit 3 Calcinhas Algodão Soft', 'kit-3-calcinhas-algodao-soft', 'Conforto absoluto para o dia a dia.', 49.90, 'https://images.unsplash.com/photo-1596482181829-415849dfc126?auto=format&fit=crop&q=80&w=800', (SELECT id FROM public.categories WHERE slug='kits' LIMIT 1), true, 100, true),
-('Sutiã Renda Comfort Sem Bojo', 'sutia-renda-comfort-sem-bojo', 'Elegância e leveza sem abrir mão do suporte.', 59.90, 'https://images.unsplash.com/photo-1620331306121-6a0b1f6804a9?auto=format&fit=crop&q=80&w=800', (SELECT id FROM public.categories WHERE slug='sutias' LIMIT 1), true, 50, true),
-('Cueca Boxer Feminina Modal', 'cueca-boxer-feminina-modal', 'Liberdade de movimento e toque suave.', 29.90, 'https://images.unsplash.com/photo-1616147690623-e1860d5b1285?auto=format&fit=crop&q=80&w=800', (SELECT id FROM public.categories WHERE slug='calcinhas' LIMIT 1), true, 200, false)
-ON CONFLICT (slug) DO NOTHING;
