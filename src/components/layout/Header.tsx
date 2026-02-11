@@ -12,11 +12,12 @@ import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useModal } from '../../context/ModalContext';
 import Button from '../ui/Button';
-import { getUserAvatar } from '../../utils/userUtils';
+// import { getUserAvatar } from '../../utils/userUtils'; // Removed
 
 
 import { useShop } from '../../context/ShopContext';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext'; // Removed
+import { useUser, useClerk } from '@clerk/nextjs';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Props are now optional - Header manages its own state internally
@@ -27,6 +28,7 @@ interface HeaderProps {
 interface User {
     name?: string;
     email?: string;
+    imageUrl?: string; // Clerk property
     [key: string]: any;
 }
 
@@ -46,7 +48,10 @@ export default function Header(_props?: HeaderProps) {
     const { cartCount } = useCart();
     const { favorites } = useFavorites();
     const { openDrawer, closeDrawer, openModal } = useModal();
-    const { user, isAuthenticated: isLoggedIn } = useAuth();
+    // const { user, isAuthenticated: isLoggedIn } = useAuth(); // Removed
+    const { user, isSignedIn } = useUser();
+    const { signOut } = useClerk();
+
     const { selectedCategory, setSelectedCategory } = useShop();
     const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
     const { handleMenuClick } = useShopNavigation();
@@ -58,7 +63,15 @@ export default function Header(_props?: HeaderProps) {
     const navigateToDashboard = () => router.push('/dashboard');
 
     // Cast properties for stricter usage
-    const currentUser = user as User | null;
+    const currentUser = user ? {
+        name: user.fullName || user.firstName,
+        email: user.primaryEmailAddress?.emailAddress,
+        imageUrl: user.imageUrl
+    } : null;
+
+    // Legacy helper for avatar (can be replaced by user.imageUrl directly)
+    const getAvatar = () => currentUser?.imageUrl || '/default-avatar.png'; // Fallback
+
     const menuItems = mainMenu as MenuItem[];
 
     interface MockProduct {
@@ -245,19 +258,14 @@ export default function Header(_props?: HeaderProps) {
                             )}
                         </button>
 
-                        {isLoggedIn && currentUser ? (
+                        {isSignedIn && currentUser ? (
                             <button
                                 onClick={navigateToDashboard}
                                 className="hidden lg:flex items-center gap-2 pl-1 pr-3 py-1 bg-white hover:bg-slate-50 rounded-full border border-slate-200 transition-all shadow-sm group"
                             >
                                 <img
-                                    src={getUserAvatar(currentUser)}
+                                    src={currentUser.imageUrl}
                                     alt={currentUser.name || 'User'}
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.onerror = null;
-                                        target.src = getUserAvatar({ name: currentUser.name }); // Force regeneration
-                                    }}
                                     className="w-8 h-8 rounded-full object-cover relative z-10 bg-white"
                                 />
                                 <span className="text-sm font-bold text-slate-700 group-hover:text-lyvest-500 transition-colors">
@@ -267,7 +275,7 @@ export default function Header(_props?: HeaderProps) {
                         ) : (
                             <div className="hidden lg:block">
                                 <Button
-                                    onClick={() => openModal('login')}
+                                    onClick={() => openModal('login')} // Keep opening modal, but modal should render Clerk SignIn
                                     variant="primary"
                                 >
                                     {t('nav.login')}

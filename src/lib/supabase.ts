@@ -22,9 +22,9 @@ const createSupabaseClient = (): SupabaseClient<Database> => {
 
     if (!supabaseUrl || !supabaseAnonKey) {
         // Retorna um cliente "dummy" em desenvolvimento se faltarem chaves, 
-        // mas loga o erro para o desenvolvedor
+        // mas loga o erro para o desenvolvedor (warn para não travar a tela)
         if (typeof window !== 'undefined') {
-            console.error('⚠️ Supabase URLs/Keys missing! Check your .env setup.');
+            logger.warn('⚠️ Supabase URLs/Keys missing! Check your .env setup.');
         }
         // Fallback seguro para não quebrar o app instantaneamente, 
         // mas chamadas falharão graciosamente
@@ -71,7 +71,7 @@ export const getProducts = async (): Promise<ProductWithCategory[]> => {
         .eq('active', true);
 
     if (error) {
-        console.error('Erro ao buscar produtos:', error);
+        logger.error('Erro ao buscar produtos:', error);
         return [];
     }
 
@@ -105,7 +105,7 @@ export const getFinancialRules = async (): Promise<Record<string, number>> => {
     const { data, error } = await supabase.from('financial_configs').select('*');
 
     if (error) {
-        console.error('Error fetching financial rules:', error);
+        logger.error('Error fetching financial rules:', error);
         return {};
     }
 

@@ -1,4 +1,44 @@
-import { NextResponse } from 'next/server';
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+
+// Rotas protegidas (apenas usuários logados)
+const isProtectedRoute = createRouteMatcher([
+    '/dashboard(.*)',
+    '/checkout(.*)',
+    '/api/checkout(.*)'
+]);
+
+// Rotas de administração (futuro)
+const isAdminRoute = createRouteMatcher([
+    '/admin(.*)'
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+    // Proteger rotas autenticadas
+    if (isProtectedRoute(req)) {
+        await auth.protect();
+    }
+
+    // Headers de Segurança (Mantendo o hardening anterior)
+    const response = NextResponse.next();
+    response.headers.set('X-DNS-Prefetch-Control', 'on');
+    response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    return response;
+});
+
+export const config = {
+    matcher: [
+        // Skip Next.js internals and all static files, unless found in search params
+        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+        // Always run for API routes
+        '/(api|trpc)(.*)',
+    ],
+};
 import type { NextRequest } from 'next/server';
 
 /**

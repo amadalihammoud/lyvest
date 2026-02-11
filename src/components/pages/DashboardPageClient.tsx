@@ -5,14 +5,34 @@ import UserDashboard from '@/components/dashboard/UserDashboard';
 
 import { mockOrders } from '@/data/mockData';
 import { useI18n } from '@/context/I18nContext';
-import { useAuth, User } from '@/context/AuthContext';
+// import { useAuth, User } from '@/context/AuthContext'; // Removed
+import { useUser, useClerk } from '@clerk/nextjs';
 import { useModal } from '@/context/ModalContext';
 import { Order } from '@/types/dashboard';
+
+// Define Interface locally or import from a new types file if AuthContext is deleted
+interface User {
+    id: string;
+    email?: string;
+    name?: string;
+    avatar?: string;
+    user_metadata?: {
+        full_name?: string;
+        phone?: string;
+        cpf?: string;
+        birth_date?: string;
+        [key: string]: any;
+    };
+    [key: string]: any;
+}
 
 export default function DashboardPageClient() {
     const router = useRouter();
     const { t } = useI18n();
-    const { user, profile, signOut } = useAuth();
+    // const { user, profile, signOut } = useAuth(); // Removed
+    const { user, isLoaded } = useUser();
+    const { signOut } = useClerk();
+
     const { openDrawer, setTrackingCode } = useModal();
 
     const handleTrackOrder = (code: string) => {
@@ -25,18 +45,22 @@ export default function DashboardPageClient() {
         router.push('/');
     };
 
-    // Criar objeto de usuário compatível com a interface User do AuthContext
+    if (!isLoaded || !user) {
+        return <div className="p-8 text-center">Carregando...</div>; // Or a Skeleton
+    }
+
+    // Criar objeto de usuário compatível com a interface User do Dashboard
+    // Clerk user mapping
     const dashboardUser: User = {
-        id: user?.id || 'mock-id',
-        name: profile?.full_name || user?.user_metadata?.full_name || (user?.email ? user.email.split('@')[0] : 'U') || 'Usuário',
-        email: user?.email || 'usuario@email.com',
-        avatar: (profile?.avatar_url || user?.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.email || 'U')}&background=FF1493&color=fff&bold=true`) as string,
+        id: user.id,
+        name: user.fullName || user.firstName || 'Usuário',
+        email: user.primaryEmailAddress?.emailAddress || '',
+        avatar: user.imageUrl,
         user_metadata: {
-            ...user?.user_metadata,
-            full_name: profile?.full_name || undefined,
-            phone: profile?.phone || undefined,
-            cpf: profile?.cpf || undefined,
-            birth_date: profile?.birth_date || undefined
+            full_name: user.fullName || '',
+            phone: (user.unsafeMetadata?.phone as string) || '', // Clerk stores custom data in metadata
+            cpf: (user.unsafeMetadata?.cpf as string) || '',
+            birth_date: (user.unsafeMetadata?.birth_date as string) || ''
         }
     };
 

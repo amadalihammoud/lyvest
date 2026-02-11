@@ -10,7 +10,8 @@ import { CartProvider } from '@/context/CartContext';
 import { ShopProvider } from '@/context/ShopContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { ModalProvider, useModal } from '@/context/ModalContext';
-import { AuthProvider, useAuth, User } from '@/context/AuthContext';
+// AuthProvider removed in favor of Clerk
+// import { AuthProvider, useAuth, User } from '@/context/AuthContext';
 import { I18nProvider, useI18n } from '@/context/I18nContext';
 
 // Global Components
@@ -33,6 +34,8 @@ interface AppProvidersProps {
 }
 
 
+import { useUser } from '@clerk/nextjs';
+
 function GlobalLogic({ children }: { children: ReactNode }) {
     const router = useRouter();
     const {
@@ -42,15 +45,15 @@ function GlobalLogic({ children }: { children: ReactNode }) {
         openModal
     } = useModal();
     const { t } = useI18n();
-    const { user } = useAuth();
+    const { user, isLoaded } = useUser();
 
-    // Cast user
-    const currentUser = user as User | null;
-
-    const handleLoginSuccess = (mockUser: User) => {
-        showNotification(t('dashboard.welcome', { name: mockUser?.name || currentUser?.name || 'Cliente' }));
-        closeModal();
-        router.push('/dashboard');
+    // Adapter for legacy code if needed, or direct Usage
+    const handleLoginSuccess = () => {
+        if (user) {
+            showNotification(t('dashboard.welcome', { name: user.firstName || 'Cliente' }));
+            closeModal();
+            router.push('/dashboard');
+        }
     };
 
     // Idle Preload effect
@@ -106,21 +109,19 @@ function GlobalLogic({ children }: { children: ReactNode }) {
 export default function AppProviders({ children }: AppProvidersProps) {
     return (
         <I18nProvider>
-            <AuthProvider>
-                <ShopProvider>
-                    <CartProvider>
-                        <FavoritesProvider>
-                            <ModalProvider>
-                                <ErrorBoundary>
-                                    <GlobalLogic>
-                                        {children}
-                                    </GlobalLogic>
-                                </ErrorBoundary>
-                            </ModalProvider>
-                        </FavoritesProvider>
-                    </CartProvider>
-                </ShopProvider>
-            </AuthProvider>
+            <ShopProvider>
+                <CartProvider>
+                    <FavoritesProvider>
+                        <ModalProvider>
+                            <ErrorBoundary>
+                                <GlobalLogic>
+                                    {children}
+                                </GlobalLogic>
+                            </ErrorBoundary>
+                        </ModalProvider>
+                    </FavoritesProvider>
+                </CartProvider>
+            </ShopProvider>
         </I18nProvider>
     );
 }

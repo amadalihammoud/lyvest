@@ -5,9 +5,11 @@ import { useI18n } from '../../hooks/useI18n';
 import { useCart } from '../../hooks/useCart';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
+import { SignIn, SignUp } from '@clerk/nextjs';
+
 // Import Modals (Keep small modals static or lazy? Small ones are fine static)
-const LoginModal = lazy(() => import('../modals/LoginModal'));
-const RegisterModal = lazy(() => import('../modals/RegisterModal'));
+// const LoginModal = lazy(() => import('../modals/LoginModal')); // Replaced by Clerk
+// const RegisterModal = lazy(() => import('../modals/RegisterModal')); // Replaced by Clerk
 // const ForgotPasswordModal = lazy(() => import('../modals/ForgotPasswordModal')); // Missing
 const ProductQuickView = lazy(() => import('../product/ProductQuickView'));
 // const NewsletterModal = lazy(() => import('../modals/NewsletterModal')); // Missing
@@ -40,10 +42,35 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
     const renderModalContent = () => {
         switch (activeModal) {
             case 'login':
-                return <LoginModal onLoginSuccess={onLoginSuccess} />;
-            // case 'forgotPassword': return <ForgotPasswordModal />; // Missing
+                return (
+                    <div className="flex justify-center py-8">
+                        <SignIn
+                            routing="hash"
+                            appearance={{
+                                elements: {
+                                    rootBox: "mx-auto",
+                                    card: "shadow-none border-none",
+                                    footer: "hidden"
+                                }
+                            }}
+                        />
+                    </div>
+                );
             case 'register':
-                return <RegisterModal onRegisterSuccess={onLoginSuccess} />;
+                return (
+                    <div className="flex justify-center py-8">
+                        <SignUp
+                            routing="hash"
+                            appearance={{
+                                elements: {
+                                    rootBox: "mx-auto",
+                                    card: "shadow-none border-none",
+                                    footer: "hidden"
+                                }
+                            }}
+                        />
+                    </div>
+                );
             case 'contact':
                 return <ContactModal />;
             case 'about':

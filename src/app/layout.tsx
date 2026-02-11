@@ -73,21 +73,26 @@ export const metadata: Metadata = {
     },
 };
 
+import { ClerkProvider } from '@clerk/nextjs'
+import { ptBR } from '@clerk/localizations'
+
 export default function RootLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     return (
-        <html lang="pt-BR" className={`${inter.variable} ${lato.variable} ${cookie.variable}`}>
-            <head>
-                <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-            </head>
-            <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
-                <ClientLayout>
-                    {children}
-                </ClientLayout>
-            </body>
-        </html>
+        <ClerkProvider localization={ptBR}>
+            <html lang="pt-BR" className={`${inter.variable} ${lato.variable} ${cookie.variable}`}>
+                <head>
+                    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+                </head>
+                <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
+                    <ClientLayout>
+                        {children}
+                    </ClientLayout>
+                </body>
+            </html>
+        </ClerkProvider>
     );
 }
