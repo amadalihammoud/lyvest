@@ -18,7 +18,7 @@ import MobileMenu from './MobileMenu';
 
 import { useShop } from '../../context/ShopContext';
 // import { useAuth } from '../../context/AuthContext'; // Removed
-import { useUser, useClerk } from '@clerk/nextjs';
+import { UserButton, useUser, useClerk, SignInButton } from '@clerk/nextjs';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Props are now optional - Header manages its own state internally
@@ -275,23 +275,13 @@ export default function Header(_props?: HeaderProps) {
                             </button>
                         ) : (
                             <div className="hidden lg:block">
-                                <button
-                                    onClick={() => {
-                                        if (openSignIn) {
-                                            try {
-                                                openSignIn();
-                                            } catch (e) {
-                                                console.error("Login modal failed", e);
-                                                window.location.href = '/signin';
-                                            }
-                                        } else {
-                                            window.location.href = '/signin';
-                                        }
-                                    }}
-                                    className="bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95"
-                                >
-                                    {t('nav.login')}
-                                </button>
+                                <SignInButton mode="modal">
+                                    <button
+                                        className="bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95"
+                                    >
+                                        {t('nav.login')}
+                                    </button>
+                                </SignInButton>
                             </div>
                         )}
 
