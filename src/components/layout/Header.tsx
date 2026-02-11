@@ -279,8 +279,8 @@ export default function Header(_props?: HeaderProps) {
                                         if (openSignIn) {
                                             openSignIn();
                                         } else {
-                                            console.warn('Clerk openSignIn not found, redirecting to /sign-in');
-                                            router.push('/sign-in');
+                                            // Nuclear fallback: force browser navigation
+                                            window.location.href = '/sign-in';
                                         }
                                     }}
                                     variant="primary"

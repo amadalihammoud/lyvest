@@ -97,9 +97,13 @@ export default function OptimizedProductImage({
                 priority={priority}
                 sizes={sizes}
                 onLoad={handleLoad}
-                onError={handleError}
+                onError={(e) => {
+                    console.error(`Image load error for ${src}`, e);
+                    handleError();
+                }}
                 className={`object-cover ${className}`} // Apply className to Image too for object-fit etc
                 style={styles}
+                unoptimized={true} // Force unoptimized to bypass Vercel processing issues
             />
         </div>
     );
