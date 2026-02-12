@@ -84,18 +84,14 @@ export default function RootLayout({
     return (
         <ClerkProvider
             localization={ptBR}
-            publishableKey={process.env.NEXT_PUBLIC_CLERK_PK_PROD || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+            publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
         >
             <html lang="pt-BR" className={`${inter.variable} ${lato.variable} ${cookie.variable}`}>
                 <head>
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
                 </head>
                 <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
-                    {!process.env.NEXT_PUBLIC_CLERK_PK_PROD && !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
-                        <div style={{ background: 'red', color: 'white', padding: '10px', textAlign: 'center', fontWeight: 'bold', zIndex: 9999, position: 'relative' }}>
-                            CRITICAL ERROR: Clerk Publishable Key is missing! Login will not work.
-                        </div>
-                    )}
+
                     <ClientLayout>
                         {children}
                     </ClientLayout>
