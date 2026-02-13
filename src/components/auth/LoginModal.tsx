@@ -29,7 +29,7 @@ export default function LoginModal() {
                         animate={{ x: 0 }}
                         exit={{ x: '-100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="relative w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col md:hidden"
+                        className="relative w-[92%] max-w-[420px] h-full bg-white shadow-2xl flex flex-col md:hidden"
                     >
                         {/* MOBILE DRAWER CONTENT */}
                         <div className="flex-1 flex flex-col overflow-y-auto bg-white relative h-full">
