@@ -41,7 +41,7 @@ export default function LoginModal() {
                                 <X size={20} />
                             </button>
 
-                            <div className="p-6 pt-10 flex-col flex h-full">
+                            <div className="p-6 pt-10 pb-6 flex-col flex min-h-full">
                                 {/* Header Mobile */}
                                 <div className="mb-6">
                                     <h2 className="text-[#800020] font-bold text-sm tracking-widest uppercase mb-4 border-b border-rose-100 pb-2">Identificação</h2>
