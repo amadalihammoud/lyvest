@@ -23,7 +23,7 @@ export default function LoginModal() {
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                     />
 
-                    {/* MOBILE DRAWER (Hamburger Style) */}
+                    {/* MOBILE DRAWER (Hamburger Style) - Visible ONLY on Mobile */}
                     <motion.div
                         initial={{ x: '-100%' }}
                         animate={{ x: 0 }}
@@ -31,6 +31,7 @@ export default function LoginModal() {
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                         className="relative w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col md:hidden"
                     >
+                        {/* MOBILE DRAWER CONTENT */}
                         <div className="flex-1 flex flex-col overflow-y-auto bg-white relative h-full">
                             {/* Close Button Top Right */}
                             <button
@@ -42,8 +43,8 @@ export default function LoginModal() {
 
                             <div className="p-6 pt-10 flex-col flex h-full">
                                 {/* Header Mobile */}
-                                <div className="mb-0">
-                                    <h2 className="text-[#800020] font-bold text-sm tracking-widest uppercase mb-6 border-b border-rose-100 pb-2">Identificação</h2>
+                                <div className="mb-6">
+                                    <h2 className="text-[#800020] font-bold text-sm tracking-widest uppercase mb-4 border-b border-rose-100 pb-2">Identificação</h2>
 
                                     <h1 className="text-3xl text-slate-800 leading-none">
                                         Olá, <br />
@@ -51,21 +52,42 @@ export default function LoginModal() {
                                     </h1>
                                 </div>
 
-                                <div className="flex-1 flex flex-col justify-center min-h-[300px]">
-                                    <p className="text-slate-500 text-sm leading-relaxed mb-4">
+                                <div className="flex-1 flex flex-col">
+                                    <p className="text-slate-500 text-sm leading-relaxed mb-6">
                                         Entre para acessar seu carrinho e nossa curadoria exclusiva.
                                     </p>
 
-                                    {/* DEBUG: Removed custom styling to ensure visibility */}
-                                    <div className="w-full min-h-[200px]">
-                                        <SignIn
-                                            redirectUrl="/dashboard"
-                                            signUpUrl="/sign-up"
-                                        />
-                                    </div>
+                                    <SignIn
+                                        appearance={{
+                                            elements: {
+                                                rootBox: "w-full",
+                                                card: "shadow-none p-0 w-full bg-transparent overflow-visible",
+                                                headerTitle: "hidden",
+                                                headerSubtitle: "hidden",
+                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-md shadow-rose-900/10 w-full normal-case mb-3 transition-transform active:scale-95",
+                                                formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] focus:ring-[#800020]/20 bg-slate-50 py-3 px-4 text-base mb-1",
+                                                formFieldLabel: "text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 mt-2 ml-1",
+                                                socialButtonsBlockButton: "rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm py-3 transition-colors h-12 flex items-center justify-center gap-2",
+                                                socialButtonsBlockButtonText: "font-semibold text-slate-600",
+                                                dividerLine: "bg-slate-100 h-px w-full my-4",
+                                                dividerText: "text-slate-400 bg-white px-3 text-[10px] uppercase tracking-widest font-medium relative z-10",
+                                                footerActionLink: "text-[#800020] font-bold hover:underline",
+                                                identityPreviewText: "text-slate-600 font-medium",
+                                                identityPreviewEditButton: "text-[#800020] hover:text-[#600018]",
+                                                formFieldAction: "text-[#800020] hover:text-[#600018] text-xs font-medium"
+                                            },
+                                            layout: {
+                                                socialButtonsPlacement: 'bottom',
+                                                socialButtonsVariant: 'blockButton',
+                                                showOptionalFields: false
+                                            }
+                                        }}
+                                        redirectUrl="/dashboard"
+                                        signUpUrl="/sign-up"
+                                    />
 
                                     {/* Benefits Section */}
-                                    <div className="mt-8 bg-rose-50/50 rounded-2xl p-5 border border-rose-100/50">
+                                    <div className="mt-auto bg-rose-50/60 rounded-2xl p-5 border border-rose-100/50 mb-6">
                                         <h3 className="text-[#800020] font-serif text-lg font-bold mb-3">Why LyVest?</h3>
                                         <div className="space-y-2.5">
                                             <div className="flex items-center gap-2.5 text-xs text-slate-600 font-medium">
@@ -83,7 +105,7 @@ export default function LoginModal() {
                         </div>
                     </motion.div>
 
-                    {/* DESKTOP MODAL (Split View) */}
+                    {/* DESKTOP MODAL (Existing Split View) - Hidden on Mobile */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -133,15 +155,17 @@ export default function LoginModal() {
                                             elements: {
                                                 rootBox: "w-full",
                                                 card: "shadow-none p-0 w-full",
-                                                header: "hidden",
-                                                footer: "hidden",
-                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case",
+                                                headerTitle: "hidden",
+                                                headerSubtitle: "hidden",
+                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case transition-transform active:scale-95",
                                                 formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] bg-slate-50 py-3 px-4 text-base",
                                                 formFieldLabel: "text-slate-700 font-medium ml-1",
                                                 socialButtonsBlockButton: "rounded-xl border-slate-200 hover:bg-slate-50 text-slate-600 font-medium text-sm py-2.5",
                                                 dividerLine: "bg-slate-100",
                                                 dividerText: "text-slate-400 bg-white px-2 uppercase text-xs tracking-widest",
-                                                footerActionLink: "text-[#800020] font-bold hover:underline"
+                                                footerActionLink: "text-[#800020] font-bold hover:underline",
+                                                identityPreviewText: "text-slate-600",
+                                                formFieldAction: "text-[#800020] hover:underline hover:text-[#600018]"
                                             },
                                             layout: {
                                                 socialButtonsPlacement: 'top',
@@ -159,4 +183,5 @@ export default function LoginModal() {
             )}
         </AnimatePresence>
     );
+}
 }
