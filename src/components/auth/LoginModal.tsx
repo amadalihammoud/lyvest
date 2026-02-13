@@ -148,7 +148,7 @@ export default function LoginModal() {
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh]"
+                        className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh] min-h-[600px]"
                     >
                         {/* Desktop: Left Side (Image) */}
                         <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.png')] bg-cover bg-center relative">
@@ -167,13 +167,13 @@ export default function LoginModal() {
 
                             <div className="p-12 flex flex-col items-center justify-center min-h-full">
                                 <div className="w-full max-w-sm">
-                                    <div className="text-center mb-6">
+                                    <div className="text-center mb-3">
                                         <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Identifique-se</h2>
                                         <p className="text-slate-500">Para acessar os seus pedidos</p>
                                     </div>
 
                                     {/* Custom Social Buttons */}
-                                    <div className="flex justify-center gap-4 mb-6">
+                                    <div className="flex justify-center gap-4 mb-3">
                                         <SocialButton
                                             provider="oauth_google"
                                             icon="google"
@@ -196,7 +196,7 @@ export default function LoginModal() {
                                         />
                                     </div>
 
-                                    <div className="relative mb-4">
+                                    <div className="relative mb-2">
                                         <div className="absolute inset-0 flex items-center">
                                             <div className="w-full border-t border-slate-100"></div>
                                         </div>
