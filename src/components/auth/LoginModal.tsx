@@ -153,8 +153,8 @@ export default function LoginModal() {
                                         <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto md:mx-0 mb-4 text-lyvest-700">
                                             <Gift size={24} />
                                         </div>
-                                        <h2 className="text-2xl font-bold text-slate-800">Bem-vinda</h2>
-                                        <p className="text-slate-500 mt-1">Acesse sua conta para continuar</p>
+                                        <h2 className="text-2xl font-bold text-slate-800 font-serif">Identifique-se</h2>
+                                        <p className="text-slate-500 mt-1">Para acessar os seus pedidos</p>
                                     </div>
 
                                     <SignIn
@@ -164,10 +164,11 @@ export default function LoginModal() {
                                                 card: "shadow-none p-0 w-full",
                                                 headerTitle: "hidden",
                                                 headerSubtitle: "hidden",
-                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case transition-transform active:scale-95",
+                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case transition-transform active:scale-95 mt-2",
                                                 formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] bg-slate-50 py-3 px-4 text-base",
                                                 formFieldLabel: "text-slate-700 font-medium ml-1",
-                                                socialButtonsBlockButton: "rounded-xl border-slate-200 hover:bg-slate-50 text-slate-600 font-medium text-sm py-2.5",
+                                                socialButtonsIconButton: "bg-white border border-slate-200 hover:bg-slate-50 hover:border-[#800020]/30 transition-all hover:scale-105 active:scale-95 h-12 w-12 rounded-full",
+                                                socialButtonsBlockButton: "hidden",
                                                 dividerLine: "bg-slate-100",
                                                 dividerText: "text-slate-400 bg-white px-2 uppercase text-xs tracking-widest",
                                                 footerActionLink: "text-[#800020] font-bold hover:underline",
@@ -176,7 +177,7 @@ export default function LoginModal() {
                                             },
                                             layout: {
                                                 socialButtonsPlacement: 'top',
-                                                socialButtonsVariant: 'blockButton'
+                                                socialButtonsVariant: 'iconButton'
                                             }
                                         }}
                                         redirectUrl="/dashboard"
