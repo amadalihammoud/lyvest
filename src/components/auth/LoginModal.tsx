@@ -35,7 +35,7 @@ export default function LoginModal() {
         <AnimatePresence>
             {isOpen && (
                 <div
-                    className="fixed inset-x-0 z-40 md:z-[100] flex justify-start md:items-center md:justify-center transition-[top] duration-75 ease-out top-[var(--header-height)] md:top-0 h-[calc(100vh-var(--header-height))] md:h-screen"
+                    className="fixed inset-x-0 z-40 md:z-[100] flex justify-start md:items-center md:justify-center transition-[top] duration-75 ease-out top-[var(--header-height)] md:top-0 h-[calc(100dvh-var(--header-height))] md:h-screen"
                     style={{ '--header-height': `${headerHeight}px` } as React.CSSProperties}
                 >
                     {/* Backdrop */}
@@ -53,7 +53,7 @@ export default function LoginModal() {
                         animate={{ x: 0 }}
                         exit={{ x: '-100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="relative w-[95%] max-w-[420px] h-full bg-white shadow-2xl flex flex-col md:hidden"
+                        className="relative w-full h-full bg-white shadow-2xl flex flex-col md:hidden"
                     >
                         {/* MOBILE DRAWER CONTENT */}
                         <div className="flex-1 flex flex-col overflow-y-auto bg-white relative h-full">
@@ -65,19 +65,18 @@ export default function LoginModal() {
                                 <X size={18} />
                             </button>
 
-                            <div className="p-4 pt-6 pb-2 flex-col flex min-h-full">
-                                {/* Header Mobile - Ultra Compact */}
-                                <div className="mb-1">
-                                    <h1 className="text-xl text-slate-800 leading-none">
-                                        Olá, <br />
-                                        <span className="font-cookie text-4xl text-[#800020] block -mt-1">Bella.</span>
+                            <div className="p-5 pt-8 pb-4 flex-col flex min-h-full">
+                                {/* Header Mobile - Brand Context */}
+                                <div className="mb-6 px-1">
+                                    <h1 className="text-2xl font-serif font-bold text-[#800020] mb-2 tracking-wide">
+                                        Identifique-se
                                     </h1>
+                                    <p className="text-slate-600 text-sm leading-relaxed">
+                                        Acesse seus pedidos e acompanhe nossos lançamentos exclusivos de lingerie.
+                                    </p>
                                 </div>
 
-                                <div className="flex-1 flex flex-col">
-                                    <p className="text-slate-400 text-[10px] leading-relaxed mb-3">
-                                        Acesse para ver a curadoria.
-                                    </p>
+                                <div className="flex-1 flex flex-col px-1">
 
                                     <SignIn
                                         appearance={{
