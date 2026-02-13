@@ -7,7 +7,8 @@ import { X, Search, ChevronRight, User } from 'lucide-react';
 import { mainMenu } from '../../data/mockData';
 
 import { useShop } from '../../context/ShopContext';
-import { useUser, useClerk, SignInButton } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
+import { useLoginModal } from '@/store/useLoginModal';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 interface MobileMenuProps {
@@ -25,6 +26,7 @@ export default function MobileMenu({
 }: MobileMenuProps) {
     const router = useRouter(); // Initialize router
     const { user, isSignedIn } = useUser();
+    const { onOpen } = useLoginModal();
 
     // Get Clerk object safely
     const clerk = useClerk();
@@ -97,12 +99,10 @@ export default function MobileMenu({
                             </button>
                         ) : (
                             <div className="flex items-center gap-2 pr-4 py-1.5 bg-[#800020] text-white rounded-full font-bold shadow-sm hover:bg-[#600018] active:scale-95 transition-all text-xs whitespace-nowrap cursor-pointer">
-                                <SignInButton mode="modal">
-                                    <button onClick={onClose} className="flex items-center gap-2 pl-3 w-full h-full">
-                                        <User className="w-4 h-4" />
-                                        {t('nav.login') || 'Entrar'}
-                                    </button>
-                                </SignInButton>
+                                <button onClick={() => { onClose(); onOpen(); }} className="flex items-center gap-2 pl-3 w-full h-full">
+                                    <User className="w-4 h-4" />
+                                    {t('nav.login') || 'Entrar'}
+                                </button>
                             </div>
                         )}
 

@@ -18,7 +18,8 @@ import MobileMenu from './MobileMenu';
 
 import { useShop } from '../../context/ShopContext';
 // import { useAuth } from '../../context/AuthContext'; // Removed
-import { useUser, useClerk, SignInButton } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
+import { useLoginModal } from '@/store/useLoginModal';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Props are now optional - Header manages its own state internally
@@ -51,6 +52,7 @@ export default function Header(_props?: HeaderProps) {
     const { openDrawer, closeDrawer, openModal } = useModal();
     // const { user, isAuthenticated: isLoggedIn } = useAuth(); // Removed
     const { user, isSignedIn } = useUser();
+    const { onOpen } = useLoginModal();
     const { signOut, openSignIn } = useClerk();
 
     const { selectedCategory, setSelectedCategory } = useShop();
@@ -275,13 +277,12 @@ export default function Header(_props?: HeaderProps) {
                             </button>
                         ) : (
                             <div className="hidden lg:block">
-                                <SignInButton mode="modal">
-                                    <button
-                                        className="inline-block bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95 text-center cursor-pointer"
-                                    >
-                                        {t('nav.login')}
-                                    </button>
-                                </SignInButton>
+                                <button
+                                    onClick={onOpen}
+                                    className="inline-block bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95 text-center cursor-pointer"
+                                >
+                                    {t('nav.login')}
+                                </button>
                             </div>
                         )}
 

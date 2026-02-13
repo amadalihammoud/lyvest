@@ -4,6 +4,7 @@ import { ReactNode, Suspense } from 'react';
 import AppProviders from '@/components/layout/AppProviders';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import LoginModal from '@/components/auth/LoginModal';
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -43,6 +44,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 </main>
                 <Footer />
             </div>
+            <LoginModal />
         </AppProviders>
     );
 }
