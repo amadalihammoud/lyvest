@@ -148,7 +148,7 @@ export default function LoginModal() {
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh] min-h-[600px]"
+                        className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh]"
                     >
                         {/* Desktop: Left Side (Image) */}
                         <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.png')] bg-cover bg-center relative">
@@ -167,8 +167,8 @@ export default function LoginModal() {
 
                             <div className="p-12 flex flex-col items-center justify-center min-h-full">
                                 <div className="w-full max-w-sm">
-                                    <div className="text-center mb-3">
-                                        <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Identifique-se</h2>
+                                    <div className="text-center mb-2">
+                                        <h2 className="text-3xl font-bold text-slate-800 font-serif mb-1">Identifique-se</h2>
                                         <p className="text-slate-500">Para acessar os seus pedidos</p>
                                     </div>
 
@@ -208,7 +208,7 @@ export default function LoginModal() {
                                     <SignIn
                                         appearance={{
                                             elements: {
-                                                rootBox: "w-full",
+                                                rootBox: "w-full -mt-2",
                                                 card: "shadow-none p-0 w-full",
                                                 headerTitle: "hidden",
                                                 headerSubtitle: "hidden",
