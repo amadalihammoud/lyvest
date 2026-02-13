@@ -64,6 +64,8 @@ export default function LoginModal() {
                                                 card: "shadow-none p-0 w-full bg-transparent overflow-visible",
                                                 headerTitle: "hidden",
                                                 headerSubtitle: "hidden",
+                                                header: "hidden",
+                                                footer: "hidden",
                                                 formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-md shadow-rose-900/10 w-full normal-case mb-3 transition-transform active:scale-95",
                                                 formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] focus:ring-[#800020]/20 bg-slate-50 py-3 px-4 text-base mb-1",
                                                 formFieldLabel: "text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 mt-2 ml-1",
@@ -183,5 +185,4 @@ export default function LoginModal() {
             )}
         </AnimatePresence>
     );
-}
 }
