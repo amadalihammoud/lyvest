@@ -133,21 +133,8 @@ export default function LoginModal() {
                         className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh]"
                     >
                         {/* Desktop: Left Side (Image) */}
-                        <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/hero-banner.png')] bg-cover bg-center text-white p-12 relative">
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                            <div className="relative z-10">
-                                <h3 className="text-3xl font-cookie mb-2">Lingerie LyVest</h3>
-                            </div>
-
-                            <div className="relative z-10 space-y-4">
-                                <h2 className="text-4xl font-bold font-lato leading-tight">
-                                    Sinta-se única.
-                                </h2>
-                                <p className="text-lg text-rose-100 font-light max-w-sm">
-                                    Entre para o clube LyVest e ganhe <span className="font-bold text-white">10% OFF</span> na sua primeira compra.
-                                </p>
-                            </div>
+                        <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.png')] bg-cover bg-center relative">
+                            {/* Overlay removed as per new image design */}
                         </div>
 
                         {/* Right Side (Form) */}
