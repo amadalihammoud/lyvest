@@ -57,28 +57,26 @@ export default function LoginModal() {
                     >
                         {/* MOBILE DRAWER CONTENT */}
                         <div className="flex-1 flex flex-col overflow-y-auto bg-white relative h-full">
-                            {/* Close Button Top Right */}
+                            {/* Close Button Top Right - Smaller padding */}
                             <button
                                 onClick={onClose}
-                                className="absolute top-4 right-4 z-50 p-2 bg-slate-50 rounded-full text-slate-400 hover:text-[#800020] transition-colors"
+                                className="absolute top-3 right-3 z-50 p-1.5 bg-slate-50 rounded-full text-slate-400 hover:text-[#800020] transition-colors"
                             >
-                                <X size={20} />
+                                <X size={18} />
                             </button>
 
-                            <div className="p-5 pt-8 pb-4 flex-col flex min-h-full">
-                                {/* Header Mobile - Compact */}
-                                <div className="mb-2">
-                                    <h2 className="text-[#800020] font-bold text-xs tracking-widest uppercase mb-2 border-b border-rose-100 pb-1 w-max">Identificação</h2>
-
-                                    <h1 className="text-2xl text-slate-800 leading-none">
+                            <div className="p-4 pt-6 pb-2 flex-col flex min-h-full">
+                                {/* Header Mobile - Ultra Compact */}
+                                <div className="mb-1">
+                                    <h1 className="text-xl text-slate-800 leading-none">
                                         Olá, <br />
-                                        <span className="font-cookie text-5xl text-[#800020] block -mt-1">Bella.</span>
+                                        <span className="font-cookie text-4xl text-[#800020] block -mt-1">Bella.</span>
                                     </h1>
                                 </div>
 
                                 <div className="flex-1 flex flex-col">
-                                    <p className="text-slate-500 text-xs leading-relaxed mb-4">
-                                        Acesse sua conta para ver a curadoria.
+                                    <p className="text-slate-400 text-[10px] leading-relaxed mb-3">
+                                        Acesse para ver a curadoria.
                                     </p>
 
                                     <SignIn
@@ -90,17 +88,17 @@ export default function LoginModal() {
                                                 headerSubtitle: "hidden",
                                                 header: "hidden",
                                                 footer: "hidden",
-                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-lg py-2.5 text-sm font-bold shadow-md shadow-rose-900/10 w-full normal-case mb-2 transition-transform active:scale-95",
-                                                formFieldInput: "rounded-lg border-slate-200 focus:border-[#800020] focus:ring-[#800020]/20 bg-slate-50 py-2.5 px-3 text-sm mb-1 h-10",
-                                                formFieldLabel: "text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-0.5 mt-1 ml-1",
-                                                socialButtonsBlockButton: "rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs py-2 transition-colors h-10 flex items-center justify-center gap-2",
+                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-lg py-2 text-xs font-bold shadow-sm shadow-rose-900/10 w-full normal-case mb-2 transition-transform active:scale-95 h-9",
+                                                formFieldInput: "rounded-lg border-slate-200 focus:border-[#800020] focus:ring-[#800020]/20 bg-slate-50 py-2 px-3 text-xs mb-1 h-9",
+                                                formFieldLabel: "text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-0.5 mt-0.5 ml-1",
+                                                socialButtonsBlockButton: "rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-[10px] py-2 transition-colors h-9 flex items-center justify-center gap-2",
                                                 socialButtonsBlockButtonText: "font-semibold text-slate-600",
-                                                dividerLine: "bg-slate-100 h-px w-full my-3",
-                                                dividerText: "text-slate-400 bg-white px-2 text-[10px] uppercase tracking-widest font-medium relative z-10",
+                                                dividerLine: "bg-slate-100 h-px w-full my-2",
+                                                dividerText: "text-slate-400 bg-white px-2 text-[9px] uppercase tracking-widest font-medium relative z-10",
                                                 footerActionLink: "text-[#800020] font-bold hover:underline",
-                                                identityPreviewText: "text-slate-600 font-medium text-sm",
+                                                identityPreviewText: "text-slate-600 font-medium text-xs",
                                                 identityPreviewEditButton: "text-[#800020] hover:text-[#600018]",
-                                                formFieldAction: "text-[#800020] hover:text-[#600018] text-[10px] font-medium"
+                                                formFieldAction: "text-[#800020] hover:text-[#600018] text-[9px] font-medium"
                                             },
                                             layout: {
                                                 socialButtonsPlacement: 'bottom',
@@ -112,18 +110,15 @@ export default function LoginModal() {
                                         signUpUrl="/sign-up"
                                     />
 
-                                    {/* Benefits Section - Compact */}
-                                    <div className="mt-auto bg-rose-50/40 rounded-xl p-3 border border-rose-100/30 mb-2">
-                                        <h3 className="text-[#800020] font-serif text-sm font-bold mb-2">Why LyVest?</h3>
-                                        <div className="flex gap-4">
-                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-600 font-medium">
-                                                <Heart size={12} className="text-[#800020] fill-[#800020]" />
-                                                <span>Discreto</span>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-600 font-medium">
-                                                <Heart size={12} className="text-[#800020] fill-[#800020]" />
-                                                <span>Troca Grátis</span>
-                                            </div>
+                                    {/* Benefits Section - Ultra Compact */}
+                                    <div className="mt-auto pt-2 border-t border-rose-50 flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-medium">
+                                            <Heart size={10} className="text-[#800020] fill-[#800020]" />
+                                            <span>Emb. Discreta</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-medium">
+                                            <Heart size={10} className="text-[#800020] fill-[#800020]" />
+                                            <span>Troca Grátis</span>
                                         </div>
                                     </div>
                                 </div>
