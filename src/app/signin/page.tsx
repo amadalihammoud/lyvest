@@ -26,9 +26,7 @@ export default function SignInPage() {
             <h1 className="text-2xl font-bold text-slate-800 mb-6">Login Ly Vest</h1>
 
             <div className="mb-4 text-xs text-slate-400">
-                Status: {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-                    ? `Chave: ${process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.substring(0, 15)}...`
-                    : "Chave Faltando"}
+                Status: {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? "Chave Encontrada" : "Chave Faltando"}
             </div>
 
             {/* Loading State - Managed Manually/Visual Only */}
