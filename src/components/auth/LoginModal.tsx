@@ -167,12 +167,9 @@ export default function LoginModal() {
 
                             <div className="p-12 flex flex-col items-center justify-center min-h-full">
                                 <div className="w-full max-w-sm">
-                                    <div className="text-center md:text-left mb-6">
-                                        <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto md:mx-0 mb-4 text-lyvest-700">
-                                            <Gift size={24} />
-                                        </div>
-                                        <h2 className="text-2xl font-bold text-slate-800 font-serif">Identifique-se</h2>
-                                        <p className="text-slate-500 mt-1">Para acessar os seus pedidos</p>
+                                    <div className="text-center mb-6">
+                                        <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Identifique-se</h2>
+                                        <p className="text-slate-500">Para acessar os seus pedidos</p>
                                     </div>
 
                                     {/* Custom Social Buttons */}
@@ -199,12 +196,12 @@ export default function LoginModal() {
                                         />
                                     </div>
 
-                                    <div className="relative mb-6">
+                                    <div className="relative mb-4">
                                         <div className="absolute inset-0 flex items-center">
                                             <div className="w-full border-t border-slate-100"></div>
                                         </div>
                                         <div className="relative flex justify-center text-xs uppercase">
-                                            <span className="bg-white px-2 text-slate-400 tracking-widest">ou continue com e-mail</span>
+                                            <span className="bg-white px-2 text-slate-400 tracking-widest text-[10px]">ou continue com e-mail</span>
                                         </div>
                                     </div>
 
