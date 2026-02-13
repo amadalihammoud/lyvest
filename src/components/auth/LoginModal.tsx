@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useLoginModal } from '@/store/useLoginModal';
 import { SignIn } from '@clerk/nextjs';
 import { X, Check, Gift, Truck, Heart } from 'lucide-react';
@@ -8,12 +9,35 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function LoginModal() {
     const { isOpen, onClose } = useLoginModal();
 
+    const [headerHeight, setHeaderHeight] = useState(0);
+
+    useEffect(() => {
+        const updateHeight = () => {
+            const header = document.querySelector('header');
+            if (header) {
+                setHeaderHeight(header.getBoundingClientRect().bottom);
+            }
+        };
+
+        updateHeight();
+        window.addEventListener('scroll', updateHeight);
+        window.addEventListener('resize', updateHeight);
+
+        return () => {
+            window.removeEventListener('scroll', updateHeight);
+            window.removeEventListener('resize', updateHeight);
+        };
+    }, []);
+
     if (!isOpen) return null;
 
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex justify-start md:items-center md:justify-center">
+                <div
+                    className="fixed inset-x-0 z-40 md:z-[100] flex justify-start md:items-center md:justify-center transition-[top] duration-75 ease-out top-[var(--header-height)] md:top-0 h-[calc(100vh-var(--header-height))] md:h-screen"
+                    style={{ '--header-height': `${headerHeight}px` } as React.CSSProperties}
+                >
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -29,7 +53,7 @@ export default function LoginModal() {
                         animate={{ x: 0 }}
                         exit={{ x: '-100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="relative w-[92%] max-w-[420px] h-full bg-white shadow-2xl flex flex-col md:hidden"
+                        className="relative w-[95%] max-w-[420px] h-full bg-white shadow-2xl flex flex-col md:hidden"
                     >
                         {/* MOBILE DRAWER CONTENT */}
                         <div className="flex-1 flex flex-col overflow-y-auto bg-white relative h-full">
