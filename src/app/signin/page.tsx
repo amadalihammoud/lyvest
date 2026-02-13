@@ -22,56 +22,69 @@ export default function SignInPage() {
     }, []);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
-            <h1 className="text-2xl font-bold text-slate-800 mb-6">Login Ly Vest</h1>
+        <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-[#FDF8F9]">
 
-            <div className="mb-4 text-xs text-slate-400">
-                Status: {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? "Chave Encontrada" : "Chave Faltando"}
+            {/* Logo Section */}
+            <div className="mb-8 flex flex-col items-center">
+                <h1 className="text-4xl text-[#9F1239] font-cookie">Ly Vest</h1>
+                <p className="text-sm text-slate-500 mt-2 uppercase tracking-widest text-[10px]">Moda Íntima Premium</p>
             </div>
 
             {/* Loading State - Managed Manually/Visual Only */}
             {(!clerk?.loaded) && (
                 <div className="flex flex-col items-center mb-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 mb-4"></div>
-                    <p className="text-slate-500">Carregando sistema de login...</p>
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#9F1239] mb-4"></div>
+                    <p className="text-slate-400 text-sm">Carregando...</p>
                 </div>
             )}
 
-            {/* Clerk Form - Only shows when loaded */}
+            {/* Clerk Form */}
             {clerk?.loaded && (
-                <div className="w-full max-w-md bg-white p-4 rounded-lg shadow-sm border border-slate-200 min-h-[400px]">
-                    <div className="text-center text-xs text-slate-400 mb-2">Área segura Clerk</div>
-                    <SignIn path="/signin" routing="path" signUpUrl="/sign-up" forceRedirectUrl="/dashboard" />
+                <div className="w-full max-w-[480px]">
+                    <SignIn
+                        path="/signin"
+                        routing="path"
+                        signUpUrl="/sign-up"
+                        forceRedirectUrl="/dashboard"
+                        appearance={{
+                            elements: {
+                                card: "shadow-xl border-none p-8 rounded-2xl bg-white",
+                                headerTitle: "text-[#9F1239] text-xl mb-1",
+                                headerSubtitle: "text-slate-500 text-sm",
+                                socialButtonsBlockButton: "border-slate-200 hover:bg-slate-50 text-slate-600",
+                                socialButtonsBlockButtonText: "font-medium",
+                                dividerLine: "bg-slate-100",
+                                dividerText: "text-slate-400 text-xs",
+                                formFieldLabel: "text-slate-700 font-medium",
+                                formFieldInput: "border-slate-200 focus:border-[#9F1239] focus:ring-[#9F1239] rounded-lg",
+                                formButtonPrimary: "bg-[#9F1239] hover:bg-[#881337] text-white rounded-lg font-medium shadow-md shadow-rose-200 transform transition-all hover:-translate-y-0.5",
+                                footerActionText: "text-slate-500",
+                                footerActionLink: "text-[#9F1239] hover:text-[#881337] font-medium"
+                            },
+                            layout: {
+                                socialButtonsPlacement: "bottom",
+                                socialButtonsVariant: "blockButton",
+                                showOptionalFields: false
+                            }
+                        }}
+                    />
                 </div>
             )}
 
-            {/* Fallback Section - Shows if loaded OR if timeout occurs */}
-            {(clerk?.loaded || showFallback) && (
-                <div className="mt-8 text-center animate-fade-in">
-                    <p className="text-slate-600 mb-2">Problemas com o formulário?</p>
+            {/* Subtle Fallback Link (Only shows if things take too long) */}
+            {(!clerk?.loaded && showFallback) && (
+                <div className="mt-8 text-center animate-fade-in opacity-0 animate-delay-1000" style={{ animationFillMode: 'forwards' }}>
                     <a
                         href={signInUrl !== "/" ? signInUrl : "#"}
                         onClick={(e) => {
-                            if (signInUrl === "/") {
-                                e.preventDefault();
-                                // Try to force open if possible, or reload
-                                if (clerk?.openSignIn) {
-                                    clerk.openSignIn();
-                                } else {
-                                    alert("Não foi possível conectar ao Clerk. Recarregando...");
-                                    window.location.reload();
-                                }
-                            }
+                            if (signInUrl === "/") e.preventDefault();
+                            if (clerk?.openSignIn) clerk.openSignIn();
                         }}
-                        className="inline-block bg-slate-800 text-white px-6 py-2 rounded-full font-bold hover:bg-slate-700 transition-colors cursor-pointer"
+                        className="text-xs text-slate-400 hover:text-[#9F1239] underline transition-colors cursor-pointer"
                     >
-                        Acessar Portal de Login (Externo)
+                        Problemas? Acessar login alternativo
                     </a>
                 </div>
-            )}
-
-            {!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
-                <p className="mt-8 text-red-500 font-bold">Erro Fatal: API Key não encontrada</p>
             )}
         </div>
     );
