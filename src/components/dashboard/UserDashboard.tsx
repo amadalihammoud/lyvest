@@ -49,6 +49,9 @@ const SectionLoader = memo(function SectionLoader() {
 });
 
 // Componente de header memoizado
+const UserProfile = lazy(() => import('@clerk/nextjs').then(mod => ({ default: mod.UserProfile })));
+
+// Componente de header memoizado (unchanged)
 const DashboardHeader = memo(function DashboardHeader({ user, t }: { user: User; t: (key: string, params?: Record<string, string | number>) => string }) {
     return (
         <div className="flex items-center gap-4 mb-8">
@@ -84,23 +87,19 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
     const [activeTab, setActiveTab] = useState('orders');
 
     // Renderizar apenas a seção ativa com lazy loading
-    const UserProfile = lazy(() => import('@clerk/nextjs').then(mod => ({ default: mod.UserProfile })));
-
-    // Renderizar apenas a seção ativa com lazy loading
     const renderActiveSection = () => {
         return (
-            <Suspense fallback={<div className="flex justify-center p-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#800020]"></div></div>}>
+            <Suspense fallback={<div className="flex justify-center p-12 animate-fade-in"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#800020]"></div></div>}>
                 {activeTab === 'orders' && <OrdersSection orders={orders} onTrackOrder={onTrackOrder} />}
                 {activeTab === 'favorites' && <FavoritesSection />}
 
                 {/* Integração do Perfil Clerk - Substitui Profile e Settings */}
                 {(activeTab === 'profile' || activeTab === 'settings') && (
-                    <div className="w-full flex justify-center">
+                    <div className="w-full flex justify-center animate-fade-in">
                         <UserProfile
-                            path="/dashboard"
-                            routing="hash"
                             appearance={{
                                 elements: {
+                                    rootBox: "w-full",
                                     card: "shadow-none w-full max-w-full border border-slate-200 rounded-xl",
                                     navbar: "hidden", // Hide navbar to use our own or keep it if preferred
                                     headerTitle: "text-[#800020]",
