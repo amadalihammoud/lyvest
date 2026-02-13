@@ -41,20 +41,20 @@ export default function LoginModal() {
                                 <X size={20} />
                             </button>
 
-                            <div className="p-6 pt-10 pb-6 flex-col flex min-h-full">
-                                {/* Header Mobile */}
-                                <div className="mb-6">
-                                    <h2 className="text-[#800020] font-bold text-sm tracking-widest uppercase mb-4 border-b border-rose-100 pb-2">Identificação</h2>
+                            <div className="p-5 pt-8 pb-4 flex-col flex min-h-full">
+                                {/* Header Mobile - Compact */}
+                                <div className="mb-2">
+                                    <h2 className="text-[#800020] font-bold text-xs tracking-widest uppercase mb-2 border-b border-rose-100 pb-1 w-max">Identificação</h2>
 
-                                    <h1 className="text-3xl text-slate-800 leading-none">
+                                    <h1 className="text-2xl text-slate-800 leading-none">
                                         Olá, <br />
-                                        <span className="font-cookie text-6xl text-[#800020] block mt-1">Bella.</span>
+                                        <span className="font-cookie text-5xl text-[#800020] block -mt-1">Bella.</span>
                                     </h1>
                                 </div>
 
                                 <div className="flex-1 flex flex-col">
-                                    <p className="text-slate-500 text-sm leading-relaxed mb-6">
-                                        Entre para acessar seu carrinho e nossa curadoria exclusiva.
+                                    <p className="text-slate-500 text-xs leading-relaxed mb-4">
+                                        Acesse sua conta para ver a curadoria.
                                     </p>
 
                                     <SignIn
@@ -66,17 +66,17 @@ export default function LoginModal() {
                                                 headerSubtitle: "hidden",
                                                 header: "hidden",
                                                 footer: "hidden",
-                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-md shadow-rose-900/10 w-full normal-case mb-3 transition-transform active:scale-95",
-                                                formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] focus:ring-[#800020]/20 bg-slate-50 py-3 px-4 text-base mb-1",
-                                                formFieldLabel: "text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 mt-2 ml-1",
-                                                socialButtonsBlockButton: "rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm py-3 transition-colors h-12 flex items-center justify-center gap-2",
+                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-lg py-2.5 text-sm font-bold shadow-md shadow-rose-900/10 w-full normal-case mb-2 transition-transform active:scale-95",
+                                                formFieldInput: "rounded-lg border-slate-200 focus:border-[#800020] focus:ring-[#800020]/20 bg-slate-50 py-2.5 px-3 text-sm mb-1 h-10",
+                                                formFieldLabel: "text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-0.5 mt-1 ml-1",
+                                                socialButtonsBlockButton: "rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs py-2 transition-colors h-10 flex items-center justify-center gap-2",
                                                 socialButtonsBlockButtonText: "font-semibold text-slate-600",
-                                                dividerLine: "bg-slate-100 h-px w-full my-4",
-                                                dividerText: "text-slate-400 bg-white px-3 text-[10px] uppercase tracking-widest font-medium relative z-10",
+                                                dividerLine: "bg-slate-100 h-px w-full my-3",
+                                                dividerText: "text-slate-400 bg-white px-2 text-[10px] uppercase tracking-widest font-medium relative z-10",
                                                 footerActionLink: "text-[#800020] font-bold hover:underline",
-                                                identityPreviewText: "text-slate-600 font-medium",
+                                                identityPreviewText: "text-slate-600 font-medium text-sm",
                                                 identityPreviewEditButton: "text-[#800020] hover:text-[#600018]",
-                                                formFieldAction: "text-[#800020] hover:text-[#600018] text-xs font-medium"
+                                                formFieldAction: "text-[#800020] hover:text-[#600018] text-[10px] font-medium"
                                             },
                                             layout: {
                                                 socialButtonsPlacement: 'bottom',
@@ -88,16 +88,16 @@ export default function LoginModal() {
                                         signUpUrl="/sign-up"
                                     />
 
-                                    {/* Benefits Section */}
-                                    <div className="mt-auto bg-rose-50/60 rounded-2xl p-5 border border-rose-100/50 mb-6">
-                                        <h3 className="text-[#800020] font-serif text-lg font-bold mb-3">Why LyVest?</h3>
-                                        <div className="space-y-2.5">
-                                            <div className="flex items-center gap-2.5 text-xs text-slate-600 font-medium">
-                                                <Heart size={14} className="text-[#800020] fill-[#800020]" />
-                                                <span>Embalagem Discreta</span>
+                                    {/* Benefits Section - Compact */}
+                                    <div className="mt-auto bg-rose-50/40 rounded-xl p-3 border border-rose-100/30 mb-2">
+                                        <h3 className="text-[#800020] font-serif text-sm font-bold mb-2">Why LyVest?</h3>
+                                        <div className="flex gap-4">
+                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-600 font-medium">
+                                                <Heart size={12} className="text-[#800020] fill-[#800020]" />
+                                                <span>Discreto</span>
                                             </div>
-                                            <div className="flex items-center gap-2.5 text-xs text-slate-600 font-medium">
-                                                <Heart size={14} className="text-[#800020] fill-[#800020]" />
+                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-600 font-medium">
+                                                <Heart size={12} className="text-[#800020] fill-[#800020]" />
                                                 <span>Troca Grátis</span>
                                             </div>
                                         </div>
