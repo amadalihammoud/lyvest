@@ -220,6 +220,7 @@ export default function LoginModal() {
                                                 formFieldLabel: "text-slate-700 font-medium ml-1",
                                                 socialButtonsJSONObject: "hidden",
                                                 socialButtonsBlockButton: "hidden",
+                                                socialButtons: "hidden",
                                                 dividerRow: "hidden",
                                                 dividerText: "text-slate-400 bg-white px-2 uppercase text-xs tracking-widest",
                                                 footerActionLink: "text-[#800020] font-bold hover:underline",
