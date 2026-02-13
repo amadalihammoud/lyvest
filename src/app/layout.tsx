@@ -85,6 +85,33 @@ export default function RootLayout({
         <ClerkProvider
             localization={ptBR}
             publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+            appearance={{
+                variables: {
+                    colorPrimary: '#800020', // Bordô Ly Vest
+                    colorText: '#334155',
+                    colorTextSecondary: '#64748B',
+                    fontFamily: 'var(--font-lato)',
+                },
+                elements: {
+                    card: "shadow-xl border-none p-8 rounded-2xl bg-white",
+                    headerTitle: "text-[#800020] text-xl mb-1 font-bold",
+                    headerSubtitle: "text-slate-500 text-sm",
+                    socialButtonsBlockButton: "border-slate-200 hover:bg-slate-50 text-slate-600",
+                    socialButtonsBlockButtonText: "font-medium",
+                    dividerLine: "bg-slate-100",
+                    dividerText: "text-slate-400 text-xs",
+                    formFieldLabel: "text-slate-700 font-medium",
+                    formFieldInput: "border-slate-200 focus:border-[#800020] focus:ring-[#800020] rounded-lg",
+                    formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-lg font-medium shadow-md shadow-rose-200 transform transition-all hover:-translate-y-0.5",
+                    footerActionText: "text-slate-500",
+                    footerActionLink: "text-[#800020] hover:text-[#600018] font-medium"
+                },
+                layout: {
+                    socialButtonsPlacement: "bottom",
+                    socialButtonsVariant: "blockButton",
+                    showOptionalFields: false
+                }
+            }}
         >
             <html lang="pt-BR" className={`${inter.variable} ${lato.variable} ${cookie.variable}`}>
                 <head>

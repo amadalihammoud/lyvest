@@ -18,7 +18,7 @@ import MobileMenu from './MobileMenu';
 
 import { useShop } from '../../context/ShopContext';
 // import { useAuth } from '../../context/AuthContext'; // Removed
-import { useUser, useClerk } from '@clerk/nextjs';
+import { useUser, useClerk, SignInButton } from '@clerk/nextjs';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Props are now optional - Header manages its own state internally
@@ -275,12 +275,13 @@ export default function Header(_props?: HeaderProps) {
                             </button>
                         ) : (
                             <div className="hidden lg:block">
-                                <Link
-                                    href="/signin"
-                                    className="inline-block bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95 text-center"
-                                >
-                                    {t('nav.login')}
-                                </Link>
+                                <SignInButton mode="modal">
+                                    <button
+                                        className="inline-block bg-lyvest-500 hover:bg-lyvest-600 text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md active:scale-95 text-center cursor-pointer"
+                                    >
+                                        {t('nav.login')}
+                                    </button>
+                                </SignInButton>
                             </div>
                         )}
 
