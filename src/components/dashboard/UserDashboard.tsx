@@ -84,16 +84,37 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
     const [activeTab, setActiveTab] = useState('orders');
 
     // Renderizar apenas a seção ativa com lazy loading
+    const UserProfile = lazy(() => import('@clerk/nextjs').then(mod => ({ default: mod.UserProfile })));
+
+    // Renderizar apenas a seção ativa com lazy loading
     const renderActiveSection = () => {
-
-
         return (
-            <Suspense fallback={<SectionLoader />}>
+            <Suspense fallback={<div className="flex justify-center p-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#800020]"></div></div>}>
                 {activeTab === 'orders' && <OrdersSection orders={orders} onTrackOrder={onTrackOrder} />}
                 {activeTab === 'favorites' && <FavoritesSection />}
-                {activeTab === 'profile' && <ProfileSection user={user} />}
+
+                {/* Integração do Perfil Clerk - Substitui Profile e Settings */}
+                {(activeTab === 'profile' || activeTab === 'settings') && (
+                    <div className="w-full flex justify-center">
+                        <UserProfile
+                            path="/dashboard"
+                            routing="hash"
+                            appearance={{
+                                elements: {
+                                    card: "shadow-none w-full max-w-full border border-slate-200 rounded-xl",
+                                    navbar: "hidden", // Hide navbar to use our own or keep it if preferred
+                                    headerTitle: "text-[#800020]",
+                                    formButtonPrimary: "bg-[#800020] hover:bg-[#600018]",
+                                    fileDropAreaBox: "border-slate-300 hover:border-[#800020]",
+                                    fileDropAreaIconBox: "text-[#800020] bg-rose-50",
+                                    fileDropAreaIcon: "text-[color:var(--cl-colors-text-primary)]",
+                                }
+                            }}
+                        />
+                    </div>
+                )}
+
                 {activeTab === 'addresses' && <AddressSection />}
-                {activeTab === 'settings' && <SettingsSection user={user} />}
             </Suspense>
         );
     };
