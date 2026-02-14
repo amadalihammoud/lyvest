@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import HomePageClient from '@/components/pages/HomePageClient';
 import Hero from '@/components/features/Hero';
 import InfoStrip from '@/components/features/InfoStrip';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
     title: 'Ly Vest - Moda Íntima Premium',
@@ -14,15 +16,31 @@ export const metadata: Metadata = {
     },
 };
 
-export default function HomePage() {
+// Lazy load viewport-dependent components
+const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: true });
+const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true });
+
+export default async function HomePage() {
     return (
-        <>
-            {/* Hero & Info Banner - Rendered Immediately (SSR) to improve LCP */}
-            <div className="bg-gradient-to-b from-lyvest-500 via-[#A0303C] to-white">
+        <main className="min-h-screen">
+            {/* Critical Path: Loaded Immediately */}
+            <div className="bg-gradient-to-b from-white to-pink-50/30">
                 <Hero />
                 <InfoStrip />
             </div>
-            <HomePageClient />
-        </>
+
+            <div className="container mx-auto px-4 py-8 lg:py-12">
+                <HomePageClient />
+            </div>
+
+            {/* Non-Critical: Lazy Loaded */}
+            <Suspense fallback={<div className="h-64 bg-sky-50/30 animate-pulse" />}>
+                <Testimonials />
+            </Suspense>
+
+            <Suspense fallback={<div className="h-32 bg-slate-50" />}>
+                <Footer />
+            </Suspense>
+        </main>
     );
 }
