@@ -3,6 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not partials",
+    "not dead"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

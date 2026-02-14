@@ -46,7 +46,7 @@ function Hero() {
                                             fill
                                             priority={index === 0} // Prioritize first slide LCP
                                             className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
-                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
                                         />
                                     </div>
                                 </div>
