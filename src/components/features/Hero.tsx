@@ -15,7 +15,7 @@ function Hero() {
     React.useEffect(() => {
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
-        }, 2000);
+        }, 5000);
         return () => clearInterval(timer);
     }, []);
 

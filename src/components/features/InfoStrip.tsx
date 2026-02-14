@@ -45,7 +45,7 @@ function InfoStrip() {
     React.useEffect(() => {
         const timer = setInterval(() => {
             setCurrentGroup((prev) => (prev + 1) % mobileGroups.length);
-        }, 3500);
+        }, 5000);
         return () => clearInterval(timer);
     }, [mobileGroups.length]);
 
