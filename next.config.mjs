@@ -19,6 +19,7 @@ const nextConfig = {
     experimental: {
         optimizePackageImports: [
             'lucide-react',
+            '@clerk/nextjs',
             '@supabase/supabase-js',
             'framer-motion',
             'date-fns',
