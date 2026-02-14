@@ -103,7 +103,6 @@ export default function OptimizedProductImage({
                 }}
                 className={`object-cover ${className}`} // Apply className to Image too for object-fit etc
                 style={styles}
-                unoptimized={true} // Force unoptimized to bypass Vercel processing issues
             />
         </div>
     );
