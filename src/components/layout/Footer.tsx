@@ -65,7 +65,7 @@ export default function Footer() {
                             <div className="flex items-center gap-5">
                                 {/* Visa - Official logo image */}
                                 <div className="h-12 px-4 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100 hover:shadow-md transition-shadow">
-                                    <img src="/visa-logo.png" alt="Visa" width="60" height="20" className="h-10 w-auto object-contain" />
+                                    <img src="/visa-logo.webp" alt="Visa" width="60" height="20" className="h-10 w-auto object-contain" />
                                 </div>
                                 {/* Mastercard - Official overlapping circles */}
                                 <div className="h-12 px-3 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100 hover:shadow-md transition-shadow">
@@ -78,7 +78,7 @@ export default function Footer() {
 
                                 {/* Pix - Official logo image */}
                                 <div className="h-12 px-3 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100 hover:shadow-md transition-shadow">
-                                    <img src="/pix-logo.png" alt="Pix" width="60" height="32" className="h-8 w-auto object-contain" />
+                                    <img src="/pix-logo.webp" alt="Pix" width="60" height="32" className="h-8 w-auto object-contain" />
                                 </div>
                             </div>
                         </div>
@@ -87,7 +87,7 @@ export default function Footer() {
                         <div className="flex flex-col items-center gap-4">
                             <span className="text-xs text-slate-600 font-semibold uppercase tracking-widest">{t('footer.security')}</span>
                             <div className="flex items-center gap-4 h-12">
-                                <img src="/lets-encrypt.png" alt="Let's Encrypt" width="60" height="40" className="h-full w-auto object-contain" />
+                                <img src="/lets-encrypt.webp" alt="Let's Encrypt" width="60" height="40" className="h-full w-auto object-contain" />
                             </div>
                         </div>
 
@@ -97,15 +97,15 @@ export default function Footer() {
                             <div className="flex items-center gap-6">
                                 {/* Instagram - Official logo image */}
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    <img src="/instagram-logo.png" alt="Instagram" width="40" height="40" className="w-10 h-10 object-contain" />
+                                    <img src="/instagram-logo.webp" alt="Instagram" width="40" height="40" className="w-10 h-10 object-contain" />
                                 </a>
                                 {/* Facebook - Official logo image */}
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    <img src="/facebook-logo.png" alt="Facebook" width="40" height="40" className="w-10 h-10 object-contain" />
+                                    <img src="/facebook-logo.webp" alt="Facebook" width="40" height="40" className="w-10 h-10 object-contain" />
                                 </a>
                                 {/* X - Official logo image */}
                                 <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="X">
-                                    <img src="/x-logo.png" alt="X" width="32" height="32" className="w-8 h-8 object-contain" />
+                                    <img src="/x-logo.webp" alt="X" width="32" height="32" className="w-8 h-8 object-contain" />
                                 </a>
                             </div>
                         </div>

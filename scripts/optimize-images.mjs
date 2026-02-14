@@ -13,7 +13,13 @@ const IMAGES_TO_CONVERT = [
     'banner-slide-1.png',
     'banner-slide-2.png',
     'hero-banner.png',
-    'lyvest-red-logo.png'
+    'lyvest-red-logo.png',
+    'visa-logo.png',
+    'pix-logo.png',
+    'lets-encrypt.png',
+    'instagram-logo.png',
+    'facebook-logo.png',
+    'x-logo.png'
 ];
 
 async function convertImages() {
