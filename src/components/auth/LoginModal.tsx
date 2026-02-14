@@ -133,7 +133,7 @@ export default function LoginModal() {
                                     <SignIn
                                         appearance={{
                                             elements: {
-                                                rootBox: "w-full",
+                                                rootBox: "w-full max-w-sm mx-auto",
                                                 card: "shadow-none p-0 w-full bg-transparent overflow-visible",
                                                 headerTitle: "hidden",
                                                 headerSubtitle: "hidden",
