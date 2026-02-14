@@ -19,7 +19,10 @@ const IMAGES_TO_CONVERT = [
     'lets-encrypt.png',
     'instagram-logo.png',
     'facebook-logo.png',
-    'x-logo.png'
+    'x-logo.png',
+    'login-featured.png',
+    'ly-avatar.png',
+    'footer-logo.png'
 ];
 
 async function convertImages() {

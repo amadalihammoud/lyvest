@@ -185,7 +185,7 @@ export default function LoginModal() {
                         className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh] min-h-[680px]"
                     >
                         {/* Desktop: Left Side (Image) */}
-                        <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.png')] bg-cover bg-center relative">
+                        <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.webp')] bg-cover bg-center relative">
                             {/* Overlay removed as per new image design */}
                         </div>
 
