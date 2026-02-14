@@ -28,7 +28,7 @@ export default function TestimonialsSection() {
                     >
                         {t('testimonials.title')}
                     </h2>
-                    <p className="text-slate-500 font-lato">{t('testimonials.subtitle')}</p>
+                    <p className="text-slate-600 font-lato">{t('testimonials.subtitle')}</p>
                 </div>
 
                 <div
