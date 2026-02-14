@@ -65,7 +65,7 @@ export default function ChatWidget() {
                         <div className="flex items-center gap-3">
                             <div className="relative">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full shadow-inner overflow-hidden bg-white">
-                                    <img src="/ly-avatar.png" alt="Ly" className="h-full w-full object-cover scale-110" />
+                                    <img src="/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
                                 </div>
                                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-[#800020]"></span>
                             </div>
@@ -87,7 +87,7 @@ export default function ChatWidget() {
                             {messages.length === 0 && (
                                 <div className="flex gap-3 animate-fade-in">
                                     <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden shadow-sm bg-white">
-                                        <img src="/ly-avatar.png" alt="Ly" className="h-full w-full object-cover scale-110" />
+                                        <img src="/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
                                     </div>
                                     <div className="flex flex-col gap-1 max-w-[85%]">
                                         <div className="rounded-2xl rounded-tl-none bg-white p-3 text-sm text-slate-700 shadow-sm border border-slate-100">
@@ -105,7 +105,7 @@ export default function ChatWidget() {
                                     >
                                         {m.role !== 'user' && (
                                             <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden shadow-sm bg-white">
-                                                <img src="/ly-avatar.png" alt="Ly" className="h-full w-full object-cover scale-110" />
+                                                <img src="/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
                                             </div>
                                         )}
 
@@ -142,7 +142,7 @@ export default function ChatWidget() {
                             {isLoading && (
                                 <div className="flex gap-3 animate-fade-in">
                                     <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden shadow-sm bg-white">
-                                        <img src="/ly-avatar.png" alt="Ly" className="h-full w-full object-cover scale-110" />
+                                        <img src="/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
                                     </div>
                                     <div className="rounded-2xl rounded-tl-none bg-white p-4 shadow-sm border border-slate-100">
                                         <div className="flex gap-1.5">
