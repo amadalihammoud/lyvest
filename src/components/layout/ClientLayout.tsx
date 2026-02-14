@@ -1,9 +1,11 @@
 'use client';
 
 import { ReactNode, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import AppProviders from '@/components/layout/AppProviders';
 import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+// Footer lazy loaded to reduce initial TBT
+const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true });
 import LoginModal from '@/components/auth/LoginModal';
 
 interface ClientLayoutProps {
@@ -42,7 +44,9 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 <main className="flex-grow">
                     {children}
                 </main>
-                <Footer />
+                <Suspense fallback={<div className="h-32 bg-slate-50" />}>
+                    <Footer />
+                </Suspense>
             </div>
             <LoginModal />
         </AppProviders>

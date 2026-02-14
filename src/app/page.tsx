@@ -1,6 +1,6 @@
 
 import type { Metadata } from 'next';
-import HomePageClient from '@/components/pages/HomePageClient';
+// HomePageClient is now dynamic
 import Hero from '@/components/features/Hero';
 import InfoStrip from '@/components/features/InfoStrip';
 import dynamic from 'next/dynamic';
@@ -17,8 +17,9 @@ export const metadata: Metadata = {
 };
 
 // Lazy load viewport-dependent components
+const HomePageClient = dynamic(() => import('@/components/pages/HomePageClient'), { ssr: true });
 const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: true });
-const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true });
+// Footer removed from here as it is in ClientLayout (now lazy)
 
 export default async function HomePage() {
     return (
@@ -29,17 +30,16 @@ export default async function HomePage() {
                 <InfoStrip />
             </div>
 
+            {/* Lazy Load Product Grid for TBT win */}
             <div className="container mx-auto px-4 py-8 lg:py-12">
-                <HomePageClient />
+                <Suspense fallback={<div className="h-96 md:h-[600px] bg-slate-50 animate-pulse rounded-xl" />}>
+                    <HomePageClient />
+                </Suspense>
             </div>
 
             {/* Non-Critical: Lazy Loaded */}
             <Suspense fallback={<div className="h-64 bg-sky-50/30 animate-pulse" />}>
                 <Testimonials />
-            </Suspense>
-
-            <Suspense fallback={<div className="h-32 bg-slate-50" />}>
-                <Footer />
             </Suspense>
         </main>
     );
