@@ -1,4 +1,3 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
@@ -20,6 +19,12 @@ const nextConfig = {
     experimental: {
         optimizePackageImports: [
             'lucide-react',
+            '@supabase/supabase-js',
+            'framer-motion',
+            'date-fns',
+            'lodash',
+            'canvas-confetti',
+            '@sentry/react'
         ],
     },
     // Security Headers for Production
@@ -52,26 +57,6 @@ const nextConfig = {
                         key: 'Strict-Transport-Security',
                         value: 'max-age=31536000; includeSubDomains',
                     },
-                    // Content Security Policy - Temporarily disabled for debugging Clerk
-                    /*
-                    {
-                        key: 'Content-Security-Policy',
-                        value: [
-                            "default-src 'self'",
-                            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https: http:",
-                            "style-src 'self' 'unsafe-inline' https: http:",
-                            "font-src 'self' https: data:",
-                            "img-src 'self' data: blob: https: http:",
-                            "connect-src 'self' https: http: wss:",
-                            "worker-src 'self' blob:",
-                            "frame-src 'self' https: http:",
-                            "base-uri 'self'",
-                            "form-action 'self'",
-                            "object-src 'none'",
-                            "upgrade-insecure-requests",
-                        ].join('; '),
-                    },
-                    */
                 ],
             },
             // Cache headers for static images (1 year)
