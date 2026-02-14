@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
 // No icons needed
@@ -45,6 +47,7 @@ function Hero() {
                                             alt={slide.alt}
                                             fill
                                             priority={index === 0} // Prioritize first slide LCP
+                                            fetchPriority={index === 0 ? "high" : "auto"}
                                             className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
                                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
                                         />

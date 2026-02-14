@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Hero from '@/components/features/Hero';
+// Hero and InfoStrip moved to page.tsx for LCP optimization
+// import Hero from '@/components/features/Hero';
 import ProductCard from '@/components/product/ProductCard';
-import InfoStrip from '@/components/features/InfoStrip';
+// import InfoStrip from '@/components/features/InfoStrip';
 import { productsData } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -163,11 +164,7 @@ function ProductGridSkeleton() {
 export default function HomePageClient() {
     return (
         <>
-            {/* Hero & Info Banner - Rendered Immediately (SSR) */}
-            <div className="bg-gradient-to-b from-lyvest-500 via-[#A0303C] to-white">
-                <Hero />
-                <InfoStrip />
-            </div>
+            {/* Hero & InfoStrip are now rendered in page.tsx for LCP optimization */}
 
             {/* Suspended Product Grid - Loading State only affects this part */}
             <Suspense fallback={<ProductGridSkeleton />}>

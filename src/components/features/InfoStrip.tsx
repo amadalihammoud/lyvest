@@ -1,4 +1,6 @@
-﻿import React from 'react';
+﻿'use client';
+
+import React from 'react';
 import { CreditCard, Truck, Percent, Lock } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
 
