@@ -6,7 +6,9 @@
   "browserslist": [
     "defaults",
     "not IE 11",
-    "not dead"
+    "not dead",
+    "> 0.2%",
+    "not op_mini all"
   ],
   "scripts": {
     "dev": "next dev",

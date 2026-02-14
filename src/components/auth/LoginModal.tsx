@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useLoginModal } from '@/store/useLoginModal';
 import { SignIn, useSignIn } from '@clerk/nextjs';
 import { X, Check, Gift, Truck, Heart } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
 
 export default function LoginModal() {
     const { isOpen, onClose } = useLoginModal();
@@ -50,163 +50,53 @@ export default function LoginModal() {
     if (!isOpen) return null;
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <div
-                    className="fixed inset-x-0 z-40 md:z-[100] flex justify-start md:items-center md:justify-center transition-[top] duration-75 ease-out top-[var(--header-height)] md:top-0 h-[calc(100dvh-var(--header-height))] md:h-screen"
-                    style={{ '--header-height': `${headerHeight}px` } as React.CSSProperties}
-                >
-                    {/* Backdrop */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                    />
-
-                    {/* MOBILE DRAWER (Hamburger Style) - Visible ONLY on Mobile */}
-                    <motion.div
-                        initial={{ x: '-100%' }}
-                        animate={{ x: 0 }}
-                        exit={{ x: '-100%' }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="relative w-full h-full bg-white shadow-2xl flex flex-col md:hidden"
+        <LazyMotion features={domAnimation}>
+            <AnimatePresence>
+                {isOpen && (
+                    <div
+                        className="fixed inset-x-0 z-40 md:z-[100] flex justify-start md:items-center md:justify-center transition-[top] duration-75 ease-out top-[var(--header-height)] md:top-0 h-[calc(100dvh-var(--header-height))] md:h-screen"
+                        style={{ '--header-height': `${headerHeight}px` } as React.CSSProperties}
                     >
-                        {/* MOBILE DRAWER CONTENT */}
-                        <div className="flex-1 flex flex-col overflow-y-auto bg-white relative h-full">
-                            {/* Close Button Top Right - Smaller padding */}
-                            <button
-                                onClick={onClose}
-                                className="absolute top-3 right-3 z-50 p-1.5 bg-slate-50 rounded-full text-slate-400 hover:text-[#800020] transition-colors"
-                            >
-                                <X size={18} />
-                            </button>
+                        {/* Backdrop */}
+                        <m.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={onClose}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
 
-                            <div className="p-5 pt-8 pb-4 flex-col flex min-h-full">
-                                {/* Header Mobile - Brand Context */}
-                                {/* Header Mobile - Brand Context - Replicated from Desktop */}
-                                <div className="mb-6 px-1 text-center">
-                                    <h1 className="text-3xl font-bold text-[#800020] font-serif mb-2 tracking-wide">
-                                        Identifique-se
-                                    </h1>
-                                    <p className="text-slate-600 text-sm leading-relaxed">
-                                        Para acessar os seus pedidos
-                                    </p>
-                                </div>
+                        {/* MOBILE DRAWER (Hamburger Style) - Visible ONLY on Mobile */}
+                        <m.div
+                            initial={{ x: '-100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '-100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="relative w-full h-full bg-white shadow-2xl flex flex-col md:hidden"
+                        >
+                            {/* MOBILE DRAWER CONTENT */}
+                            <div className="flex-1 flex flex-col overflow-y-auto bg-white relative h-full">
+                                {/* Close Button Top Right - Smaller padding */}
+                                <button
+                                    onClick={onClose}
+                                    className="absolute top-3 right-3 z-50 p-1.5 bg-slate-50 rounded-full text-slate-400 hover:text-[#800020] transition-colors"
+                                >
+                                    <X size={18} />
+                                </button>
 
-                                {/* Custom Social Buttons - Mobile */}
-                                <div className="flex justify-center gap-4 mb-6">
-                                    <SocialButton
-                                        provider="oauth_google"
-                                        icon="google"
-                                        onClick={() => handleSocialLogin('oauth_google')}
-                                    />
-                                    <SocialButton
-                                        provider="oauth_facebook"
-                                        icon="facebook"
-                                        onClick={() => handleSocialLogin('oauth_facebook', false)}
-                                    />
-                                    <SocialButton
-                                        provider="oauth_apple"
-                                        icon="apple"
-                                        onClick={() => handleSocialLogin('oauth_apple', false)}
-                                    />
-                                    <SocialButton
-                                        provider="oauth_microsoft"
-                                        icon="microsoft"
-                                        onClick={() => handleSocialLogin('oauth_microsoft', false)}
-                                    />
-                                </div>
-
-                                <div className="relative mb-6">
-                                    <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-slate-100"></div>
-                                    </div>
-                                    <div className="relative flex justify-center text-xs uppercase">
-                                        <span className="bg-white px-2 text-slate-400 tracking-widest text-[10px]">ou continue com e-mail</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex-1 flex flex-col px-1">
-
-                                    <SignIn
-                                        appearance={{
-                                            elements: {
-                                                rootBox: "w-full max-w-sm mx-auto",
-                                                card: "shadow-none p-0 w-full bg-transparent overflow-visible",
-                                                headerTitle: "hidden",
-                                                headerSubtitle: "hidden",
-                                                header: "hidden",
-                                                footer: "block mt-4",
-                                                footerText: "text-slate-500 text-xs",
-                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case transition-transform active:scale-95 mt-2",
-                                                formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] bg-slate-50 py-3 px-4 text-base",
-                                                formFieldLabel: "text-slate-700 font-medium ml-1",
-                                                socialButtonsJSONObject: "hidden",
-                                                socialButtonsBlockButton: "hidden",
-                                                socialButtons: "hidden",
-                                                dividerRow: "hidden",
-                                                footerActionLink: "text-[#800020] font-bold hover:underline",
-                                                identityPreviewText: "text-slate-600 font-medium text-xs",
-                                                identityPreviewEditButton: "text-[#800020] hover:text-[#600018]",
-                                                formFieldAction: "text-[#800020] hover:text-[#600018] text-[9px] font-medium"
-                                            },
-                                            layout: {
-                                                socialButtonsPlacement: 'top',
-                                                socialButtonsVariant: 'iconButton',
-                                            }
-                                        }}
-                                        redirectUrl="/dashboard"
-                                        signUpUrl="/sign-up"
-                                    />
-
-                                    {/* Benefits Section - Ultra Compact */}
-                                    <div className="mt-auto pt-2 border-t border-rose-50 flex items-center justify-between gap-2">
-                                        <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-medium">
-                                            <Heart size={10} className="text-[#800020] fill-[#800020]" />
-                                            <span>Emb. Discreta</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-medium">
-                                            <Heart size={10} className="text-[#800020] fill-[#800020]" />
-                                            <span>Troca Grátis</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* DESKTOP MODAL (Existing Split View) - Hidden on Mobile */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh] min-h-[680px]"
-                    >
-                        {/* Desktop: Left Side (Image) */}
-                        <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.webp')] bg-cover bg-center relative">
-                            {/* Overlay removed as per new image design */}
-                        </div>
-
-                        {/* Right Side (Form) */}
-                        <div className="w-full md:w-1/2 bg-white flex flex-col relative overflow-y-auto">
-                            {/* Close Button Desktop */}
-                            <button
-                                onClick={onClose}
-                                className="absolute top-6 right-6 z-50 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
-                            >
-                                <X size={24} />
-                            </button>
-
-                            <div className="p-12 flex flex-col items-center justify-center min-h-full">
-                                <div className="w-full max-w-sm">
-                                    <div className="text-center mb-6">
-                                        <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Identifique-se</h2>
-                                        <p className="text-slate-500">Para acessar os seus pedidos</p>
+                                <div className="p-5 pt-8 pb-4 flex-col flex min-h-full">
+                                    {/* Header Mobile - Brand Context */}
+                                    {/* Header Mobile - Brand Context - Replicated from Desktop */}
+                                    <div className="mb-6 px-1 text-center">
+                                        <h1 className="text-3xl font-bold text-[#800020] font-serif mb-2 tracking-wide">
+                                            Identifique-se
+                                        </h1>
+                                        <p className="text-slate-600 text-sm leading-relaxed">
+                                            Para acessar os seus pedidos
+                                        </p>
                                     </div>
 
-                                    {/* Custom Social Buttons */}
+                                    {/* Custom Social Buttons - Mobile */}
                                     <div className="flex justify-center gap-4 mb-6">
                                         <SocialButton
                                             provider="oauth_google"
@@ -239,40 +129,152 @@ export default function LoginModal() {
                                         </div>
                                     </div>
 
-                                    <SignIn
-                                        appearance={{
-                                            elements: {
-                                                rootBox: "w-full",
-                                                card: "shadow-none p-0 w-full",
-                                                headerTitle: "hidden",
-                                                headerSubtitle: "hidden",
-                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case transition-transform active:scale-95 mt-2",
-                                                formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] bg-slate-50 py-3 px-4 text-base",
-                                                formFieldLabel: "text-slate-700 font-medium ml-1",
-                                                socialButtonsJSONObject: "hidden",
-                                                socialButtonsBlockButton: "hidden",
-                                                socialButtons: "hidden",
-                                                dividerRow: "hidden",
-                                                dividerText: "text-slate-400 bg-white px-2 uppercase text-xs tracking-widest",
-                                                footerActionLink: "text-[#800020] font-bold hover:underline",
-                                                identityPreviewText: "text-slate-600",
-                                                formFieldAction: "text-[#800020] hover:underline hover:text-[#600018]"
-                                            },
-                                            layout: {
-                                                socialButtonsPlacement: 'top',
-                                                socialButtonsVariant: 'iconButton'
-                                            }
-                                        }}
-                                        redirectUrl="/dashboard"
-                                        signUpUrl="/sign-up"
-                                    />
+                                    <div className="flex-1 flex flex-col px-1">
+
+                                        <SignIn
+                                            appearance={{
+                                                elements: {
+                                                    rootBox: "w-full max-w-sm mx-auto",
+                                                    card: "shadow-none p-0 w-full bg-transparent overflow-visible",
+                                                    headerTitle: "hidden",
+                                                    headerSubtitle: "hidden",
+                                                    header: "hidden",
+                                                    footer: "block mt-4",
+                                                    footerText: "text-slate-500 text-xs",
+                                                    formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case transition-transform active:scale-95 mt-2",
+                                                    formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] bg-slate-50 py-3 px-4 text-base",
+                                                    formFieldLabel: "text-slate-700 font-medium ml-1",
+                                                    socialButtonsJSONObject: "hidden",
+                                                    socialButtonsBlockButton: "hidden",
+                                                    socialButtons: "hidden",
+                                                    dividerRow: "hidden",
+                                                    footerActionLink: "text-[#800020] font-bold hover:underline",
+                                                    identityPreviewText: "text-slate-600 font-medium text-xs",
+                                                    identityPreviewEditButton: "text-[#800020] hover:text-[#600018]",
+                                                    formFieldAction: "text-[#800020] hover:text-[#600018] text-[9px] font-medium"
+                                                },
+                                                layout: {
+                                                    socialButtonsPlacement: 'top',
+                                                    socialButtonsVariant: 'iconButton',
+                                                }
+                                            }}
+                                            redirectUrl="/dashboard"
+                                            signUpUrl="/sign-up"
+                                        />
+
+                                        {/* Benefits Section - Ultra Compact */}
+                                        <div className="mt-auto pt-2 border-t border-rose-50 flex items-center justify-between gap-2">
+                                            <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-medium">
+                                                <Heart size={10} className="text-[#800020] fill-[#800020]" />
+                                                <span>Emb. Discreta</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-medium">
+                                                <Heart size={10} className="text-[#800020] fill-[#800020]" />
+                                                <span>Troca Grátis</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
+                        </m.div>
+
+                        {/* DESKTOP MODAL (Existing Split View) - Hidden on Mobile */}
+                        <m.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh] min-h-[680px]"
+                        >
+                            {/* Desktop: Left Side (Image) */}
+                            <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.webp')] bg-cover bg-center relative">
+                                {/* Overlay removed as per new image design */}
+                            </div>
+
+                            {/* Right Side (Form) */}
+                            <div className="w-full md:w-1/2 bg-white flex flex-col relative overflow-y-auto">
+                                {/* Close Button Desktop */}
+                                <button
+                                    onClick={onClose}
+                                    className="absolute top-6 right-6 z-50 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    <X size={24} />
+                                </button>
+
+                                <div className="p-12 flex flex-col items-center justify-center min-h-full">
+                                    <div className="w-full max-w-sm">
+                                        <div className="text-center mb-6">
+                                            <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Identifique-se</h2>
+                                            <p className="text-slate-500">Para acessar os seus pedidos</p>
+                                        </div>
+
+                                        {/* Custom Social Buttons */}
+                                        <div className="flex justify-center gap-4 mb-6">
+                                            <SocialButton
+                                                provider="oauth_google"
+                                                icon="google"
+                                                onClick={() => handleSocialLogin('oauth_google')}
+                                            />
+                                            <SocialButton
+                                                provider="oauth_facebook"
+                                                icon="facebook"
+                                                onClick={() => handleSocialLogin('oauth_facebook', false)}
+                                            />
+                                            <SocialButton
+                                                provider="oauth_apple"
+                                                icon="apple"
+                                                onClick={() => handleSocialLogin('oauth_apple', false)}
+                                            />
+                                            <SocialButton
+                                                provider="oauth_microsoft"
+                                                icon="microsoft"
+                                                onClick={() => handleSocialLogin('oauth_microsoft', false)}
+                                            />
+                                        </div>
+
+                                        <div className="relative mb-6">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <div className="w-full border-t border-slate-100"></div>
+                                            </div>
+                                            <div className="relative flex justify-center text-xs uppercase">
+                                                <span className="bg-white px-2 text-slate-400 tracking-widest text-[10px]">ou continue com e-mail</span>
+                                            </div>
+                                        </div>
+
+                                        <SignIn
+                                            appearance={{
+                                                elements: {
+                                                    rootBox: "w-full",
+                                                    card: "shadow-none p-0 w-full",
+                                                    headerTitle: "hidden",
+                                                    headerSubtitle: "hidden",
+                                                    formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case transition-transform active:scale-95 mt-2",
+                                                    formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] bg-slate-50 py-3 px-4 text-base",
+                                                    formFieldLabel: "text-slate-700 font-medium ml-1",
+                                                    socialButtonsJSONObject: "hidden",
+                                                    socialButtonsBlockButton: "hidden",
+                                                    socialButtons: "hidden",
+                                                    dividerRow: "hidden",
+                                                    dividerText: "text-slate-400 bg-white px-2 uppercase text-xs tracking-widest",
+                                                    footerActionLink: "text-[#800020] font-bold hover:underline",
+                                                    identityPreviewText: "text-slate-600",
+                                                    formFieldAction: "text-[#800020] hover:underline hover:text-[#600018]"
+                                                },
+                                                layout: {
+                                                    socialButtonsPlacement: 'top',
+                                                    socialButtonsVariant: 'iconButton'
+                                                }
+                                            }}
+                                            redirectUrl="/dashboard"
+                                            signUpUrl="/sign-up"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </m.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </LazyMotion>
     );
 }
 
