@@ -93,7 +93,7 @@ export default function Footer() {
 
                         {/* Social Media */}
                         <div className="flex flex-col items-center gap-4">
-                            <span className="text-xs text-slate-500 font-semibold uppercase tracking-widest">{t('footer.followUs')}</span>
+                            <span className="text-xs text-slate-600 font-semibold uppercase tracking-widest">{t('footer.followUs')}</span>
                             <div className="flex items-center gap-6">
                                 {/* Instagram - Official logo image */}
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
@@ -114,10 +114,10 @@ export default function Footer() {
 
                 {/* Copyright */}
                 <div className="border-t border-slate-100 pt-6 text-center">
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-slate-400 text-sm mb-2">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-slate-500 text-sm mb-2">
                         <button onClick={() => setActiveModal('terms')} className="hover:text-lyvest-500 transition-colors">{t('footer.terms')}</button>
                     </div>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-slate-500 text-sm">
                         {t('footer.copyright')}
                     </p>
                 </div>

@@ -44,7 +44,7 @@ export default function CookieBanner({ onOpenPrivacy }: CookieBannerProps): Reac
 
                 <div className="flex-1 text-center md:text-left">
                     <h4 className="font-bold text-slate-800 mb-2 text-lg">Cookies & Privacidade 🍪</h4>
-                    <p className="text-slate-600 leading-relaxed text-sm md:text-base">
+                    <p className="text-slate-700 leading-relaxed text-sm md:text-base">
                         Usamos cookies para melhorar sua experiência e analisar o tráfego.
                         Não vendemos seus dados. Veja nossa <button onClick={onOpenPrivacy} className="text-lyvest-500 font-bold hover:underline">Política de Privacidade</button>.
                     </p>
@@ -53,7 +53,7 @@ export default function CookieBanner({ onOpenPrivacy }: CookieBannerProps): Reac
                 <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
                     <button
                         onClick={handleRefuse}
-                        className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium transition-all duration-200 hover:scale-105 active:scale-95 text-sm"
+                        className="px-6 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition-all duration-200 hover:scale-105 active:scale-95 text-sm"
                     >
                         Recusar
                     </button>
