@@ -1,6 +1,7 @@
 ﻿'use client';
 import { useState, useEffect, useTransition, ChangeEvent } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 'lucide-react';
 import { mainMenu, productsData } from '../../data/mockData';
@@ -145,7 +146,14 @@ export default function Header(_props?: HeaderProps) {
                             aria-label="Ly Vest Home"
                             onClick={handleLogoClick}
                         >
-                            <img src="/lyvest-red-logo.webp" alt="Ly Vest Logo" width="166" height="64" className="h-16 md:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105" />
+                            <Image
+                                src="/lyvest-red-logo.webp"
+                                alt="Ly Vest Logo"
+                                width={166}
+                                height={64}
+                                className="h-16 md:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105"
+                                priority
+                            />
                         </Link>
                     </div>
 
@@ -186,8 +194,14 @@ export default function Header(_props?: HeaderProps) {
                                             onClick={() => setSearchQuery('')}
                                             className="flex items-center gap-4 p-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
                                         >
-                                            <div className="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0">
-                                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                            <div className="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0 relative">
+                                                <Image
+                                                    src={product.image}
+                                                    alt={product.name}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="48px"
+                                                />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-bold text-slate-800 text-sm truncate">{product.name}</p>
@@ -266,10 +280,12 @@ export default function Header(_props?: HeaderProps) {
                                 onClick={navigateToDashboard}
                                 className="hidden lg:flex items-center gap-2 pl-1 pr-3 py-1 bg-white hover:bg-slate-50 rounded-full border border-slate-200 transition-all shadow-sm group"
                             >
-                                <img
+                                <Image
                                     src={currentUser.imageUrl}
                                     alt={currentUser.name || 'User'}
-                                    className="w-8 h-8 rounded-full object-cover relative z-10 bg-white"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full object-cover relative z-10 bg-white"
                                 />
                                 <span className="text-sm font-bold text-slate-700 group-hover:text-lyvest-500 transition-colors">
                                     {currentUser.name}
