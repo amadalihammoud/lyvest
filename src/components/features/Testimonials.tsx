@@ -90,7 +90,7 @@ const Testimonials = () => {
                             </p>
 
                             <div className="mt-auto">
-                                <h4 className="font-bold text-slate-800">{testimonial.name}</h4>
+                                <h3 className="font-bold text-slate-800">{testimonial.name}</h3>
                                 <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{testimonial.occupation}</p>
                             </div>
                         </div>
