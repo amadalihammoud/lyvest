@@ -45,7 +45,45 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
+
+import { supabase } from '@/lib/supabase';
+import { Product } from '@/services/ProductService';
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    return <ProductPageClient slug={slug} />;
+
+    // 1. Try to find by slug in Supabase
+    let product: Product | null = null;
+
+    try {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*, category:categories(name, slug)')
+            .eq('slug', slug)
+            .single();
+
+        if (data) {
+            product = {
+                ...data,
+                image: data.image_url || (data as any).image || '',
+                // Ensure category matches Product type which expects object or string
+                category: data.category
+            } as unknown as Product;
+        }
+    } catch (err) {
+        console.error('Error fetching product from Supabase:', err);
+    }
+
+    // 2. Fallback: Try to find by name (slugified) in mockData
+    if (!product) {
+        const mockProduct = productsData.find(p => generateSlug(p.name) === slug);
+        if (mockProduct) {
+            product = mockProduct as unknown as Product;
+        }
+    }
+
+    // 3. Not found - could return 404 or let Client handle "Product not found"
+    // We pass null to client if not found, let it render the "Not Found" state
+
+    return <ProductPageClient slug={slug} initialProduct={product} />;
 }

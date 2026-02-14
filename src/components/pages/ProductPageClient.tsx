@@ -1,16 +1,13 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import ProductDetails from '@/components/product/ProductDetails';
 import { useCart } from '@/context/CartContext';
 import { useModal } from '@/context/ModalContext';
 
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import ProductDetailsSkeleton from '@/components/product/ProductDetailsSkeleton';
-import { productsData } from '@/data/mockData';
 import { generateSlug } from '@/utils/slug';
 import { CartItem } from '@/context/CartContext';
 import { Product } from '@/services/ProductService';
@@ -18,69 +15,23 @@ import VirtualFitting from '@/components/features/VirtualFitting';
 
 interface ProductPageClientProps {
     slug: string;
+    initialProduct: Product | null;
 }
 
-export default function ProductPageClient({ slug }: ProductPageClientProps) {
+export default function ProductPageClient({ slug, initialProduct }: ProductPageClientProps) {
     const { addToCart } = useCart();
     const { openModal } = useModal();
-    const [product, setProduct] = useState<Product | null>(null);
-    const [loading, setLoading] = useState(true);
+    // We rely on initialProduct passed from server. 
+    // If we wanted to re-validate, we could, but for optimization we trust server.
+    const product = initialProduct;
+
     const [isVirtualFittingOpen, setIsVirtualFittingOpen] = useState(false);
-    const router = useRouter(); // For potential redirect
-
-    useEffect(() => {
-        async function loadProduct() {
-            if (!slug) return;
-            setLoading(true);
-
-            // 1. Try to find by slug in Supabase
-            // Note: Ensure supabase client is configured for client-side usage if RLS allows public access
-            const { data, error } = await supabase
-                .from('products')
-                .select('*, category:categories(name, slug)')
-                .eq('slug', slug)
-                .single();
-
-            if (data) {
-                const mappedProduct = {
-                    ...data,
-                    image: data.image_url || (data as any).image || '',
-                    category: data.category
-                } as unknown as Product;
-
-                setProduct(mappedProduct);
-                setLoading(false);
-                return;
-            }
-
-            // 2. Fallback: Try to find by name (slugified) in mockData
-            // Logic: Compare generated slug of mock product with the URL slug
-            const mockProduct = productsData.find(p => generateSlug(p.name) === slug);
-
-            if (mockProduct) {
-                setProduct(mockProduct as unknown as Product); // Cast if mockData types slightly differ
-                setLoading(false);
-                return;
-            }
-
-            // 3. Not found
-            console.error('Product not found in Supabase or Mock Data:', error);
-            setLoading(false);
-        }
-
-        loadProduct();
-    }, [slug]);
+    const router = useRouter();
 
     const getCategoryName = (p: Product) => {
         if (typeof p.category === 'string') return p.category;
         if (Array.isArray(p.category)) return p.category[0]?.name || 'Departamento';
         return p.category?.name || 'Departamento';
-    };
-
-    const getCategorySlug = (p: Product) => {
-        if (typeof p.category === 'string') return p.category; // Or slugify string if needed, but mockData categories are names
-        if (Array.isArray(p.category)) return p.category[0]?.slug || 'todos';
-        return p.category?.slug || 'todos';
     };
 
     const mapProductToCartItem = (p: Product): Partial<CartItem> => ({
@@ -105,13 +56,9 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
         }
     };
 
-    if (loading) {
-        return <ProductDetailsSkeleton />;
-    }
-
     if (!product) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8">
+            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8 animate-fade-in">
                 <h2 className="text-2xl font-bold text-slate-800 mb-4">Produto não encontrado</h2>
                 <p className="text-slate-600 mb-6">Desculpe, não conseguimos encontrar o produto que você está procurando.</p>
                 <button
@@ -125,13 +72,12 @@ export default function ProductPageClient({ slug }: ProductPageClientProps) {
     }
 
     const breadcrumbItems = [
-        { label: getCategoryName(product), link: `/categoria/${generateSlug(getCategoryName(product))}` }, // Ensure link uses generated slug
+        { label: getCategoryName(product), link: `/categoria/${generateSlug(getCategoryName(product))}` },
         { label: product.name }
     ];
 
     return (
         <>
-
             <div className="min-h-screen bg-white md:bg-slate-50 animate-fade-in relative z-10 w-full">
                 <div className="container mx-auto px-4 py-2 md:py-3">
                     <Breadcrumbs
