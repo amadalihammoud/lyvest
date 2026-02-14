@@ -173,7 +173,7 @@ export default function LoginModal() {
                                     </div>
 
                                     {/* Custom Social Buttons */}
-                                    <div className="flex justify-center gap-4 mb-3">
+                                    <div className="flex justify-center gap-4 mb-2">
                                         <SocialButton
                                             provider="oauth_google"
                                             icon="google"
@@ -196,7 +196,7 @@ export default function LoginModal() {
                                         />
                                     </div>
 
-                                    <div className="relative mb-2">
+                                    <div className="relative mb-1">
                                         <div className="absolute inset-0 flex items-center">
                                             <div className="w-full border-t border-slate-100"></div>
                                         </div>
@@ -208,7 +208,7 @@ export default function LoginModal() {
                                     <SignIn
                                         appearance={{
                                             elements: {
-                                                rootBox: "w-full -mt-2",
+                                                rootBox: "w-full -mt-4",
                                                 card: "shadow-none p-0 w-full",
                                                 headerTitle: "hidden",
                                                 headerSubtitle: "hidden",
