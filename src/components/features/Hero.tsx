@@ -4,8 +4,8 @@ import Image from 'next/image';
 
 
 const slides = [
-    { id: 1, image: "/banner-slide-1.png", alt: "O abraço do sol na sua pele - Coleção de Verão Ly Vest" },
-    { id: 2, image: "/banner-slide-2.png", alt: "O conforto que te abraça todo dia - Essenciais sem costura" }
+    { id: 1, image: "/banner-slide-1.webp", alt: "O abraço do sol na sua pele - Coleção de Verão Ly Vest" },
+    { id: 2, image: "/banner-slide-2.webp", alt: "O conforto que te abraça todo dia - Essenciais sem costura" }
 ];
 
 function Hero() {
