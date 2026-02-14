@@ -167,13 +167,13 @@ export default function LoginModal() {
 
                             <div className="p-12 flex flex-col items-center justify-center min-h-full">
                                 <div className="w-full max-w-sm">
-                                    <div className="text-center mb-2">
-                                        <h2 className="text-3xl font-bold text-slate-800 font-serif mb-1">Identifique-se</h2>
+                                    <div className="text-center mb-6">
+                                        <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Identifique-se</h2>
                                         <p className="text-slate-500">Para acessar os seus pedidos</p>
                                     </div>
 
                                     {/* Custom Social Buttons */}
-                                    <div className="flex justify-center gap-4 mb-2">
+                                    <div className="flex justify-center gap-4 mb-6">
                                         <SocialButton
                                             provider="oauth_google"
                                             icon="google"
@@ -196,7 +196,7 @@ export default function LoginModal() {
                                         />
                                     </div>
 
-                                    <div className="relative mb-1">
+                                    <div className="relative mb-6">
                                         <div className="absolute inset-0 flex items-center">
                                             <div className="w-full border-t border-slate-100"></div>
                                         </div>
@@ -208,7 +208,7 @@ export default function LoginModal() {
                                     <SignIn
                                         appearance={{
                                             elements: {
-                                                rootBox: "w-full -mt-4",
+                                                rootBox: "w-full",
                                                 card: "shadow-none p-0 w-full",
                                                 headerTitle: "hidden",
                                                 headerSubtitle: "hidden",
