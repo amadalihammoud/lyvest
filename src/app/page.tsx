@@ -25,6 +25,7 @@ export default async function HomePage() {
     return (
         <main className="min-h-screen">
             {/* Critical Path: Loaded Immediately - Restoring Brand Gradient */}
+            <link rel="preload" as="image" href="/banner-slide-1.webp" fetchPriority="high" />
             <div className="bg-gradient-to-b from-lyvest-500 via-[#A0303C] to-white">
                 <Hero />
                 <InfoStrip />
