@@ -13,7 +13,9 @@ import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useModal } from '../../context/ModalContext';
 import Button from '../ui/Button';
-import MobileMenu from './MobileMenu';
+// Lazy load MobileMenu to reduce initial bundle size
+import dynamic from 'next/dynamic';
+const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
 // import { getUserAvatar } from '../../utils/userUtils'; // Removed
 
 
