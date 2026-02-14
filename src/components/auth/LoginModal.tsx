@@ -85,13 +85,47 @@ export default function LoginModal() {
 
                             <div className="p-5 pt-8 pb-4 flex-col flex min-h-full">
                                 {/* Header Mobile - Brand Context */}
-                                <div className="mb-6 px-1">
-                                    <h1 className="text-2xl font-serif font-bold text-[#800020] mb-2 tracking-wide">
+                                {/* Header Mobile - Brand Context - Replicated from Desktop */}
+                                <div className="mb-6 px-1 text-center">
+                                    <h1 className="text-3xl font-bold text-[#800020] font-serif mb-2 tracking-wide">
                                         Identifique-se
                                     </h1>
                                     <p className="text-slate-600 text-sm leading-relaxed">
-                                        Acesse seus pedidos e acompanhe nossos lançamentos exclusivos de lingerie.
+                                        Para acessar os seus pedidos
                                     </p>
+                                </div>
+
+                                {/* Custom Social Buttons - Mobile */}
+                                <div className="flex justify-center gap-4 mb-6">
+                                    <SocialButton
+                                        provider="oauth_google"
+                                        icon="google"
+                                        onClick={() => handleSocialLogin('oauth_google')}
+                                    />
+                                    <SocialButton
+                                        provider="oauth_facebook"
+                                        icon="facebook"
+                                        onClick={() => handleSocialLogin('oauth_facebook', false)}
+                                    />
+                                    <SocialButton
+                                        provider="oauth_apple"
+                                        icon="apple"
+                                        onClick={() => handleSocialLogin('oauth_apple', false)}
+                                    />
+                                    <SocialButton
+                                        provider="oauth_microsoft"
+                                        icon="microsoft"
+                                        onClick={() => handleSocialLogin('oauth_microsoft', false)}
+                                    />
+                                </div>
+
+                                <div className="relative mb-6">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-slate-100"></div>
+                                    </div>
+                                    <div className="relative flex justify-center text-xs uppercase">
+                                        <span className="bg-white px-2 text-slate-400 tracking-widest text-[10px]">ou continue com e-mail</span>
+                                    </div>
                                 </div>
 
                                 <div className="flex-1 flex flex-col px-1">
@@ -105,22 +139,21 @@ export default function LoginModal() {
                                                 headerSubtitle: "hidden",
                                                 header: "hidden",
                                                 footer: "hidden",
-                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-lg py-2 text-xs font-bold shadow-sm shadow-rose-900/10 w-full normal-case mb-2 transition-transform active:scale-95 h-9",
-                                                formFieldInput: "rounded-lg border-slate-200 focus:border-[#800020] focus:ring-[#800020]/20 bg-slate-50 py-2 px-3 text-xs mb-1 h-9",
-                                                formFieldLabel: "text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-0.5 mt-0.5 ml-1",
-                                                socialButtonsBlockButton: "rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-[10px] py-2 transition-colors h-9 flex items-center justify-center gap-2",
-                                                socialButtonsBlockButtonText: "font-semibold text-slate-600",
-                                                dividerLine: "bg-slate-100 h-px w-full my-2",
-                                                dividerText: "text-slate-400 bg-white px-2 text-[9px] uppercase tracking-widest font-medium relative z-10",
+                                                formButtonPrimary: "bg-[#800020] hover:bg-[#600018] text-white rounded-xl py-3 text-base font-bold shadow-lg shadow-rose-900/20 w-full normal-case transition-transform active:scale-95 mt-2",
+                                                formFieldInput: "rounded-xl border-slate-200 focus:border-[#800020] bg-slate-50 py-3 px-4 text-base",
+                                                formFieldLabel: "text-slate-700 font-medium ml-1",
+                                                socialButtonsJSONObject: "hidden",
+                                                socialButtonsBlockButton: "hidden",
+                                                socialButtons: "hidden",
+                                                dividerRow: "hidden",
                                                 footerActionLink: "text-[#800020] font-bold hover:underline",
                                                 identityPreviewText: "text-slate-600 font-medium text-xs",
                                                 identityPreviewEditButton: "text-[#800020] hover:text-[#600018]",
                                                 formFieldAction: "text-[#800020] hover:text-[#600018] text-[9px] font-medium"
                                             },
                                             layout: {
-                                                socialButtonsPlacement: 'bottom',
-                                                socialButtonsVariant: 'blockButton',
-                                                showOptionalFields: false
+                                                socialButtonsPlacement: 'top',
+                                                socialButtonsVariant: 'iconButton',
                                             }
                                         }}
                                         redirectUrl="/dashboard"
