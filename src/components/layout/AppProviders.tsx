@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, ReactNode, lazy, Suspense } from 'react';
+import { useEffect, useState, ReactNode, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -67,6 +67,17 @@ function GlobalLogic({ children }: { children: ReactNode }) {
     // }, []);
 
 
+
+    // Delay heavy widgets to reduce TBT
+    const [showWidgets, setShowWidgets] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowWidgets(true);
+        }, 4000); // 4 seconds delay to prioritize LCP/TBT
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <>
 
@@ -91,10 +102,12 @@ function GlobalLogic({ children }: { children: ReactNode }) {
             {/* Global Features (Lazy Loaded) */}
             <CookieBanner onOpenPrivacy={() => openModal('privacy')} />
 
-            <Suspense fallback={null}>
-                <ChatWidget />
-                <FloatingWhatsApp />
-            </Suspense>
+            {showWidgets && (
+                <Suspense fallback={null}>
+                    <ChatWidget />
+                    <FloatingWhatsApp />
+                </Suspense>
+            )}
 
             {/* Analytics */}
             <Analytics />
