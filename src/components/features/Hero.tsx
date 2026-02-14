@@ -23,13 +23,13 @@ function Hero() {
 
     return (
         <section className="relative overflow-hidden bg-transparent text-white">
-            {/* Blobs de fundo - Forçados LTR para evitar inversão estranha */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10" dir="ltr">
+            {/* Blobs de fundo - Apenas Desktop para performance mobile */}
+            <div className="hidden md:block absolute top-0 left-0 w-full h-full overflow-hidden -z-10" dir="ltr">
                 <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-lyvest-100/40 rounded-full blur-3xl animate-blob" />
                 <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-sky-200/40 rounded-full blur-3xl animate-blob animation-delay-2000" />
             </div>
 
-            <div className="container mx-auto px-2 sm:px-4 pt-4 pb-8 lg:pt-4 lg:pb-20 hero-mobile-compact">
+            <div className="container mx-auto px-2 sm:px-4 pt-2 pb-6 lg:pt-4 lg:pb-20 hero-mobile-compact">
                 <div className="flex justify-center items-center w-full">
                     <div className="w-[97%] sm:w-full max-w-[1400px] relative group">
 

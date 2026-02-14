@@ -36,72 +36,34 @@ function InfoStrip() {
         }
     ];
 
-    const [currentGroup, setCurrentGroup] = React.useState(0);
-
-    // Group items in pairs for mobile (2 slides of 2 items)
-    const mobileGroups = [
-        items.slice(0, 2),
-        items.slice(2, 4)
-    ];
-
-    React.useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentGroup((prev) => (prev + 1) % mobileGroups.length);
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [mobileGroups.length]);
+    // Mobile JS logic removed in favor of CSS Scroll Snap for better performance
 
     return (
-        <section className="bg-transparent py-6 -mt-6 md:-mt-12 relative z-20">
+        <section className="bg-transparent py-4 md:py-6 -mt-4 md:-mt-12 relative z-20">
             <div className="container mx-auto px-4">
 
-                {/* --- MOBILE VERSION: Carousel with 2 items at a time (text left, icon right) --- */}
-                <div className="md:hidden relative flex flex-col items-center">
-                    <div className="relative w-full overflow-hidden h-[72px]">
-                        {mobileGroups.map((group, groupIndex) => (
-                            <div
-                                key={groupIndex}
-                                className={`absolute inset-0 w-full grid grid-cols-2 gap-3 transition-all duration-500 ease-in-out ${groupIndex === currentGroup
-                                    ? 'opacity-100 translate-x-0 z-10'
-                                    : 'opacity-0 translate-x-10 -z-10'
-                                    }`}
-                            >
-                                {group.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-center justify-between px-3 py-2 rounded-xl bg-white shadow-md border border-slate-100 h-full"
-                                    >
-                                        {/* Text left */}
-                                        <div className="flex-1 min-w-0 pr-2">
-                                            <h3 className="text-slate-800 font-bold text-xs leading-tight mb-0.5 truncate">
-                                                {item.title}
-                                            </h3>
-                                            <p className="text-slate-500 text-sm leading-tight truncate">
-                                                {item.subtitle}
-                                            </p>
-                                        </div>
-                                        {/* Icon right */}
-                                        <div className="p-2 rounded-full bg-lyvest-100 shrink-0">
-                                            {React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, { className: "w-6 h-6 text-lyvest-500" })}
-                                        </div>
-                                    </div>
-                                ))}
+                {/* --- MOBILE VERSION: Horizontal Scroll Snap (Zero JS) --- */}
+                <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 scrollbar-hide">
+                    {items.map((item, index) => (
+                        <div
+                            key={index}
+                            className="snap-center shrink-0 w-[85%] sm:w-[300px] flex items-center justify-between px-4 py-3 rounded-xl bg-white shadow-sm border border-slate-100"
+                        >
+                            {/* Text left */}
+                            <div className="flex-1 min-w-0 pr-3">
+                                <h3 className="text-slate-800 font-bold text-sm leading-tight mb-0.5 truncate">
+                                    {item.title}
+                                </h3>
+                                <p className="text-slate-500 text-xs leading-tight truncate">
+                                    {item.subtitle}
+                                </p>
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Carousel Dots */}
-                    <div className="flex justify-center gap-2 mt-3">
-                        {mobileGroups.map((_, index) => (
-                            <button
-                                key={index}
-                                onClick={() => setCurrentGroup(index)}
-                                className={`h-2 rounded-full transition-all duration-300 ${index === currentGroup ? 'bg-lyvest-500 w-6' : 'bg-lyvest-200 w-2'
-                                    }`}
-                                aria-label={`View group ${index + 1}`}
-                            />
-                        ))}
-                    </div>
+                            {/* Icon right */}
+                            <div className="p-2.5 rounded-full bg-lyvest-50 shrink-0">
+                                {React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, { className: "w-5 h-5 text-lyvest-500" })}
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 {/* --- DESKTOP VERSION: Original Layout (icon left, text right) --- */}
