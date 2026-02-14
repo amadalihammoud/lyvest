@@ -24,8 +24,8 @@ const Testimonials = dynamic(() => import('@/components/features/Testimonials'),
 export default async function HomePage() {
     return (
         <main className="min-h-screen">
-            {/* Critical Path: Loaded Immediately */}
-            <div className="bg-gradient-to-b from-white to-pink-50/30">
+            {/* Critical Path: Loaded Immediately - Restoring Brand Gradient */}
+            <div className="bg-gradient-to-b from-lyvest-500 via-[#A0303C] to-white">
                 <Hero />
                 <InfoStrip />
             </div>
