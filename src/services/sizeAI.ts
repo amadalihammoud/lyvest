@@ -47,22 +47,18 @@ export async function calculateSize(
     // Sempre tentar algoritmo offline primeiro (mais rápido)
     const offlineRecommendation = calculateOffline(measurements);
 
-    // Se tiver API configurada, refinar com IA Especialista
-    if (process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-        try {
-            const aiRecommendation = await getAIRecommendation(measurements, product);
-            // Mesclar o fitMap do offline na resposta da IA se a IA não retornar (ou se quisermos forçar o offline map)
-            return {
-                ...aiRecommendation,
-                fitMap: aiRecommendation.fitMap || offlineRecommendation.fitMap
-            };
-        } catch (error) {
-            console.warn('IA indisponível, usando algoritmo offline:', error);
-            return offlineRecommendation;
-        }
+    // Tentar refinar com IA via API Route segura (chave fica no servidor)
+    try {
+        const aiRecommendation = await getAIRecommendation(measurements, product);
+        return {
+            ...aiRecommendation,
+            fitMap: aiRecommendation.fitMap || offlineRecommendation.fitMap
+        };
+    } catch (error) {
+        // IA indisponível ou não configurada — usar algoritmo offline
+        console.warn('IA indisponível, usando algoritmo offline:', error);
+        return offlineRecommendation;
     }
-
-    return offlineRecommendation;
 }
 
 /**
@@ -266,138 +262,30 @@ function getNextSize(s: string): any {
 }
 
 /**
- * Recomendação usando GPT-4 com Prompt Especialista
+ * Recomendação via API Route segura (chave OpenAI fica no servidor)
  */
 async function getAIRecommendation(
     measurements: BodyMeasurements,
     product: Product
 ): Promise<SizeRecommendation> {
-    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-
-    if (!apiKey) {
-        throw new Error('OpenAI API key not configured');
-    }
-
-    const categoryValue = product.category;
-    const categoryName = typeof categoryValue === 'string'
-        ? categoryValue.toLowerCase()
-        : Array.isArray(categoryValue)
-            ? (categoryValue[0]?.slug || 'lingerie')
-            : (categoryValue?.slug || 'lingerie');
-
-    const sizeGuide = SIZE_GUIDE[categoryName] || SIZE_GUIDE.calcinhas;
-
-    // CONTEXTO DE MEDIÇÃO POR CATEGORIA
-    let contextPrompt = '';
-
-    if (categoryName.includes('sutia') || categoryName.includes('top')) {
-        contextPrompt = `
-        CONTEXTO SUTIÃS E TOPS:
-        - Sub-Busto (Tórax): ${measurements.exactUnderBust ? measurements.exactUnderBust + 'cm' : 'Não informado'} -> É a base. Define o número (40-52).
-        - Busto: ${measurements.exactBust ? measurements.exactBust + 'cm' : 'Não informado'} -> Define a taça.
-        - Priorize conforto da respiração se medida do tórax for limítrofe.
-        - Se diferença Busto/Tórax for grande, alerte sobre necessidade de taça maior.`;
-    }
-    else if (categoryName.includes('calcinha') || categoryName.includes('cueca')) {
-        contextPrompt = `
-        CONTEXTO CALCINHAS E CUECAS:
-        - Cintura: ${measurements.exactWaist ? measurements.exactWaist + 'cm' : 'Não informado'} -> Crucial para modeladores/hot pants.
-        - Quadril: ${measurements.exactHips ? measurements.exactHips + 'cm' : 'Não informado'} -> Maior circunferência do glúteo.
-        - Coxa: ${measurements.exactThigh ? measurements.exactThigh + 'cm' : 'Não informado'} -> Se disponível, use para evitar que enrole.`;
-    }
-    else if (categoryName.includes('pijama') || categoryName.includes('camisola') || categoryName.includes('robe')) {
-        contextPrompt = `
-        CONTEXTO PIJAMAS (CAMISOLAS/ROBES):
-        - Foco na FLUIDEZ. Ninguém dorme com roupa apertada.
-        - Use a maior medida (Busto ou Quadril) como determinante.`;
-    }
-    else if (categoryName.includes('meia')) {
-        contextPrompt = `
-        CONTEXTO MEIAS:
-        - Nº Calçado: ${measurements.shoeSize || 'Não informado'} -> Base principal.
-        - Panturrilha: ${measurements.exactCalf ? measurements.exactCalf + 'cm' : 'Não informado'} -> Determinante para 3/4 e 7/8. Evitar efeito garrote.`;
-    }
-
-    const measurementText = `
-    MEDIDAS FORNECIDAS:
-    - Altura/Peso: ${measurements.height}cm / ${measurements.weight}kg
-    - Busto: ${measurements.exactBust || 'N/A'}
-    - Tórax: ${measurements.exactUnderBust || 'N/A'}
-    - Cintura: ${measurements.exactWaist || 'N/A'}
-    - Quadril: ${measurements.exactHips || 'N/A'}
-    - Coxa: ${measurements.exactThigh || 'N/A'}
-    - Panturrilha: ${measurements.exactCalf || 'N/A'}
-    - Calçado: ${measurements.shoeSize || 'N/A'}
-    `;
-
-    const prompt = `Você é o Especialista em Fit e Modelagem da LyVest, uma inteligência artificial focada em encontrar o tamanho ideal de lingerie e moda íntima.
-
-MISSÃO: Garantir conforto absoluto, eliminando erro de compra e aumentando confiança.
-
-${contextPrompt}
-
-CLIENTE:
-${measurementText}
-- Tipo de corpo: ${translateBustType(measurements.bustType)} / ${translateHipType(measurements.hipType)}
-- Preferência: ${measurements.fitPreference === 'snug' ? 'mais justo/modelador' : 'confortável/solto'}
-
-PRODUTO:
-- Nome: ${product.name}
-- Categoria: ${categoryName}
-- Descrição: ${product.description || ''}
-
-TABELA DE MEDIDAS (REFERÊNCIA):
-${JSON.stringify(sizeGuide, null, 2)}
-
-INSTRUÇÕES DE SAÍDA:
-1. Retorne sempre o tamanho sugerido (PP, P, M, G, GG) com % de certeza.
-2. Justificativa: Explique de forma humanizada, focada em bem-estar.
-   Ex: "Sugerimos o 44 porque oferece sustentação para costas sem apertar."
-3. Dica Personalizada: Se houver desproporção (ex: costas finas, busto grande), dê uma dica de ouro.
-4. Tom de Voz: Profissional, acolhedor, técnico porém acessível.
-
-Retorne APENAS JSON válido:
-{
-  "size": "P",
-  "confidence": 0.92,
-  "reason": "Explicação humanizada...",
-  "alternativeSize": "M"
-}
-
-A confiança deve ser entre 0.75 e 0.99.`;
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('/api/ai/size-recommendation', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            model: 'gpt-4o-mini', // Mais barato e rápido
-            messages: [
-                {
-                    role: 'system',
-                    content: 'Você é uma consultora de moda íntima. Sempre retorne JSON válido.',
-                },
-                {
-                    role: 'user',
-                    content: prompt,
-                },
-            ],
-            response_format: { type: 'json_object' },
-            temperature: 0.3, // Mais determinístico
-            max_tokens: 200,
+            measurements,
+            product: {
+                name: product.name,
+                category: product.category,
+                description: product.description || '',
+            },
         }),
     });
 
     if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        throw new Error(`AI API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
-
-    return JSON.parse(content);
+    return response.json();
 }
 
 // Helpers

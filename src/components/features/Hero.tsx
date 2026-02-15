@@ -13,16 +13,26 @@ const slides = [
 function Hero() {
 
     const [currentSlide, setCurrentSlide] = React.useState(0);
+    const [isPaused, setIsPaused] = React.useState(false);
 
     React.useEffect(() => {
+        if (isPaused) return;
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, []);
+    }, [isPaused]);
 
     return (
-        <section className="relative overflow-hidden bg-transparent text-white">
+        <section
+            className="relative overflow-hidden bg-transparent text-white"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onFocus={() => setIsPaused(true)}
+            onBlur={() => setIsPaused(false)}
+            aria-roledescription="carousel"
+            aria-label="Banners promocionais"
+        >
             {/* Blobs de fundo - Apenas Desktop para performance mobile */}
             <div className="hidden md:block absolute top-0 left-0 w-full h-full overflow-hidden -z-10" dir="ltr">
                 <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-lyvest-100/40 rounded-full blur-3xl animate-blob" />
