@@ -174,7 +174,7 @@ export default function RegisterModal() {
                                                     footerActionLink: "text-[#800020] font-bold hover:underline",
                                                     identityPreviewText: "text-slate-600 font-medium text-xs",
                                                     identityPreviewEditButton: "text-[#800020] hover:text-[#600018]",
-                                                    formFieldAction: "text-[#800020] hover:text-[#600018] text-[9px] font-medium"
+                                                    formFieldAction: "text-[#800020] hover:text-[#600018] text-xs font-medium"
                                                 },
                                                 layout: {
                                                     socialButtonsPlacement: 'top',
