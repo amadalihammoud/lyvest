@@ -43,6 +43,41 @@ const nextConfig = {
             '@sentry/react'
         ],
     },
+    // Webpack Optimization for Chunk Splitting
+    webpack: (config, { isServer, dev }) => {
+        if (!dev && !isServer) {
+            config.optimization.splitChunks = {
+                chunks: 'all',
+                cacheGroups: {
+                    default: false,
+                    vendors: false,
+                    framework: {
+                        name: 'framework',
+                        test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+                        priority: 40,
+                        enforce: true,
+                    },
+                    lib: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name(module) {
+                            const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
+                            const packageName = match ? match[1] : 'vendor';
+                            return `npm.${packageName.replace('@', '')}`;
+                        },
+                        priority: 30,
+                        minChunks: 1,
+                        reuseExistingChunk: true,
+                    },
+                    commons: {
+                        name: 'commons',
+                        minChunks: 2,
+                        priority: 20,
+                    },
+                },
+            };
+        }
+        return config;
+    },
     // Security Headers for Production
     async headers() {
         return [

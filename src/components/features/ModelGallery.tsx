@@ -1,5 +1,6 @@
 import { User, Ruler, Weight } from 'lucide-react';
 import { ReferenceModel } from '../../data/sizeGuide';
+import OptimizedProductImage from '../ui/OptimizedProductImage';
 
 interface ModelGalleryProps {
     models: ReferenceModel[];
@@ -30,14 +31,13 @@ export default function ModelGallery({ models, productId }: ModelGalleryProps) {
                         >
                             {/* Foto do Modelo */}
                             <div className="aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 relative">
-                                <img
+                                <OptimizedProductImage
                                     src={model.photo}
                                     alt={model.name}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        // Fallback se imagem não carregar
-                                        e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"%3E%3Crect width="400" height="600" fill="%23e2e8f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%2394a3b8" font-family="sans-serif" font-size="24"%3E' + model.name + '%3C/text%3E%3C/svg%3E';
-                                    }}
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                                    fallbackText={model.name}
                                 />
 
                                 {/* Badge de Tamanho */}

@@ -45,12 +45,13 @@ function Hero() {
                                             alt={slide.alt}
                                             fill
                                             priority={index === 0}
+                                            quality={60} // Reduced quality for speed (per recommendation)
                                             loading={index === 0 ? "eager" : "lazy"}
                                             fetchPriority={index === 0 ? "high" : "low"}
                                             className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
-                                            sizes="(max-width: 640px) 100vw, (max-width: 1200px) 95vw, 1400px"
+                                            sizes="100vw" // Specific LCP recommendation
                                             placeholder="blur"
-                                            blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA=" // Generic placeholder
+                                            blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA="
                                         />
                                     </div>
                                 </div>
