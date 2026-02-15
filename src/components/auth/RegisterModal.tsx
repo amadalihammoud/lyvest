@@ -1,38 +1,54 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useLoginModal } from '@/store/useLoginModal';
 import { useRegisterModal } from '@/store/useRegisterModal';
-import { SignIn, useSignIn } from '@clerk/nextjs';
-import { X, Check, Gift, Truck, Heart } from 'lucide-react';
+import { useLoginModal } from '@/store/useLoginModal';
+import { SignUp, useSignUp } from '@clerk/nextjs';
+import { X, Heart } from 'lucide-react';
 import { m, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
 
-export default function LoginModal() {
-    const { isOpen, onClose } = useLoginModal();
-    const { onOpen: openRegister } = useRegisterModal();
+export default function RegisterModal() {
+    const { isOpen, onClose } = useRegisterModal();
+    const { onOpen: openLogin } = useLoginModal();
 
-    const { isLoaded, signIn } = useSignIn();
+    const { isLoaded, signUp } = useSignUp();
     const [headerHeight, setHeaderHeight] = useState(0);
 
-    const switchToRegister = useCallback(() => {
-        onClose();
-        openRegister();
-    }, [onClose, openRegister]);
+    const handleSocialSignUp = (strategy: any, isFunctional: boolean = true) => {
+        if (!isFunctional) {
+            console.log('Social sign-up currently disabled:', strategy);
+            return;
+        }
 
-    // Intercept Clerk footer "Don't have an account? Sign up" link clicks
+        if (!isLoaded) return;
+
+        signUp.authenticateWithRedirect({
+            strategy,
+            redirectUrl: '/dashboard',
+            redirectUrlComplete: '/dashboard',
+        });
+    };
+
+    const switchToLogin = useCallback(() => {
+        onClose();
+        openLogin();
+    }, [onClose, openLogin]);
+
+    // Intercept Clerk footer "Already have an account? Sign in" link clicks
     useEffect(() => {
         if (!isOpen) return;
 
         const handleClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            const link = target.closest('a[href*="sign-up"]');
+            const link = target.closest('a[href*="sign-in"]');
             if (link) {
                 e.preventDefault();
                 e.stopPropagation();
-                switchToRegister();
+                switchToLogin();
             }
         };
 
+        // Small delay to let Clerk render
         const timer = setTimeout(() => {
             document.addEventListener('click', handleClick, true);
         }, 100);
@@ -41,24 +57,7 @@ export default function LoginModal() {
             clearTimeout(timer);
             document.removeEventListener('click', handleClick, true);
         };
-    }, [isOpen, switchToRegister]);
-
-    const handleSocialLogin = (strategy: any, isFunctional: boolean = true) => {
-        if (!isFunctional) {
-            // Toast or just do nothing as requested "existirem mesmo que não funcionem"
-            // Or maybe a console log
-            console.log('Social login currently disabled:', strategy);
-            return;
-        }
-
-        if (!isLoaded) return;
-
-        signIn.authenticateWithRedirect({
-            strategy,
-            redirectUrl: '/dashboard',
-            redirectUrlComplete: '/dashboard',
-        });
-    };
+    }, [isOpen, switchToLogin]);
 
     useEffect(() => {
         const updateHeight = () => {
@@ -97,7 +96,7 @@ export default function LoginModal() {
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                         />
 
-                        {/* MOBILE DRAWER (Hamburger Style) - Visible ONLY on Mobile */}
+                        {/* MOBILE DRAWER - Visible ONLY on Mobile */}
                         <m.div
                             initial={{ x: '-100%' }}
                             animate={{ x: 0 }}
@@ -105,9 +104,7 @@ export default function LoginModal() {
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                             className="relative w-full h-full bg-white shadow-2xl flex flex-col md:hidden"
                         >
-                            {/* MOBILE DRAWER CONTENT */}
                             <div className="flex-1 flex flex-col overflow-y-auto bg-white relative h-full">
-                                {/* Close Button Top Right - Smaller padding */}
                                 <button
                                     onClick={onClose}
                                     className="absolute top-3 right-3 z-50 p-1.5 bg-slate-50 rounded-full text-slate-400 hover:text-[#800020] transition-colors"
@@ -116,38 +113,37 @@ export default function LoginModal() {
                                 </button>
 
                                 <div className="p-5 pt-8 pb-4 flex-col flex min-h-full">
-                                    {/* Header Mobile - Brand Context */}
-                                    {/* Header Mobile - Brand Context - Replicated from Desktop */}
+                                    {/* Header Mobile */}
                                     <div className="mb-6 px-1 text-center">
                                         <h1 className="text-3xl font-bold text-[#800020] font-serif mb-2 tracking-wide">
-                                            Identifique-se
+                                            Crie sua conta
                                         </h1>
                                         <p className="text-slate-600 text-sm leading-relaxed">
-                                            Para acessar os seus pedidos
+                                            E aproveite nossos descontos exclusivos
                                         </p>
                                     </div>
 
-                                    {/* Custom Social Buttons - Mobile */}
+                                    {/* Social Buttons - Mobile */}
                                     <div className="flex justify-center gap-4 mb-6">
                                         <SocialButton
                                             provider="oauth_google"
                                             icon="google"
-                                            onClick={() => handleSocialLogin('oauth_google')}
+                                            onClick={() => handleSocialSignUp('oauth_google')}
                                         />
                                         <SocialButton
                                             provider="oauth_facebook"
                                             icon="facebook"
-                                            onClick={() => handleSocialLogin('oauth_facebook', false)}
+                                            onClick={() => handleSocialSignUp('oauth_facebook', false)}
                                         />
                                         <SocialButton
                                             provider="oauth_apple"
                                             icon="apple"
-                                            onClick={() => handleSocialLogin('oauth_apple', false)}
+                                            onClick={() => handleSocialSignUp('oauth_apple', false)}
                                         />
                                         <SocialButton
                                             provider="oauth_microsoft"
                                             icon="microsoft"
-                                            onClick={() => handleSocialLogin('oauth_microsoft', false)}
+                                            onClick={() => handleSocialSignUp('oauth_microsoft', false)}
                                         />
                                     </div>
 
@@ -156,13 +152,12 @@ export default function LoginModal() {
                                             <div className="w-full border-t border-slate-100"></div>
                                         </div>
                                         <div className="relative flex justify-center text-xs uppercase">
-                                            <span className="bg-white px-2 text-slate-400 tracking-widest text-[10px]">ou continue com e-mail</span>
+                                            <span className="bg-white px-2 text-slate-400 tracking-widest text-[10px]">ou cadastre-se com e-mail</span>
                                         </div>
                                     </div>
 
                                     <div className="flex-1 flex flex-col px-1">
-
-                                        <SignIn
+                                        <SignUp
                                             appearance={{
                                                 elements: {
                                                     rootBox: "w-full max-w-sm mx-auto",
@@ -190,10 +185,10 @@ export default function LoginModal() {
                                                 }
                                             }}
                                             redirectUrl="/dashboard"
-                                            signUpUrl="/sign-up"
+                                            signInUrl="/sign-in"
                                         />
 
-                                        {/* Benefits Section - Ultra Compact */}
+                                        {/* Benefits Section */}
                                         <div className="mt-auto pt-2 border-t border-rose-50 flex items-center justify-between gap-2">
                                             <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-medium">
                                                 <Heart size={10} className="text-[#800020] fill-[#800020]" />
@@ -209,7 +204,7 @@ export default function LoginModal() {
                             </div>
                         </m.div>
 
-                        {/* DESKTOP MODAL (Existing Split View) - Hidden on Mobile */}
+                        {/* DESKTOP MODAL (Split View) - Hidden on Mobile */}
                         <m.div
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -218,12 +213,10 @@ export default function LoginModal() {
                         >
                             {/* Desktop: Left Side (Image) */}
                             <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.webp')] bg-cover bg-center relative">
-                                {/* Overlay removed as per new image design */}
                             </div>
 
                             {/* Right Side (Form) */}
                             <div className="w-full md:w-1/2 bg-white flex flex-col relative overflow-y-auto">
-                                {/* Close Button Desktop */}
                                 <button
                                     onClick={onClose}
                                     className="absolute top-6 right-6 z-50 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
@@ -234,31 +227,31 @@ export default function LoginModal() {
                                 <div className="p-12 flex flex-col items-center justify-center min-h-full">
                                     <div className="w-full max-w-sm">
                                         <div className="text-center mb-6">
-                                            <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Identifique-se</h2>
-                                            <p className="text-slate-500">Para acessar os seus pedidos</p>
+                                            <h2 className="text-3xl font-bold text-slate-800 font-serif mb-2">Crie sua conta</h2>
+                                            <p className="text-slate-500">E aproveite nossos descontos exclusivos</p>
                                         </div>
 
-                                        {/* Custom Social Buttons */}
+                                        {/* Social Buttons */}
                                         <div className="flex justify-center gap-4 mb-6">
                                             <SocialButton
                                                 provider="oauth_google"
                                                 icon="google"
-                                                onClick={() => handleSocialLogin('oauth_google')}
+                                                onClick={() => handleSocialSignUp('oauth_google')}
                                             />
                                             <SocialButton
                                                 provider="oauth_facebook"
                                                 icon="facebook"
-                                                onClick={() => handleSocialLogin('oauth_facebook', false)}
+                                                onClick={() => handleSocialSignUp('oauth_facebook', false)}
                                             />
                                             <SocialButton
                                                 provider="oauth_apple"
                                                 icon="apple"
-                                                onClick={() => handleSocialLogin('oauth_apple', false)}
+                                                onClick={() => handleSocialSignUp('oauth_apple', false)}
                                             />
                                             <SocialButton
                                                 provider="oauth_microsoft"
                                                 icon="microsoft"
-                                                onClick={() => handleSocialLogin('oauth_microsoft', false)}
+                                                onClick={() => handleSocialSignUp('oauth_microsoft', false)}
                                             />
                                         </div>
 
@@ -267,11 +260,11 @@ export default function LoginModal() {
                                                 <div className="w-full border-t border-slate-100"></div>
                                             </div>
                                             <div className="relative flex justify-center text-xs uppercase">
-                                                <span className="bg-white px-2 text-slate-400 tracking-widest text-[10px]">ou continue com e-mail</span>
+                                                <span className="bg-white px-2 text-slate-400 tracking-widest text-[10px]">ou cadastre-se com e-mail</span>
                                             </div>
                                         </div>
 
-                                        <SignIn
+                                        <SignUp
                                             appearance={{
                                                 elements: {
                                                     rootBox: "w-full",
@@ -296,7 +289,7 @@ export default function LoginModal() {
                                                 }
                                             }}
                                             redirectUrl="/dashboard"
-                                            signUpUrl="/sign-up"
+                                            signInUrl="/sign-in"
                                         />
                                     </div>
                                 </div>
