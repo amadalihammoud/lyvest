@@ -39,7 +39,7 @@ function InfoStrip() {
     // Mobile JS logic removed in favor of CSS Scroll Snap for better performance
 
     return (
-        <section className="bg-transparent py-4 md:py-6 -mt-4 md:-mt-12 relative z-20">
+        <section className="bg-transparent py-4 md:py-6 -mt-4 md:-mt-12 relative z-20 min-h-[72px] md:min-h-[120px]">
             <div className="container mx-auto px-4">
 
                 {/* --- MOBILE VERSION: Horizontal Scroll Snap (Zero JS) --- */}

@@ -35,22 +35,20 @@ export default function DrawerManager() {
     const [headerHeight, setHeaderHeight] = React.useState(0);
 
     React.useEffect(() => {
-        const updateHeight = () => {
-            const header = document.querySelector('header');
-            if (header) {
-                setHeaderHeight(header.getBoundingClientRect().bottom);
-            }
+        // Only measure header height when drawer opens (no scroll listener = no forced reflow)
+        const header = document.querySelector('header');
+        if (header) {
+            setHeaderHeight(header.offsetHeight);
+        }
+
+        const handleResize = () => {
+            const h = document.querySelector('header');
+            if (h) setHeaderHeight(h.offsetHeight);
         };
 
-        updateHeight();
-        window.addEventListener('scroll', updateHeight);
-        window.addEventListener('resize', updateHeight);
-
-        return () => {
-            window.removeEventListener('scroll', updateHeight);
-            window.removeEventListener('resize', updateHeight);
-        };
-    }, []);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [activeDrawer]);
 
     if (!activeDrawer) return null;
 
