@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+    swcMinify: true,
     compress: true,
     poweredByHeader: false,
     images: {
@@ -46,7 +47,9 @@ const nextConfig = {
             'date-fns',
             'lodash',
             'canvas-confetti',
-            '@sentry/react'
+            '@sentry/react',
+            'zod',
+            'react-hook-form'
         ],
         // turbopack: {} // Moved inside experimental? No, usually top level or specific flag.
         // Wait, Next.js config schema: turbopack is usually not in experimental in newer versions?
