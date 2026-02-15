@@ -5,7 +5,10 @@ import { useI18n } from '../../hooks/useI18n';
 import { useCart } from '../../hooks/useCart';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
-import { SignIn, SignUp } from '@clerk/nextjs';
+// Lazy load Clerk components to remove ~250KiB from initial bundle
+import dynamic from 'next/dynamic';
+const ClerkSignIn = dynamic(() => import('@clerk/nextjs').then(mod => ({ default: mod.SignIn })), { ssr: false, loading: () => <div className="flex justify-center py-12"><LoadingSpinner /></div> });
+const ClerkSignUp = dynamic(() => import('@clerk/nextjs').then(mod => ({ default: mod.SignUp })), { ssr: false, loading: () => <div className="flex justify-center py-12"><LoadingSpinner /></div> });
 
 // Import Modals (Keep small modals static or lazy? Small ones are fine static)
 // const LoginModal = lazy(() => import('../modals/LoginModal')); // Replaced by Clerk
@@ -44,7 +47,7 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
             case 'login':
                 return (
                     <div className="flex justify-center py-8">
-                        <SignIn
+                        <ClerkSignIn
                             routing="hash"
                             appearance={{
                                 elements: {
@@ -59,7 +62,7 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
             case 'register':
                 return (
                     <div className="flex justify-center py-8">
-                        <SignUp
+                        <ClerkSignUp
                             routing="hash"
                             appearance={{
                                 elements: {

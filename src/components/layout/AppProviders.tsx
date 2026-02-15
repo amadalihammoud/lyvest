@@ -45,9 +45,9 @@ function GlobalLogic({ children }: { children: ReactNode }) {
         openModal
     } = useModal();
     const { t } = useI18n();
-    const { user, isLoaded } = useUser();
+    const { user } = useUser();
 
-    // Adapter for legacy code if needed, or direct Usage
+    // Login success handler - only called when user state changes
     const handleLoginSuccess = () => {
         if (user) {
             showNotification(t('dashboard.welcome', { name: user.firstName || 'Cliente' }));

@@ -46,10 +46,11 @@ function Hero() {
                                             src={slide.image}
                                             alt={slide.alt}
                                             fill
-                                            priority={index === 0} // Prioritize first slide LCP
-                                            fetchPriority={index === 0 ? "high" : "auto"}
+                                            priority={index === 0}
+                                            loading={index === 0 ? "eager" : "lazy"}
+                                            fetchPriority={index === 0 ? "high" : "low"}
                                             className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+                                            sizes="(max-width: 640px) 97vw, (max-width: 1200px) 95vw, 1400px"
                                         />
                                     </div>
                                 </div>
