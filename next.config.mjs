@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+    compress: true,
     poweredByHeader: false,
     images: {
         remotePatterns: [
@@ -31,6 +32,11 @@ const nextConfig = {
         } : false,
         reactRemoveProperties: process.env.NODE_ENV === 'production',
     },
+    // Silence Turbopack warning/error by acknowledging it (even if empty)
+    // or rely on webpack config.
+    // Note: Vercel/Next16 defaults to Turbo. providing empty object helps validation
+    // turbopack: {}, <-- Actually, if we use webpack config, we might want to ensure we don't conflict.
+    // The error said: "simply setting an empty turbopack config...". Let's try that.
     experimental: {
         optimizePackageImports: [
             'lucide-react',
@@ -42,6 +48,11 @@ const nextConfig = {
             'canvas-confetti',
             '@sentry/react'
         ],
+        // turbopack: {} // Moved inside experimental? No, usually top level or specific flag.
+        // Wait, Next.js config schema: turbopack is usually not in experimental in newer versions?
+        // Let's try placing it at root if allowed, or check docs.
+        // Actually, the error says "in your Next config file (e.g. `turbopack: {}`)".
+        // It likely implies top-level.
     },
     // Webpack Optimization for Chunk Splitting
     webpack: (config, { isServer, dev }) => {

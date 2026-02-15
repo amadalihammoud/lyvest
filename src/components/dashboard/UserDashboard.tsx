@@ -28,6 +28,7 @@ const FavoritesSection = lazy(() => import('./FavoritesSection'));
 const ProfileSection = lazy(() => import('./ProfileSection'));
 const AddressSection = lazy(() => import('./AddressSection'));
 const SettingsSection = lazy(() => import('./SettingsSection'));
+const CouponsSection = lazy(() => import('./CouponsSection'));
 
 // Loading skeleton para seções
 const SectionLoader = memo(function SectionLoader() {
@@ -94,6 +95,7 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
                 {activeTab === 'overview' && <OverviewSection user={user} orders={orders} setActiveTab={setActiveTab} onTrackOrder={onTrackOrder} />}
                 {activeTab === 'orders' && <OrdersSection orders={orders} onTrackOrder={onTrackOrder} />}
                 {activeTab === 'favorites' && <FavoritesSection />}
+                {activeTab === 'coupons' && <CouponsSection />}
 
                 {/* Integração do Perfil Clerk - Substitui Profile e Settings */}
                 {(activeTab === 'profile' || activeTab === 'settings') && (
