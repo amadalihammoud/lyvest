@@ -43,17 +43,24 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
     return (
         <div className="space-y-8 animate-fade-in">
             {/* Welcome Banner */}
-            <div className="bg-gradient-to-br from-[#800020] to-[#A00030] rounded-[2rem] p-8 md:p-10 text-white shadow-xl shadow-rose-900/20 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-12 -mb-12 blur-2xl"></div>
+            <div className="group relative overflow-hidden rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-rose-900/20 transition-all hover:shadow-rose-900/30">
+                {/* Dynamic Gradient Background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#800020] via-[#900028] to-[#600018]"></div>
 
-                <div className="relative z-10 max-w-2xl">
-                    <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4">
-                        Olá, {getFirstName(user.name)}!
+                {/* Noise Texture for Premium Feel */}
+                <div className="absolute inset-0 opacity-[0.15] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+
+                {/* Abstract Shapes */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl mix-blend-screen animate-pulse-slow"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-500/20 rounded-full -ml-16 -mb-16 blur-2xl mixture-blend-overlay"></div>
+
+                <div className="relative z-10 max-w-3xl">
+                    <h2 className="text-3xl md:text-5xl font-bold font-serif mb-6 text-white tracking-tight drop-shadow-sm">
+                        Olá, <span className="text-rose-100">{getFirstName(user.name)}</span>!
                     </h2>
-                    <p className="text-rose-100 text-lg md:text-xl font-light leading-relaxed">
+                    <p className="text-rose-50 text-lg md:text-xl font-medium leading-relaxed max-w-2xl opacity-90">
                         Que alegria ter você por aqui. <br className="hidden md:block" />
-                        Como podemos ajudar você hoje?
+                        Explore suas novidades e acompanhe seus pedidos com facilidade.
                     </p>
                 </div>
             </div>
@@ -63,30 +70,32 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-2">
                         <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                            <Truck className="w-5 h-5 text-lyvest-500" />
+                            <Truck className="w-5 h-5 text-[#800020]" />
                             {activeOrder ? 'Acompanhe seu Pedido' : 'Último Pedido'}
                         </h3>
                         <button
                             onClick={() => setActiveTab('orders')}
-                            className="text-sm font-medium text-lyvest-500 hover:text-lyvest-700 hover:underline"
+                            className="text-sm font-bold text-[#800020] hover:text-[#600018] hover:underline decoration-2 underline-offset-4 transition-all"
                         >
                             Ver todos
                         </button>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                    <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100/50 hover:shadow-xl hover:shadow-slate-200/50 hover:border-rose-100 transition-all duration-300 group">
                         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-3">
-                                    <span className="font-bold text-slate-800">Pedido #{featuredOrder.id}</span>
-                                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${getStatusColor(featuredOrder.status)}`}>
+                            <div className="space-y-2">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <span className="font-bold text-slate-800 text-lg">Pedido #{featuredOrder.id}</span>
+                                    <span className={`text-xs px-3 py-1 rounded-full font-bold border uppercase tracking-wide flex items-center gap-1.5 ${getStatusColor(featuredOrder.status)}`}>
+                                        {featuredOrder.status.toLowerCase().includes('entregue') && <CheckCircle className="w-3 h-3" />}
+                                        {featuredOrder.status.toLowerCase().includes('trânsito') && <Clock className="w-3 h-3" />}
                                         {featuredOrder.status}
                                     </span>
                                 </div>
-                                <p className="text-slate-500 text-sm">
-                                    {featuredOrder.date} • {featuredOrder.items.length} {featuredOrder.items.length === 1 ? 'item' : 'itens'}
+                                <p className="text-slate-500 text-sm font-medium">
+                                    {featuredOrder.date} • <span className="text-slate-700">{featuredOrder.items.length} {featuredOrder.items.length === 1 ? 'item' : 'itens'}</span>
                                 </p>
-                                <p className="font-bold text-lg text-slate-800 pt-1">
+                                <p className="font-bold text-2xl text-slate-900 pt-1 tracking-tight">
                                     {formatCurrency(featuredOrder.total)}
                                 </p>
                             </div>
@@ -95,14 +104,15 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
                                 {featuredOrder.trackingCode && (
                                     <button
                                         onClick={() => onTrackOrder(featuredOrder.trackingCode!)}
-                                        className="flex-1 md:flex-none px-6 py-2.5 bg-lyvest-500 text-white font-bold rounded-xl hover:bg-lyvest-600 transition-all shadow-lg shadow-rose-200 active:scale-95"
+                                        className="flex-1 md:flex-none px-8 py-3 bg-[#800020] text-white font-bold rounded-xl hover:bg-[#600018] transition-all shadow-lg shadow-rose-900/20 hover:shadow-rose-900/30 active:scale-95 flex items-center justify-center gap-2"
                                     >
+                                        <Truck className="w-4 h-4" />
                                         Rastrear Agora
                                     </button>
                                 )}
                                 <button
                                     onClick={() => setActiveTab('orders')}
-                                    className="flex-1 md:flex-none px-6 py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition-all active:scale-95"
+                                    className="flex-1 md:flex-none px-8 py-3 bg-white text-slate-700 border border-slate-200 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95"
                                 >
                                     Ver Detalhes
                                 </button>
@@ -114,8 +124,8 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
 
             {/* Quick Actions Grid */}
             <div>
-                <h3 className="font-bold text-slate-800 text-lg mb-4 px-2">Acesso Rápido</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <h3 className="font-bold text-slate-800 text-lg mb-6 px-2">Acesso Rápido</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                     <QuickAction
                         icon={Package}
                         label="Meus Pedidos"
@@ -150,25 +160,28 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
     );
 }
 
-// Helper component for uniform buttons
+// Helper component for uniform buttons with Premium Glass/Hover effect
 function QuickAction({ icon: Icon, label, subLabel, onClick, color }: any) {
     const colorStyles: any = {
-        blue: 'bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white',
-        rose: 'bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white',
-        purple: 'bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white',
-        emerald: 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white',
+        blue: 'bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white ring-blue-100',
+        rose: 'bg-rose-50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white ring-rose-100',
+        purple: 'bg-purple-50 text-purple-600 group-hover:bg-purple-500 group-hover:text-white ring-purple-100',
+        emerald: 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white ring-emerald-100',
     };
 
     return (
         <button
             onClick={onClick}
-            className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all group text-center h-full"
+            className="group flex flex-col items-center justify-center p-6 md:p-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/60 transition-all duration-300 transform hover:-translate-y-1.5 h-full relative overflow-hidden"
         >
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-colors ${colorStyles[color]}`}>
-                <Icon className="w-7 h-7" />
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 shadow-sm group-hover:shadow-md ${colorStyles[color]}`}>
+                <Icon className="w-7 h-7 transition-transform duration-300 group-hover:scale-110" />
             </div>
-            <span className="font-bold text-slate-800 mb-1">{label}</span>
-            <span className="text-xs text-slate-400 font-medium">{subLabel}</span>
+            <span className="font-bold text-slate-800 text-lg mb-1.5 group-hover:text-[#800020] transition-colors">{label}</span>
+            <span className="text-sm text-slate-500 font-medium group-hover:text-slate-600">{subLabel}</span>
+
+            {/* Subtle shiny overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none transform -translate-x-full group-hover:translate-x-full"></div>
         </button>
     );
 }

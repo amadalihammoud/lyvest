@@ -49,14 +49,22 @@ export default function DashboardSidebar({ activeTab, setActiveTab, onLogout }: 
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
-                            className={`flex items-center gap-3 px-5 py-3.5 rounded-full transition-all whitespace-nowrap w-full text-left
+                            className={`group flex items-center gap-3 px-5 py-3.5 rounded-xl transition-all duration-300 w-full text-left relative overflow-hidden
                                 ${activeTab === item.id
-                                    ? 'bg-lyvest-100/30 text-lyvest-500 font-bold shadow-sm ring-1 ring-[#F5E6E8]'
+                                    ? 'bg-gradient-to-r from-rose-50 to-white text-[#800020] font-bold shadow-sm'
                                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                 }`}
                         >
-                            <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-lyvest-500' : 'text-slate-400'}`} />
-                            {item.label}
+                            {/* Active Indicator Line */}
+                            {activeTab === item.id && (
+                                <span className="absolute left-0 top-0 bottom-0 w-1 bg-[#800020] rounded-r-full" />
+                            )}
+
+                            <item.icon
+                                className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 
+                                    ${activeTab === item.id ? 'text-[#800020]' : 'text-slate-400 group-hover:text-[#800020]'}`}
+                            />
+                            <span className="relative z-10">{item.label}</span>
                         </button>
                     ))}
 
