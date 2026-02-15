@@ -171,10 +171,7 @@ export default function HomePageClient() {
                 <ProductShowcase />
             </Suspense>
 
-            {/* Testimonials */}
-            <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse" />}>
-                <TestimonialsSection />
-            </Suspense>
+            {/* Testimonials removed (rendered in page.tsx) */}
 
             {/* Newsletter */}
             <section className="py-20 bg-[#FDF5F5]">
