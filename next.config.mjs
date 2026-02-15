@@ -17,12 +17,19 @@ const nextConfig = {
                 hostname: 'lyvest.vercel.app',
             },
         ],
-        minimumCacheTTL: 60,
+        minimumCacheTTL: 31536000,
         formats: ['image/avif', 'image/webp'],
+        deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+        imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+        dangerouslyAllowSVG: true,
+        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     },
     // Advanced Compiler Options
     compiler: {
-        removeConsole: process.env.NODE_ENV === 'production',
+        removeConsole: process.env.NODE_ENV === 'production' ? {
+            exclude: ['error'],
+        } : false,
+        reactRemoveProperties: process.env.NODE_ENV === 'production',
     },
     experimental: {
         optimizePackageImports: [
@@ -64,7 +71,7 @@ const nextConfig = {
                     },
                     {
                         key: 'Strict-Transport-Security',
-                        value: 'max-age=31536000; includeSubDomains',
+                        value: 'max-age=31536000; includeSubDomains; preload',
                     },
                 ],
             },
@@ -91,6 +98,16 @@ const nextConfig = {
             // Cache headers for fonts
             {
                 source: '/fonts/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            // Cache extensions
+            {
+                source: '/:all*(svg|jpg|jpeg|png|webp|avif|ico|woff|woff2)',
                 headers: [
                     {
                         key: 'Cache-Control',

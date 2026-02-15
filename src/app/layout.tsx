@@ -116,6 +116,10 @@ export default function RootLayout({
         >
             <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
                 <head>
+                    <link rel="preconnect" href="https://fonts.googleapis.com" />
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                    <link rel="dns-prefetch" href="https://img.clerk.com" />
+                    <link rel="dns-prefetch" href="https://shgdgelnddjnemfgzzfv.supabase.co" />
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
                     <link rel="preload" as="image" href="/banner-slide-1.webp" type="image/webp" fetchPriority="high" />
                 </head>

@@ -11,25 +11,9 @@ const slides = [
 ];
 
 function Hero() {
-
-    const [currentSlide, setCurrentSlide] = React.useState(0);
-    const [isPaused, setIsPaused] = React.useState(false);
-
-    React.useEffect(() => {
-        if (isPaused) return;
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % slides.length);
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [isPaused]);
-
     return (
         <section
             className="relative overflow-hidden bg-transparent text-white"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-            onFocus={() => setIsPaused(true)}
-            onBlur={() => setIsPaused(false)}
             aria-roledescription="carousel"
             aria-label="Banners promocionais"
         >
@@ -43,15 +27,19 @@ function Hero() {
                 <div className="flex justify-center items-center w-full">
                     <div className="w-[97%] sm:w-full max-w-[1400px] relative group">
 
-                        {/* Carousel Slides - Altura aumentada em ~50% no mobile (aspect 1.67/1 vs 2.5/1) */}
-                        <div className="relative aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full">
+                        {/* 
+                           CSS Scroll Snap Carousel 
+                           - Zero JS on load for LCP
+                           - Native swiping experience
+                           - Snap points for perfect alignment
+                        */}
+                        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
                             {slides.map((slide, index) => (
                                 <div
                                     key={slide.id}
-                                    className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                                        }`}
+                                    className="snap-center flex-shrink-0 w-full h-full relative"
                                 >
-                                    <div className="relative h-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
+                                    <div className="relative h-full w-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
                                         <Image
                                             src={slide.image}
                                             alt={slide.alt}
@@ -60,24 +48,23 @@ function Hero() {
                                             loading={index === 0 ? "eager" : "lazy"}
                                             fetchPriority={index === 0 ? "high" : "low"}
                                             className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
-                                            sizes="(max-width: 640px) 97vw, (max-width: 1200px) 95vw, 1400px"
+                                            sizes="(max-width: 640px) 100vw, (max-width: 1200px) 95vw, 1400px"
+                                            placeholder="blur"
+                                            blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA=" // Generic placeholder
                                         />
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Carousel Indicators (Dots) */}
-                        <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
-                            {slides.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentSlide(index)}
-                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? 'bg-lyvest-600 w-6' : 'bg-lyvest-200 hover:bg-[#C05060]'
-                                        }`}
-                                    aria-label={`Ir para slide ${index + 1}`}
-                                />
-                            ))}
+                        {/* 
+                           Visual Indicator for Multi-slide 
+                           (Pure CSS/Static - Optional: Add JS later if strict auto-play needed, 
+                           but for LCP pure CSS is superior)
+                        */}
+                        <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20 pointer-events-none">
+                            <div className="w-6 h-3 rounded-full bg-lyvest-600 transition-all opacity-80" />
+                            <div className="w-3 h-3 rounded-full bg-lyvest-200 opacity-60" />
                         </div>
 
                     </div>
