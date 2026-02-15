@@ -38,10 +38,25 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     // Defer Sentry initialization to idle callback (non-blocking)
     useEffect(() => {
         if (typeof window !== 'undefined') {
+            // Sentry
             if ('requestIdleCallback' in window) {
                 (window as any).requestIdleCallback(() => initSentry());
             } else {
                 setTimeout(() => initSentry(), 3000);
+            }
+
+            // Register Service Worker for PWA / Caching
+            if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').then(
+                        (registration) => {
+                            console.log('Service Worker registration successful with scope: ', registration.scope);
+                        },
+                        (err) => {
+                            console.log('Service Worker registration failed: ', err);
+                        }
+                    );
+                });
             }
         }
     }, []);

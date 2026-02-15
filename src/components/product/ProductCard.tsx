@@ -75,7 +75,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                         src={product.image}
                         alt={productName}
                         fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        sizes="(max-width: 640px) 260px, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
                         fallbackText={product.name.split(' ')[0]}
                     />
