@@ -9,7 +9,7 @@ import { mainMenu } from '../../data/mockData';
 import { useShop } from '../../context/ShopContext';
 import { useUser, useClerk } from '@clerk/nextjs';
 import { useAuthModal } from '@/store/useAuthModal';
-import { useShopNavigation } '../../hooks/useShopNavigation';
+import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 interface MobileMenuProps {
     isOpen: boolean;
@@ -26,7 +26,7 @@ export default function MobileMenu({
 }: MobileMenuProps) {
     const router = useRouter(); // Initialize router
     const { user, isSignedIn } = useUser();
-    const { onOpen } = useLoginModal();
+    const { onOpen } = useAuthModal();
 
     // Get Clerk object safely
     const clerk = useClerk();
