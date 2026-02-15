@@ -7,7 +7,7 @@ import ClientLayout from '@/components/layout/ClientLayout';
 // Font configuration with display: swap for better FCP
 // Inter font removed — Lato is the primary font, Inter was unused
 const lato = Lato({
-    weight: ['300', '400', '700', '900'],
+    weight: ['400', '700'],
     subsets: ['latin'],
     variable: '--font-lato',
     display: 'swap',

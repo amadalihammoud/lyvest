@@ -1,29 +1,28 @@
 ﻿'use client';
-import { useState, useEffect, useTransition, ChangeEvent } from 'react';
+import { useState, useEffect, useTransition, ChangeEvent, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 'lucide-react';
 import { mainMenu, productsData } from '../../data/mockData';
 import { useDebounce } from '../../hooks/useDebounce';
-import { detectXSS } from '../../utils/security';
 import LanguageSelector from '../features/LanguageSelector';
 import { useI18n } from '../../hooks/useI18n';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useModal } from '../../context/ModalContext';
-import Button from '../ui/Button';
-// Lazy load MobileMenu to reduce initial bundle size
 import dynamic from 'next/dynamic';
 const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
-// import { getUserAvatar } from '../../utils/userUtils'; // Removed
 
+// Lazy-load auth UI — defers entire Clerk SDK (~200KB) from critical path
+const HeaderAuth = dynamic(() => import('./HeaderAuth'), { ssr: false });
 
 import { useShop } from '../../context/ShopContext';
-// import { useAuth } from '../../context/AuthContext'; // Removed
-import { useUser, useClerk } from '@clerk/nextjs';
 import { useLoginModal } from '@/store/useLoginModal';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
+
+// Lightweight XSS check — replaces heavy security.ts import (DOMPurify ~17KB)
+const hasXSS = (v: string) => /<script|javascript:|on\w+=|<iframe/i.test(v);
 
 // Props are now optional - Header manages its own state internally
 interface HeaderProps {
@@ -53,10 +52,7 @@ export default function Header(_props?: HeaderProps) {
     const { cartCount } = useCart();
     const { favorites } = useFavorites();
     const { openDrawer, closeDrawer, openModal } = useModal();
-    // const { user, isAuthenticated: isLoggedIn } = useAuth(); // Removed
-    const { user, isSignedIn } = useUser();
     const { onOpen } = useLoginModal();
-    const { signOut, openSignIn } = useClerk();
 
     const { selectedCategory, setSelectedCategory } = useShop();
     const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
@@ -67,16 +63,6 @@ export default function Header(_props?: HeaderProps) {
 
     // Internal navigation function
     const navigateToDashboard = () => router.push('/dashboard');
-
-    // Cast properties for stricter usage
-    const currentUser = user ? {
-        name: user.fullName || user.firstName,
-        email: user.primaryEmailAddress?.emailAddress,
-        imageUrl: user.imageUrl
-    } : null;
-
-    // Legacy helper for avatar (can be replaced by user.imageUrl directly)
-    const getAvatar = () => currentUser?.imageUrl || '/default-avatar.png'; // Fallback
 
     const menuItems = mainMenu as MenuItem[];
 
@@ -105,8 +91,7 @@ export default function Header(_props?: HeaderProps) {
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.slice(0, 50);
-        // Proteção XSS
-        if (detectXSS(value)) {
+        if (hasXSS(value)) {
             setSearchQuery('');
             return;
         }
@@ -277,23 +262,8 @@ export default function Header(_props?: HeaderProps) {
                             )}
                         </button>
 
-                        {isSignedIn && currentUser ? (
-                            <button
-                                onClick={navigateToDashboard}
-                                className="hidden lg:flex items-center gap-2 pl-1 pr-3 py-1 bg-white hover:bg-slate-50 rounded-full border border-slate-200 transition-all shadow-sm group"
-                            >
-                                <Image
-                                    src={currentUser.imageUrl}
-                                    alt={currentUser.name || 'User'}
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full object-cover relative z-10 bg-white"
-                                />
-                                <span className="text-sm font-bold text-slate-700 group-hover:text-lyvest-500 transition-colors">
-                                    {currentUser.name}
-                                </span>
-                            </button>
-                        ) : (
+                        {/* Auth UI: lazy-loaded to keep Clerk SDK off critical path */}
+                        <Suspense fallback={
                             <div className="hidden lg:block">
                                 <button
                                     onClick={onOpen}
@@ -302,7 +272,13 @@ export default function Header(_props?: HeaderProps) {
                                     {t('nav.login')}
                                 </button>
                             </div>
-                        )}
+                        }>
+                            <HeaderAuth
+                                onOpen={onOpen}
+                                navigateToDashboard={navigateToDashboard}
+                                loginLabel={t('nav.login')}
+                            />
+                        </Suspense>
 
                         {/* Seletor de Idioma (Desktop) */}
                         <div className="hidden lg:flex items-center gap-2">
@@ -345,8 +321,7 @@ export default function Header(_props?: HeaderProps) {
                 isOpen={isMobileMenuOpen}
                 onClose={() => setIsMobileMenuOpen(false)}
                 onOpenLogin={() => {
-                    if (openSignIn) openSignIn();
-                    else window.location.href = '/sign-in';
+                    onOpen();
                 }}
                 navigateToDashboard={navigateToDashboard}
             />

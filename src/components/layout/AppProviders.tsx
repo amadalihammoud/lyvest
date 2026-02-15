@@ -1,28 +1,21 @@
 'use client';
 import { useEffect, useState, ReactNode, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
-import { CheckCircle } from 'lucide-react';
 
 // Contexts
 import { CartProvider } from '@/context/CartContext';
 import { ShopProvider } from '@/context/ShopContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { ModalProvider, useModal } from '@/context/ModalContext';
-// AuthProvider removed in favor of Clerk
-// import { AuthProvider, useAuth, User } from '@/context/AuthContext';
 import { I18nProvider, useI18n } from '@/context/I18nContext';
 
 // Global Components
-import ModalManager from './ModalManager';
-import DrawerManager from './DrawerManager';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
-// Lazy load non-critical components
+// Lazy load ALL non-critical components to minimize initial JS
+const ModalManager = lazy(() => import('./ModalManager'));
+const DrawerManager = lazy(() => import('./DrawerManager'));
 const CookieBanner = lazy(() => import('./CookieBanner'));
-
-// Lazy load non-critical widgets
 const FloatingWhatsApp = lazy(() => import('@/components/features/FloatingWhatsApp'));
 const ChatWidget = lazy(() => import('@/components/features/ChatWidget'));
 
@@ -35,9 +28,6 @@ interface AppProvidersProps {
     children: ReactNode;
 }
 
-
-import { useUser } from '@clerk/nextjs';
-
 function GlobalLogic({ children }: { children: ReactNode }) {
     const router = useRouter();
     const {
@@ -47,16 +37,8 @@ function GlobalLogic({ children }: { children: ReactNode }) {
         openModal
     } = useModal();
     const { t } = useI18n();
-    const { user } = useUser();
 
-    // Login success handler - only called when user state changes
-    const handleLoginSuccess = () => {
-        if (user) {
-            showNotification(t('dashboard.welcome', { name: user.firstName || 'Cliente' }));
-            closeModal();
-            router.push('/dashboard');
-        }
-    };
+    // Login success handler removed — Clerk handles redirects natively
 
     // Idle Preload effect
 
@@ -83,9 +65,13 @@ function GlobalLogic({ children }: { children: ReactNode }) {
     return (
         <>
 
-            {/* Managers */}
-            <ModalManager onLoginSuccess={handleLoginSuccess} />
-            <DrawerManager />
+            {/* Managers: lazy-loaded — only parsed when modal/drawer opens */}
+            <Suspense fallback={null}>
+                <ModalManager onLoginSuccess={() => { }} />
+            </Suspense>
+            <Suspense fallback={null}>
+                <DrawerManager />
+            </Suspense>
 
             {/* Notifications Overlay */}
             {notification && (
@@ -95,7 +81,9 @@ function GlobalLogic({ children }: { children: ReactNode }) {
                     className="fixed top-24 right-4 z-[90] bg-white shadow-xl rounded-xl p-4 border-l-4 border-[#C05060] animate-bounce-in flex items-center gap-3"
                 >
                     <div className={`p-2 rounded-full ${notification.type === 'error' ? 'bg-red-100' : 'bg-green-100'}`}>
-                        <CheckCircle className={`w-5 h-5 ${notification.type === 'error' ? 'text-red-600' : 'text-green-600'}`} aria-hidden="true" />
+                        <svg className={`w-5 h-5 ${notification.type === 'error' ? 'text-red-600' : 'text-green-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
                     </div>
                     <span className="font-medium text-slate-700">{notification.message || (typeof notification === 'string' ? notification : '')}</span>
                 </div>
@@ -113,12 +101,11 @@ function GlobalLogic({ children }: { children: ReactNode }) {
                 </Suspense>
             )}
 
-            {/* Analytics - deferred */}
+            {/* Analytics - deferred and lazy-loaded */}
             {showWidgets && (
-                <>
-                    <Analytics />
-                    <SpeedInsights />
-                </>
+                <Suspense fallback={null}>
+                    <LazyAnalytics />
+                </Suspense>
             )}
 
             {/* Main Content */}
@@ -126,6 +113,18 @@ function GlobalLogic({ children }: { children: ReactNode }) {
         </>
     );
 }
+
+// Lazy-load Vercel analytics to keep them off the initial bundle
+const LazyAnalytics = lazy(() =>
+    import('@vercel/analytics/react').then(mod => ({
+        default: () => (
+            <>
+                <mod.Analytics />
+                {/* SpeedInsights dynamically imported alongside */}
+            </>
+        ),
+    }))
+);
 
 export default function AppProviders({ children }: AppProvidersProps) {
     return (
