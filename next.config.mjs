@@ -17,7 +17,6 @@ const nextConfig = {
         removeConsole: process.env.NODE_ENV === 'production',
     },
     experimental: {
-        cssChunking: 'strict',
         optimizePackageImports: [
             'lucide-react',
             '@clerk/nextjs',

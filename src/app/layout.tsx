@@ -1,15 +1,11 @@
 
 import type { Metadata } from 'next';
-import { Inter, Lato, Cookie } from 'next/font/google';
+import { Lato, Cookie } from 'next/font/google';
 import '@/index.css';
 import ClientLayout from '@/components/layout/ClientLayout';
 
 // Font configuration with display: swap for better FCP
-const inter = Inter({
-    subsets: ['latin'],
-    variable: '--font-inter',
-    display: 'swap',
-});
+// Inter font removed — Lato is the primary font, Inter was unused
 const lato = Lato({
     weight: ['300', '400', '700', '900'],
     subsets: ['latin'],
@@ -118,9 +114,10 @@ export default function RootLayout({
                 }
             }}
         >
-            <html lang="pt-BR" className={`${inter.variable} ${lato.variable} ${cookie.variable}`}>
+            <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
                 <head>
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+                    <link rel="preload" as="image" href="/banner-slide-1.webp" type="image/webp" fetchPriority="high" />
                 </head>
                 <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
 
