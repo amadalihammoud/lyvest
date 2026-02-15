@@ -14,7 +14,7 @@ import { Smile } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
 
 // Lazy load below-the-fold components
-const TestimonialsSection = lazy(() => import('@/components/features/TestimonialsSection'));
+// TestimonialsSection moved to page.tsx
 const NewsletterForm = lazy(() => import('@/components/features/NewsletterForm'));
 
 // 1. Dynamic Component: Handles URL params and Product Grid

@@ -17,8 +17,10 @@ import { I18nProvider, useI18n } from '@/context/I18nContext';
 // Global Components
 import ModalManager from './ModalManager';
 import DrawerManager from './DrawerManager';
-import CookieBanner from './CookieBanner';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
+
+// Lazy load non-critical components
+const CookieBanner = lazy(() => import('./CookieBanner'));
 
 // Lazy load non-critical widgets
 const FloatingWhatsApp = lazy(() => import('@/components/features/FloatingWhatsApp'));
@@ -100,7 +102,9 @@ function GlobalLogic({ children }: { children: ReactNode }) {
             )}
 
             {/* Global Features (Lazy Loaded) */}
-            <CookieBanner onOpenPrivacy={() => openModal('privacy')} />
+            <Suspense fallback={null}>
+                <CookieBanner onOpenPrivacy={() => openModal('privacy')} />
+            </Suspense>
 
             {showWidgets && (
                 <Suspense fallback={null}>
@@ -109,9 +113,13 @@ function GlobalLogic({ children }: { children: ReactNode }) {
                 </Suspense>
             )}
 
-            {/* Analytics */}
-            <Analytics />
-            <SpeedInsights />
+            {/* Analytics - deferred */}
+            {showWidgets && (
+                <>
+                    <Analytics />
+                    <SpeedInsights />
+                </>
+            )}
 
             {/* Main Content */}
             {children}

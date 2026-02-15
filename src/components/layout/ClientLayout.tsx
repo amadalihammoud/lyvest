@@ -1,9 +1,10 @@
 'use client';
 
-import { ReactNode, Suspense } from 'react';
+import { ReactNode, Suspense, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import AppProviders from '@/components/layout/AppProviders';
-import Header from '@/components/layout/Header';
+// Lazy load Header to defer Clerk useUser/useClerk from critical path
+const Header = dynamic(() => import('@/components/layout/Header'), { ssr: true });
 // Footer lazy loaded to reduce initial TBT
 const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true });
 // LoginModal lazy loaded to remove Clerk/Framer from initial bundle
@@ -34,10 +35,16 @@ function HeaderSkeleton() {
 export default function ClientLayout({ children }: ClientLayoutProps) {
     const { isOpen } = useLoginModal();
 
-    // Initialize Sentry monitoring
-    if (typeof window !== 'undefined') {
-        initSentry();
-    }
+    // Defer Sentry initialization to idle callback (non-blocking)
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            if ('requestIdleCallback' in window) {
+                (window as any).requestIdleCallback(() => initSentry());
+            } else {
+                setTimeout(() => initSentry(), 3000);
+            }
+        }
+    }, []);
 
     return (
         <AppProviders>
