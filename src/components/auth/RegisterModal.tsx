@@ -49,12 +49,9 @@ export default function RegisterModal() {
         };
 
         // Small delay to let Clerk render
-        const timer = setTimeout(() => {
-            document.addEventListener('click', handleClick, true);
-        }, 100);
+        document.addEventListener('click', handleClick, true);
 
         return () => {
-            clearTimeout(timer);
             document.removeEventListener('click', handleClick, true);
         };
     }, [isOpen, switchToLogin]);
@@ -206,10 +203,11 @@ export default function RegisterModal() {
 
                         {/* DESKTOP MODAL (Split View) - Hidden on Mobile */}
                         <m.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh] min-h-[680px]"
+                            initial={{ opacity: 0, scale: 0.97 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.97 }}
+                            transition={{ duration: 0.15 }}
+                            className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row max-h-[90vh]"
                         >
                             {/* Desktop: Left Side (Image) */}
                             <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.webp')] bg-cover bg-center relative">
