@@ -6,7 +6,11 @@ import AppProviders from '@/components/layout/AppProviders';
 import Header from '@/components/layout/Header';
 // Footer lazy loaded to reduce initial TBT
 const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true });
-import LoginModal from '@/components/auth/LoginModal';
+// LoginModal lazy loaded to remove Clerk/Framer from initial bundle
+const LoginModal = dynamic(() => import('@/components/auth/LoginModal'), { ssr: false });
+
+import { useLoginModal } from '@/store/useLoginModal';
+import { initSentry } from '@/utils/sentry';
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -27,9 +31,9 @@ function HeaderSkeleton() {
     );
 }
 
-import { initSentry } from '@/utils/sentry';
-
 export default function ClientLayout({ children }: ClientLayoutProps) {
+    const { isOpen } = useLoginModal();
+
     // Initialize Sentry monitoring
     if (typeof window !== 'undefined') {
         initSentry();
@@ -47,8 +51,14 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 <Suspense fallback={<div className="h-32 bg-slate-50" />}>
                     <Footer />
                 </Suspense>
+
+                {/* Lazy rendered modal - only loads heavy Clerk/Framer chunks when needed */}
+                {isOpen && (
+                    <Suspense fallback={null}>
+                        <LoginModal />
+                    </Suspense>
+                )}
             </div>
-            <LoginModal />
         </AppProviders>
     );
 }
