@@ -35,6 +35,8 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
         phone: '',
         birth_date: '',
         gender: '',
+        marketing_email: true,
+        marketing_whatsapp: true,
     });
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -48,6 +50,8 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                 phone: profile.phone || '',
                 birth_date: (profile.birth_date as string) || '',
                 gender: (profile.gender as string) || 'male',
+                marketing_email: profile.marketing_email ?? true,
+                marketing_whatsapp: profile.marketing_whatsapp ?? true,
             });
         } else if (user) {
             setFormData(prev => ({
@@ -62,7 +66,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
         }
     }, [profile, user, propUser]);
 
-    const handleChange = (field: string, value: string) => {
+    const handleChange = (field: string, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         setError('');
     };
@@ -110,6 +114,8 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                 full_name: formData.full_name,
                 phone: formData.phone.replace(/\D/g, ''),
                 birth_date: formData.birth_date || null,
+                marketing_email: formData.marketing_email,
+                marketing_whatsapp: formData.marketing_whatsapp,
                 updated_at: new Date().toISOString(),
             };
 
@@ -137,6 +143,8 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                             full_name: formData.full_name,
                             phone: formData.phone.replace(/\D/g, ''),
                             birth_date: formData.birth_date || null,
+                            marketing_email: formData.marketing_email,
+                            marketing_whatsapp: formData.marketing_whatsapp,
                             updated_at: new Date().toISOString()
                         })
                         .select()
@@ -305,6 +313,40 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                         </div>
                     </div>
 
+                    <div className="h-px bg-slate-100 w-full"></div>
+
+                    {/* Communication Preferences */}
+                    <div>
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-6 ml-1">Preferências de Comunicação</h3>
+                        <div className="space-y-4">
+                            <label className="flex items-center gap-3 cursor-pointer p-4 rounded-2xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.marketing_email}
+                                    onChange={(e) => handleChange('marketing_email', e.target.checked)}
+                                    className="w-5 h-5 rounded text-lyvest-500 focus:ring-[#800020]"
+                                />
+                                <div>
+                                    <span className="font-bold text-slate-700 block">E-mails Promocionais</span>
+                                    <span className="text-slate-500 text-sm">Receba ofertas exclusivas, novidades e cupons.</span>
+                                </div>
+                            </label>
+
+                            <label className="flex items-center gap-3 cursor-pointer p-4 rounded-2xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.marketing_whatsapp}
+                                    onChange={(e) => handleChange('marketing_whatsapp', e.target.checked)}
+                                    className="w-5 h-5 rounded text-lyvest-500 focus:ring-[#800020]"
+                                />
+                                <div>
+                                    <span className="font-bold text-slate-700 block">WhatsApp</span>
+                                    <span className="text-slate-500 text-sm">Receba atualizações do pedido e ofertas relâmpago.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <div className="flex flex-col sm:flex-row gap-4 pt-4">
                         <button
                             type="submit"
@@ -322,7 +364,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

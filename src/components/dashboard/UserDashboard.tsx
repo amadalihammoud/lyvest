@@ -22,6 +22,7 @@ export interface User {
 }
 
 // Lazy load das seções para melhorar performance
+const OverviewSection = lazy(() => import('./OverviewSection'));
 const OrdersSection = lazy(() => import('./OrdersSection'));
 const FavoritesSection = lazy(() => import('./FavoritesSection'));
 const ProfileSection = lazy(() => import('./ProfileSection'));
@@ -84,12 +85,13 @@ interface UserDashboardProps {
 
 function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardProps) {
     const { t } = useI18n();
-    const [activeTab, setActiveTab] = useState('orders');
+    const [activeTab, setActiveTab] = useState('overview');
 
     // Renderizar apenas a seção ativa com lazy loading
     const renderActiveSection = () => {
         return (
             <Suspense fallback={<div className="flex justify-center p-12 animate-fade-in"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#800020]"></div></div>}>
+                {activeTab === 'overview' && <OverviewSection user={user} orders={orders} setActiveTab={setActiveTab} onTrackOrder={onTrackOrder} />}
                 {activeTab === 'orders' && <OrdersSection orders={orders} onTrackOrder={onTrackOrder} />}
                 {activeTab === 'favorites' && <FavoritesSection />}
 
@@ -123,7 +125,7 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
             <div className="container mx-auto px-4">
                 <Breadcrumbs items={[{ label: t('nav.dashboard') || 'Minha Conta' }]} />
 
-                <DashboardHeader user={user} t={t} />
+                {activeTab !== 'overview' && <DashboardHeader user={user} t={t} />}
 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
                     <DashboardSidebar

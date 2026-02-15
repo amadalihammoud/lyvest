@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { Package, MapPin, ChevronDown, ChevronUp, Copy, CreditCard, Truck, CheckCircle, Clock, FileText, Gift } from 'lucide-react';
+import { Package, MapPin, ChevronDown, ChevronUp, Copy, CreditCard, Truck, CheckCircle, Clock, FileText, Gift, ShoppingBag, Star } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
-import { Order } from '../../types/dashboard';
+import { Order, OrderItem } from '../../types/dashboard';
+import { useCart } from '../../hooks/useCart';
+import { useRouter } from 'next/navigation';
+import ReviewModal from './ReviewModal';
 
 interface OrderCardProps {
     order: Order;
@@ -10,7 +13,55 @@ interface OrderCardProps {
 
 export default function OrderCard({ order, onTrackOrder }: OrderCardProps) {
     const { t, formatCurrency } = useI18n();
+    const { addToCart } = useCart();
+    const router = useRouter();
     const [isExpanded, setIsExpanded] = useState(false);
+
+    // Review Modal State
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [selectedItemToReview, setSelectedItemToReview] = useState<OrderItem | null>(null);
+
+    const handleBuyAgain = () => {
+        order.items.forEach(item => {
+            // Se tiver ID melhor, senão usa ID temporário baseado no nome (fallback)
+            const itemId = item.id || `temp-${item.name.toLowerCase().replace(/\s+/g, '-')}`;
+
+            addToCart({
+                id: itemId,
+                name: item.name,
+                price: item.price,
+                qty: 1, // Adiciona 1 de cada, usuário pode ajustar no carrinho
+                image: item.image || '',
+                category: 'Recompra'
+            });
+        });
+
+        // Feedback simples
+        const btn = document.activeElement as HTMLButtonElement;
+        if (btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="flex items-center gap-2">✓ Adicionado!</span>';
+            setTimeout(() => btn.innerHTML = originalText, 2000);
+        }
+    };
+
+    const handleReview = (item?: OrderItem) => {
+        if (item) {
+            setSelectedItemToReview(item);
+            setIsReviewModalOpen(true);
+        } else if (order.items.length === 1) {
+            // Se só tem 1 item, abre direto para ele
+            setSelectedItemToReview(order.items[0]);
+            setIsReviewModalOpen(true);
+        } else {
+            // Se tem vários, expande para mostrar os itens e pede para selecionar
+            setIsExpanded(true);
+            setTimeout(() => {
+                const itemsSection = document.getElementById(`order-items-${order.id}`);
+                itemsSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+    };
 
     // Calculate progress based on status
     const getProgress = (status: string) => {
@@ -68,6 +119,18 @@ export default function OrderCard({ order, onTrackOrder }: OrderCardProps) {
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow">
+            {/* Review Modal */}
+            {selectedItemToReview && (
+                <ReviewModal
+                    isOpen={isReviewModalOpen}
+                    onClose={() => setIsReviewModalOpen(false)}
+                    productName={selectedItemToReview.name}
+                    productId={selectedItemToReview.id}
+                    orderId={order.id}
+                    productImage={selectedItemToReview.image}
+                />
+            )}
+
             {/* Header / Summary */}
             <div className="p-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -123,11 +186,28 @@ export default function OrderCard({ order, onTrackOrder }: OrderCardProps) {
                     </button>
 
                     <button
+                        onClick={handleBuyAgain}
+                        className="flex-1 sm:flex-none px-6 py-2.5 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2 shadow-sm shadow-emerald-100"
+                    >
+                        <ShoppingBag className="w-4 h-4" />
+                        Comprar Novamente
+                    </button>
+
+                    {isDelivered && (
+                        <button
+                            onClick={() => handleReview()}
+                            className="flex-1 sm:flex-none px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-600"
+                        >
+                            <Star className="w-4 h-4" />
+                            {order.items.length > 1 ? 'Avaliar Itens' : 'Avaliar'}
+                        </button>
+                    )}
+
+                    <button
                         onClick={() => setIsExpanded(!isExpanded)}
                         className="flex-1 sm:flex-none px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
                     >
-                        <Package className="w-4 h-4" />
-                        {t('dashboard.viewDetails') || "Ver Detalhes"}
+                        {isExpanded ? "Menos Detalhes" : "Ver Detalhes"}
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
                 </div>
@@ -210,29 +290,42 @@ export default function OrderCard({ order, onTrackOrder }: OrderCardProps) {
                     </div>
 
                     {/* Order Items */}
-                    <div className="p-6 bg-slate-50 border-t border-slate-100">
+                    <div id={`order-items-${order.id}`} className="p-6 bg-slate-50 border-t border-slate-100">
                         <h4 className="font-bold text-slate-700 mb-4 text-sm uppercase tracking-wide flex items-center gap-2">
                             <Package className="w-4 h-4 text-lyvest-500" />
                             Itens do Pedido
                         </h4>
                         <div className="space-y-3">
                             {order.items.map((item, idx) => (
-                                <div key={idx} className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-100">
-                                    <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                <div key={idx} className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 group">
+                                    <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                                         {item.image ? (
                                             <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                         ) : (
                                             <Package className="w-6 h-6 text-slate-300" />
                                         )}
                                     </div>
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-0 text-center sm:text-left">
                                         <p className="font-bold text-slate-800 line-clamp-1">{item.name}</p>
                                         <p className="text-sm text-slate-500">Quantidade: {item.qty}</p>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-lyvest-500">{formatCurrency(item.price * item.qty)}</p>
-                                        {item.qty > 1 && (
-                                            <p className="text-xs text-slate-500">{formatCurrency(item.price)}/un</p>
+                                    <div className="text-right flex flex-col items-center sm:items-end gap-2">
+                                        <div>
+                                            <p className="font-bold text-lyvest-500">{formatCurrency(item.price * item.qty)}</p>
+                                            {item.qty > 1 && (
+                                                <p className="text-xs text-slate-500">{formatCurrency(item.price)}/un</p>
+                                            )}
+                                        </div>
+
+                                        {/* Individual Item Review Button */}
+                                        {isDelivered && (
+                                            <button
+                                                onClick={() => handleReview(item)}
+                                                className="text-xs font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100 hover:bg-amber-100 transition-colors flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                                            >
+                                                <Star className="w-3 h-3 fill-amber-500" />
+                                                Avaliar
+                                            </button>
                                         )}
                                     </div>
                                 </div>

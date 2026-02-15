@@ -7,13 +7,10 @@ import AppProviders from '@/components/layout/AppProviders';
 const Header = dynamic(() => import('@/components/layout/Header'), { ssr: true });
 // Footer lazy loaded to reduce initial TBT
 const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true });
-// LoginModal lazy loaded to remove Clerk/Framer from initial bundle
-const LoginModal = dynamic(() => import('@/components/auth/LoginModal'), { ssr: false });
-// RegisterModal lazy loaded alongside LoginModal
-const RegisterModal = dynamic(() => import('@/components/auth/RegisterModal'), { ssr: false });
+// AuthModal lazy loaded to remove Clerk/Framer from initial bundle
+const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), { ssr: false });
 
-import { useLoginModal } from '@/store/useLoginModal';
-import { useRegisterModal } from '@/store/useRegisterModal';
+import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
 
 interface ClientLayoutProps {
@@ -36,8 +33,7 @@ function HeaderSkeleton() {
 }
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
-    const { isOpen } = useLoginModal();
-    const { isOpen: isRegisterOpen } = useRegisterModal();
+    const { isOpen } = useAuthModal();
 
     // Defer Sentry initialization to idle callback (non-blocking)
     useEffect(() => {
@@ -63,15 +59,10 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                     <Footer />
                 </Suspense>
 
-                {/* Lazy rendered modals - only load heavy Clerk/Framer chunks when needed */}
+                {/* Lazy rendered auth modal */}
                 {isOpen && (
                     <Suspense fallback={null}>
-                        <LoginModal />
-                    </Suspense>
-                )}
-                {isRegisterOpen && (
-                    <Suspense fallback={null}>
-                        <RegisterModal />
+                        <AuthModal />
                     </Suspense>
                 )}
             </div>

@@ -16,6 +16,7 @@ const emptyAddress: UserAddress = {
     street: '',
     number: '',
     complement: '',
+    reference_point: '',
     is_default: false,
 };
 
@@ -391,6 +392,18 @@ export default function AddressSection() {
                         </div>
                     </div>
 
+                    {/* Ponto de Referência */}
+                    <div>
+                        <label className="text-sm font-bold text-slate-700 mb-2 block">Ponto de Referência</label>
+                        <input
+                            type="text"
+                            value={formData.reference_point || ''}
+                            onChange={(e) => handleChange('reference_point', e.target.value)}
+                            placeholder="Ex: Próximo ao mercado X"
+                            className="w-full px-6 py-3 rounded-full border border-slate-200 focus:border-lyvest-500 focus:ring-4 focus:ring-[#F5E6E8]/30 outline-none transition-all"
+                        />
+                    </div>
+
                     {/* Marcar como padrão */}
                     <label className="flex items-center gap-3 cursor-pointer">
                         <input
@@ -461,6 +474,7 @@ export default function AddressSection() {
                         <div className="space-y-1.5 text-sm text-slate-600 mb-6 pl-1">
                             <p className="font-medium">{addr.street}, {addr.number}</p>
                             {addr.complement && <p className="text-slate-400">{addr.complement}</p>}
+                            {addr.reference_point && <p className="text-slate-500 text-xs mt-1">Ref: {addr.reference_point}</p>}
                             <p>{addr.neighborhood} - {addr.city}/{addr.state}</p>
                             <p className="text-slate-400">{t('dashboard.addresses.zip')}: {addr.zip_code?.replace(/(\d{5})(\d{3})/, '$1-$2')}</p>
                         </div>

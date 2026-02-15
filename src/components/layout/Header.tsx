@@ -18,7 +18,7 @@ const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
 const HeaderAuth = dynamic(() => import('./HeaderAuth'), { ssr: false });
 
 import { useShop } from '../../context/ShopContext';
-import { useLoginModal } from '@/store/useLoginModal';
+import { useAuthModal } from '@/store/useAuthModal';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Lightweight XSS check — replaces heavy security.ts import (DOMPurify ~17KB)

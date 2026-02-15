@@ -3,6 +3,9 @@
 'use client';
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
 import { FAVORITES_CONFIG } from '../config/constants';
+import { useUser } from '@clerk/nextjs';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { logger } from '../utils/logger';
 
 interface FavoritesContextType {
     favorites: (number | string)[];
@@ -32,6 +35,13 @@ function isValidId(id: unknown): boolean {
         return id.trim().length > 0;
     }
     return false;
+}
+
+/**
+ * Verifica se é UUID válido para Supabase
+ */
+function isUuid(id: unknown): boolean {
+    return typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 }
 
 /**
@@ -99,12 +109,13 @@ interface FavoritesProviderProps {
 }
 
 export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
+    const { user, isLoaded } = useUser();
     // Inicializar vazio - será preenchido pelo useEffect no cliente
     // MUDANÇA: Aceita number ou string
     const [favorites, setFavorites] = useState<(number | string)[]>([]);
     const [isHydrated, setIsHydrated] = useState(false);
 
-    // Hidratar do localStorage apenas no cliente
+    // 1. Hidratar do localStorage inicialmente (para feedback imediato)
     useEffect(() => {
         const savedFavorites = loadFavoritesFromStorage();
         if (savedFavorites.length > 0) {
@@ -113,12 +124,94 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         setIsHydrated(true);
     }, []);
 
-    // Persistir no localStorage quando mudar (apenas após hidratação)
+    // 2. Sincronizar com Supabase ao logar
+    useEffect(() => {
+        const syncFavorites = async () => {
+            if (!isLoaded || !user || !isSupabaseConfigured()) return;
+
+            try {
+                // A. Buscar favoritos remotos
+                const { data: remoteFavorites, error } = await supabase
+                    .from('favorites')
+                    .select('product_id')
+                    .eq('user_id', user.id);
+
+                if (error) throw error;
+
+                const remoteIds = remoteFavorites?.map(f => f.product_id) || [];
+                const localIds = loadFavoritesFromStorage(); // Pega direto do storage para garantir
+
+                // B. Identificar itens locais que não estão no remoto (novos para sync)
+                // Apenas UUIDs podem ser salvos no Supabase
+                const newRemoteItems = localIds.filter(id =>
+                    isUuid(id) && !remoteIds.includes(id as string)
+                );
+
+                // C. Salvar novos itens no Supabase
+                if (newRemoteItems.length > 0) {
+                    await supabase
+                        .from('favorites')
+                        .insert(
+                            newRemoteItems.map(id => ({
+                                user_id: user.id,
+                                product_id: id as string
+                            }))
+                        );
+                    logger.info(`Synced ${newRemoteItems.length} favorites to cloud.`);
+                }
+
+                // D. Atualizar estado local com a UNIÃO (Local + Remoto)
+                // Remoto ganha em caso de conflito, mas aqui estamos somando
+                const combinedIds = [...new Set([...localIds, ...remoteIds])];
+                setFavorites(combinedIds);
+
+                // E. Atualizar localStorage com a lista completa
+                saveFavoritesToStorage(combinedIds);
+
+            } catch (err) {
+                logger.error('Error syncing favorites:', err);
+            }
+        };
+
+        if (isHydrated) {
+            syncFavorites();
+        }
+    }, [user, isLoaded, isHydrated]);
+
+    // 3. Persistir no localStorage quando mudar
     useEffect(() => {
         if (isHydrated) {
             saveFavoritesToStorage(favorites);
         }
     }, [favorites, isHydrated]);
+
+
+    // Helper para adicionar ao Supabase
+    const addToSupabase = async (productId: string) => {
+        if (!user || !isSupabaseConfigured() || !isUuid(productId)) return;
+        try {
+            await supabase.from('favorites').insert({
+                user_id: user.id,
+                product_id: productId
+            });
+        } catch (err) {
+            logger.error('Error adding favorite to cloud:', err);
+        }
+    };
+
+    // Helper para remover do Supabase
+    const removeFromSupabase = async (productId: string) => {
+        if (!user || !isSupabaseConfigured() || !isUuid(productId)) return;
+        try {
+            await supabase
+                .from('favorites')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('product_id', productId);
+        } catch (err) {
+            logger.error('Error removing favorite from cloud:', err);
+        }
+    };
 
     const toggleFavorite = useCallback((event: React.SyntheticEvent | number | string, productId?: number | string) => {
         // Se vier de um evento, evitar propagação
@@ -134,16 +227,19 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         if (!id || !isValidId(id)) return;
 
         setFavorites((prev) => {
-            if (prev.includes(id)) {
+            const isFav = prev.includes(id);
+
+            // Side effect: Persist to Supabase
+            if (isFav) {
+                removeFromSupabase(String(id));
                 return prev.filter((favId) => favId !== id);
+            } else {
+                if (prev.length >= MAX_FAVORITES) return prev;
+                addToSupabase(String(id));
+                return [...prev, id];
             }
-            // Verificar limite antes de adicionar
-            if (prev.length >= MAX_FAVORITES) {
-                return prev;
-            }
-            return [...prev, id];
         });
-    }, []);
+    }, [user]); // user é dependência agora
 
     const addFavorite = useCallback((productId: number | string) => {
         if (!isValidId(productId)) return;
@@ -151,14 +247,18 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         setFavorites((prev) => {
             if (prev.includes(productId)) return prev;
             if (prev.length >= MAX_FAVORITES) return prev;
+
+            addToSupabase(String(productId));
             return [...prev, productId];
         });
-    }, []);
+    }, [user]);
 
     const removeFavorite = useCallback((productId: number | string) => {
         if (!isValidId(productId)) return;
+
+        removeFromSupabase(String(productId));
         setFavorites((prev) => prev.filter((id) => id !== productId));
-    }, []);
+    }, [user]);
 
     const isFavorite = useCallback(
         (productId: number | string) => isValidId(productId) && favorites.includes(productId),
@@ -169,6 +269,9 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
 
     const clearFavorites = useCallback(() => {
         setFavorites([]);
+        // Opcional: Limpar tudo do Supabase também? 
+        // Por segurança, talvez não limpar nuvem ao limpar local, ou perguntar.
+        // Mas 'clearFavorites' geralmente é logout ou ação destrutiva.
     }, []);
 
     return (

@@ -45,7 +45,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     phone TEXT,
     cpf TEXT,
     birth_date DATE,
-    gender TEXT
+    gender TEXT,
+    marketing_email BOOLEAN DEFAULT true,
+    marketing_whatsapp BOOLEAN DEFAULT true
 );
 
 -- PRODUTOS
@@ -109,6 +111,19 @@ CREATE TABLE IF NOT EXISTS public.financial_configs (
     description TEXT
 );
 
+-- AVALIAÇÕES
+CREATE TABLE IF NOT EXISTS public.reviews (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    user_id TEXT, -- ID do Clerk
+    order_id TEXT, -- ID do Pedido
+    product_id UUID, -- Se quiser linkar direto ao produto
+    product_name TEXT, -- Fallback se não tiver ID
+    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    approved BOOLEAN DEFAULT true
+);
+
 -- 4. SEGURANÇA (RLS)
 
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
@@ -118,11 +133,13 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.addresses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.financial_configs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 
 -- Políticas Públicas
 CREATE POLICY "Public Categories Access" ON public.categories FOR SELECT USING (true);
 CREATE POLICY "Public Products Access" ON public.products FOR SELECT USING (active = true);
 CREATE POLICY "Public Financial Configs" ON public.financial_configs FOR SELECT USING (true);
+CREATE POLICY "Public Reviews Access" ON public.reviews FOR SELECT USING (approved = true);
 
 -- Políticas Privadas (Usando public.clerk_uid())
 CREATE POLICY "User View Own Profile" ON public.profiles FOR SELECT USING (public.clerk_uid() = id);
@@ -137,6 +154,9 @@ CREATE POLICY "User Manage Own Addresses" ON public.addresses FOR ALL USING (pub
 
 CREATE POLICY "User View Own Favorites" ON public.favorites FOR SELECT USING (public.clerk_uid() = user_id);
 CREATE POLICY "User Manage Own Favorites" ON public.favorites FOR ALL USING (public.clerk_uid() = user_id);
+
+CREATE POLICY "User View Own Reviews" ON public.reviews FOR SELECT USING (public.clerk_uid() = user_id);
+CREATE POLICY "User Create Reviews" ON public.reviews FOR INSERT WITH CHECK (public.clerk_uid() = user_id);
 
 -- 5. DADOS INICIAIS (SEED)
 

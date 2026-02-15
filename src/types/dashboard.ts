@@ -1,4 +1,5 @@
 export interface OrderItem {
+    id?: string | number;
     name: string;
     qty: number;
     price: number;
@@ -25,6 +26,7 @@ export interface ShippingAddress {
     city: string;
     state: string;
     zipCode: string;
+    reference_point?: string;
 }
 
 export interface UserAddress {
@@ -38,6 +40,7 @@ export interface UserAddress {
     street: string;
     number: string;
     complement?: string | null;
+    reference_point?: string | null;
     is_default: boolean;
     created_at?: string;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Heart, LogOut, User, MapPin } from 'lucide-react';
+import { Package, Heart, LogOut, User, MapPin, LayoutDashboard } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
 
 // Explicit Settings Icon Component
@@ -21,7 +21,7 @@ const SettingsIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-type TabId = 'orders' | 'favorites' | 'profile' | 'addresses' | 'settings';
+type TabId = 'overview' | 'orders' | 'favorites' | 'profile' | 'addresses' | 'settings';
 
 interface DashboardSidebarProps {
     activeTab: TabId | string;
@@ -33,6 +33,7 @@ export default function DashboardSidebar({ activeTab, setActiveTab, onLogout }: 
     const { t } = useI18n();
 
     const menuItems = [
+        { id: 'overview', icon: LayoutDashboard, label: t('nav.home') || 'Início' },
         { id: 'orders', icon: Package, label: t('dashboard.orders') },
         { id: 'favorites', icon: Heart, label: t('dashboard.favorites') },
         { id: 'profile', icon: User, label: t('dashboard.profile.menu') },

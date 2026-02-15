@@ -8,8 +8,8 @@ import { mainMenu } from '../../data/mockData';
 
 import { useShop } from '../../context/ShopContext';
 import { useUser, useClerk } from '@clerk/nextjs';
-import { useLoginModal } from '@/store/useLoginModal';
-import { useShopNavigation } from '../../hooks/useShopNavigation';
+import { useAuthModal } from '@/store/useAuthModal';
+import { useShopNavigation } '../../hooks/useShopNavigation';
 
 interface MobileMenuProps {
     isOpen: boolean;

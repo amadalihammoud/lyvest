@@ -80,6 +80,7 @@ export interface ShippingAddress {
 }
 
 export interface OrderItem {
+    id?: string | number;
     name: string;
     qty: number;
     price: number;
@@ -447,8 +448,8 @@ export const mockOrders: Order[] = [
         trackingCode: "BR123456789",
         invoiceUrl: "#",
         items: [
-            { name: "Kit 3 Calcinhas Algodão Soft", qty: 1, price: 49.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Kit+Calcinhas" },
-            { name: "Sutiã Renda Comfort Sem Bojo", qty: 1, price: 59.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Sutiã+Renda" }
+            { id: 1, name: "Kit 3 Calcinhas Algodão Soft", qty: 1, price: 49.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Kit+Calcinhas" },
+            { id: 2, name: "Sutiã Renda Comfort Sem Bojo", qty: 1, price: 59.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Sutiã+Renda" }
         ],
         history: [
             { status: "approved", date: "10/01/2026 10:30", label: "Pagamento Aprovado" },
@@ -479,8 +480,8 @@ export const mockOrders: Order[] = [
         trackingCode: "BR987654321",
         invoiceUrl: "#",
         items: [
-            { name: "Sutiã Push-Up Básico", qty: 1, price: 69.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Sutla+Push-Up" },
-            { name: "Meia Sapatilha Antiderrapante", qty: 1, price: 22.00, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Meia+Sapatilha" }
+            { id: 5, name: "Sutiã Push-Up Básico", qty: 1, price: 69.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Sutla+Push-Up" },
+            { id: 8, name: "Meia Sapatilha Antiderrapante", qty: 1, price: 22.00, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Meia+Sapatilha" }
         ],
         history: [
             { status: "delivered", date: "08/01/2026 15:30", label: "Pedido Entregue" },
@@ -511,9 +512,9 @@ export const mockOrders: Order[] = [
         trackingCode: null,
         invoiceUrl: null,
         items: [
-            { name: "Kit 5 Pares de Meias Invisíveis", qty: 2, price: 35.00, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Kit+Meias" },
-            { name: "Cueca Boxer Feminina Modal", qty: 3, price: 29.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Cueca+Boxer" },
-            { name: "Calcinha Fio Dental Renda", qty: 2, price: 19.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Calcinha+Renda" }
+            { id: 4, name: "Kit 5 Pares de Meias Invisíveis", qty: 2, price: 35.00, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Kit+Meias" },
+            { id: 3, name: "Cueca Boxer Feminina Modal", qty: 3, price: 29.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Cueca+Boxer" },
+            { id: 6, name: "Calcinha Fio Dental Renda", qty: 2, price: 19.90, image: "https://placehold.co/600x600/f3e8ff/8A05BE?text=Calcinha+Renda" }
         ],
         history: [
             { status: "approved", date: "27/01/2026 22:15", label: "Pagamento Aprovado" },

@@ -216,19 +216,19 @@ export interface Database {
                     id: string
                     created_at: string
                     user_id: string
-                    product_id: number
+                    product_id: string
                 }
                 Insert: {
                     id?: string
                     created_at?: string
                     user_id: string
-                    product_id: number
+                    product_id: string
                 }
                 Update: {
                     id?: string
                     created_at?: string
                     user_id?: string
-                    product_id?: number
+                    product_id?: string
                 }
                 Relationships: []
             },
@@ -237,25 +237,34 @@ export interface Database {
                     id: string
                     created_at: string
                     user_id: string
-                    product_id: number
+                    order_id: string | null
+                    product_id: string | null
+                    product_name: string | null
                     rating: number
                     comment: string | null
+                    approved: boolean
                 }
                 Insert: {
                     id?: string
                     created_at?: string
                     user_id: string
-                    product_id: number
+                    order_id?: string | null
+                    product_id?: string | null
+                    product_name?: string | null
                     rating: number
                     comment?: string | null
+                    approved?: boolean
                 }
                 Update: {
                     id?: string
                     created_at?: string
                     user_id?: string
-                    product_id?: number
+                    order_id?: string | null
+                    product_id?: string | null
+                    product_name?: string | null
                     rating?: number
                     comment?: string | null
+                    approved?: boolean
                 }
                 Relationships: []
             }
