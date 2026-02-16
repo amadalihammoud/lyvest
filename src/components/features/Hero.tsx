@@ -68,8 +68,6 @@ function Hero() {
                                                     fetchPriority={index === 0 ? "high" : "auto"} // Critical for LCP
                                                     className="w-full h-full object-cover rounded-lg sm:rounded-2xl shadow-sm"
                                                     style={{ width: '100%', height: '100%' }}
-                                                    placeholder={index === 0 ? undefined : "blur"}
-                                                    blurDataURL={index === 0 ? undefined : "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA="}
                                                 />
                                             </picture>
                                         </div>
