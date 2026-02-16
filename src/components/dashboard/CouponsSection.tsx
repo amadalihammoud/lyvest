@@ -55,90 +55,86 @@ export default function CouponsSection() {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-8 border-b border-slate-100 pb-5">
-                    <div className="p-2 bg-lyvest-100/30 rounded-full text-lyvest-500">
-                        <Ticket className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-slate-800 text-lg">Meus Cupons</h3>
-                        <p className="text-sm text-slate-500">Aproveite descontos exclusivos para você</p>
-                    </div>
+            {/* Header com Ícone e Título */}
+            <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-lyvest-100/30 rounded-full text-lyvest-500">
+                    <Ticket className="w-6 h-6" />
                 </div>
+                <div>
+                    <h3 className="font-bold text-slate-800 text-lg">Meus Cupons</h3>
+                    <p className="text-sm text-slate-500">Aproveite descontos exclusivos para você</p>
+                </div>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {coupons.map((coupon) => (
-                        <div key={coupon.id} className="relative group">
-                            {/* Cupom Container */}
-                            <div className="bg-white rounded-2xl shadow-sm border-2 border-slate-100 overflow-hidden flex flex-col sm:flex-row min-h-[160px] transition-transform hover:-translate-y-1 duration-300">
-                                {/* Lado Esquerdo (Visual) */}
-                                <div className={`${coupon.color} p-6 flex flex-col justify-center items-center text-center sm:w-1/3 relative overflow-hidden`}>
-                                    {/* Efeito serrilhado (Circles) */}
-                                    <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full z-10 hidden sm:block"></div>
-                                    <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full z-10 sm:hidden"></div>
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full z-10 sm:hidden"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {coupons.map((coupon) => (
+                    <div key={coupon.id} className="relative group filter drop-shadow-sm hover:drop-shadow-md transition-all duration-300">
+                        {/* Ticket Shape using mask or just borders */}
+                        <div className="bg-white rounded-xl overflow-hidden flex min-h-[120px]">
 
-                                    <div className="font-bold text-2xl mb-1">{coupon.discountDetails}</div>
-                                    <div className="text-xs opacity-90 uppercase tracking-widest font-semibold">Cupom</div>
-                                </div>
+                            {/* Left Side: Visual/Discount */}
+                            <div className={`${coupon.color} w-32 flex flex-col items-center justify-center p-4 text-center relative`}>
+                                {/* Serrated Edge Effect CSS would be ideal, but using simple dot overlay for now or border-style */}
+                                <div className="absolute right-0 top-0 bottom-0 border-r-2 border-dashed border-white/20"></div>
 
-                                {/* Lado Direito (Info e Ação) */}
-                                <div className="p-6 flex-1 flex flex-col justify-between border-l-2 border-dashed border-slate-100 sm:border-l-0 relative">
-                                    {/* Serrilhado vertical para desktop */}
-                                    <div className="hidden sm:block absolute -left-[2px] top-0 bottom-0 border-l-2 border-dashed border-slate-200"></div>
+                                <span className="font-bold text-xl leading-tight">{coupon.discountDetails}</span>
+                                <span className="text-[10px] uppercase tracking-widest opacity-80 mt-1">OFF</span>
+                            </div>
 
-                                    <div>
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="font-mono font-bold text-lg text-slate-700 tracking-wider bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
-                                                {coupon.code}
-                                            </span>
-                                            {coupon.expiry && (
-                                                <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full uppercase">
-                                                    {coupon.expiry}
-                                                </span>
-                                            )}
+                            {/* Right Side: Info & Action */}
+                            <div className="flex-1 p-4 flex flex-col justify-between relative bg-white">
+                                {/* Semi-circle cutouts top/bottom for ticket effect */}
+                                <div className="absolute -top-3 left-[0px] w-6 h-6 rounded-full bg-stone-50 md:bg-stone-50 z-10"></div>
+                                <div className="absolute -bottom-3 left-[0px] w-6 h-6 rounded-full bg-stone-50 md:bg-stone-50 z-10"></div>
+
+                                <div>
+                                    <div className="flex justify-between items-start mb-1 pl-4">
+                                        <div className="font-mono font-bold text-slate-700 text-lg tracking-wider">
+                                            {coupon.code}
                                         </div>
-                                        <p className="text-sm text-slate-600 mb-2">{coupon.description}</p>
-                                        {coupon.minPurchase && (
-                                            <p className="text-xs text-slate-400 italic mb-4">{coupon.minPurchase}</p>
+                                        {coupon.expiry && (
+                                            <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full uppercase">
+                                                {coupon.expiry}
+                                            </span>
                                         )}
                                     </div>
+                                    <p className="text-xs text-slate-500 pl-4 mb-2 line-clamp-2">{coupon.description}</p>
+                                </div>
 
-                                    <div className="flex gap-3 mt-4">
-                                        <button
-                                            onClick={() => copyToClipboard(coupon.code, coupon.id)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-full text-sm font-bold transition-all border border-slate-200 hover:bg-slate-50 text-slate-600 active:scale-95"
-                                        >
-                                            {copiedId === coupon.id ? (
-                                                <>
-                                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                                    <span className="text-green-600">Copiado!</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Copy className="w-4 h-4" />
-                                                    Copiar
-                                                </>
-                                            )}
-                                        </button>
-                                        <Link
-                                            href="/"
-                                            className="flex items-center justify-center gap-2 py-2 px-4 rounded-full text-sm font-bold bg-lyvest-50 text-lyvest-600 hover:bg-lyvest-100 transition-all"
-                                        >
-                                            Usar <ExternalLink className="w-3 h-3" />
-                                        </Link>
-                                    </div>
+                                <div className="flex gap-2 pl-4 mt-auto">
+                                    <button
+                                        onClick={() => copyToClipboard(coupon.code, coupon.id)}
+                                        className="flex-1 py-1.5 px-3 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors flex items-center justify-center gap-1.5"
+                                    >
+                                        {copiedId === coupon.id ? (
+                                            <>
+                                                <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                                                <span className="text-green-600">Copiado</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-3.5 h-3.5" />
+                                                Copiar
+                                            </>
+                                        )}
+                                    </button>
+                                    <Link
+                                        href="/"
+                                        className="flex-1 py-1.5 px-3 rounded-lg text-xs font-bold bg-lyvest-50 text-lyvest-700 hover:bg-lyvest-100 transition-colors flex items-center justify-center gap-1.5"
+                                    >
+                                        Usar <ArrowRight className="w-3.5 h-3.5" />
+                                    </Link>
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))}
+            </div>
 
-                <div className="mt-8 bg-lyvest-50 rounded-xl p-6 text-center">
-                    <p className="text-lyvest-800 text-sm font-medium">
-                        💡 Dica: Fique de olho no seu e-mail e WhatsApp para receber cupons relâmpago exclusivos!
-                    </p>
-                </div>
+            <div className="mt-6 bg-lyvest-50/50 border border-lyvest-100 rounded-xl p-4 text-center">
+                <p className="text-lyvest-800 text-sm font-medium flex items-center justify-center gap-2">
+                    💡 <span className="opacity-80">Dica: Fique de olho no WhatsApp para receber cupons relâmpago!</span>
+                </p>
             </div>
         </div>
     );

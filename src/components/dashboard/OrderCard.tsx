@@ -133,19 +133,25 @@ export default function OrderCard({ order, onTrackOrder }: OrderCardProps) {
 
             {/* Header / Summary */}
             <div className="p-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                     <div>
                         <div className="flex items-center gap-3 mb-1">
                             <span className="text-lg font-bold text-slate-800">#{order.id}</span>
                             <span className="text-sm text-slate-400">• {order.date}</span>
-                            {isDelivered && (
-                                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">
-                                    ✓ Entregue
-                                </span>
-                            )}
                         </div>
-                        <p className="font-bold text-lyvest-500 text-xl">{formatCurrency(order.total)}</p>
+                        <div className="flex items-center gap-3">
+                            <p className="font-bold text-lyvest-500 text-xl">{formatCurrency(order.total)}</p>
+
+                            {/* Status Badge */}
+                            <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${isDelivered
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                    : 'bg-amber-50 text-amber-700 border-amber-100'
+                                }`}>
+                                {isDelivered ? 'Entregue' : (progress >= 50 ? 'Em Trânsito' : 'Processando')}
+                            </span>
+                        </div>
                     </div>
+
                     {order.trackingCode && (
                         <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
                             <span className="text-xs text-slate-500 font-mono">{order.trackingCode}</span>
@@ -160,20 +166,44 @@ export default function OrderCard({ order, onTrackOrder }: OrderCardProps) {
                     )}
                 </div>
 
-                {/* Tracking Progress Bar */}
-                <div className="mb-8">
-                    <div className="flex justify-between text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">
-                        <span className={progress >= 0 ? 'text-lyvest-500' : ''}>Processando</span>
-                        <span className={progress >= 50 ? 'text-lyvest-500' : ''}>Em Trânsito</span>
-                        <span className={progress >= 100 ? 'text-lyvest-500' : ''}>Entregue</span>
+                {/* Thumbnails Preview (Collapsed View) */}
+                {!isExpanded && (
+                    <div className="flex items-center gap-2 mb-6">
+                        {order.items.slice(0, 4).map((item, idx) => (
+                            <div key={idx} className="w-12 h-12 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden flex-shrink-0">
+                                {item.image ? (
+                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                        <Package className="w-5 h-5" />
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                        {order.items.length > 4 && (
+                            <div className="w-12 h-12 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                                +{order.items.length - 4}
+                            </div>
+                        )}
                     </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden relative">
-                        <div
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-lyvest-500 to-lyvest-500 transition-all duration-1000 ease-out"
-                            style={{ width: `${progress}%` }}
-                        />
+                )}
+
+                {/* Expanded Progress Bar */}
+                {isExpanded && (
+                    <div className="mb-8 animate-fade-in">
+                        <div className="flex justify-between text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">
+                            <span className={progress >= 0 ? 'text-lyvest-500' : ''}>Processando</span>
+                            <span className={progress >= 50 ? 'text-lyvest-500' : ''}>Em Trânsito</span>
+                            <span className={progress >= 100 ? 'text-lyvest-500' : ''}>Entregue</span>
+                        </div>
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden relative">
+                            <div
+                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-lyvest-500 to-lyvest-500 transition-all duration-1000 ease-out"
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-3">
