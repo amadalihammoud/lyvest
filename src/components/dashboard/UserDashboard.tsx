@@ -168,12 +168,11 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
     return (
         <div className="min-h-screen bg-stone-50 py-8 lg:py-12 animate-fade-in">
             <div className="container mx-auto px-4">
-                <Breadcrumbs items={[{ label: t('nav.dashboard') || 'Minha Conta' }]} />
-
                 <DashboardHeader
                     user={user}
                     title={headerContent.title}
                     subtitle={headerContent.subtitle}
+                    showAvatar={activeTab === 'overview'}
                 />
 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
