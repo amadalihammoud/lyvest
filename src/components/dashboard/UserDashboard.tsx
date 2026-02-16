@@ -53,8 +53,8 @@ const SectionLoader = memo(function SectionLoader() {
 // Componente de header memoizado
 const UserProfile = lazy(() => import('@clerk/nextjs').then(mod => ({ default: mod.UserProfile })));
 
-// Componente de header memoizado (unchanged)
-const DashboardHeader = memo(function DashboardHeader({ user, t }: { user: User; t: (key: string, params?: Record<string, string | number>) => string }) {
+// Componente de header memoizado
+const DashboardHeader = memo(function DashboardHeader({ user, title, subtitle }: { user: User; title: string, subtitle: string }) {
     return (
         <div className="flex items-center gap-4 mb-8">
             <img
@@ -69,9 +69,9 @@ const DashboardHeader = memo(function DashboardHeader({ user, t }: { user: User;
             />
             <div>
                 <h1 className="text-2xl font-bold text-slate-800">
-                    {t('dashboard.welcome', { name: user.name || '' }) || `Olá, ${user.name}!`}
+                    {title}
                 </h1>
-                <p className="text-slate-500 text-sm">{t('dashboard.subtitle')}</p>
+                <p className="text-slate-500 text-sm">{subtitle}</p>
             </div>
         </div>
     );
@@ -87,6 +87,46 @@ interface UserDashboardProps {
 function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardProps) {
     const { t } = useI18n();
     const [activeTab, setActiveTab] = useState('overview');
+
+    // Helper para títulos dinâmicos
+    const getHeaderContent = () => {
+        const firstName = user.name?.split(' ')[0] || 'Cliente';
+        switch (activeTab) {
+            case 'orders':
+                return {
+                    title: t('dashboard.orders') || 'Meus Pedidos',
+                    subtitle: 'Gerencie e rastreie suas compras recentes.'
+                };
+            case 'favorites':
+                return {
+                    title: t('dashboard.favorites') || 'Meus Favoritos',
+                    subtitle: 'Produtos que você salvou na sua lista de desejos.'
+                };
+            case 'coupons':
+                return {
+                    title: t('dashboard.coupons') || 'Meus Cupons',
+                    subtitle: 'Cupons de desconto exclusivos para você.'
+                };
+            case 'addresses':
+                return {
+                    title: t('dashboard.addresses') || 'Meus Endereços',
+                    subtitle: 'Gerencie seus endereços de entrega.'
+                };
+            case 'profile':
+            case 'settings':
+                return {
+                    title: t('dashboard.profile') || 'Meu Perfil',
+                    subtitle: 'Gerencie seus dados pessoais e segurança.'
+                };
+            default:
+                return {
+                    title: `Olá, ${firstName}!`,
+                    subtitle: 'Bem-vindo ao seu espaço exclusivo.'
+                };
+        }
+    };
+
+    const headerContent = getHeaderContent();
 
     // Renderizar apenas a seção ativa com lazy loading
     const renderActiveSection = () => {
@@ -106,7 +146,8 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
                                     rootBox: "w-full",
                                     card: "shadow-none w-full max-w-full border border-slate-200 rounded-xl",
                                     navbar: "hidden", // Hide navbar to use our own or keep it if preferred
-                                    headerTitle: "text-[#800020]",
+                                    headerTitle: "hidden", // Hide Clerk header since we have our own
+                                    headerSubtitle: "hidden",
                                     formButtonPrimary: "bg-[#800020] hover:bg-[#600018]",
                                     fileDropAreaBox: "border-slate-300 hover:border-[#800020]",
                                     fileDropAreaIconBox: "text-[#800020] bg-rose-50",
@@ -127,7 +168,11 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
             <div className="container mx-auto px-4">
                 <Breadcrumbs items={[{ label: t('nav.dashboard') || 'Minha Conta' }]} />
 
-                {activeTab !== 'overview' && <DashboardHeader user={user} t={t} />}
+                <DashboardHeader
+                    user={user}
+                    title={headerContent.title}
+                    subtitle={headerContent.subtitle}
+                />
 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
                     <DashboardSidebar

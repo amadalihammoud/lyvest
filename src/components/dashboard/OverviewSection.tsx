@@ -38,16 +38,6 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
 
     return (
         <div className="space-y-10 animate-fade-in max-w-4xl">
-            {/* Minimalist Welcome */}
-            <div className="space-y-2">
-                <h2 className="text-3xl md:text-4xl font-light text-slate-800 tracking-tight">
-                    Olá, <span className="font-medium">{getFirstName(user.name)}</span>
-                </h2>
-                <p className="text-slate-500 text-lg font-light">
-                    Bem-vindo ao seu espaço exclusivo.
-                </p>
-            </div>
-
             {/* Featured Order - Clean & Elegant */}
             {featuredOrder ? (
                 <div className="space-y-4">
