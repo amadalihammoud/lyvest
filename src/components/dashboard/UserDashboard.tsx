@@ -54,19 +54,21 @@ const SectionLoader = memo(function SectionLoader() {
 const UserProfile = lazy(() => import('@clerk/nextjs').then(mod => ({ default: mod.UserProfile })));
 
 // Componente de header memoizado
-const DashboardHeader = memo(function DashboardHeader({ user, title, subtitle }: { user: User; title: string, subtitle: string }) {
+const DashboardHeader = memo(function DashboardHeader({ user, title, subtitle, showAvatar = false }: { user: User; title: string, subtitle: string, showAvatar?: boolean }) {
     return (
         <div className="flex items-center gap-4 mb-8">
-            <img
-                src={getUserAvatar(user)}
-                alt={user.name}
-                onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.onerror = null;
-                    target.src = getUserAvatar({ name: user.name });
-                }}
-                className="w-16 h-16 rounded-full border-2 border-white shadow-md"
-            />
+            {showAvatar && (
+                <img
+                    src={getUserAvatar(user)}
+                    alt={user.name}
+                    onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = getUserAvatar({ name: user.name });
+                    }}
+                    className="w-16 h-16 rounded-full border-2 border-white shadow-md"
+                />
+            )}
             <div>
                 <h1 className="text-2xl font-bold text-slate-800">
                     {title}
