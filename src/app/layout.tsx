@@ -125,7 +125,25 @@ export default function RootLayout({
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                     <link rel="preconnect" href="https://clerk.lyvest.com.br" crossOrigin="anonymous" />
 
-                    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+                    {/* CRITICAL: Preload Art Direction Images using Script to avoid Double Download */}
+                    <script
+                        dangerouslySetInnerHTML={{
+                            __html: `
+                            (function() {
+                                try {
+                                    var isMobile = window.matchMedia("(max-width: 767px)").matches;
+                                    var imgSrc = isMobile ? "/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=640&q=70" : "/_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=75";
+                                    var link = document.createElement("link");
+                                    link.rel = "preload";
+                                    link.as = "image";
+                                    link.href = imgSrc;
+                                    link.fetchPriority = "high";
+                                    document.head.appendChild(link);
+                                } catch(e) {}
+                            })();
+                        `
+                        }}
+                    />
 
                     {/* CRITICAL CSS INLINE */}
                     <style dangerouslySetInnerHTML={{
