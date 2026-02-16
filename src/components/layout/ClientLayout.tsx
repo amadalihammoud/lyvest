@@ -3,7 +3,7 @@
 import { ReactNode, Suspense, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import AppProviders from '@/components/layout/AppProviders';
-import { LazyClerkProvider } from '@/components/providers/LazyClerkProvider';
+
 // Lazy load Header to defer Clerk useUser/useClerk from critical path
 const Header = dynamic(() => import('@/components/layout/Header'), { ssr: true });
 // Footer lazy loaded to reduce initial TBT
@@ -63,27 +63,25 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     }, []);
 
     return (
-        <LazyClerkProvider>
-            <AppProviders>
-                <div className="flex flex-col min-h-screen">
-                    <Suspense fallback={<HeaderSkeleton />}>
-                        <Header />
-                    </Suspense>
-                    <main className="flex-grow">
-                        {children}
-                    </main>
-                    <Suspense fallback={<div className="h-32 bg-slate-50" />}>
-                        <Footer />
-                    </Suspense>
+        <AppProviders>
+            <div className="flex flex-col min-h-screen">
+                <Suspense fallback={<HeaderSkeleton />}>
+                    <Header />
+                </Suspense>
+                <main className="flex-grow">
+                    {children}
+                </main>
+                <Suspense fallback={<div className="h-32 bg-slate-50" />}>
+                    <Footer />
+                </Suspense>
 
-                    {/* Lazy rendered auth modal */}
-                    {isOpen && (
-                        <Suspense fallback={null}>
-                            <AuthModal />
-                        </Suspense>
-                    )}
-                </div>
-            </AppProviders>
-        </LazyClerkProvider>
+                {/* Lazy rendered auth modal */}
+                {isOpen && (
+                    <Suspense fallback={null}>
+                        <AuthModal />
+                    </Suspense>
+                )}
+            </div>
+        </AppProviders>
     );
 }
