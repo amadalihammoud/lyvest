@@ -50,97 +50,17 @@ const nextConfig = {
         gzipSize: true,
     },
 
-    // Webpack: Code splitting agressivo
+    // Webpack: Usar defaults do Next.js + Lazy Loading já resolvem
+    // Removido custom splitChunks para evitar conflito com dynamic imports
     webpack: (config, { isServer, dev }) => {
         if (!dev && !isServer) {
+            // Apenas otimizações básicas
             config.optimization = {
                 ...config.optimization,
                 minimize: true,
                 usedExports: true,
-                concatenateModules: true,
-                sideEffects: true,
-
-                splitChunks: {
-                    chunks: 'all',
-                    cacheGroups: {
-                        default: false,
-                        vendors: false,
-
-                        framework: {
-                            name: 'framework',
-                            test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
-                            priority: 50,
-                            enforce: true,
-                            reuseExistingChunk: true,
-                        },
-
-                        clerk: {
-                            name: 'clerk',
-                            test: /[\\/]node_modules[\\/](@clerk)[\\/]/,
-                            priority: 45,
-                            enforce: true,
-                            reuseExistingChunk: true,
-                        },
-
-                        sentry: {
-                            name: 'sentry',
-                            test: /[\\/]node_modules[\\/](@sentry)[\\/]/,
-                            priority: 45,
-                            enforce: true,
-                            reuseExistingChunk: true,
-                        },
-
-                        supabase: {
-                            name: 'supabase',
-                            test: /[\\/]node_modules[\\/](@supabase)[\\/]/,
-                            priority: 45,
-                            enforce: true,
-                            reuseExistingChunk: true,
-                        },
-
-                        ui: {
-                            name: 'ui',
-                            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react)[\\/]/,
-                            priority: 40,
-                            reuseExistingChunk: true,
-                        },
-
-                        lib: {
-                            test: /[\\/]node_modules[\\/]/,
-                            name(module) {
-                                const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)
-                                const packageName = match ? match[1] : 'vendor'
-                                return `npm.${packageName.replace('@', '').substring(0, 20)}`
-                            },
-                            priority: 30,
-                            minChunks: 1,
-                            maxSize: 244000,
-                            reuseExistingChunk: true,
-                        },
-
-                        commons: {
-                            name: 'commons',
-                            minChunks: 2,
-                            priority: 20,
-                            maxSize: 122000,
-                            reuseExistingChunk: true,
-                        },
-                    },
-                },
-
-                runtimeChunk: {
-                    name: 'runtime',
-                },
-
-                moduleIds: 'deterministic',
-                chunkIds: 'deterministic',
-            }
-
-            if (process.env.NODE_ENV === 'production') {
-                config.devtool = false
             }
         }
-
         return config
     },
 

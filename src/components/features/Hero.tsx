@@ -53,6 +53,8 @@ function Hero() {
                                                     src={desktopImage}
                                                     alt={slide.alt}
                                                     fetchPriority={index === 0 ? "high" : "auto"}
+                                                    loading={index === 0 ? "eager" : "lazy"}
+                                                    decoding="async"
                                                     className="w-full h-full object-cover rounded-lg sm:rounded-2xl shadow-sm"
                                                     style={{ width: '100%', height: '100%' }}
                                                     draggable={false}
