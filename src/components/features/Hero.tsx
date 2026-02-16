@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
+import Image, { getImageProps } from 'next/image';
 // No icons needed
 
 
@@ -34,66 +34,61 @@ function Hero() {
                            - Snap points for perfect alignment
                         */}
                         <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
-                            {slides.map((slide, index) => {
-                                // Fallback for mobile image if not exists yet
-                                const mobileImage = slide.image.replace('.webp', '-mobile.webp');
+                            <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
+                                {slides.map((slide, index) => {
+                                    const common = { alt: slide.alt, priority: index === 0, quality: 75, sizes: "100vw" };
+                                    const {
+                                        props: { srcSet: desktop, ...rest }
+                                    } = getImageProps({
+                                        ...common,
+                                        width: 1400,
+                                        height: 840,
+                                        src: slide.image,
+                                    });
+                                    const {
+                                        props: { srcSet: mobile, ...mobileRest }
+                                    } = getImageProps({
+                                        ...common,
+                                        width: 640,
+                                        height: 800,
+                                        quality: 70,
+                                        src: slide.image.replace('.webp', '-mobile.webp'), // Logic ready for mobile images
+                                    });
 
-                                return (
-                                    <div
-                                        key={slide.id}
-                                        className="snap-center flex-shrink-0 w-full h-full relative"
-                                    >
-                                        <div className="relative h-full w-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
-                                            {/* Art Direction: Desktop Image */}
-                                            <div className="hidden md:block w-full h-full relative">
-                                                <Image
-                                                    src={slide.image}
-                                                    alt={slide.alt}
-                                                    fill
-                                                    priority={index === 0}
-                                                    quality={75}
-                                                    sizes="(min-width: 768px) 100vw"
-                                                    className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
-                                                    placeholder="blur"
-                                                    blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA="
-                                                />
-                                            </div>
-
-                                            {/* Art Direction: Mobile Image */}
-                                            <div className="block md:hidden w-full h-full relative">
-                                                <Image
-                                                    // TEMPORARY: Using desktop image until user uploads mobile version
-                                                    // In production, this should be: src={mobileImage}
-                                                    src={slide.image}
-                                                    alt={slide.alt}
-                                                    fill
-                                                    priority={index === 0}
-                                                    quality={70}
-                                                    sizes="(max-width: 767px) 100vw"
-                                                    className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
-                                                    placeholder="blur"
-                                                    blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA="
-                                                />
+                                    return (
+                                        <div
+                                            key={slide.id}
+                                            className="snap-center flex-shrink-0 w-full h-full relative"
+                                        >
+                                            <div className="relative h-full w-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
+                                                <picture>
+                                                    <source media="(max-width: 767px)" srcSet={mobile} />
+                                                    <source media="(min-width: 768px)" srcSet={desktop} />
+                                                    <img
+                                                        {...rest}
+                                                        className="w-full h-full object-cover rounded-lg sm:rounded-2xl shadow-sm"
+                                                        style={{ width: '100%', height: '100%' }}
+                                                    />
+                                                </picture>
                                             </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                    );
+                                })}
+                            </div>
 
-                        {/* 
+                            {/* 
                            Visual Indicator for Multi-slide 
                            (Pure CSS/Static - Optional: Add JS later if strict auto-play needed, 
                            but for LCP pure CSS is superior)
                         */}
-                        <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20 pointer-events-none">
-                            <div className="w-6 h-3 rounded-full bg-lyvest-600 transition-all opacity-80" />
-                            <div className="w-3 h-3 rounded-full bg-lyvest-200 opacity-60" />
-                        </div>
+                            <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20 pointer-events-none">
+                                <div className="w-6 h-3 rounded-full bg-lyvest-600 transition-all opacity-80" />
+                                <div className="w-3 h-3 rounded-full bg-lyvest-200 opacity-60" />
+                            </div>
 
+                        </div>
                     </div>
                 </div>
-            </div>
         </section>
     );
 }
