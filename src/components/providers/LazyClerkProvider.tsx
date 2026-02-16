@@ -3,6 +3,7 @@
 import { ReactNode, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { ptBR } from '@clerk/localizations';
+import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 
 // Dynamically import ClerkProvider
 const ClerkProvider = dynamic(
@@ -15,28 +16,8 @@ interface LazyClerkProviderProps {
 }
 
 export function LazyClerkProvider({ children }: LazyClerkProviderProps) {
-    const [shouldLoad, setShouldLoad] = useState(false);
-
-    useEffect(() => {
-        // Load immediately on client, but allows LCP to fire first
-        // or delay slightly to prioritize main thread for LCP
-        const timer = setTimeout(() => {
-            setShouldLoad(true);
-        }, 100); // 100ms delay to let LCP happen
-
-        // Interaction backup
-        const handleInteraction = () => setShouldLoad(true);
-        window.addEventListener('scroll', handleInteraction, { once: true });
-        window.addEventListener('click', handleInteraction, { once: true });
-        window.addEventListener('touchstart', handleInteraction, { once: true });
-
-        return () => {
-            clearTimeout(timer);
-            window.removeEventListener('scroll', handleInteraction);
-            window.removeEventListener('click', handleInteraction);
-            window.removeEventListener('touchstart', handleInteraction);
-        };
-    }, []);
+    // Use centralized lazy load logic to ensure consistency across the app
+    const shouldLoad = useUltraLazyLoad();
 
     // While waiting for Clerk, render children directly (unauthenticated state)
     // This maintains LCP content visibility
