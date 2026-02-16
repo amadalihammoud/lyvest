@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 // src/context/FavoritesContext.tsx
 'use client';
-import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode, useRef } from 'react';
 import { FAVORITES_CONFIG } from '../config/constants';
 import { useUser } from '@clerk/nextjs';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
@@ -16,6 +16,11 @@ interface FavoritesContextType {
     favoritesCount: number;
     clearFavorites: () => void;
     maxFavorites: number;
+    // Internal methods for Sync component
+    _syncWithUser?: (user: any) => Promise<void>;
+    _setUserId?: (id: string | null) => void;
+    _addToSupabase?: (productId: string, userId: string) => Promise<void>;
+    _removeFromSupabase?: (productId: string, userId: string) => Promise<void>;
 }
 
 export const FavoritesContext = createContext<FavoritesContextType | null>(null);
@@ -109,11 +114,12 @@ interface FavoritesProviderProps {
 }
 
 export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
-    const { user, isLoaded } = useUser();
     // Inicializar vazio - será preenchido pelo useEffect no cliente
-    // MUDANÇA: Aceita number ou string
     const [favorites, setFavorites] = useState<(number | string)[]>([]);
     const [isHydrated, setIsHydrated] = useState(false);
+
+    // Ref to store current user ID without triggering re-renders or dependency loops
+    const userIdRef = useRef<string | null>(null);
 
     // 1. Hidratar do localStorage inicialmente (para feedback imediato)
     useEffect(() => {
@@ -124,61 +130,7 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
         setIsHydrated(true);
     }, []);
 
-    // 2. Sincronizar com Supabase ao logar
-    useEffect(() => {
-        const syncFavorites = async () => {
-            if (!isLoaded || !user || !isSupabaseConfigured()) return;
-
-            try {
-                // A. Buscar favoritos remotos
-                const { data: remoteFavorites, error } = await supabase
-                    .from('favorites')
-                    .select('product_id')
-                    .eq('user_id', user.id);
-
-                if (error) throw error;
-
-                const remoteIds = remoteFavorites?.map(f => f.product_id) || [];
-                const localIds = loadFavoritesFromStorage(); // Pega direto do storage para garantir
-
-                // B. Identificar itens locais que não estão no remoto (novos para sync)
-                // Apenas UUIDs podem ser salvos no Supabase
-                const newRemoteItems = localIds.filter(id =>
-                    isUuid(id) && !remoteIds.includes(id as string)
-                );
-
-                // C. Salvar novos itens no Supabase
-                if (newRemoteItems.length > 0) {
-                    await supabase
-                        .from('favorites')
-                        .insert(
-                            newRemoteItems.map(id => ({
-                                user_id: user.id,
-                                product_id: id as string
-                            }))
-                        );
-                    logger.info(`Synced ${newRemoteItems.length} favorites to cloud.`);
-                }
-
-                // D. Atualizar estado local com a UNIÃO (Local + Remoto)
-                // Remoto ganha em caso de conflito, mas aqui estamos somando
-                const combinedIds = [...new Set([...localIds, ...remoteIds])];
-                setFavorites(combinedIds);
-
-                // E. Atualizar localStorage com a lista completa
-                saveFavoritesToStorage(combinedIds);
-
-            } catch (err) {
-                logger.error('Error syncing favorites:', err);
-            }
-        };
-
-        if (isHydrated) {
-            syncFavorites();
-        }
-    }, [user, isLoaded, isHydrated]);
-
-    // 3. Persistir no localStorage quando mudar
+    // 2. Persistir no localStorage quando mudar
     useEffect(() => {
         if (isHydrated) {
             saveFavoritesToStorage(favorites);
@@ -186,12 +138,12 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
     }, [favorites, isHydrated]);
 
 
-    // Helper para adicionar ao Supabase
-    const addToSupabase = async (productId: string) => {
-        if (!user || !isSupabaseConfigured() || !isUuid(productId)) return;
+    // Helper para adicionar ao Supabase (Exportado para uso no Sync ou wrapper)
+    const addToSupabase = async (productId: string, userId: string) => {
+        if (!userId || !isSupabaseConfigured() || !isUuid(productId)) return;
         try {
             await supabase.from('favorites').insert({
-                user_id: user.id,
+                user_id: userId,
                 product_id: productId
             });
         } catch (err) {
@@ -200,46 +152,94 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
     };
 
     // Helper para remover do Supabase
-    const removeFromSupabase = async (productId: string) => {
-        if (!user || !isSupabaseConfigured() || !isUuid(productId)) return;
+    const removeFromSupabase = async (productId: string, userId: string) => {
+        if (!userId || !isSupabaseConfigured() || !isUuid(productId)) return;
         try {
             await supabase
                 .from('favorites')
                 .delete()
-                .eq('user_id', user.id)
+                .eq('user_id', userId)
                 .eq('product_id', productId);
         } catch (err) {
             logger.error('Error removing favorite from cloud:', err);
         }
     };
 
+    // Necessário expor funções de sync para o componente filho
+    const syncWithUser = useCallback(async (user: any) => {
+        if (!user || !isSupabaseConfigured()) return;
+
+        try {
+            // A. Buscar favoritos remotos
+            const { data: remoteFavorites, error } = await supabase
+                .from('favorites')
+                .select('product_id')
+                .eq('user_id', user.id);
+
+            if (error) throw error;
+
+            const remoteIds = remoteFavorites?.map(f => f.product_id) || [];
+            const localIds = loadFavoritesFromStorage();
+
+            // B. Identificar itens locais que não estão no remoto (novos para sync)
+            const newRemoteItems = localIds.filter(id =>
+                isUuid(id) && !remoteIds.includes(id as string)
+            );
+
+            // C. Salvar novos itens no Supabase
+            if (newRemoteItems.length > 0) {
+                await supabase
+                    .from('favorites')
+                    .insert(
+                        newRemoteItems.map(id => ({
+                            user_id: user.id,
+                            product_id: id as string
+                        }))
+                    );
+                logger.info(`Synced ${newRemoteItems.length} favorites to cloud.`);
+            }
+
+            // D. Atualizar estado local com a UNIÃO (Local + Remoto)
+            const combinedIds = [...new Set([...localIds, ...remoteIds])];
+            setFavorites(combinedIds);
+            saveFavoritesToStorage(combinedIds);
+
+        } catch (err) {
+            logger.error('Error syncing favorites:', err);
+        }
+    }, []);
+
+    // Internal setter for User ID
+    const setUserId = useCallback((id: string | null) => {
+        userIdRef.current = id;
+    }, []);
+
+
     const toggleFavorite = useCallback((event: React.SyntheticEvent | number | string, productId?: number | string) => {
-        // Se vier de um evento, evitar propagação
         if (typeof event === 'object' && event !== null && 'stopPropagation' in event) {
             (event as React.SyntheticEvent).stopPropagation();
             (event as React.SyntheticEvent).preventDefault();
         }
 
-        // Se productId for passado diretamente (sem evento)
         const id = (typeof event === 'number' || typeof event === 'string') ? event : productId;
 
-        // Validar ID
         if (!id || !isValidId(id)) return;
 
         setFavorites((prev) => {
             const isFav = prev.includes(id);
+            const currentUserId = userIdRef.current;
 
-            // Side effect: Persist to Supabase
+            // Side effect: Persist to Supabase using currentUserId
             if (isFav) {
-                removeFromSupabase(String(id));
+                if (currentUserId) removeFromSupabase(String(id), currentUserId);
                 return prev.filter((favId) => favId !== id);
             } else {
                 if (prev.length >= MAX_FAVORITES) return prev;
-                addToSupabase(String(id));
+                if (currentUserId) addToSupabase(String(id), currentUserId);
                 return [...prev, id];
             }
         });
-    }, [user]); // user é dependência agora
+    }, []);
 
     const addFavorite = useCallback((productId: number | string) => {
         if (!isValidId(productId)) return;
@@ -248,17 +248,21 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
             if (prev.includes(productId)) return prev;
             if (prev.length >= MAX_FAVORITES) return prev;
 
-            addToSupabase(String(productId));
+            const currentUserId = userIdRef.current;
+            if (currentUserId) addToSupabase(String(productId), currentUserId);
+
             return [...prev, productId];
         });
-    }, [user]);
+    }, []);
 
     const removeFavorite = useCallback((productId: number | string) => {
         if (!isValidId(productId)) return;
 
-        removeFromSupabase(String(productId));
+        const currentUserId = userIdRef.current;
+        if (currentUserId) removeFromSupabase(String(productId), currentUserId);
+
         setFavorites((prev) => prev.filter((id) => id !== productId));
-    }, [user]);
+    }, []);
 
     const isFavorite = useCallback(
         (productId: number | string) => isValidId(productId) && favorites.includes(productId),
@@ -269,9 +273,6 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
 
     const clearFavorites = useCallback(() => {
         setFavorites([]);
-        // Opcional: Limpar tudo do Supabase também? 
-        // Por segurança, talvez não limpar nuvem ao limpar local, ou perguntar.
-        // Mas 'clearFavorites' geralmente é logout ou ação destrutiva.
     }, []);
 
     return (
@@ -284,12 +285,35 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
                 isFavorite,
                 favoritesCount,
                 clearFavorites,
-                maxFavorites: MAX_FAVORITES
+                maxFavorites: MAX_FAVORITES,
+                _syncWithUser: syncWithUser,
+                _setUserId: setUserId,
+                _addToSupabase: addToSupabase,
+                _removeFromSupabase: removeFromSupabase
             }}
         >
             {children}
         </FavoritesContext.Provider>
     );
+};
+
+// Componente separado que USA Clerk (useUser) e sincroniza o contexto
+export const FavoritesSync = () => {
+    const { user, isLoaded } = useUser();
+    const context = useFavorites();
+
+    useEffect(() => {
+        if (isLoaded) {
+            if (context._setUserId) {
+                context._setUserId(user ? user.id : null);
+            }
+            if (user && context._syncWithUser) {
+                context._syncWithUser(user);
+            }
+        }
+    }, [user, isLoaded, context]);
+
+    return null;
 };
 
 export const useFavorites = () => {

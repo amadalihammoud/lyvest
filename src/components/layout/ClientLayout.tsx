@@ -14,6 +14,7 @@ const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), { ssr: fa
 import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
 import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
+import { FavoritesSync } from '@/context/FavoritesContext';
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -66,9 +67,14 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     return (
         <AppProviders>
             <div className="flex flex-col min-h-screen">
-                <Suspense fallback={<HeaderSkeleton />}>
-                    <Header />
-                </Suspense>
+                {/* Defer Header rendering to avoid Clerk useUser during SSR/Lazy load */}
+                {shouldLoad ? (
+                    <Suspense fallback={<HeaderSkeleton />}>
+                        <Header />
+                    </Suspense>
+                ) : (
+                    <HeaderSkeleton />
+                )}
                 <main className="flex-grow">
                     {children}
                 </main>
@@ -85,6 +91,12 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 {isOpen && shouldLoad && (
                     <Suspense fallback={null}>
                         <AuthModal />
+                    </Suspense>
+                )}
+                {/* Sync Favorites with Clerk (Only client-side when loaded) */}
+                {shouldLoad && (
+                    <Suspense fallback={null}>
+                        <FavoritesSync />
                     </Suspense>
                 )}
             </div>
