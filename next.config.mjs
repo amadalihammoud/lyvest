@@ -46,7 +46,7 @@ const nextConfig = {
             '@radix-ui/react-dropdown-menu',
             '@radix-ui/react-slot',
         ],
-        optimizeFonts: true,
+
         gzipSize: true,
     },
 
