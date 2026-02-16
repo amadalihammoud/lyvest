@@ -126,7 +126,6 @@ export default function RootLayout({
                     <link rel="preconnect" href="https://clerk.lyvest.com.br" crossOrigin="anonymous" />
 
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-                    <link rel="preload" as="image" href="/banner-slide-1.webp" type="image/webp" fetchPriority="high" />
 
                     {/* CRITICAL CSS INLINE */}
                     <style dangerouslySetInnerHTML={{
