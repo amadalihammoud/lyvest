@@ -34,61 +34,60 @@ function Hero() {
                            - Snap points for perfect alignment
                         */}
                         <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
-                            <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
-                                {slides.map((slide, index) => {
-                                    const common = { alt: slide.alt, priority: index === 0, quality: 75, sizes: "100vw" };
-                                    const {
-                                        props: { srcSet: desktop, ...rest }
-                                    } = getImageProps({
-                                        ...common,
-                                        width: 1400,
-                                        height: 840,
-                                        src: slide.image,
-                                    });
-                                    const {
-                                        props: { srcSet: mobile, ...mobileRest }
-                                    } = getImageProps({
-                                        ...common,
-                                        width: 640,
-                                        height: 800,
-                                        quality: 70,
-                                        src: slide.image.replace('.webp', '-mobile.webp'), // Logic ready for mobile images
-                                    });
+                            {slides.map((slide, index) => {
+                                const common = { alt: slide.alt, priority: index === 0, quality: 75, sizes: "100vw" };
+                                const {
+                                    props: { srcSet: desktop, ...rest }
+                                } = getImageProps({
+                                    ...common,
+                                    width: 1400,
+                                    height: 840,
+                                    src: slide.image,
+                                });
+                                const {
+                                    props: { srcSet: mobile, ...mobileRest }
+                                } = getImageProps({
+                                    ...common,
+                                    width: 640,
+                                    height: 800,
+                                    quality: 70,
+                                    src: slide.image.replace('.webp', '-mobile.webp'), // Logic ready for mobile images
+                                });
 
-                                    return (
-                                        <div
-                                            key={slide.id}
-                                            className="snap-center flex-shrink-0 w-full h-full relative"
-                                        >
-                                            <div className="relative h-full w-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
-                                                <picture>
-                                                    <source media="(max-width: 767px)" srcSet={mobile} />
-                                                    <source media="(min-width: 768px)" srcSet={desktop} />
-                                                    <img
-                                                        {...rest}
-                                                        className="w-full h-full object-cover rounded-lg sm:rounded-2xl shadow-sm"
-                                                        style={{ width: '100%', height: '100%' }}
-                                                    />
-                                                </picture>
-                                            </div>
+                                return (
+                                    <div
+                                        key={slide.id}
+                                        className="snap-center flex-shrink-0 w-full h-full relative"
+                                    >
+                                        <div className="relative h-full w-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
+                                            <picture>
+                                                <source media="(max-width: 767px)" srcSet={mobile} />
+                                                <source media="(min-width: 768px)" srcSet={desktop} />
+                                                <img
+                                                    {...rest}
+                                                    className="w-full h-full object-cover rounded-lg sm:rounded-2xl shadow-sm"
+                                                    style={{ width: '100%', height: '100%' }}
+                                                />
+                                            </picture>
                                         </div>
-                                    );
-                                })}
-                            </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
 
-                            {/* 
+                        {/* 
                            Visual Indicator for Multi-slide 
                            (Pure CSS/Static - Optional: Add JS later if strict auto-play needed, 
                            but for LCP pure CSS is superior)
                         */}
-                            <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20 pointer-events-none">
-                                <div className="w-6 h-3 rounded-full bg-lyvest-600 transition-all opacity-80" />
-                                <div className="w-3 h-3 rounded-full bg-lyvest-200 opacity-60" />
-                            </div>
-
+                        <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20 pointer-events-none">
+                            <div className="w-6 h-3 rounded-full bg-lyvest-600 transition-all opacity-80" />
+                            <div className="w-3 h-3 rounded-full bg-lyvest-200 opacity-60" />
                         </div>
+
                     </div>
                 </div>
+            </div>
         </section>
     );
 }
