@@ -13,6 +13,7 @@ const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), { ssr: fa
 
 import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
+import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -33,34 +34,34 @@ function HeaderSkeleton() {
     );
 }
 
+
 export default function ClientLayout({ children }: ClientLayoutProps) {
     const { isOpen } = useAuthModal();
+    const shouldLoad = useUltraLazyLoad();
 
     // Defer Sentry initialization to idle callback (non-blocking)
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && shouldLoad) {
             // Sentry
             if ('requestIdleCallback' in window) {
                 (window as any).requestIdleCallback(() => initSentry());
             } else {
-                setTimeout(() => initSentry(), 3000);
+                setTimeout(() => initSentry(), 1000);
             }
 
             // Register Service Worker for PWA / Caching
             if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js').then(
-                        (registration) => {
-                            console.log('Service Worker registration successful with scope: ', registration.scope);
-                        },
-                        (err) => {
-                            console.log('Service Worker registration failed: ', err);
-                        }
-                    );
-                });
+                navigator.serviceWorker.register('/sw.js').then(
+                    (registration) => {
+                        console.log('Service Worker registration successful with scope: ', registration.scope);
+                    },
+                    (err) => {
+                        console.log('Service Worker registration failed: ', err);
+                    }
+                );
             }
         }
-    }, []);
+    }, [shouldLoad]);
 
     return (
         <AppProviders>
@@ -71,12 +72,17 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 <main className="flex-grow">
                     {children}
                 </main>
-                <Suspense fallback={<div className="h-32 bg-slate-50" />}>
-                    <Footer />
-                </Suspense>
+
+                {shouldLoad ? (
+                    <Suspense fallback={<div className="h-32 bg-slate-50" />}>
+                        <Footer />
+                    </Suspense>
+                ) : (
+                    <div className="h-32 bg-slate-50" />
+                )}
 
                 {/* Lazy rendered auth modal */}
-                {isOpen && (
+                {isOpen && shouldLoad && (
                     <Suspense fallback={null}>
                         <AuthModal />
                     </Suspense>

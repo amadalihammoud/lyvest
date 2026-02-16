@@ -1,10 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-
     compress: true,
     poweredByHeader: false,
+
+    // Images: Otimização extrema
     images: {
+        formats: ['image/avif', 'image/webp'],
+        deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+        imageSizes: [16, 32, 48, 64, 96, 128],
+        minimumCacheTTL: 31536000,
+        dangerouslyAllowSVG: true,
+        contentDispositionType: 'attachment',
+        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
         remotePatterns: [
             {
                 protocol: 'https',
@@ -19,25 +27,9 @@ const nextConfig = {
                 hostname: 'lyvest.vercel.app',
             },
         ],
-        minimumCacheTTL: 31536000,
-        formats: ['image/avif', 'image/webp'],
-        deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-        imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-        dangerouslyAllowSVG: true,
-        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     },
-    // Advanced Compiler Options
-    compiler: {
-        removeConsole: process.env.NODE_ENV === 'production' ? {
-            exclude: ['error'],
-        } : false,
-        reactRemoveProperties: process.env.NODE_ENV === 'production',
-    },
-    // Silence Turbopack warning/error by acknowledging it (even if empty)
-    // or rely on webpack config.
-    // Note: Vercel/Next16 defaults to Turbo. providing empty object helps validation
-    // turbopack: {}, <-- Actually, if we use webpack config, we might want to ensure we don't conflict.
-    // The error said: "simply setting an empty turbopack config...". Let's try that.
+
+    // Experimental: Otimizações máximas
     experimental: {
         optimizePackageImports: [
             'lucide-react',
@@ -49,62 +41,174 @@ const nextConfig = {
             'canvas-confetti',
             '@sentry/react',
             'zod',
-            'react-hook-form'
+            'react-hook-form',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-slot',
         ],
-        // turbopack: {} // Moved inside experimental? No, usually top level or specific flag.
-        // Wait, Next.js config schema: turbopack is usually not in experimental in newer versions?
-        // Let's try placing it at root if allowed, or check docs.
-        // Actually, the error says "in your Next config file (e.g. `turbopack: {}`)".
-        // It likely implies top-level.
+        optimizeFonts: true,
+        gzipSize: true,
     },
-    // Webpack Optimization for Chunk Splitting
+
+    // Webpack: Code splitting agressivo
     webpack: (config, { isServer, dev }) => {
         if (!dev && !isServer) {
-            config.optimization.splitChunks = {
-                chunks: 'all',
-                cacheGroups: {
-                    default: false,
-                    vendors: false,
-                    framework: {
-                        name: 'framework',
-                        test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
-                        priority: 40,
-                        enforce: true,
-                    },
-                    lib: {
-                        test: /[\\/]node_modules[\\/]/,
-                        name(module) {
-                            const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
-                            const packageName = match ? match[1] : 'vendor';
-                            return `npm.${packageName.replace('@', '')}`;
+            config.optimization = {
+                ...config.optimization,
+                minimize: true,
+                usedExports: true,
+                concatenateModules: true,
+                sideEffects: true,
+
+                splitChunks: {
+                    chunks: 'all',
+                    cacheGroups: {
+                        default: false,
+                        vendors: false,
+
+                        framework: {
+                            name: 'framework',
+                            test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+                            priority: 50,
+                            enforce: true,
+                            reuseExistingChunk: true,
                         },
-                        priority: 30,
-                        minChunks: 1,
-                        reuseExistingChunk: true,
-                    },
-                    commons: {
-                        name: 'commons',
-                        minChunks: 2,
-                        priority: 20,
+
+                        clerk: {
+                            name: 'clerk',
+                            test: /[\\/]node_modules[\\/](@clerk)[\\/]/,
+                            priority: 45,
+                            enforce: true,
+                            reuseExistingChunk: true,
+                        },
+
+                        sentry: {
+                            name: 'sentry',
+                            test: /[\\/]node_modules[\\/](@sentry)[\\/]/,
+                            priority: 45,
+                            enforce: true,
+                            reuseExistingChunk: true,
+                        },
+
+                        supabase: {
+                            name: 'supabase',
+                            test: /[\\/]node_modules[\\/](@supabase)[\\/]/,
+                            priority: 45,
+                            enforce: true,
+                            reuseExistingChunk: true,
+                        },
+
+                        ui: {
+                            name: 'ui',
+                            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react)[\\/]/,
+                            priority: 40,
+                            reuseExistingChunk: true,
+                        },
+
+                        lib: {
+                            test: /[\\/]node_modules[\\/]/,
+                            name(module) {
+                                const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)
+                                const packageName = match ? match[1] : 'vendor'
+                                return `npm.${packageName.replace('@', '').substring(0, 20)}`
+                            },
+                            priority: 30,
+                            minChunks: 1,
+                            maxSize: 244000,
+                            reuseExistingChunk: true,
+                        },
+
+                        commons: {
+                            name: 'commons',
+                            minChunks: 2,
+                            priority: 20,
+                            maxSize: 122000,
+                            reuseExistingChunk: true,
+                        },
                     },
                 },
-            };
+
+                runtimeChunk: {
+                    name: 'runtime',
+                },
+
+                moduleIds: 'deterministic',
+                chunkIds: 'deterministic',
+            }
+
+            if (process.env.NODE_ENV === 'production') {
+                config.devtool = false
+            }
         }
-        return config;
+
+        return config
     },
+
+    // Advanced Compiler Options
+    compiler: {
+        removeConsole: process.env.NODE_ENV === 'production' ? {
+            exclude: ['error'],
+        } : false,
+        reactRemoveProperties: process.env.NODE_ENV === 'production',
+        emotion: false,
+        styledComponents: false,
+    },
+
+    output: 'standalone',
+    generateEtags: true,
+
+    httpAgentOptions: {
+        keepAlive: true,
+    },
+
     // Security Headers for Production
     async headers() {
         return [
             {
-                source: '/(.*)',
+                source: '/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico|woff|woff2|ttf|eot)',
                 headers: [
                     {
-                        key: 'X-Content-Type-Options',
-                        value: 'nosniff',
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            {
+                source: '/_next/static/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            {
+                source: '/:path*.html',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=0, must-revalidate',
+                    },
+                ],
+            },
+            {
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'X-DNS-Prefetch-Control',
+                        value: 'on',
+                    },
+                    {
+                        key: 'Strict-Transport-Security',
+                        value: 'max-age=31536000; includeSubDomains',
                     },
                     {
                         key: 'X-Frame-Options',
-                        value: 'DENY',
+                        value: 'SAMEORIGIN',
+                    },
+                    {
+                        key: 'X-Content-Type-Options',
+                        value: 'nosniff',
                     },
                     {
                         key: 'X-XSS-Protection',
@@ -116,51 +220,7 @@ const nextConfig = {
                     },
                     {
                         key: 'Permissions-Policy',
-                        value: 'camera=(), microphone=(), geolocation=()',
-                    },
-                    {
-                        key: 'Strict-Transport-Security',
-                        value: 'max-age=31536000; includeSubDomains; preload',
-                    },
-                ],
-            },
-            // Cache headers for static images (1 year)
-            {
-                source: '/images/:path*',
-                headers: [
-                    {
-                        key: 'Cache-Control',
-                        value: 'public, max-age=31536000, immutable',
-                    },
-                ],
-            },
-            // Cache headers for Next.js static assets (1 year)
-            {
-                source: '/_next/static/:path*',
-                headers: [
-                    {
-                        key: 'Cache-Control',
-                        value: 'public, max-age=31536000, immutable',
-                    },
-                ],
-            },
-            // Cache headers for fonts
-            {
-                source: '/fonts/:path*',
-                headers: [
-                    {
-                        key: 'Cache-Control',
-                        value: 'public, max-age=31536000, immutable',
-                    },
-                ],
-            },
-            // Cache extensions
-            {
-                source: '/:all*(svg|jpg|jpeg|png|webp|avif|ico|woff|woff2)',
-                headers: [
-                    {
-                        key: 'Cache-Control',
-                        value: 'public, max-age=31536000, immutable',
+                        value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
                     },
                 ],
             },

@@ -72,6 +72,7 @@ export const metadata: Metadata = {
 import { ClerkProvider } from '@clerk/nextjs'
 import { ptBR } from '@clerk/localizations'
 
+
 export default function RootLayout({
     children,
 }: {
@@ -83,7 +84,7 @@ export default function RootLayout({
             publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
             appearance={{
                 variables: {
-                    colorPrimary: '#800020', // Bordô Ly Vest
+                    colorPrimary: '#800020',
                     colorText: '#334155',
                     colorTextSecondary: '#64748B',
                     colorBackground: '#ffffff',
@@ -116,16 +117,31 @@ export default function RootLayout({
         >
             <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
                 <head>
+                    <link rel="dns-prefetch" href="https://clerk.lyvest.com.br" />
+                    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+                    <link rel="dns-prefetch" href="https://shgdgelnddjnemfgzzfv.supabase.co" />
+
                     <link rel="preconnect" href="https://fonts.googleapis.com" />
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                    <link rel="preconnect" href="https://clerk.lyvest.com.br" />
-                    <link rel="dns-prefetch" href="https://img.clerk.com" />
-                    <link rel="dns-prefetch" href="https://shgdgelnddjnemfgzzfv.supabase.co" />
+                    <link rel="preconnect" href="https://clerk.lyvest.com.br" crossOrigin="anonymous" />
+
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
                     <link rel="preload" as="image" href="/banner-slide-1.webp" type="image/webp" fetchPriority="high" />
+
+                    {/* CRITICAL CSS INLINE */}
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                            *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+                            html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+                            body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}
+                            .hero{position:relative;width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;contain:layout style paint}
+                            .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;will-change:transform}
+                            .btn{display:inline-block;padding:12px 28px;font-size:16px;font-weight:600;text-decoration:none;border:none;border-radius:6px;cursor:pointer;background:#000;color:#fff;}
+                            :focus-visible{outline:2px solid #000;outline-offset:4px}
+                        `
+                    }} />
                 </head>
                 <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
-
                     <ClientLayout>
                         {children}
                     </ClientLayout>
