@@ -34,28 +34,51 @@ function Hero() {
                            - Snap points for perfect alignment
                         */}
                         <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
-                            {slides.map((slide, index) => (
-                                <div
-                                    key={slide.id}
-                                    className="snap-center flex-shrink-0 w-full h-full relative"
-                                >
-                                    <div className="relative h-full w-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
-                                        <Image
-                                            src={slide.image}
-                                            alt={slide.alt}
-                                            fill
-                                            priority={index === 0}
-                                            quality={60} // Reduced quality for speed (per recommendation)
-                                            loading={index === 0 ? "eager" : "lazy"}
-                                            fetchPriority={index === 0 ? "high" : "low"}
-                                            className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
-                                            sizes="100vw" // Specific LCP recommendation
-                                            placeholder="blur"
-                                            blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA="
-                                        />
+                            {slides.map((slide, index) => {
+                                // Fallback for mobile image if not exists yet
+                                const mobileImage = slide.image.replace('.webp', '-mobile.webp');
+
+                                return (
+                                    <div
+                                        key={slide.id}
+                                        className="snap-center flex-shrink-0 w-full h-full relative"
+                                    >
+                                        <div className="relative h-full w-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
+                                            {/* Art Direction: Desktop Image */}
+                                            <div className="hidden md:block w-full h-full relative">
+                                                <Image
+                                                    src={slide.image}
+                                                    alt={slide.alt}
+                                                    fill
+                                                    priority={index === 0}
+                                                    quality={75}
+                                                    sizes="(min-width: 768px) 100vw"
+                                                    className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
+                                                    placeholder="blur"
+                                                    blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA="
+                                                />
+                                            </div>
+
+                                            {/* Art Direction: Mobile Image */}
+                                            <div className="block md:hidden w-full h-full relative">
+                                                <Image
+                                                    // TEMPORARY: Using desktop image until user uploads mobile version
+                                                    // In production, this should be: src={mobileImage}
+                                                    src={slide.image}
+                                                    alt={slide.alt}
+                                                    fill
+                                                    priority={index === 0}
+                                                    quality={70}
+                                                    sizes="(max-width: 767px) 100vw"
+                                                    className="rounded-lg sm:rounded-2xl object-cover shadow-sm"
+                                                    placeholder="blur"
+                                                    blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAoAAQAcJaQAA3AA/v3TAAA="
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         {/* 
