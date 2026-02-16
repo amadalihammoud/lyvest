@@ -99,23 +99,23 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
                 };
             case 'favorites':
                 return {
-                    title: t('dashboard.favorites') || 'Meus Favoritos',
+                    title: t('favorites.title') || 'Meus Favoritos',
                     subtitle: 'Produtos que você salvou na sua lista de desejos.'
                 };
             case 'coupons':
                 return {
-                    title: t('dashboard.coupons') || 'Meus Cupons',
+                    title: t('dashboard.coupons.title') || 'Meus Cupons',
                     subtitle: 'Cupons de desconto exclusivos para você.'
                 };
             case 'addresses':
                 return {
-                    title: t('dashboard.addresses') || 'Meus Endereços',
+                    title: t('dashboard.addresses.title') || 'Meus Endereços',
                     subtitle: 'Gerencie seus endereços de entrega.'
                 };
             case 'profile':
             case 'settings':
                 return {
-                    title: t('dashboard.profile') || 'Meu Perfil',
+                    title: t('dashboard.profile.title') || 'Meu Perfil',
                     subtitle: 'Gerencie seus dados pessoais e segurança.'
                 };
             default:

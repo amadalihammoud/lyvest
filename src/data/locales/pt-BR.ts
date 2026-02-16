@@ -391,6 +391,17 @@ export const ptBR = {
         credits: {
             menu: 'Meus Créditos'
         },
+        coupons: {
+            title: 'Meus Cupons',
+            menu: 'Meus Cupons',
+            empty: 'Você não tem cupons disponíveis.',
+            code: 'Código',
+            discount: 'Desconto',
+            validity: 'Validade',
+            copy: 'Copiar',
+            copied: 'Copiado!',
+            description: 'Use este cupom no checkout para ganhar desconto.'
+        },
         settings: {
             menu: 'Configurações',
             avatar: {
