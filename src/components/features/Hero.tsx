@@ -65,6 +65,7 @@ function Hero() {
                                                 <source media="(min-width: 768px)" srcSet={desktop} />
                                                 <img
                                                     {...rest}
+                                                    fetchPriority={index === 0 ? "high" : "auto"} // Critical for LCP
                                                     className="w-full h-full object-cover rounded-lg sm:rounded-2xl shadow-sm"
                                                     style={{ width: '100%', height: '100%' }}
                                                 />

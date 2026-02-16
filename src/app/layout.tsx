@@ -127,6 +127,22 @@ export default function RootLayout({
 
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
+                    {/* Preload Art Direction Images for LCP */}
+                    <link
+                        rel="preload"
+                        as="image"
+                        href="/banner-slide-1-mobile.webp"
+                        media="(max-width: 767px)"
+                        imageSrcSet="/banner-slide-1-mobile.webp"
+                    />
+                    <link
+                        rel="preload"
+                        as="image"
+                        href="/banner-slide-1.webp"
+                        media="(min-width: 768px)"
+                        imageSrcSet="/banner-slide-1.webp"
+                    />
+
                     {/* CRITICAL CSS INLINE */}
                     <style dangerouslySetInnerHTML={{
                         __html: `
