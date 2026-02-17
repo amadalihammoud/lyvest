@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    swcMinify: true,
+    swcMinify: true, // Force minification (Phase 4 Re-trigger)
     compress: true,
     poweredByHeader: false,
 
