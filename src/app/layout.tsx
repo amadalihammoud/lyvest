@@ -89,12 +89,14 @@ export default function RootLayout({
                         as="image"
                         href="/banner-slide-1-mobile.webp"
                         media="(max-width: 767px)"
+                        fetchPriority="high"
                     />
                     <link
                         rel="preload"
                         as="image"
                         href="/banner-slide-1.webp"
                         media="(min-width: 768px)"
+                        fetchPriority="high"
                     />
 
                     {/* CRITICAL CSS INLINE (Optimization 6) */}
