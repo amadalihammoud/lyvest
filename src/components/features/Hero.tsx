@@ -35,10 +35,9 @@ function Hero() {
                         */}
                         <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
                             {slides.map((slide, index) => {
-                                // Direct usage of optimized assets from /public
-                                // This bypasses Next.js Image Optimization to ensure perfect preload matching
                                 const mobileImage = slide.image.replace('.webp', '-mobile.webp');
                                 const desktopImage = slide.image;
+                                const isLcp = index === 0;
 
                                 return (
                                     <div
@@ -46,20 +45,42 @@ function Hero() {
                                         className="snap-center flex-shrink-0 w-full h-full relative"
                                     >
                                         <div className="relative h-full w-full bg-white/40 backdrop-blur-sm p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
-                                            <picture>
-                                                <source media="(max-width: 767px)" srcSet={mobileImage} />
-                                                <source media="(min-width: 768px)" srcSet={desktopImage} />
-                                                <img
-                                                    src={desktopImage}
-                                                    alt={slide.alt}
-                                                    fetchPriority={index === 0 ? "high" : "auto"}
-                                                    loading={index === 0 ? "eager" : "lazy"}
-                                                    decoding="async"
-                                                    className="w-full h-full object-cover rounded-lg sm:rounded-2xl shadow-sm"
-                                                    style={{ width: '100%', height: '100%' }}
-                                                    draggable={false}
-                                                />
-                                            </picture>
+                                            {/* Art Direction with getImageProps for LCP optimization */}
+                                            {(() => {
+                                                const common = {
+                                                    alt: slide.alt,
+                                                    fill: true,
+                                                    sizes: "100vw",
+                                                    quality: 85,
+                                                    priority: isLcp,
+                                                };
+
+                                                const {
+                                                    props: { srcSet: mobileSrcSet, ...mobileProps },
+                                                } = getImageProps({
+                                                    ...common,
+                                                    src: mobileImage,
+                                                });
+
+                                                const {
+                                                    props: { srcSet: desktopSrcSet, ...desktopProps },
+                                                } = getImageProps({
+                                                    ...common,
+                                                    src: desktopImage,
+                                                });
+
+                                                return (
+                                                    <picture>
+                                                        <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
+                                                        <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
+                                                        <img
+                                                            {...desktopProps}
+                                                            className="object-cover rounded-lg sm:rounded-2xl shadow-sm"
+                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                        />
+                                                    </picture>
+                                                );
+                                            })()}
                                         </div>
                                     </div>
                                 );
