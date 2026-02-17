@@ -52,16 +52,51 @@ const nextConfig = {
 
     // Webpack: Usar defaults do Next.js + Lazy Loading já resolvem
     // Removido custom splitChunks para evitar conflito com dynamic imports
-    webpack: (config, { isServer, dev }) => {
-        if (!dev && !isServer) {
-            // Apenas otimizações básicas
-            config.optimization = {
-                ...config.optimization,
-                minimize: true,
-                usedExports: true,
-            }
+    webpack: (config, { isServer }) => {
+        if (!isServer) {
+            // Remover polyfills desnecessários no client
+            config.resolve.fallback = {
+                ...config.resolve.fallback,
+                fs: false,
+                net: false,
+                tls: false,
+            };
+
+            // Code Splitting Agressivo (Optimization 8)
+            config.optimization.splitChunks = {
+                chunks: 'all',
+                maxInitialRequests: 25,
+                minSize: 20000,
+                cacheGroups: {
+                    default: false,
+                    vendors: false,
+                    clerk: {
+                        test: /[\\/]node_modules[\\/]@clerk[\\/]/,
+                        name: 'clerk',
+                        priority: 20,
+                        reuseExistingChunk: true,
+                    },
+                    commons: {
+                        name: 'commons',
+                        chunks: 'all',
+                        minChunks: 2,
+                        priority: 10,
+                    },
+                    lib: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name(module) {
+                            const packageName = module.context.match(
+                                /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+                            )?.[1];
+                            return `npm.${packageName?.replace('@', '')}`;
+                        },
+                        priority: 5,
+                        reuseExistingChunk: true,
+                    },
+                },
+            };
         }
-        return config
+        return config;
     },
 
     // Advanced Compiler Options

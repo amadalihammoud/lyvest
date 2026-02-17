@@ -80,10 +80,7 @@ export default function RootLayout({
         <LazyClerkProvider>
             <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
                 <head>
-                    <link rel="dns-prefetch" href="https://clerk.lyvest.com.br" />
-                    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-                    <link rel="dns-prefetch" href="https://shgdgelnddjnemfgzzfv.supabase.co" />
-
+                    <link rel="dns-prefetch" href="https://lyvest.com.br" />
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
                     {/* PRELOAD HERO IMAGES (Raw Paths) */}
@@ -100,16 +97,14 @@ export default function RootLayout({
                         media="(min-width: 768px)"
                     />
 
-                    {/* CRITICAL CSS INLINE */}
+                    {/* CRITICAL CSS INLINE (Optimization 6) */}
                     <style dangerouslySetInnerHTML={{
                         __html: `
                             *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
                             html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-                            body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}
+                            body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}
                             .hero{position:relative;width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;contain:layout style paint}
-                            .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;will-change:transform}
-                            .btn{display:inline-block;padding:12px 28px;font-size:16px;font-weight:600;text-decoration:none;border:none;border-radius:6px;cursor:pointer;background:#000;color:#fff;}
-                            :focus-visible{outline:2px solid #000;outline-offset:4px}
+                            .header{position:fixed;top:0;width:100%;z-index:50;background:#fff}
                         `
                     }} />
                 </head>
