@@ -71,6 +71,8 @@ export const metadata: Metadata = {
 
 import { LazyClerkProvider } from '@/components/providers/LazyClerkProvider';
 
+import { Analytics } from "@vercel/analytics/next";
+
 export default function RootLayout({
     children,
 }: {
@@ -114,6 +116,7 @@ export default function RootLayout({
                     <ClientLayout>
                         {children}
                     </ClientLayout>
+                    <Analytics />
                 </body>
             </html>
         </LazyClerkProvider>

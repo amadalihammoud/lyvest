@@ -101,10 +101,10 @@ function GlobalLogic({ children }: { children: ReactNode }) {
                 </Suspense>
             )}
 
-            {/* Analytics - deferred and lazy-loaded */}
             {showWidgets && (
                 <Suspense fallback={null}>
-                    <LazyAnalytics />
+                    <ChatWidget />
+                    <FloatingWhatsApp />
                 </Suspense>
             )}
 
@@ -113,18 +113,6 @@ function GlobalLogic({ children }: { children: ReactNode }) {
         </>
     );
 }
-
-// Lazy-load Vercel analytics to keep them off the initial bundle
-const LazyAnalytics = lazy(() =>
-    import('@vercel/analytics/react').then(mod => ({
-        default: () => (
-            <>
-                <mod.Analytics />
-                {/* SpeedInsights dynamically imported alongside */}
-            </>
-        ),
-    }))
-);
 
 export default function AppProviders({ children }: AppProvidersProps) {
     return (
