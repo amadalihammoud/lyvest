@@ -84,9 +84,6 @@ export default function RootLayout({
                     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
                     <link rel="dns-prefetch" href="https://shgdgelnddjnemfgzzfv.supabase.co" />
 
-                    <link rel="preconnect" href="https://fonts.googleapis.com" />
-                    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                    <link rel="preconnect" href="https://clerk.lyvest.com.br" crossOrigin="anonymous" />
                     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
                     {/* PRELOAD HERO IMAGES (Raw Paths) */}
