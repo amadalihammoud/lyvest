@@ -21,15 +21,21 @@ interface ClientLayoutProps {
     children: ReactNode;
 }
 
-// Loading fallback for Header during SSR
+// Loading fallback for Header — must match real Header layout exactly to avoid CLS.
+// Header.tsx uses: sticky top-0 z-50 bg-white shadow-sm + container px-4 py-2 lg:py-4
 function HeaderSkeleton() {
     return (
-        <header className="h-20 bg-white border-b border-slate-100 fixed top-0 left-0 right-0 z-50">
-            <div className="container mx-auto px-4 h-full flex items-center justify-between">
-                <div className="w-24 h-8 bg-slate-200 rounded animate-pulse"></div>
-                <div className="flex gap-4">
-                    <div className="w-8 h-8 bg-slate-200 rounded-full animate-pulse"></div>
-                    <div className="w-8 h-8 bg-slate-200 rounded-full animate-pulse"></div>
+        <header className="sticky top-0 z-50 bg-white shadow-sm">
+            <div className="container mx-auto px-4 py-2 lg:py-4">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-7 h-7 bg-slate-200 rounded-full lg:hidden"></div>
+                        <div className="w-24 h-8 bg-slate-200 rounded"></div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
+                        <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
+                    </div>
                 </div>
             </div>
         </header>

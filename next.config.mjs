@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    swcMinify: true, // Force minification (Phase 4 Re-trigger)
     compress: true,
     poweredByHeader: false,
 
@@ -78,7 +77,7 @@ const nextConfig = {
                     commons: {
                         name: 'commons',
                         chunks: 'all',
-                        minChunks: 2,
+                        minChunks: 3,
                         priority: 10,
                     },
                     lib: {
