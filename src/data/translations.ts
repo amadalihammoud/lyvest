@@ -19,9 +19,9 @@ export type TranslationData = typeof ptBR;
 export async function loadLocale(locale: string): Promise<TranslationData> {
     switch (locale) {
         case 'en-US':
-            return import('./locales/en-US').then((m) => m.enUS);
+            return import('./locales/en-US').then((m) => m.enUS as unknown as TranslationData);
         case 'es-ES':
-            return import('./locales/es-ES').then((m) => m.esES);
+            return import('./locales/es-ES').then((m) => m.esES as unknown as TranslationData);
         case 'pt-BR':
         default:
             return ptBR;
