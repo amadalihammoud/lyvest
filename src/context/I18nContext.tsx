@@ -3,7 +3,7 @@
 // src/context/I18nContext.tsx
 import { useState, useCallback, useMemo, useEffect, useContext, createContext, ReactNode } from 'react';
 import { translations } from '../data/translations';
-import { I18N_CONFIG } from '../config/constants';
+import { I18N_CONFIG, CURRENCY_RATES } from '../config/constants';
 
 interface I18nContextType {
     locale: string;
@@ -114,17 +114,21 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
     }, [locale]);
 
     // Formatar moeda - BRL para pt-BR, USD convertido para outros
-    // Taxa de conversão: 6 BRL = 1 USD
+    // Taxas de conversão configuráveis em constants.ts
     const formatCurrency = useCallback((value: number) => {
         if (locale === 'pt-BR') {
-            // Locale brasileiro: mostra em Reais
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
             }).format(value);
+        } else if (locale === 'es-ES') {
+            const eurValue = value / CURRENCY_RATES.BRL_TO_EUR;
+            return new Intl.NumberFormat('es-ES', {
+                style: 'currency',
+                currency: 'EUR',
+            }).format(eurValue);
         } else {
-            // Outros locales: converte para USD (6 BRL = 1 USD)
-            const usdValue = value / 6;
+            const usdValue = value / CURRENCY_RATES.BRL_TO_USD;
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',

@@ -2,7 +2,7 @@
 // src/context/CartContext.tsx
 'use client';
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
-import { CART_CONFIG } from '../config/constants';
+import { CART_CONFIG, SHIPPING_CONFIG } from '../config/constants';
 
 // Interface para o item do carrinho
 export interface CartItem {
@@ -28,7 +28,7 @@ interface CartContextType {
     discount: number;
     discountAmount: number;
     finalTotal: number;
-    applyCoupon: (code: string) => { success: boolean; message: string };
+    applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
     removeCoupon: () => void;
     // Free shipping
     freeShippingEligible: boolean;
@@ -152,37 +152,42 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         }
     }, [cartItems, isHydrated]);
 
-    // Cupons Mockados (Simulação de Backend)
-    const VALID_COUPONS: Record<string, number> = {
-        'BEMVINDA10': 0.10,   // 10% off
-        'LYVEST2026': 0.15,   // 15% off
-        'PROMO5': 0.05,       // 5% off
-    };
+    // Frete grátis usando constante centralizada
+    const FREE_SHIPPING_MIN = SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
 
-    // Constante de frete grátis
-    const FREE_SHIPPING_MIN = 199;
-
-    const applyCoupon = useCallback((code: string): { success: boolean, message: string } => {
+    const applyCoupon = useCallback(async (code: string): Promise<{ success: boolean, message: string }> => {
         const normalizedCode = code.toUpperCase().trim();
 
         if (!normalizedCode) {
             return { success: false, message: 'Digite um código válido.' };
         }
 
-        if (Object.prototype.hasOwnProperty.call(VALID_COUPONS, normalizedCode)) {
-            // Verificar regras (ex: mínimo de compra) se necessário
-            const discountPercent = VALID_COUPONS[normalizedCode];
+        try {
+            const response = await fetch('/api/coupons/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: normalizedCode }),
+            });
 
-            setCouponCode(normalizedCode);
-            setDiscount(discountPercent);
+            if (!response.ok) {
+                return { success: false, message: 'Cupom inválido ou expirado.' };
+            }
 
-            return {
-                success: true,
-                message: `Cupom ${normalizedCode} aplicado! (${discountPercent * 100}% OFF)`
-            };
+            const data = await response.json();
+
+            if (data.valid) {
+                setCouponCode(normalizedCode);
+                setDiscount(data.discount);
+                return {
+                    success: true,
+                    message: `Cupom ${normalizedCode} aplicado! (${data.discount * 100}% OFF)`
+                };
+            }
+
+            return { success: false, message: data.message || 'Cupom inválido ou expirado.' };
+        } catch {
+            return { success: false, message: 'Erro ao validar cupom. Tente novamente.' };
         }
-
-        return { success: false, message: 'Cupom inválido ou expirado.' };
     }, []);
 
     const removeCoupon = useCallback(() => {

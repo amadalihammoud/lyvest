@@ -115,3 +115,12 @@ export const I18N_CONFIG = {
     SUPPORTED_LOCALES: ['pt-BR', 'en-US', 'es-ES'],
     CURRENCY: 'BRL'
 } as const;
+
+/**
+ * Configurações de Conversão de Moeda
+ * Taxas fixas para fallback - idealmente substituir por API de câmbio (ex: BCB)
+ */
+export const CURRENCY_RATES = {
+    BRL_TO_USD: 6.0,
+    BRL_TO_EUR: 6.5,
+} as const;

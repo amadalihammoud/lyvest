@@ -1,6 +1,7 @@
 /* global process */
 import { z } from 'zod'
 import allowCors from '../_utils/cors'
+import { withRateLimit, paymentLimiter } from '../_utils/rate-limit'
 import { getPaymentProvider } from '../_services/payment'
 import { createClient } from '@supabase/supabase-js'
 
@@ -94,4 +95,4 @@ async function handler(req, res) {
     }
 }
 
-export default allowCors(handler)
+export default allowCors(withRateLimit(paymentLimiter)(handler))

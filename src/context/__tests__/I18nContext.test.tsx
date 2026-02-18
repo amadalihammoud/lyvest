@@ -5,7 +5,7 @@ import { I18nProvider, useI18n } from '../I18nContext';
 
 // Test component to access context
 function TestComponent() {
-    const { t, locale, setLocale, formatCurrency, isRTL, getProductData } = useI18n();
+    const { t, locale, changeLocale, formatCurrency, isRTL, getProductData } = useI18n();
     return (
         <div>
             <span data-testid="locale">{locale}</span>
@@ -13,8 +13,8 @@ function TestComponent() {
             <span data-testid="currency">{formatCurrency(100)}</span>
             <span data-testid="rtl">{isRTL ? 'rtl' : 'ltr'}</span>
             <span data-testid="product">{getProductData(1, 'name')}</span>
-            <button onClick={() => setLocale('en-US')}>Change to EN</button>
-            <button onClick={() => setLocale('ar-SA')}>Change to AR</button>
+            <button onClick={() => changeLocale('en-US')}>Change to EN</button>
+            <button onClick={() => changeLocale('ar-SA')}>Change to AR</button>
         </div>
     );
 }

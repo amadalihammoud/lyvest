@@ -1,6 +1,7 @@
 /* global process */
 import { z } from 'zod'
 import allowCors from '../_utils/cors'
+import { withRateLimit, shippingLimiter } from '../_utils/rate-limit'
 import { getShippingProvider } from '../_services/shipping'
 
 // Define validation schema for shipping
@@ -46,4 +47,4 @@ async function handler(req, res) {
     }
 }
 
-export default allowCors(handler)
+export default allowCors(withRateLimit(shippingLimiter)(handler))
