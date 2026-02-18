@@ -7,10 +7,16 @@ import { paymentLogger } from '../utils/logger';
 
 export interface OrderItem {
     id: number | string;
-    name: string;
+    name?: string;
     price: number;
     quantity: number;
     image?: string;
+}
+
+export interface OrderCustomer {
+    firstName: string;
+    lastName: string;
+    email: string;
 }
 
 export interface OrderData {
@@ -20,6 +26,8 @@ export interface OrderData {
     couponCode?: string;
     shippingCost?: number;
     customerEmail?: string;
+    customer?: OrderCustomer;
+    orderId?: string;
 }
 
 export interface PaymentCardData {
