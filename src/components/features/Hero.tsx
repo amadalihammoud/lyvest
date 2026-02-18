@@ -72,7 +72,6 @@ function Hero() {
                                                         <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
                                                         <img
                                                             {...desktopProps}
-                                                            decoding={isLcp ? "sync" : "async"}
                                                             fetchPriority={isLcp ? "high" : "auto"}
                                                             className="object-cover rounded-lg sm:rounded-2xl shadow-sm"
                                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}

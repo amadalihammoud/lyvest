@@ -77,7 +77,7 @@ const nextConfig = {
                     commons: {
                         name: 'commons',
                         chunks: 'all',
-                        minChunks: 3,
+                        minChunks: 2,
                         priority: 10,
                     },
                     lib: {
