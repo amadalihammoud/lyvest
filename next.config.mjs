@@ -69,8 +69,6 @@ const nextConfig = {
                 maxInitialRequests: 25,
                 minSize: 20000,
                 cacheGroups: {
-                    default: false,
-                    vendors: false,
                     clerk: {
                         test: /[\\/]node_modules[\\/]@clerk[\\/]/,
                         name: 'clerk',

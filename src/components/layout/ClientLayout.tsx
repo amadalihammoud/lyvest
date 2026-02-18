@@ -15,6 +15,7 @@ import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
 import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 import { FavoritesSync } from '@/context/FavoritesContext';
+import { LazyClerkProvider } from '@/components/providers/LazyClerkProvider';
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -65,6 +66,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     }, [shouldLoad]);
 
     return (
+        <LazyClerkProvider shouldLoad={shouldLoad}>
         <AppProviders>
             <div className="flex flex-col min-h-screen">
                 {/* Defer Header rendering to avoid Clerk useUser during SSR/Lazy load */}
@@ -101,5 +103,6 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 )}
             </div>
         </AppProviders>
+        </LazyClerkProvider>
     );
 }

@@ -33,7 +33,7 @@ function Hero() {
                            - Native swiping experience
                            - Snap points for perfect alignment
                         */}
-                        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
+                        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] min-h-[200px] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
                             {slides.map((slide, index) => {
                                 const mobileImage = slide.image.replace('.webp', '-mobile.webp');
                                 const desktopImage = slide.image;
@@ -50,7 +50,7 @@ function Hero() {
                                                 const common = {
                                                     alt: slide.alt,
                                                     fill: true,
-                                                    sizes: "100vw",
+                                                    sizes: "(max-width: 767px) 100vw, (max-width: 1400px) 100vw, 1400px",
                                                     quality: 85,
                                                     priority: isLcp,
                                                 };

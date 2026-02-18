@@ -1,24 +1,32 @@
 'use client';
 
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode } from 'react';
 import dynamic from 'next/dynamic';
-import { ptBR } from '@clerk/localizations';
-import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 
-// Dynamically import ClerkProvider
+// Dynamically import ClerkProvider + ptBR together to keep them out of the main bundle
 const ClerkProvider = dynamic(
-    () => import('@clerk/nextjs').then((mod) => mod.ClerkProvider),
+    () => Promise.all([
+        import('@clerk/nextjs').then((mod) => mod.ClerkProvider),
+        import('@clerk/localizations').then((mod) => mod.ptBR),
+    ]).then(([ClerkProviderComponent, ptBRLocale]) => {
+        // Wrap so dynamic() receives a default export component with ptBR baked in
+        const Wrapped = ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => (
+            <ClerkProviderComponent {...props} localization={ptBRLocale}>
+                {children}
+            </ClerkProviderComponent>
+        );
+        Wrapped.displayName = 'ClerkProviderWithLocale';
+        return { default: Wrapped };
+    }),
     { ssr: false }
 );
 
 interface LazyClerkProviderProps {
     children: ReactNode;
+    shouldLoad: boolean;
 }
 
-export function LazyClerkProvider({ children }: LazyClerkProviderProps) {
-    // Use centralized lazy load logic to ensure consistency across the app
-    const shouldLoad = useUltraLazyLoad();
-
+export function LazyClerkProvider({ children, shouldLoad }: LazyClerkProviderProps) {
     // While waiting for Clerk, render children directly (unauthenticated state)
     // This maintains LCP content visibility
     if (!shouldLoad) {
@@ -27,7 +35,6 @@ export function LazyClerkProvider({ children }: LazyClerkProviderProps) {
 
     return (
         <ClerkProvider
-            localization={ptBR}
             publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
             appearance={{
                 variables: {

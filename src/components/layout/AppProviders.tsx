@@ -101,13 +101,6 @@ function GlobalLogic({ children }: { children: ReactNode }) {
                 </Suspense>
             )}
 
-            {showWidgets && (
-                <Suspense fallback={null}>
-                    <ChatWidget />
-                    <FloatingWhatsApp />
-                </Suspense>
-            )}
-
             {/* Main Content */}
             {children}
         </>
