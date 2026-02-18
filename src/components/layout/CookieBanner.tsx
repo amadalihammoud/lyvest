@@ -13,7 +13,7 @@ export default function CookieBanner({ onOpenPrivacy }: CookieBannerProps): Reac
     useEffect(() => {
         const consent = localStorage.getItem('cookie-consent');
         if (!consent) {
-            setTimeout(() => setIsVisible(true), 2000);
+            setTimeout(() => setIsVisible(true), 5000);
         }
     }, []);
 

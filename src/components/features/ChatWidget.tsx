@@ -2,8 +2,11 @@
 import { useChat } from '@ai-sdk/react';
 import { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import dynamic from 'next/dynamic';
 import { useCart } from '../../hooks/useCart';
+
+// react-markdown (~50 KB) carregado dinamicamente — só necessário quando o chat está aberto
+const ReactMarkdown = dynamic(() => import('react-markdown'), { ssr: false });
 import { useModal } from '../../hooks/useModal';
 import { productsData } from '../../data/mockData';
 

@@ -2,7 +2,7 @@
 /* eslint-disable react-refresh/only-export-components */
 // src/context/I18nContext.tsx
 import { useState, useCallback, useMemo, useEffect, useContext, createContext, ReactNode } from 'react';
-import { translations } from '../data/translations';
+import { defaultTranslations, loadLocale, TranslationData } from '../data/translations';
 import { I18N_CONFIG } from '../config/constants';
 
 interface I18nContextType {
@@ -31,14 +31,21 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
     // Inicializar com padrão - será atualizado no cliente via useEffect
     const [locale, setLocale] = useState<string>(DEFAULT_LOCALE);
     const [isHydrated, setIsHydrated] = useState(false);
+    // Translations carregadas para o locale atual
+    // pt-BR já vem estático; outros locales são carregados dinamicamente
+    const [currentTranslations, setCurrentTranslations] = useState<TranslationData>(defaultTranslations);
 
     // Hidratar do localStorage apenas no cliente
     useEffect(() => {
         try {
             if (typeof window !== 'undefined') {
                 const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
-                if (saved && (SUPPORTED_LOCALES as readonly string[]).includes(saved)) {
-                    setLocale(saved);
+                if (saved && (SUPPORTED_LOCALES as readonly string[]).includes(saved) && saved !== DEFAULT_LOCALE) {
+                    // Carregar o locale salvo dinamicamente
+                    loadLocale(saved).then((data) => {
+                        setCurrentTranslations(data);
+                        setLocale(saved);
+                    });
                 }
             }
         } catch {
@@ -73,25 +80,28 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
         }
     }, [locale, isHydrated]);
 
-    // Mudar idioma
+    // Mudar idioma — carrega o novo locale dinamicamente
     const changeLocale = useCallback((newLocale: string) => {
-        if ((SUPPORTED_LOCALES as readonly string[]).includes(newLocale)) {
+        if (!(SUPPORTED_LOCALES as readonly string[]).includes(newLocale)) return;
+        if (newLocale === locale) return;
+
+        loadLocale(newLocale).then((data) => {
+            setCurrentTranslations(data);
             setLocale(newLocale);
-        }
-    }, []);
+        });
+    }, [locale]);
 
     // Traduzir uma chave
     const t = useCallback((key: string, params: Record<string, string | number> = {}) => {
         const keys = key.split('.');
-        // Usando 'any' temporariamente para permitir indexação dinâmica nas traduções
-        let value: unknown = translations[locale as keyof typeof translations];
+        let value: unknown = currentTranslations;
 
         for (const k of keys) {
             if (value && typeof value === 'object' && k in value) {
                 value = (value as Record<string, unknown>)[k];
             } else {
-                // Fallback para pt-BR
-                value = translations[DEFAULT_LOCALE as keyof typeof translations];
+                // Fallback para pt-BR (defaultTranslations)
+                value = defaultTranslations;
                 for (const fallbackK of keys) {
                     if (value && typeof value === 'object' && fallbackK in value) {
                         value = (value as Record<string, unknown>)[fallbackK];
@@ -111,7 +121,7 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
         }
 
         return typeof value === 'string' ? value : key;
-    }, [locale]);
+    }, [currentTranslations]);
 
     // Formatar moeda - BRL para pt-BR, USD convertido para outros
     // Taxa de conversão: 6 BRL = 1 USD
@@ -151,8 +161,7 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
     // Obter dados traduzidos de um produto por ID
     // Suporta tanto strings quanto objetos (como specs)
     const getProductData = useCallback((productId: string | number, field: string) => {
-        // Tipagem 'any' para acesso dinâmico às traduções
-        const translationData = translations[locale as keyof typeof translations] as Record<string, unknown>;
+        const translationData = currentTranslations as Record<string, unknown>;
         const productData = (translationData?.productData as Record<string, unknown>)?.[productId];
 
         if (productData && field in (productData as Record<string, unknown>)) {
@@ -160,14 +169,14 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
         }
 
         // Fallback para pt-BR
-        const fallbackTranslationData = translations[DEFAULT_LOCALE as keyof typeof translations] as Record<string, unknown>;
+        const fallbackTranslationData = defaultTranslations as Record<string, unknown>;
         const fallbackData = (fallbackTranslationData?.productData as Record<string, unknown>)?.[productId];
 
         if (fallbackData && typeof fallbackData === 'object' && field in fallbackData) {
             return (fallbackData as Record<string, unknown>)[field];
         }
         return null;
-    }, [locale]);
+    }, [currentTranslations]);
 
     const value = useMemo(() => ({
         locale,
