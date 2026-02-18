@@ -41,7 +41,7 @@ function Hero() {
                                         key={slide.id}
                                         className="snap-center flex-shrink-0 w-full h-full relative"
                                     >
-                                        <div className="relative h-full w-full bg-white/60 p-1 sm:p-4 rounded-xl sm:rounded-3xl border border-white/50 shadow-xl overflow-hidden">
+                                        <div className="relative h-full w-full sm:bg-white/60 sm:p-4 sm:rounded-3xl sm:border sm:border-white/50 sm:shadow-xl overflow-hidden">
                                             {/* Art Direction with getImageProps for LCP optimization */}
                                             {(() => {
                                                 const common = {
@@ -73,7 +73,7 @@ function Hero() {
                                                         <img
                                                             {...desktopProps}
                                                             fetchPriority={isLcp ? "high" : "auto"}
-                                                            className="object-cover rounded-lg sm:rounded-2xl shadow-sm"
+                                                            className="object-cover sm:rounded-2xl"
                                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                         />
                                                     </picture>

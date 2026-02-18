@@ -11,12 +11,14 @@ const lato = Lato({
     subsets: ['latin'],
     variable: '--font-lato',
     display: 'swap',
+    adjustFontFallback: false, // Avoid extra CSS for fallback metrics — reduces render-blocking
 });
 const cookie = Cookie({
     weight: ['400'],
     subsets: ['latin'],
     variable: '--font-cookie',
     display: 'swap',
+    adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -82,18 +84,20 @@ export default function RootLayout({
                 <link rel="dns-prefetch" href="https://lyvest.com.br" />
                 <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
-                {/* PRELOAD HERO IMAGES (Raw Paths) */}
+                {/* PRELOAD HERO IMAGES — URLs match /_next/image output exactly for cache hit */}
                 <link
                     rel="preload"
                     as="image"
-                    href="/banner-slide-1-mobile.webp"
+                    type="image/webp"
+                    href="/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=828&q=85"
                     media="(max-width: 767px)"
                     fetchPriority="high"
                 />
                 <link
                     rel="preload"
                     as="image"
-                    href="/banner-slide-1.webp"
+                    type="image/webp"
+                    href="/_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=85"
                     media="(min-width: 768px)"
                     fetchPriority="high"
                 />
@@ -105,7 +109,7 @@ export default function RootLayout({
                         html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
                         body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}
                         .hero{position:relative;width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;contain:layout style paint}
-                        .header{position:fixed;top:0;width:100%;z-index:50;background:#fff}
+                        .header{position:sticky;top:0;width:100%;z-index:50;background:#fff}
                     `
                 }} />
             </head>

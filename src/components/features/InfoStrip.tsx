@@ -4,7 +4,8 @@ import { CreditCard, Truck, Percent, Lock } from 'lucide-react';
 // Textos em pt-BR hardcoded para evitar dependência do I18nContext
 // (que forçaria 'use client' e causaria CLS por mismatch de min-height).
 
-const items = [
+// All 4 items for desktop
+const allItems = [
     {
         icon: CreditCard,
         title: 'Até 6x no Cartão de Crédito',
@@ -27,41 +28,42 @@ const items = [
     },
 ];
 
+// Mobile: only the 2 most impactful items (user request)
+const mobileItems = [allItems[0], allItems[2]]; // "Até 6x" + "10% desconto"
+
 export default function InfoStrip() {
     return (
         <section className="bg-transparent py-4 md:py-6 -mt-4 md:-mt-12 relative z-20">
             <div className="container mx-auto px-4">
 
-                {/* --- MOBILE VERSION: Horizontal Scroll Snap (Zero JS) --- */}
-                <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 scrollbar-hide">
-                    {items.map((item, index) => {
+                {/* --- MOBILE VERSION: 2 cards side by side (less DOM, no scroll) --- */}
+                <div className="md:hidden grid grid-cols-2 gap-3">
+                    {mobileItems.map((item, index) => {
                         const Icon = item.icon;
                         return (
                             <div
                                 key={index}
-                                className="snap-center shrink-0 w-[85%] sm:w-[300px] flex items-center justify-between px-4 py-3 rounded-xl bg-white shadow-sm border border-slate-100"
+                                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white shadow-sm border border-slate-100"
                             >
-                                {/* Text left */}
-                                <div className="flex-1 min-w-0 pr-3">
-                                    <h3 className="text-slate-800 font-bold text-sm leading-tight mb-0.5 truncate">
+                                <div className="p-2 rounded-full bg-lyvest-50 shrink-0">
+                                    <Icon className="w-4 h-4 text-lyvest-500" />
+                                </div>
+                                <div className="min-w-0">
+                                    <h3 className="text-slate-800 font-bold text-xs leading-tight mb-0.5">
                                         {item.title}
                                     </h3>
-                                    <p className="text-slate-500 text-xs leading-tight truncate">
+                                    <p className="text-slate-500 text-[10px] leading-tight">
                                         {item.subtitle}
                                     </p>
-                                </div>
-                                {/* Icon right */}
-                                <div className="p-2.5 rounded-full bg-lyvest-50 shrink-0">
-                                    <Icon className="w-5 h-5 text-lyvest-500" />
                                 </div>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* --- DESKTOP VERSION: Original Layout (icon left, text right) --- */}
+                {/* --- DESKTOP VERSION: All 4 items (icon left, text right) --- */}
                 <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {items.map((item, index) => {
+                    {allItems.map((item, index) => {
                         const Icon = item.icon;
                         return (
                             <div key={index} className="flex items-center gap-4 p-4 border border-transparent hover:border-lyvest-100/50 rounded-xl transition-all duration-300 hover:bg-white/40">
