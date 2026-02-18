@@ -48,8 +48,9 @@ export function useUltraLazyLoad() {
             }
         });
 
-        // Fallback após 3.5 segundos (um pouco mais que o TTI alvo)
-        timer = setTimeout(loadScripts, 3500);
+        // Fallback após 2s — Hero e InfoStrip agora são Server Components,
+        // então o LCP ocorre bem antes. 2s é suficiente como backup.
+        timer = setTimeout(loadScripts, 2000);
 
         function cleanup() {
             if (lcpObserver) lcpObserver.disconnect();

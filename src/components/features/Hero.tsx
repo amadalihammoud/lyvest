@@ -1,7 +1,4 @@
-"use client";
-
-import React from 'react';
-import Image, { getImageProps } from 'next/image';
+import { getImageProps } from 'next/image';
 // No icons needed
 
 
@@ -105,7 +102,7 @@ function Hero() {
     );
 }
 
-export default React.memo(Hero);
+export default Hero;
 
 
 
