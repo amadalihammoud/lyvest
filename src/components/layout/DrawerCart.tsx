@@ -41,8 +41,8 @@ function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }
         }
     }, [couponCode]);
 
-    const handleApplyCoupon = () => {
-        const result = applyCoupon(couponInput);
+    const handleApplyCoupon = async () => {
+        const result = await applyCoupon(couponInput);
         setCouponMessage(result.message);
     };
 

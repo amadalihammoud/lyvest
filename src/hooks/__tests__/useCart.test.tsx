@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCart } from '../../hooks/useCart';
 import { CartProvider } from '../../context/CartContext';
@@ -9,6 +9,10 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 describe('useCart Hook', () => {
+    beforeEach(() => {
+        localStorage.clear();
+    });
+
     describe('Adicionar e Remover Itens', () => {
         it('deve adicionar item ao carrinho', () => {
             const { result } = renderHook(() => useCart(), { wrapper });
@@ -86,14 +90,26 @@ describe('useCart Hook', () => {
     });
 
     describe('Cupons de Desconto', () => {
-        it('deve aplicar cupom BEMVINDA10 (10% off)', () => {
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
+        it('deve aplicar cupom BEMVINDA10 (10% off)', async () => {
+            global.fetch = vi.fn().mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ valid: true, discount: 0.10 }),
+            });
+
             const { result } = renderHook(() => useCart(), { wrapper });
 
             const product = { id: 1, name: 'Test', price: 100, image: '/test.jpg' };
 
             act(() => {
                 result.current.addToCart(product);
-                result.current.applyCoupon('BEMVINDA10');
+            });
+
+            await act(async () => {
+                await result.current.applyCoupon('BEMVINDA10');
             });
 
             expect(result.current.discount).toBe(0.10);
@@ -101,14 +117,22 @@ describe('useCart Hook', () => {
             expect(result.current.finalTotal).toBe(90);
         });
 
-        it('deve aplicar cupom LYVEST2026 (15% off)', () => {
+        it('deve aplicar cupom LYVEST2026 (15% off)', async () => {
+            global.fetch = vi.fn().mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ valid: true, discount: 0.15 }),
+            });
+
             const { result } = renderHook(() => useCart(), { wrapper });
 
             const product = { id: 1, name: 'Test', price: 200, image: '/test.jpg' };
 
             act(() => {
                 result.current.addToCart(product);
-                result.current.applyCoupon('LYVEST2026');
+            });
+
+            await act(async () => {
+                await result.current.applyCoupon('LYVEST2026');
             });
 
             expect(result.current.discount).toBe(0.15);
@@ -116,7 +140,12 @@ describe('useCart Hook', () => {
             expect(result.current.finalTotal).toBe(170);
         });
 
-        it('deve rejeitar cupom inválido', () => {
+        it('deve rejeitar cupom inválido', async () => {
+            global.fetch = vi.fn().mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ valid: false, message: 'Cupom inválido ou expirado.' }),
+            });
+
             const { result } = renderHook(() => useCart(), { wrapper });
 
             const product = { id: 1, name: 'Test', price: 100, image: '/test.jpg' };
@@ -125,21 +154,35 @@ describe('useCart Hook', () => {
                 result.current.addToCart(product);
             });
 
-            const resultCoupon = result.current.applyCoupon('INVALIDO');
+            let resultCoupon: { success: boolean; message: string } = { success: false, message: '' };
+            await act(async () => {
+                resultCoupon = await result.current.applyCoupon('INVALIDO');
+            });
 
             expect(resultCoupon.success).toBe(false);
             expect(resultCoupon.message).toContain('inválido');
             expect(result.current.discount).toBe(0);
         });
 
-        it('deve remover cupom aplicado', () => {
+        it('deve remover cupom aplicado', async () => {
+            global.fetch = vi.fn().mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ valid: true, discount: 0.05 }),
+            });
+
             const { result } = renderHook(() => useCart(), { wrapper });
 
             const product = { id: 1, name: 'Test', price: 100, image: '/test.jpg' };
 
             act(() => {
                 result.current.addToCart(product);
-                result.current.applyCoupon('PROMO5');
+            });
+
+            await act(async () => {
+                await result.current.applyCoupon('PROMO5');
+            });
+
+            act(() => {
                 result.current.removeCoupon();
             });
 
@@ -149,24 +192,24 @@ describe('useCart Hook', () => {
         });
     });
 
-    describe('Frete Grátis (R$ 199)', () => {
-        it('deve indicar frete grátis para carrinho >= R$ 199', () => {
+    describe('Frete Grátis (R$ 150)', () => {
+        it('deve indicar frete grátis para carrinho >= R$ 150', () => {
             const { result } = renderHook(() => useCart(), { wrapper });
 
-            const product = { id: 1, name: 'Test', price: 199, image: '/test.jpg' };
+            const product = { id: 1, name: 'Test', price: 150, image: '/test.jpg' };
 
             act(() => {
                 result.current.addToCart(product);
             });
 
             expect(result.current.freeShippingEligible).toBe(true);
-            expect(result.current.freeShippingMinimum).toBe(199);
+            expect(result.current.freeShippingMinimum).toBe(150);
         });
 
-        it('NÃO deve indicar frete grátis para carrinho < R$ 199', () => {
+        it('NÃO deve indicar frete grátis para carrinho < R$ 150', () => {
             const { result } = renderHook(() => useCart(), { wrapper });
 
-            const product = { id: 1, name: 'Test', price: 150, image: '/test.jpg' };
+            const product = { id: 1, name: 'Test', price: 149, image: '/test.jpg' };
 
             act(() => {
                 result.current.addToCart(product);
