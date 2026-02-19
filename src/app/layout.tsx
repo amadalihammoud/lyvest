@@ -84,12 +84,13 @@ export default function RootLayout({
                 <link rel="dns-prefetch" href="https://lyvest.com.br" />
                 <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
-                {/* PRELOAD HERO IMAGES — URLs match /_next/image output exactly for cache hit */}
+                {/* PRELOAD HERO IMAGES — imagesrcset lets browser pick correct width for device DPR */}
                 <link
                     rel="preload"
                     as="image"
                     type="image/webp"
-                    href="/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=828&q=85"
+                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=640&q=85 640w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=750&q=85 750w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=828&q=85 828w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1080&q=85 1080w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1200&q=85 1200w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1920&q=85 1920w"
+                    imageSizes="100vw"
                     media="(max-width: 767px)"
                     fetchPriority="high"
                 />
@@ -97,20 +98,15 @@ export default function RootLayout({
                     rel="preload"
                     as="image"
                     type="image/webp"
-                    href="/_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=85"
+                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1.webp&w=640&q=85 640w, /_next/image?url=%2Fbanner-slide-1.webp&w=750&q=85 750w, /_next/image?url=%2Fbanner-slide-1.webp&w=828&q=85 828w, /_next/image?url=%2Fbanner-slide-1.webp&w=1080&q=85 1080w, /_next/image?url=%2Fbanner-slide-1.webp&w=1200&q=85 1200w, /_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=85 1920w"
+                    imageSizes="(max-width: 1400px) 100vw, 1400px"
                     media="(min-width: 768px)"
                     fetchPriority="high"
                 />
 
-                {/* CRITICAL CSS INLINE (Optimization 6) */}
+                {/* CRITICAL CSS INLINE — only resets, no unused .hero/.header classes */}
                 <style dangerouslySetInnerHTML={{
-                    __html: `
-                        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-                        html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-                        body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}
-                        .hero{position:relative;width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;contain:layout style paint}
-                        .header{position:sticky;top:0;width:100%;z-index:50;background:#fff}
-                    `
+                    __html: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}`
                 }} />
             </head>
             <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">

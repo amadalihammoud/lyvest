@@ -30,7 +30,7 @@ function HeaderSkeleton() {
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <div className="w-7 h-7 bg-slate-200 rounded-full lg:hidden"></div>
-                        <div className="w-24 h-8 bg-slate-200 rounded"></div>
+                        <div className="w-24 h-16 md:h-12 bg-slate-200 rounded"></div>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-slate-200 rounded-full"></div>

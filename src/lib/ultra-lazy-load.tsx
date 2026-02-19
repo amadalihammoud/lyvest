@@ -27,7 +27,7 @@ export function useUltraLazyLoad() {
                     const lastEntry = entries[entries.length - 1];
 
                     if (lastEntry && lastEntry.startTime) {
-                        setTimeout(loadScripts, 500);
+                        setTimeout(loadScripts, 200);
                     }
                 });
 
@@ -48,9 +48,9 @@ export function useUltraLazyLoad() {
             }
         });
 
-        // Fallback após 2s — Hero e InfoStrip agora são Server Components,
-        // então o LCP ocorre bem antes. 2s é suficiente como backup.
-        timer = setTimeout(loadScripts, 2000);
+        // Fallback após 1.2s — Hero e InfoStrip são Server Components,
+        // LCP ocorre em ~500ms. 1.2s é backup seguro sem atrasar Header demais.
+        timer = setTimeout(loadScripts, 1200);
 
         function cleanup() {
             if (lcpObserver) lcpObserver.disconnect();
