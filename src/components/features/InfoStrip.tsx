@@ -37,7 +37,7 @@ export default function InfoStrip() {
             <div className="container mx-auto px-4">
 
                 {/* --- MOBILE VERSION: 2 cards side by side (less DOM, no scroll) --- */}
-                <div className="mobile-only grid grid-cols-2 gap-3">
+                <div className="md:hidden grid grid-cols-2 gap-3">
                     {mobileItems.map((item, index) => {
                         const Icon = item.icon;
                         return (
@@ -62,7 +62,7 @@ export default function InfoStrip() {
                 </div>
 
                 {/* --- DESKTOP VERSION: All 4 items (icon left, text right) --- */}
-                <div className="desktop-only grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {allItems.map((item, index) => {
                         const Icon = item.icon;
                         return (

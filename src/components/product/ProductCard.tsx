@@ -68,7 +68,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
             </button>
 
             {/* Link para página do produto */}
-            <Link href={`/produto/${productSlug}`} className="block flex-1 flex flex-col">
+            <Link href={`/produto/${productSlug}`} className="flex-1 flex flex-col h-full w-full">
                 {/* Imagem do Produto + Overlay */}
                 <div className="relative aspect-square overflow-hidden bg-slate-50">
                     <OptimizedProductImage

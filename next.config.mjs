@@ -46,6 +46,7 @@ const nextConfig = {
 
     },
 
+    turbopack: {},
     // Webpack: Usar defaults do Next.js + Lazy Loading já resolvem
     // Removido custom splitChunks para evitar conflito com dynamic imports
     webpack: (config, { isServer }) => {
@@ -61,31 +62,21 @@ const nextConfig = {
             // Code Splitting Agressivo (Optimization 8)
             config.optimization.splitChunks = {
                 chunks: 'all',
-                maxInitialRequests: 25,
-                minSize: 20000,
                 cacheGroups: {
                     clerk: {
                         test: /[\\/]node_modules[\\/]@clerk[\\/]/,
                         name: 'clerk',
                         priority: 20,
-                        reuseExistingChunk: true,
                     },
-                    commons: {
-                        name: 'commons',
-                        chunks: 'all',
-                        minChunks: 2,
-                        priority: 10,
-                    },
-                    lib: {
+                    vendor: {
                         test: /[\\/]node_modules[\\/]/,
                         name(module) {
                             const packageName = module.context?.match(
                                 /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-                            )?.[1];
-                            return packageName ? `npm.${packageName.replace('@', '')}` : 'npm.unknown';
+                            )?.[1]
+                            return packageName ? `vendor.${packageName.replace('@', '')}` : 'vendor.unknown'
                         },
-                        priority: 5,
-                        reuseExistingChunk: true,
+                        priority: 10,
                     },
                 },
             };
@@ -99,8 +90,6 @@ const nextConfig = {
             exclude: ['error'],
         } : false,
         reactRemoveProperties: process.env.NODE_ENV === 'production',
-        emotion: false,
-        styledComponents: false,
     },
 
     generateEtags: true,

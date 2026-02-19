@@ -90,7 +90,7 @@ function Hero() {
                            (Pure CSS/Static - Optional: Add JS later if strict auto-play needed, 
                            but for LCP pure CSS is superior)
                         */}
-                        <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20 pointer-events-none">
+                        <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex md:hidden space-x-2 z-20 pointer-events-none">
                             <div className="w-6 h-3 rounded-full bg-lyvest-600 transition-all opacity-80" />
                             <div className="w-3 h-3 rounded-full bg-lyvest-200 opacity-60" />
                         </div>
