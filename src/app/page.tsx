@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Ly Vest - Moda Íntima Premium',
         description: 'Ly Vest - Moda íntima com conforto e sofisticação. Descubra nossa coleção exclusiva.',
-        images: ['https://lyvest.vercel.app/og-default.jpg'],
+        images: ['https://lyvest.vercel.app/banner-slide-1.webp'],
     },
 };
 

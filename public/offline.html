@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ly Vest - Sem conexão</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Lato',system-ui,-apple-system,sans-serif;background:#FDF8F8;color:#334155;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
+        .container{max-width:400px}
+        .icon{font-size:4rem;margin-bottom:1.5rem}
+        h1{font-size:1.5rem;color:#800020;margin-bottom:0.75rem;font-weight:700}
+        p{font-size:1rem;color:#64748b;line-height:1.6;margin-bottom:2rem}
+        .btn{display:inline-block;padding:0.75rem 2rem;background:#800020;color:#fff;border:none;border-radius:9999px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;transition:background 0.2s}
+        .btn:hover{background:#600018}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>Sem conexão com a internet</h1>
+        <p>Parece que você está offline. Verifique sua conexão e tente novamente.</p>
+        <button class="btn" onclick="window.location.reload()">Tentar novamente</button>
+    </div>
+</body>
+</html>

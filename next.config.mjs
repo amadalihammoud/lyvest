@@ -47,7 +47,6 @@ const nextConfig = {
             '@radix-ui/react-slot',
         ],
 
-        gzipSize: true,
     },
 
     // Webpack: Usar defaults do Next.js + Lazy Loading já resolvem
@@ -83,10 +82,10 @@ const nextConfig = {
                     lib: {
                         test: /[\\/]node_modules[\\/]/,
                         name(module) {
-                            const packageName = module.context.match(
+                            const packageName = module.context?.match(
                                 /[\\/]node_modules[\\/](.*?)([\\/]|$)/
                             )?.[1];
-                            return `npm.${packageName?.replace('@', '')}`;
+                            return packageName ? `npm.${packageName.replace('@', '')}` : 'npm.unknown';
                         },
                         priority: 5,
                         reuseExistingChunk: true,
@@ -107,7 +106,6 @@ const nextConfig = {
         styledComponents: false,
     },
 
-    output: 'standalone',
     generateEtags: true,
 
     httpAgentOptions: {
@@ -165,7 +163,7 @@ const nextConfig = {
                     },
                     {
                         key: 'X-XSS-Protection',
-                        value: '1; mode=block',
+                        value: '0',
                     },
                     {
                         key: 'Referrer-Policy',

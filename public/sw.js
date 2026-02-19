@@ -5,7 +5,7 @@ const RUNTIME_CACHE = 'lyvest-runtime';
 const PRECACHE_URLS = [
     '/',
     '/offline.html',
-    '/logo.svg',
+    '/logo.png',
 ];
 
 // Install

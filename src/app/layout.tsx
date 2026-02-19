@@ -51,7 +51,7 @@ export const metadata: Metadata = {
         type: 'website',
         images: [
             {
-                url: 'https://lyvest.vercel.app/og-default.jpg',
+                url: 'https://lyvest.vercel.app/banner-slide-1.webp',
                 width: 1200,
                 height: 630,
                 alt: 'Ly Vest - Moda Íntima',
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Ly Vest - Moda Íntima Premium',
         description: 'Ly Vest - Moda íntima com conforto e sofisticação.',
-        images: ['https://lyvest.vercel.app/og-default.jpg'],
+        images: ['https://lyvest.vercel.app/banner-slide-1.webp'],
     },
     robots: {
         index: true,
@@ -90,6 +90,7 @@ export default function RootLayout({
                 <link rel="preconnect" href="https://lyvest.com.br" />
                 <link rel="dns-prefetch" href="https://lyvest.com.br" />
                 <link rel="icon" type="image/png" href="/logo.png" />
+                <link rel="manifest" href="/manifest.json" />
 
                 {/* PRELOAD HERO IMAGES — imagesrcset lets browser pick correct width for device DPR */}
                 <link
