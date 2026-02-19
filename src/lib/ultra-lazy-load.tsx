@@ -48,9 +48,12 @@ export function useUltraLazyLoad() {
             }
         });
 
-        // Fallback após 1.2s — Hero e InfoStrip são Server Components,
-        // LCP ocorre em ~500ms. 1.2s é backup seguro sem atrasar Header demais.
-        timer = setTimeout(loadScripts, 1200);
+        // Fallback após 800ms — Hero e InfoStrip são Server Components,
+        // Desktop LCP ~500ms, Mobile LCP ~700ms. 800ms é backup seguro:
+        // - Desktop: LCP observer (700ms) ganha → fallback nunca dispara
+        // - Mobile: fallback dispara 100ms antes do LCP path → melhora mobile
+        // - Interação (mousemove/scroll) dispara antes de qualquer timeout
+        timer = setTimeout(loadScripts, 800);
 
         function cleanup() {
             if (lcpObserver) lcpObserver.disconnect();

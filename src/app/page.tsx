@@ -30,17 +30,19 @@ export default async function HomePage() {
                 <InfoStrip />
             </div>
 
-            {/* Lazy Load Product Grid for TBT win */}
-            <div className="container mx-auto px-4 py-8 lg:py-12">
+            {/* Lazy Load Product Grid for TBT win — cv-auto skips rendering until scrolled into view */}
+            <div className="container mx-auto px-4 py-8 lg:py-12 cv-auto">
                 <Suspense fallback={<div className="h-96 md:h-[600px] bg-slate-50 rounded-xl" />}>
                     <HomePageClient />
                 </Suspense>
             </div>
 
-            {/* Non-Critical: Lazy Loaded */}
-            <Suspense fallback={<div className="h-64 bg-sky-50/30" />}>
-                <Testimonials />
-            </Suspense>
+            {/* Non-Critical: Lazy Loaded — cv-auto-sm for smaller section */}
+            <div className="cv-auto-sm">
+                <Suspense fallback={<div className="h-64 bg-sky-50/30" />}>
+                    <Testimonials />
+                </Suspense>
+            </div>
         </main>
     );
 }

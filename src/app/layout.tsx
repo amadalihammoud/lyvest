@@ -88,7 +88,6 @@ export default function RootLayout({
         <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
             <head>
                 <link rel="preconnect" href="https://lyvest.com.br" />
-                <link rel="dns-prefetch" href="https://lyvest.com.br" />
                 <link rel="icon" type="image/png" href="/logo.png" />
                 <link rel="manifest" href="/manifest.json" />
 
@@ -97,7 +96,7 @@ export default function RootLayout({
                     rel="preload"
                     as="image"
                     type="image/webp"
-                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=640&q=75 640w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=750&q=75 750w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=828&q=75 828w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1080&q=75 1080w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1200&q=75 1200w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1920&q=75 1920w"
+                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=640&q=75 640w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=750&q=75 750w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=828&q=75 828w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1080&q=75 1080w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1200&q=75 1200w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1400&q=75 1400w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1920&q=75 1920w"
                     imageSizes="100vw"
                     media="(max-width: 767px)"
                     fetchPriority="high"
@@ -106,15 +105,15 @@ export default function RootLayout({
                     rel="preload"
                     as="image"
                     type="image/webp"
-                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1.webp&w=640&q=75 640w, /_next/image?url=%2Fbanner-slide-1.webp&w=750&q=75 750w, /_next/image?url=%2Fbanner-slide-1.webp&w=828&q=75 828w, /_next/image?url=%2Fbanner-slide-1.webp&w=1080&q=75 1080w, /_next/image?url=%2Fbanner-slide-1.webp&w=1200&q=75 1200w, /_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=75 1920w"
-                    imageSizes="(max-width: 1400px) 100vw, 1400px"
+                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1.webp&w=640&q=75 640w, /_next/image?url=%2Fbanner-slide-1.webp&w=750&q=75 750w, /_next/image?url=%2Fbanner-slide-1.webp&w=828&q=75 828w, /_next/image?url=%2Fbanner-slide-1.webp&w=1080&q=75 1080w, /_next/image?url=%2Fbanner-slide-1.webp&w=1200&q=75 1200w, /_next/image?url=%2Fbanner-slide-1.webp&w=1400&q=75 1400w, /_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=75 1920w"
+                    imageSizes="(max-width: 1400px) calc(100vw - 64px), 1336px"
                     media="(min-width: 768px)"
                     fetchPriority="high"
                 />
 
                 {/* CRITICAL CSS INLINE — only resets, no unused .hero/.header classes */}
                 <style dangerouslySetInnerHTML={{
-                    __html: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}@media(min-width:768px){.mobile-only{display:none!important}}@media(max-width:767.98px){.desktop-only{display:none!important}}`
+                    __html: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}img,video{max-width:100%;height:auto;display:block}.container{width:100%;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}@media(min-width:1024px){.container{max-width:1280px}}.flex{display:flex}.flex-col{display:flex;flex-direction:column}.min-h-screen{min-height:100vh}.flex-grow{flex-grow:1}@media(min-width:768px){.mobile-only{display:none!important}}@media(max-width:767.98px){.desktop-only{display:none!important}}`
                 }} />
             </head>
             <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">

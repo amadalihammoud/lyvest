@@ -173,8 +173,8 @@ export default function HomePageClient() {
 
             {/* Testimonials removed (rendered in page.tsx) */}
 
-            {/* Newsletter */}
-            <section className="py-20 bg-[#FDF5F5]">
+            {/* Newsletter — cv-auto-sm skips rendering until scrolled into view */}
+            <section className="py-20 bg-[#FDF5F5] cv-auto-sm">
                 <div className="container mx-auto px-4 text-center max-w-2xl">
                     {/* Using simple text for static render, functionality loads in background */}
                     <div className="min-h-[200px]">

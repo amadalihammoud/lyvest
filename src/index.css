@@ -180,6 +180,25 @@ textarea:focus-visible {
 }
 
 /* =================================
+   CONTENT-VISIBILITY — skip rendering for below-fold sections
+   Reduces TBT/FCP by deferring layout/paint of off-screen content
+   ================================= */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
+.cv-auto-sm {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+
+.cv-auto-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* =================================
    OTIMIZAÇÕES MOBILE
    ================================= */
 

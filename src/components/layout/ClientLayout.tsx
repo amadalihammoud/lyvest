@@ -90,13 +90,15 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                     {children}
                 </main>
 
-                {shouldLoad ? (
-                    <Suspense fallback={<div className="h-32 bg-slate-50" />}>
-                        <Footer />
-                    </Suspense>
-                ) : (
-                    <div className="h-32 bg-slate-50" />
-                )}
+                <div className="cv-auto-footer">
+                    {shouldLoad ? (
+                        <Suspense fallback={<div className="min-h-[420px] bg-slate-50" />}>
+                            <Footer />
+                        </Suspense>
+                    ) : (
+                        <div className="min-h-[420px] bg-slate-50" />
+                    )}
+                </div>
 
                 {/* Lazy rendered auth modal */}
                 {isOpen && shouldLoad && (

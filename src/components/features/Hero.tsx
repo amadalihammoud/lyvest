@@ -47,7 +47,7 @@ function Hero() {
                                                 const common = {
                                                     alt: slide.alt,
                                                     fill: true,
-                                                    sizes: "(max-width: 767px) 100vw, (max-width: 1400px) 100vw, 1400px",
+                                                    sizes: "(max-width: 767px) 100vw, (max-width: 1400px) calc(100vw - 64px), 1336px",
                                                     quality: 75,
                                                     priority: isLcp,
                                                 };

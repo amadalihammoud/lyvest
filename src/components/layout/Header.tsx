@@ -1,5 +1,5 @@
 ﻿'use client';
-import { useState, useEffect, ChangeEvent, Suspense } from 'react';
+import { useState, useEffect, useMemo, ChangeEvent, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -75,6 +75,13 @@ export default function Header(_props?: HeaderProps) {
     }
     const safeProducts = productsData as MockProduct[];
 
+    // Memoize autocomplete filter — avoids 3 redundant .filter() calls per render
+    const filteredAutocomplete = useMemo(() => {
+        if (searchQuery.length <= 2) return [];
+        return safeProducts.filter(
+            (p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [searchQuery, safeProducts]);
 
     // Debounce da busca APENAS para navegação/URL
     const debouncedSearch = useDebounce(searchQuery, 500);
@@ -170,8 +177,7 @@ export default function Header(_props?: HeaderProps) {
                         {/* Autocomplete Dropdown */}
                         {searchQuery.length > 2 && (
                             <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden animate-fade-in">
-                                {safeProducts
-                                    .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                {filteredAutocomplete
                                     .slice(0, 5)
                                     .map((product) => (
                                         <Link
@@ -200,12 +206,12 @@ export default function Header(_props?: HeaderProps) {
                                             </div>
                                         </Link>
                                     ))}
-                                {safeProducts.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                                {filteredAutocomplete.length === 0 && (
                                     <div className="p-4 text-center text-slate-500 text-sm">
                                         Nenhum produto encontrado.
                                     </div>
                                 )}
-                                {safeProducts.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 && (
+                                {filteredAutocomplete.length > 0 && (
                                     <button
                                         onClick={() => router.push(`/?busca=${encodeURIComponent(searchQuery)}`)}
                                         className="w-full p-3 bg-slate-50 text-lyvest-600 text-sm font-bold hover:bg-lyvest-50 transition-colors text-center"
