@@ -28,14 +28,16 @@ function HeaderSkeleton() {
         <header className="sticky top-0 z-50 bg-white shadow-sm">
             <div className="container mx-auto px-4 py-2 lg:py-4">
                 <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-7 h-7 bg-slate-200 rounded-full lg:hidden"></div>
+                    <div className="flex items-center gap-4 mr-12 lg:mr-24">
+                        <div className="lg:hidden p-3">
+                            <div className="w-7 h-7 bg-slate-200 rounded-full"></div>
+                        </div>
                         <div className="w-24 h-16 md:h-12 bg-slate-200 rounded"></div>
                     </div>
-                    <div className="flex items-center gap-1 sm:gap-2">
-                        <div className="w-9 h-9 bg-slate-200 rounded-full"></div>
-                        <div className="w-9 h-9 bg-slate-200 rounded-full"></div>
-                        <div className="w-9 h-9 bg-slate-200 rounded-full"></div>
+                    <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
+                        <div className="p-2 sm:p-2.5"><div className="w-5 h-5 sm:w-6 sm:h-6 bg-slate-200 rounded-full"></div></div>
+                        <div className="p-2 sm:p-2.5"><div className="w-5 h-5 sm:w-6 sm:h-6 bg-slate-200 rounded-full"></div></div>
+                        <div className="p-2 sm:p-3"><div className="w-5 h-5 sm:w-7 sm:h-7 bg-slate-200 rounded-full"></div></div>
                     </div>
                 </div>
             </div>

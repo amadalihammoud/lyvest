@@ -28,7 +28,6 @@ export default {
                 sans: ['var(--font-lato)', 'sans-serif'],
                 cookie: ['var(--font-cookie)', 'cursive'],
                 lato: ['var(--font-lato)', 'sans-serif'],
-                inter: ['var(--font-inter)', 'sans-serif'],
             },
             animation: {
                 'fade-in': 'fade-in 0.3s ease-out',

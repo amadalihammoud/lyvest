@@ -44,7 +44,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
     };
 
     return (
-        <div data-testid="product-card" className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-slate-100 flex flex-col h-full will-change-transform hover:-translate-y-1 min-w-[260px] sm:min-w-0">
+        <div data-testid="product-card" className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-slate-100 flex flex-col h-full hover:-translate-y-1 min-w-[260px] sm:min-w-0">
             {/* Badge (Mais Vendido / Novo) */}
             {productBadge && (
                 <span className="absolute top-3 left-3 bg-lyvest-500 text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full z-20 shadow-md animate-fade-in tracking-wider">

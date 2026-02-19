@@ -32,13 +32,13 @@ export default async function HomePage() {
 
             {/* Lazy Load Product Grid for TBT win */}
             <div className="container mx-auto px-4 py-8 lg:py-12">
-                <Suspense fallback={<div className="h-96 md:h-[600px] bg-slate-50 animate-pulse rounded-xl" />}>
+                <Suspense fallback={<div className="h-96 md:h-[600px] bg-slate-50 rounded-xl" />}>
                     <HomePageClient />
                 </Suspense>
             </div>
 
             {/* Non-Critical: Lazy Loaded */}
-            <Suspense fallback={<div className="h-64 bg-sky-50/30 animate-pulse" />}>
+            <Suspense fallback={<div className="h-64 bg-sky-50/30" />}>
                 <Testimonials />
             </Suspense>
         </main>
