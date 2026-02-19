@@ -26,6 +26,10 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'lyvest.vercel.app',
             },
+            {
+                protocol: 'https',
+                hostname: 'placehold.co',
+            },
         ],
     },
 

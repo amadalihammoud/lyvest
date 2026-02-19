@@ -89,7 +89,7 @@ function ProductShowcase() {
     };
 
     return (
-        <section id="products-grid" className="py-16 bg-[#F9F9F9] min-h-[600px]">
+        <section id="products-grid" className="py-16 bg-transparent min-h-[600px]">
             <div className="container mx-auto px-4">
                 {/* Header da Seção */}
                 <div className="text-center mb-12">
@@ -145,7 +145,7 @@ function ProductShowcase() {
 // 2. Updated Skeleton: Only for the Product Grid (Hero is visible)
 function ProductGridSkeleton() {
     return (
-        <section className="py-16 bg-[#F9F9F9]">
+        <section className="py-16 bg-transparent">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <div className="h-12 w-64 bg-slate-200 rounded mx-auto"></div>
@@ -162,6 +162,8 @@ function ProductGridSkeleton() {
 
 // 3. Main Component: Renders Static Parts + Suspended Dynamic Part
 export default function HomePageClient() {
+    const { t } = useI18n();
+
     return (
         <>
             {/* Hero & InfoStrip are now rendered in page.tsx for LCP optimization */}
@@ -176,7 +178,15 @@ export default function HomePageClient() {
             {/* Newsletter — cv-auto-sm skips rendering until scrolled into view */}
             <section className="py-20 bg-[#FDF5F5] cv-auto-sm">
                 <div className="container mx-auto px-4 text-center max-w-2xl">
-                    {/* Using simple text for static render, functionality loads in background */}
+                    {/* Newsletter heading */}
+                    <h2 className="text-3xl md:text-4xl font-cookie text-lyvest-500 mb-3"
+                        style={{ textShadow: "2px 2px 0px rgba(253, 226, 243, 1)" }}
+                    >
+                        {t('newsletter.title')}
+                    </h2>
+                    <p className="text-slate-600 mb-8 text-base md:text-lg">
+                        {t('newsletter.subtitle')}
+                    </p>
                     <div className="min-h-[200px]">
                         <Suspense fallback={<div className="h-12 w-full max-w-md mx-auto bg-slate-200 rounded-full animate-pulse" />}>
                             <NewsletterForm />

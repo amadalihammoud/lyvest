@@ -60,7 +60,7 @@ export default function Footer() {
 
                 {/* Payment Methods + Security Seals + Social Media */}
                 <div className="border-t border-slate-100 pt-10 mb-8">
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-16">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16">
                         {/* Payment Methods */}
                         <div className="flex flex-col items-center gap-4">
                             <span className="text-xs text-slate-500 font-semibold uppercase tracking-widest">{t('footer.paymentMethods')}</span>

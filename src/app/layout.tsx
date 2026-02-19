@@ -115,7 +115,7 @@ export default function RootLayout({
 
                 {/* CRITICAL CSS INLINE — only resets, no unused .hero/.header classes */}
                 <style dangerouslySetInnerHTML={{
-                    __html: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}img,video{max-width:100%;height:auto;display:block}.container{width:100%;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}@media(min-width:1024px){.container{max-width:1280px}}.flex{display:flex}.flex-col{display:flex;flex-direction:column}.min-h-screen{min-height:100vh}.flex-grow{flex-grow:1}@media(min-width:768px){.mobile-only{display:none!important}}@media(max-width:767.98px){.desktop-only{display:none!important}}`
+                    __html: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#FDF5F5;overflow-x:hidden}img,video{max-width:100%;height:auto;display:block}.container{width:100%;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}@media(min-width:1024px){.container{max-width:1280px}}.flex{display:flex}.flex-col{display:flex;flex-direction:column}.min-h-screen{min-height:100vh}.flex-grow{flex-grow:1}@media(min-width:768px){.mobile-only{display:none!important}}@media(max-width:767.98px){.desktop-only{display:none!important}}`
                 }} />
 
                 {/* Speculation Rules — prefetch likely navigation targets during idle time.
@@ -136,7 +136,7 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
+            <body className="bg-[#FDF5F5] text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
                 <ClientLayout>
                     {children}
                 </ClientLayout>
