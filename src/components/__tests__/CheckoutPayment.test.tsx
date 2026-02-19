@@ -12,7 +12,6 @@ vi.mock('../../utils/security', () => ({
         reset() { }
     },
     detectXSS: () => false,
-    sanitizeInput: (str) => str,
 }));
 
 const defaultProps = {

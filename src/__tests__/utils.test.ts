@@ -12,9 +12,9 @@ import {
 import { generateSlug } from '../utils/slug';
 import { validateForm, loginSchema, paymentSchema } from '../utils/validation';
 
-// Mock security utils to avoid DOMPurify dependency in Node
+// Mock security utils — DOMPurify has been removed from security.ts
+// but keep mock in case any transitive import needs it
 vi.mock('../utils/security', () => ({
-    sanitizeInput: (val: string) => val,
     detectXSS: () => false
 }));
 

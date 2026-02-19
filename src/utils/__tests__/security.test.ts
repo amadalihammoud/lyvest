@@ -1,13 +1,12 @@
-// src/utils/__tests__/security.test.js
+// src/utils/__tests__/security.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
     RateLimiter,
     detectXSS,
-    sanitizeInput,
-    isDisposableEmail,
     createHoneypot,
     generateCSRFToken
 } from '../security';
+import { isDisposableEmail } from '../validation';
 
 describe('Security Utils', () => {
     beforeEach(() => {
@@ -85,40 +84,8 @@ describe('Security Utils', () => {
         });
     });
 
-    describe('sanitizeInput', () => {
-        it('removes HTML tags', () => {
-            expect(sanitizeInput('<b>bold</b>')).not.toContain('<b>');
-            expect(sanitizeInput('<script>evil</script>')).not.toContain('<script>');
-        });
-
-        it('removes javascript: protocol', () => {
-            expect(sanitizeInput('javascript:alert(1)')).not.toContain('javascript:');
-        });
-
-        it('removes event handlers', () => {
-            expect(sanitizeInput('onclick=steal()')).not.toContain('onclick=');
-        });
-
-        it('removes data: URLs', () => {
-            expect(sanitizeInput('data:text/html,<script>alert(1)</script>')).not.toContain('data:');
-        });
-
-        it('encodes dangerous HTML entities', () => {
-            const result = sanitizeInput('<>&"\'');
-            expect(result).toContain('&lt;');
-            expect(result).toContain('&gt;');
-            expect(result).toContain('&amp;');
-        });
-
-        it('trims whitespace', () => {
-            expect(sanitizeInput('  hello  ')).toBe('hello');
-        });
-
-        it('returns empty string for non-strings', () => {
-            expect(sanitizeInput(123)).toBe('');
-            expect(sanitizeInput(null)).toBe('');
-        });
-    });
+    // sanitizeInput tests removed — sanitizeHTML/sanitizeInput moved to sanitize.ts
+    // DOMPurify dependency removed from project. If re-added, create sanitize.test.ts.
 
     describe('isDisposableEmail', () => {
         it('returns true for known disposable domains', () => {

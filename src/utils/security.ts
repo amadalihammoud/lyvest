@@ -4,7 +4,8 @@
  * Sistema robusto de proteção contra ataques comuns
  */
 
-import DOMPurify from 'dompurify';
+// DOMPurify removed from top-level import — saves ~17KB gzip from ALL chunks
+// that import ANY export from this file. sanitizeHTML/sanitizeInput moved to sanitize.ts
 
 // Tipos
 interface RateLimiterData {
@@ -101,33 +102,9 @@ export class RateLimiter {
     }
 }
 
-/**
- * Sanitiza HTML usando DOMPurify
- * Remove scripts e código malicioso
- */
-export function sanitizeHTML(input: string, allowTags: boolean = false): string {
-    if (typeof input !== 'string') return '';
-
-    const config = allowTags
-        ? {
-            ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'p'],
-            ALLOWED_ATTR: [],
-        }
-        : {
-            ALLOWED_TAGS: [],
-            ALLOWED_ATTR: [],
-            KEEP_CONTENT: true,
-        };
-
-    return DOMPurify.sanitize(input, config).trim();
-}
-
-/**
- * Sanitiza input para texto puro (remove todas as tags)
- */
-export function sanitizeInput(input: string): string {
-    return sanitizeHTML(input, false);
-}
+// sanitizeHTML and sanitizeInput moved to src/utils/sanitize.ts
+// to avoid pulling DOMPurify (~17KB) into every chunk that imports security.ts
+// Import from '@/utils/sanitize' if needed.
 
 /**
  * Detecta padrões de XSS em uma string
@@ -257,8 +234,6 @@ export const formLimiter = new RateLimiter('form', 10, 60000);   // 10 submissõ
 
 export default {
     RateLimiter,
-    sanitizeHTML,
-    sanitizeInput,
     detectXSS,
     generateCSRFToken,
     generateNonce,
