@@ -88,6 +88,8 @@ export default function RootLayout({
         <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
             <head>
                 <link rel="preconnect" href="https://lyvest.com.br" />
+                {/* DNS-prefetch for third-party origins — preconnect too expensive for non-critical */}
+                <link rel="dns-prefetch" href="https://img.clerk.com" />
                 <link rel="icon" type="image/png" href="/logo.png" />
                 <link rel="manifest" href="/manifest.json" />
 
@@ -115,6 +117,24 @@ export default function RootLayout({
                 <style dangerouslySetInnerHTML={{
                     __html: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff;overflow-x:hidden}img,video{max-width:100%;height:auto;display:block}.container{width:100%;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}@media(min-width:1024px){.container{max-width:1280px}}.flex{display:flex}.flex-col{display:flex;flex-direction:column}.min-h-screen{min-height:100vh}.flex-grow{flex-grow:1}@media(min-width:768px){.mobile-only{display:none!important}}@media(max-width:767.98px){.desktop-only{display:none!important}}`
                 }} />
+
+                {/* Speculation Rules — prefetch likely navigation targets during idle time.
+                    Chromium 109+, gracefully ignored by other browsers. */}
+                <script
+                    type="speculationrules"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            prefetch: [{
+                                source: "document",
+                                where: { and: [
+                                    { href_matches: "/*" },
+                                    { not: { href_matches: ["/checkout*", "/dashboard*", "/api/*", "/sign-*"] } }
+                                ]},
+                                eagerness: "moderate"
+                            }]
+                        })
+                    }}
+                />
             </head>
             <body className="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
                 <ClientLayout>

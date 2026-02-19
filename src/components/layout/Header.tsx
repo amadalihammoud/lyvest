@@ -114,7 +114,7 @@ export default function Header(_props?: HeaderProps) {
     const isCheckout = pathname === '/checkout';
 
     return (
-        <header className="sticky top-0 z-50 bg-white transition-all shadow-sm" role="banner" dir="ltr">
+        <header className="sticky top-0 z-50 bg-white transition-shadow shadow-sm" role="banner" dir="ltr">
             <div className="container mx-auto px-4 py-2 lg:py-4">
                 <a href="#main-content" className="sr-only focus:not-sr-only bg-white text-lyvest-500 px-4 py-2 absolute z-[100] top-0 left-0 shadow-md">
                     {t('a11y.skipToContent') || 'Pular para o conteúdo principal'}

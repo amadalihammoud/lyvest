@@ -66,7 +66,29 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // Network First for everything else (HTML pages)
+    // Stale-While-Revalidate for category/product pages (fast repeat visits)
+    if (
+        url.pathname.startsWith('/categoria/') ||
+        url.pathname.startsWith('/produto/') ||
+        url.pathname === '/'
+    ) {
+        event.respondWith(
+            caches.match(event.request).then(cachedResponse => {
+                const fetchPromise = fetch(event.request).then(networkResponse => {
+                    if (networkResponse.status === 200 && networkResponse.type === 'basic') {
+                        caches.open(RUNTIME_CACHE).then(cache => {
+                            cache.put(event.request, networkResponse.clone());
+                        });
+                    }
+                    return networkResponse;
+                }).catch(() => cachedResponse || caches.match('/offline.html'));
+                return cachedResponse || fetchPromise;
+            })
+        );
+        return;
+    }
+
+    // Network First for checkout/dashboard/other pages (always fresh)
     event.respondWith(
         fetch(event.request)
             .then(response => {
