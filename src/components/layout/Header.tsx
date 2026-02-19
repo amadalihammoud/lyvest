@@ -1,5 +1,5 @@
 ﻿'use client';
-import { useState, useEffect, useTransition, ChangeEvent, Suspense } from 'react';
+import { useState, useEffect, ChangeEvent, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -255,7 +255,7 @@ export default function Header(_props?: HeaderProps) {
                         >
                             <ShoppingBag className="w-5 h-5 sm:w-7 sm:h-7 text-lyvest-500 group-hover:text-lyvest-600 transition-colors" />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-lyvest-500 text-white text-[10px] sm:text-xs font-bold w-4 h-4 sm:w-6 sm:h-6 flex items-center justify-center rounded-full shadow-sm animate-pulse">
+                                <span className="absolute -top-1 -right-1 bg-lyvest-500 text-white text-[10px] sm:text-xs font-bold w-4 h-4 sm:w-6 sm:h-6 flex items-center justify-center rounded-full shadow-sm">
                                     {cartCount}
                                 </span>
                             )}

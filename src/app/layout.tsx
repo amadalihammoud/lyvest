@@ -1,8 +1,14 @@
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Lato, Cookie } from 'next/font/google';
 import '@/index.css';
 import ClientLayout from '@/components/layout/ClientLayout';
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    themeColor: '#800020',
+};
 
 // Font configuration with display: swap for better FCP
 // Inter font removed — Lato is the primary font, Inter was unused
@@ -83,7 +89,7 @@ export default function RootLayout({
             <head>
                 <link rel="preconnect" href="https://lyvest.com.br" />
                 <link rel="dns-prefetch" href="https://lyvest.com.br" />
-                <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+                <link rel="icon" type="image/png" href="/logo.png" />
 
                 {/* PRELOAD HERO IMAGES — imagesrcset lets browser pick correct width for device DPR */}
                 <link

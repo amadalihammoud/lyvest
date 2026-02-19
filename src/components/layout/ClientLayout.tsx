@@ -86,7 +86,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 ) : (
                     <HeaderSkeleton />
                 )}
-                <main className="flex-grow">
+                <main id="main-content" className="flex-grow">
                     {children}
                 </main>
 
