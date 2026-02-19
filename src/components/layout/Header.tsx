@@ -139,7 +139,6 @@ export default function Header(_props?: HeaderProps) {
                                 width={166}
                                 height={64}
                                 className="h-16 md:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105"
-                                priority
                             />
                         </Link>
                     </div>

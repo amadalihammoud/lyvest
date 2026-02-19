@@ -48,7 +48,7 @@ function Hero() {
                                                     alt: slide.alt,
                                                     fill: true,
                                                     sizes: "(max-width: 767px) 100vw, (max-width: 1400px) 100vw, 1400px",
-                                                    quality: 85,
+                                                    quality: 75,
                                                     priority: isLcp,
                                                 };
 

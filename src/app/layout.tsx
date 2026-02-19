@@ -81,6 +81,7 @@ export default function RootLayout({
     return (
         <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
             <head>
+                <link rel="preconnect" href="https://lyvest.com.br" />
                 <link rel="dns-prefetch" href="https://lyvest.com.br" />
                 <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
@@ -89,7 +90,7 @@ export default function RootLayout({
                     rel="preload"
                     as="image"
                     type="image/webp"
-                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=640&q=85 640w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=750&q=85 750w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=828&q=85 828w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1080&q=85 1080w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1200&q=85 1200w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1920&q=85 1920w"
+                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=640&q=75 640w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=750&q=75 750w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=828&q=75 828w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1080&q=75 1080w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1200&q=75 1200w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1920&q=75 1920w"
                     imageSizes="100vw"
                     media="(max-width: 767px)"
                     fetchPriority="high"
@@ -98,7 +99,7 @@ export default function RootLayout({
                     rel="preload"
                     as="image"
                     type="image/webp"
-                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1.webp&w=640&q=85 640w, /_next/image?url=%2Fbanner-slide-1.webp&w=750&q=85 750w, /_next/image?url=%2Fbanner-slide-1.webp&w=828&q=85 828w, /_next/image?url=%2Fbanner-slide-1.webp&w=1080&q=85 1080w, /_next/image?url=%2Fbanner-slide-1.webp&w=1200&q=85 1200w, /_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=85 1920w"
+                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1.webp&w=640&q=75 640w, /_next/image?url=%2Fbanner-slide-1.webp&w=750&q=75 750w, /_next/image?url=%2Fbanner-slide-1.webp&w=828&q=75 828w, /_next/image?url=%2Fbanner-slide-1.webp&w=1080&q=75 1080w, /_next/image?url=%2Fbanner-slide-1.webp&w=1200&q=75 1200w, /_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=75 1920w"
                     imageSizes="(max-width: 1400px) 100vw, 1400px"
                     media="(min-width: 768px)"
                     fetchPriority="high"
