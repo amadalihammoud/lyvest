@@ -94,24 +94,6 @@ export default function RootLayout({
                 <link rel="icon" type="image/png" href="/logo.png" />
                 <link rel="manifest" href="/manifest.json" />
 
-                {/* PRELOAD HERO IMAGES DIRECTLY - bypassing /_next/image proxy for pure CDN LCP speed */}
-                <link
-                    rel="preload"
-                    as="image"
-                    type="image/webp"
-                    href="/banner-slide-1-mobile.webp"
-                    media="(max-width: 767px)"
-                    fetchPriority="high"
-                />
-                <link
-                    rel="preload"
-                    as="image"
-                    type="image/webp"
-                    href="/banner-slide-1.webp"
-                    media="(min-width: 768px)"
-                    fetchPriority="high"
-                />
-
                 {/* Speculation Rules — prefetch likely navigation targets during idle time.
                     Chromium 109+, gracefully ignored by other browsers. */}
                 <script
