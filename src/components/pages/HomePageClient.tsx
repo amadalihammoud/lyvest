@@ -17,6 +17,7 @@ import dynamic from 'next/dynamic';
 
 // Lazy load below-the-fold components — ssr: false to isolate heavy deps like Zod
 const NewsletterForm = dynamic(() => import('@/components/features/NewsletterForm'), { ssr: false });
+const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: false });
 
 // 1. Dynamic Component: Handles URL params and Product Grid
 function ProductShowcase() {
@@ -174,7 +175,12 @@ export default function HomePageClient() {
                 <ProductShowcase />
             </Suspense>
 
-            {/* Testimonials removed (rendered in page.tsx) */}
+            {/* Testimonials moved here with ssr: false for JS diet */}
+            <div className="cv-auto-sm">
+                <Suspense fallback={<div className="h-64 bg-sky-50/30" />}>
+                    <Testimonials />
+                </Suspense>
+            </div>
 
             {/* Newsletter — cv-auto-sm skips rendering until scrolled into view */}
             <section className="py-20 bg-[#FDF5F5] cv-auto-sm">

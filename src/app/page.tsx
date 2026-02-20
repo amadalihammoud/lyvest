@@ -16,9 +16,9 @@ export const metadata: Metadata = {
     },
 };
 
-// Lazy load viewport-dependent components — ssr: false to purge their JS from initial mobile bundle
-const HomePageClient = dynamic(() => import('@/components/pages/HomePageClient'), { ssr: false });
-const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: false });
+// Lazy load viewport-dependent components
+const HomePageClient = dynamic(() => import('@/components/pages/HomePageClient'), { ssr: true });
+const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: true });
 // Footer removed from here as it is in ClientLayout (now lazy)
 
 export default async function HomePage() {
@@ -34,13 +34,6 @@ export default async function HomePage() {
             <div className="container mx-auto px-4 py-8 lg:py-12 cv-auto">
                 <Suspense fallback={<div className="h-96 md:h-[600px] bg-slate-50 rounded-xl" />}>
                     <HomePageClient />
-                </Suspense>
-            </div>
-
-            {/* Non-Critical: Lazy Loaded — cv-auto-sm for smaller section */}
-            <div className="cv-auto-sm">
-                <Suspense fallback={<div className="h-64 bg-sky-50/30" />}>
-                    <Testimonials />
                 </Suspense>
             </div>
         </main>
