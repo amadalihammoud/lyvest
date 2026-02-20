@@ -61,7 +61,7 @@ function Hero() {
                                                         fetchPriority="high"
                                                         decoding="sync"
                                                         loading="eager"
-                                                        className="object-fill sm:object-cover sm:rounded-2xl w-full h-full absolute inset-0"
+                                                        className="object-cover object-center sm:rounded-2xl w-full h-full absolute inset-0"
                                                     />
                                                 </picture>
                                             ) : (
@@ -97,7 +97,7 @@ function Hero() {
                                                                 {...desktopProps}
                                                                 loading="lazy"
                                                                 decoding="async"
-                                                                className="object-fill sm:object-cover w-full h-full sm:rounded-2xl absolute inset-0"
+                                                                className="object-cover object-center w-full h-full sm:rounded-2xl absolute inset-0"
                                                             />
                                                         </picture>
                                                     );
