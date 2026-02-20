@@ -13,10 +13,10 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { useModal } from '@/context/ModalContext';
 import { Smile } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
+import dynamic from 'next/dynamic';
 
-// Lazy load below-the-fold components
-// TestimonialsSection moved to page.tsx
-const NewsletterForm = lazy(() => import('@/components/features/NewsletterForm'));
+// Lazy load below-the-fold components — ssr: false to isolate heavy deps like Zod
+const NewsletterForm = dynamic(() => import('@/components/features/NewsletterForm'), { ssr: false });
 
 // 1. Dynamic Component: Handles URL params and Product Grid
 function ProductShowcase() {

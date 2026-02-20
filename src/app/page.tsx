@@ -16,9 +16,9 @@ export const metadata: Metadata = {
     },
 };
 
-// Lazy load viewport-dependent components
-const HomePageClient = dynamic(() => import('@/components/pages/HomePageClient'), { ssr: true });
-const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: true });
+// Lazy load viewport-dependent components — ssr: false to purge their JS from initial mobile bundle
+const HomePageClient = dynamic(() => import('@/components/pages/HomePageClient'), { ssr: false });
+const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: false });
 // Footer removed from here as it is in ClientLayout (now lazy)
 
 export default async function HomePage() {
