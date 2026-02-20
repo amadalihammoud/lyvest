@@ -34,7 +34,7 @@ function Hero() {
                            - Snap points for perfect alignment
                         */}
                         <div
-                            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[4/5] sm:aspect-[1024/329]"
+                            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[3/4] sm:aspect-[1024/329]"
                             style={{
                                 minHeight: '200px',
                             }}
@@ -61,7 +61,7 @@ function Hero() {
                                                         fetchPriority="high"
                                                         decoding="sync"
                                                         loading="eager"
-                                                        className="object-cover sm:rounded-2xl w-full h-full absolute inset-0"
+                                                        className="object-contain sm:object-cover object-left sm:object-center sm:rounded-2xl w-full h-full absolute inset-0"
                                                     />
                                                 </picture>
                                             ) : (
@@ -97,7 +97,7 @@ function Hero() {
                                                                 {...desktopProps}
                                                                 loading="lazy"
                                                                 decoding="async"
-                                                                className="object-cover w-full h-full sm:rounded-2xl absolute inset-0"
+                                                                className="object-contain sm:object-cover object-left sm:object-center w-full h-full sm:rounded-2xl absolute inset-0"
                                                             />
                                                         </picture>
                                                     );
