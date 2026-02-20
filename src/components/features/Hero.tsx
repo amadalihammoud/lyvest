@@ -30,7 +30,14 @@ function Hero() {
                            - Native swiping experience
                            - Snap points for perfect alignment
                         */}
-                        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide aspect-[1.67/1] min-h-[200px] sm:h-[270px] md:h-[380px] lg:h-[450px] w-full rounded-xl sm:rounded-3xl">
+                        <div
+                            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full rounded-xl sm:rounded-3xl"
+                            style={{
+                                aspectRatio: '1.67 / 1',
+                                minHeight: '200px',
+                                height: 'auto'
+                            }}
+                        >
                             {slides.map((slide, index) => {
                                 const mobileImage = slide.image.replace('.webp', '-mobile.webp');
                                 const desktopImage = slide.image;

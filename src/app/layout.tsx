@@ -87,9 +87,10 @@ export default function RootLayout({
     return (
         <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
             <head>
-                <link rel="preconnect" href="https://lyvest.com.br" />
-                {/* DNS-prefetch for third-party origins — preconnect too expensive for non-critical */}
+                {/* DNS-prefetch for non-critical third-party origins */}
                 <link rel="dns-prefetch" href="https://img.clerk.com" />
+                <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
+                <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
                 <link rel="icon" type="image/png" href="/logo.png" />
                 <link rel="manifest" href="/manifest.json" />
 
@@ -111,9 +112,23 @@ export default function RootLayout({
                     fetchPriority="high"
                 />
 
-                {/* CRITICAL CSS INLINE — minimal reset only */}
+                {/* DEFER MAIN CSS to prevent 960ms render blocking on Mobile */}
+                <link
+                    rel="stylesheet"
+                    href="/index.css"
+                    id="main-stylesheet"
+                    media="print"
+                />
+                <script dangerouslySetInnerHTML={{
+                    __html: `document.getElementById('main-stylesheet').addEventListener('load', function() { this.media='all'; })`
+                }} />
+                <noscript>
+                    <link rel="stylesheet" href="/index.css" />
+                </noscript>
+
+                {/* CRITICAL CSS INLINE — Essential layout styles only to avoid FOUC */}
                 <style dangerouslySetInnerHTML={{
-                    __html: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.5;color:#1a1a1a;background:#FDF5F5;overflow-x:hidden}img,video{max-width:100%;height:auto;display:block}`
+                    __html: `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;font-family:var(--font-lato),system-ui,-apple-system,sans-serif;line-height:1.5;color:#1e293b;background:#FDF5F5;overflow-x:hidden}.flex{display:flex}.flex-col{flex-direction:column}.container{width:100%;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}@media (min-width: 640px){.container{max-width:640px}}@media (min-width: 768px){.container{max-width:768px}}@media (min-width: 1024px){.container{max-width:1024px}}@media (min-width: 1280px){.container{max-width:1280px}}@media (min-width: 1536px){.container{max-width:1440px}}.bg-lyvest-500{background-color:#800020}.font-cookie{font-family:var(--font-cookie),cursive}.relative{position:relative}.overflow-hidden{overflow:hidden}.hidden{display:none}@media (min-width: 768px){.md\\:block{display:block}.md\\:grid{display:grid}.md\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\\:-mt-12{margin-top:-3rem}}.lg\\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}img{max-width:100%;height:auto;display:block}`
                 }} />
 
                 {/* Speculation Rules — prefetch likely navigation targets during idle time.
