@@ -93,6 +93,7 @@ export default function OptimizedProductImage({
                 priority={priority}
                 sizes={sizes}
                 className={`object-cover bg-slate-50 relative z-10 ${className}`}
+                onLoad={handleLoad}
                 onError={(e) => {
                     console.error(`Image load error for ${src}`, e);
                     setHasError(true);
