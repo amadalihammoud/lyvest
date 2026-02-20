@@ -1,123 +1,136 @@
-import * as Sentry from '@sentry/react';
-
 /**
- * Configuração do Sentry para Monitoramento de Erros
- * 
- * Captura erros em produção e envia relatórios detalhados
- * incluindo stack traces, contexto do usuário e breadcrumbs
+ * Configuração do Sentry para Monitoramento de Erros (Lazy Loaded)
  */
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const sentryDSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const environment = process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT || 'production';
 
-export function initSentry() {
-    // Só inicializar em produção e se DSN estiver configurado
+// Placeholder for the Sentry instance
+let SentryInstance: any = null;
+
+/**
+ * Carrega o SDK do Sentry de forma assíncrona
+ */
+async function loadSentry() {
+    if (SentryInstance) return SentryInstance;
+
+    // Import dinâmico — tira o Sentry do bundle principal
+    const Sentry = await import('@sentry/react');
+    SentryInstance = Sentry;
+    return Sentry;
+}
+
+export async function initSentry() {
     if (isDevelopment || !sentryDSN) {
         console.log('[Sentry] Desabilitado em desenvolvimento');
         return;
     }
 
-    Sentry.init({
-        dsn: sentryDSN,
-        environment,
+    try {
+        const Sentry = await loadSentry();
 
-        // Taxa de amostragem de traces de performance (10%)
-        tracesSampleRate: 0.1,
+        Sentry.init({
+            dsn: sentryDSN,
+            environment,
+            tracesSampleRate: 0.1,
+            replaysSessionSampleRate: 0.1,
+            replaysOnErrorSampleRate: 1.0,
+            integrations: [
+                Sentry.replayIntegration({
+                    maskAllText: false,
+                    blockAllMedia: false,
+                }),
+                Sentry.browserTracingIntegration(),
+                Sentry.feedbackIntegration({
+                    colorScheme: 'light',
+                    showBranding: false,
+                }),
+            ],
+            ignoreErrors: [
+                'ResizeObserver loop limit exceeded',
+                'Non-Error promise rejection captured',
+                'chrome-extension://',
+                'moz-extension://',
+                'NetworkError',
+                'Failed to fetch',
+            ],
+            beforeSend(event: any) {
+                if (event.user) {
+                    delete event.user.email;
+                    delete event.user.ip_address;
+                }
+                return event;
+            },
+        });
 
-        // Taxa de amostragem de replays de sessão (10% em erros)
-        replaysSessionSampleRate: 0.1,
-        replaysOnErrorSampleRate: 1.0,
-
-        integrations: [
-            // Replay de sessão para ver o que o usuário fez antes do erro
-            Sentry.replayIntegration({
-                maskAllText: false,
-                blockAllMedia: false,
-            }),
-
-            // Tracking de browser
-            Sentry.browserTracingIntegration(),
-
-            // Feedback do usuário
-            Sentry.feedbackIntegration({
-                colorScheme: 'light',
-                showBranding: false,
-            }),
-        ],
-
-        // Ignorar erros conhecidos
-        ignoreErrors: [
-            // Erros do browser
-            'ResizeObserver loop limit exceeded',
-            'Non-Error promise rejection captured',
-
-            // Erros de extensões
-            'chrome-extension://',
-            'moz-extension://',
-
-            // Erros de rede comuns
-            'NetworkError',
-            'Failed to fetch',
-        ],
-
-        // Antes de enviar o erro, adicionar contexto adicional
-        beforeSend(event) {
-            // Adicionar informações personalizadas
-            if (event.user) {
-                // Remover informações sensíveis
-                delete event.user.email;
-                delete event.user.ip_address;
-            }
-
-            return event;
-        },
-    });
-
-    console.log('[Sentry] Inicializado com sucesso');
+        console.log('[Sentry] Inicializado com sucesso (Lazy)');
+    } catch (err) {
+        console.error('[Sentry] Falha ao inicializar:', err);
+    }
 }
 
 /**
  * Capturar erro manualmente
  */
-export function captureError(error: Error, context?: Record<string, any>) {
+export async function captureError(error: Error, context?: Record<string, any>) {
     if (isDevelopment) {
         console.error('[Sentry Dev]', error, context);
         return;
     }
 
-    Sentry.captureException(error, {
-        extra: context,
-    });
+    try {
+        const Sentry = await loadSentry();
+        Sentry.captureException(error, {
+            extra: context,
+        });
+    } catch (err) {
+        console.error('Falha ao reportar erro ao Sentry:', error);
+    }
 }
 
 /**
  * Adicionar breadcrumb (navegação do usuário)
  */
-export function addBreadcrumb(message: string, data?: Record<string, any>) {
-    Sentry.addBreadcrumb({
-        message,
-        data,
-        level: 'info',
-    });
+export async function addBreadcrumb(message: string, data?: Record<string, any>) {
+    try {
+        const Sentry = await loadSentry();
+        Sentry.addBreadcrumb({
+            message,
+            data,
+            level: 'info',
+        });
+    } catch (err) {
+        // Silently fail for breadcrumbs
+    }
 }
 
 /**
  * Definir contexto do usuário
  */
-export function setUserContext(user: { id: string; email?: string; username?: string }) {
-    Sentry.setUser({
-        id: user.id,
-        username: user.username,
-        // Email é omitido por privacidade
-    });
+export async function setUserContext(user: { id: string; email?: string; username?: string }) {
+    try {
+        const Sentry = await loadSentry();
+        Sentry.setUser({
+            id: user.id,
+            username: user.username,
+        });
+    } catch (err) {
+        // Fail silently
+    }
 }
 
 /**
  * Limpar contexto do usuário (logout)
  */
-export function clearUserContext() {
-    Sentry.setUser(null);
+export async function clearUserContext() {
+    try {
+        const Sentry = await loadSentry();
+        Sentry.setUser(null);
+    } catch (err) {
+        // Fail silently
+    }
 }
 
-export default Sentry;
+// Export default as null or a proxy if needed, but better to use named exports
+export default null;

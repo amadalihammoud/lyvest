@@ -1,7 +1,8 @@
 ﻿'use client';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { MapPin, User, Phone, Check, AlertCircle, FileText, LucideIcon } from 'lucide-react';
-import { addressSchema, validateForm, formatCEP, formatPhone, formatDocument, sanitizeString } from '../../utils/validation';
+import { formatCEP, formatPhone, formatDocument, sanitizeString } from '../../utils/validation';
+import { addressSchema, validateForm } from '../../utils/schemas';
 import { detectXSS } from '../../utils/security';
 import { useI18n } from '../../hooks/useI18n';
 

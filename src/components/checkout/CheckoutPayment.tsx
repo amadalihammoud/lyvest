@@ -1,7 +1,8 @@
 ﻿'use client';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { CreditCard, QrCode, AlertCircle, Lock } from 'lucide-react';
-import { paymentSchema, formatCardNumber, validateForm } from '../../utils/validation';
+import { formatCardNumber } from '../../utils/validation';
+import { paymentSchema, validateForm } from '../../utils/schemas';
 import { RateLimiter, detectXSS } from '../../utils/security';
 import { paymentService } from '../../services/payment';
 import { useI18n } from '../../hooks/useI18n';

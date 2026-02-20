@@ -112,6 +112,14 @@ interface FavoritesProviderProps {
     children: ReactNode;
 }
 
+/**
+ * Carrega o cliente Supabase de forma assíncrona
+ */
+async function loadSupabase() {
+    const mod = await import('../lib/supabase');
+    return mod;
+}
+
 export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
     // Inicializar vazio - será preenchido pelo useEffect no cliente
     const [favorites, setFavorites] = useState<(number | string)[]>([]);
@@ -139,8 +147,11 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
 
     // Helper para adicionar ao Supabase (Exportado para uso no Sync ou wrapper)
     const addToSupabase = async (productId: string, userId: string) => {
-        if (!userId || !isSupabaseConfigured() || !isUuid(productId)) return;
+        if (!userId || !isUuid(productId)) return;
         try {
+            const { supabase, isSupabaseConfigured } = await loadSupabase();
+            if (!isSupabaseConfigured()) return;
+
             await supabase.from('favorites').insert({
                 user_id: userId,
                 product_id: productId
@@ -152,8 +163,11 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
 
     // Helper para remover do Supabase
     const removeFromSupabase = async (productId: string, userId: string) => {
-        if (!userId || !isSupabaseConfigured() || !isUuid(productId)) return;
+        if (!userId || !isUuid(productId)) return;
         try {
+            const { supabase, isSupabaseConfigured } = await loadSupabase();
+            if (!isSupabaseConfigured()) return;
+
             await supabase
                 .from('favorites')
                 .delete()
@@ -166,9 +180,12 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
 
     // Necessário expor funções de sync para o componente filho
     const syncWithUser = useCallback(async (user: any) => {
-        if (!user || !isSupabaseConfigured()) return;
+        if (!user) return;
 
         try {
+            const { supabase, isSupabaseConfigured } = await loadSupabase();
+            if (!isSupabaseConfigured()) return;
+
             // A. Buscar favoritos remotos
             const { data: remoteFavorites, error } = await supabase
                 .from('favorites')

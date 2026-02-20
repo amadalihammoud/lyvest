@@ -1,7 +1,7 @@
 ﻿// src/components/features/NewsletterForm.tsx
 import React, { useState, useCallback } from 'react';
 import { Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { newsletterSchema, validateForm } from '../../utils/validation';
+import { validateForm, newsletterSchema } from '../../utils/schemas';
 import { RateLimiter, createHoneypot, detectXSS } from '../../utils/security';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useI18n } from '../../hooks/useI18n';
