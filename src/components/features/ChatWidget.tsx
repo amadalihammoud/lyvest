@@ -54,7 +54,7 @@ export default function ChatWidget() {
             {/* Floating Action Button */}
             <button
                 onClick={() => setIsOpen(true)}
-                className={`fixed bottom-24 right-6 z-[95] flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#800020] focus:ring-offset-2 bg-[#800020] text-white
+                className={`fixed bottom-32 sm:bottom-24 right-6 z-[95] flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#800020] focus:ring-offset-2 bg-[#800020] text-white
                     ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
                 aria-label="Falar com a Ly"
             >

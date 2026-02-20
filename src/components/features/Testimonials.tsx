@@ -1,110 +1,78 @@
 'use client';
-import { useState, useRef } from 'react';
+import React from 'react';
+import { useI18n } from '../../hooks/useI18n';
+import { Quote, Star } from 'lucide-react';
 
 interface TestimonialItem {
     id: number;
     name: string;
-    occupation: string;
-    quote: string;
-    initials: string;
-    color: string;
+    role: string;
+    content: string;
+    rating: number;
 }
 
 const Testimonials = () => {
+    const { t } = useI18n();
     // Mock user for "Ana Silva" matches the screenshot provided by user usually
     const testimonials: TestimonialItem[] = [
         {
             id: 1,
-            name: "Ana Clara",
-            occupation: "Estudante de Medicina",
-            quote: "O Planner Bloom salvou o meu semestre! A qualidade do papel é incrível, posso usar as minhas canetas brush sem medo.",
-            initials: "AC",
-            color: "#A2D2FF" // Sky blue from screenshot
+            name: "Mariana Silva",
+            role: "Cliente Verificada",
+            content: "As lingeries são maravilhosas, o tecido abraça o corpo e não marca absolutamente nada nas roupas. Já virei fã e recomendo para todas as amigas!",
+            rating: 5,
         },
         {
             id: 2,
-            name: "Mariana Costa",
-            occupation: "Designer",
-            quote: "Adorei o design e os detalhes. Perfeito para presentear! A entrega foi super rápida.",
-            initials: "MC",
-            color: "#FFB7C5" // Pink
+            name: "Juliana Costa",
+            role: "Cliente Verificada",
+            content: "Simplesmente apaixonada pelo conforto dos pijamas! Chegou super rápido e a embalagem é um capricho, dá para ver o carinho da Ly Vest em cada detalhe.",
+            rating: 5,
         },
         {
             id: 3,
-            name: "Juliana Mendes",
-            occupation: "Pediatra",
-            quote: "Como médica, valorizo muito roupas de qualidade. Ly Vest superou minhas expectativas!",
-            initials: "JM",
-            color: "#FFA502" // Orange
+            name: "Carolina Mendes",
+            role: "Cliente Verificada",
+            content: "Como médica, valorizo muito roupas de qualidade. Ly Vest superou minhas expectativas!",
+            rating: 5
         }
     ];
 
-    const [activeIndex, setActiveIndex] = useState(0);
-    const scrollRef = useRef<HTMLDivElement>(null);
-
-    const handleScroll = () => {
-        if (scrollRef.current) {
-            const scrollLeft = scrollRef.current.scrollLeft;
-            const width = scrollRef.current.offsetWidth;
-            const index = Math.round(scrollLeft / width);
-            setActiveIndex(index);
-        }
-    };
-
     return (
-        <section className="py-8 md:py-16 bg-[#FDF5F5]">
-            <div className="container mx-auto px-4 max-w-6xl">
-                <div className="text-center mb-8 md:mb-12">
-                    {/* Title optimized for mobile single line */}
-                    <h2 className="text-[17px] md:text-3xl font-extrabold text-slate-800 mb-2 whitespace-nowrap overflow-hidden text-ellipsis">
-                        Quem comprou, amou! 💖
+        <section className="py-16 bg-[#F5E6E8]">
+            <div className="container mx-auto px-4">
+                <div className="text-center mb-12 animate-fade-in">
+                    <h2 className="text-3xl md:text-4xl font-cookie text-lyvest-500 mb-4">
+                        {t('home.testimonials.title')}
                     </h2>
-                    <p className="text-slate-700 text-sm md:text-base hidden md:block">
-                        Veja o que nossos clientes estão dizendo sobre os produtos.
-                    </p>
-                    {/* Mobile subtitle if needed, or hide as per concise request */}
-                    <p className="text-slate-700 text-xs md:hidden px-4">
-                        Veja o que nossos clientes estão dizendo.
+                    <p className="text-slate-600 max-w-2xl mx-auto">
+                        {t('home.testimonials.subtitle')}
                     </p>
                 </div>
 
-                {/* Carousel Container */}
-                <div
-                    ref={scrollRef}
-                    onScroll={handleScroll}
-                    className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 scrollbar-hide px-4 md:px-0 -mx-4 md:mx-0"
-                >
-                    {testimonials.map((testimonial) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {testimonials.map((item, index) => (
                         <div
-                            key={testimonial.id}
-                            className="h-full min-w-[85vw] md:min-w-0 snap-center bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center transition-transform hover:-translate-y-1 duration-300"
+                            key={item.id}
+                            className={`bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative animate-fade-in`}
+                            style={{ animationDelay: `${index * 150}ms` }}
                         >
-                            <div
-                                className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-slate-800 mb-4 shadow-sm"
-                                style={{ backgroundColor: testimonial.color }}
-                            >
-                                {testimonial.initials}
+                            <Quote className="absolute top-6 right-6 w-8 h-8 text-slate-100" />
+                            <div className="flex gap-1 text-yellow-400 mb-4">
+                                {[...Array(item.rating)].map((_, i) => (
+                                    <Star key={i} className="w-4 h-4 fill-current" />
+                                ))}
                             </div>
-
-                            <p className="text-slate-700 italic mb-6 leading-relaxed flex-1 text-sm md:text-base">
-                                "{testimonial.quote}"
+                            <p className="text-slate-600 mb-6 italic relative z-10 leading-relaxed">
+                                "{item.content}"
                             </p>
-
-                            <div className="mt-auto">
-                                <h3 className="font-bold text-slate-800">{testimonial.name}</h3>
-                                <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">{testimonial.occupation}</p>
+                            <div className="flex items-center gap-4">
+                                <div>
+                                    <h4 className="font-bold text-slate-800">{item.name}</h4>
+                                    <p className="text-sm text-slate-500">{item.role}</p>
+                                </div>
                             </div>
                         </div>
-                    ))}
-                </div>
-
-                {/* Indicators / Dots (Mobile Only) */}
-                <div className="flex justify-center gap-2 mt-4 md:hidden">
-                    {testimonials.map((_, index) => (
-                        <div
-                            key={index}
-                            className={`h-2 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-6 bg-lyvest-500' : 'w-2 bg-slate-200'}`}
-                        />
                     ))}
                 </div>
             </div>
@@ -112,7 +80,6 @@ const Testimonials = () => {
     );
 };
 
-export default Testimonials;
 
 
 
