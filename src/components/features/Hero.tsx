@@ -42,43 +42,58 @@ function Hero() {
                                         className="snap-center flex-shrink-0 w-full h-full relative"
                                     >
                                         <div className="relative h-full w-full sm:bg-white/60 sm:p-4 sm:rounded-3xl sm:border sm:border-white/50 sm:shadow-xl overflow-hidden">
-                                            {/* Art Direction with getImageProps for LCP optimization */}
-                                            {(() => {
-                                                const common = {
-                                                    alt: slide.alt,
-                                                    fill: true,
-                                                    sizes: "(max-width: 767px) 100vw, (max-width: 1400px) calc(100vw - 64px), 1336px",
-                                                    quality: 75,
-                                                    priority: isLcp,
-                                                };
+                                            {/* Art Direction with PURE HTML for LCP bypass Vercel Proxy */}
+                                            {isLcp ? (
+                                                <picture>
+                                                    <source media="(max-width: 767px)" srcSet={mobileImage} />
+                                                    <source media="(min-width: 768px)" srcSet={desktopImage} />
+                                                    <img
+                                                        src={desktopImage}
+                                                        alt={slide.alt}
+                                                        fetchPriority="high"
+                                                        decoding="sync"
+                                                        className="object-cover sm:rounded-2xl w-full h-full absolute inset-0"
+                                                    />
+                                                </picture>
+                                            ) : (
+                                                /* Fallback to Next.js Image for non-LCP (lazy loaded) */
+                                                (() => {
+                                                    const common = {
+                                                        alt: slide.alt,
+                                                        fill: true,
+                                                        sizes: "(max-width: 767px) 100vw, (max-width: 1400px) calc(100vw - 64px), 1336px",
+                                                        quality: 75,
+                                                        priority: false,
+                                                    };
 
-                                                const {
-                                                    props: { srcSet: mobileSrcSet, ...mobileProps },
-                                                } = getImageProps({
-                                                    ...common,
-                                                    src: mobileImage,
-                                                });
+                                                    const {
+                                                        props: { srcSet: mobileSrcSet, ...mobileProps },
+                                                    } = getImageProps({
+                                                        ...common,
+                                                        src: mobileImage,
+                                                    });
 
-                                                const {
-                                                    props: { srcSet: desktopSrcSet, ...desktopProps },
-                                                } = getImageProps({
-                                                    ...common,
-                                                    src: desktopImage,
-                                                });
+                                                    const {
+                                                        props: { srcSet: desktopSrcSet, ...desktopProps },
+                                                    } = getImageProps({
+                                                        ...common,
+                                                        src: desktopImage,
+                                                    });
 
-                                                return (
-                                                    <picture>
-                                                        <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
-                                                        <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
-                                                        <img
-                                                            {...desktopProps}
-                                                            fetchPriority={isLcp ? "high" : "auto"}
-                                                            className="object-cover sm:rounded-2xl"
-                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                        />
-                                                    </picture>
-                                                );
-                                            })()}
+                                                    return (
+                                                        <picture>
+                                                            <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
+                                                            <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
+                                                            <img
+                                                                {...desktopProps}
+                                                                loading="lazy"
+                                                                decoding="async"
+                                                                className="object-cover w-full h-full sm:rounded-2xl absolute inset-0"
+                                                            />
+                                                        </picture>
+                                                    );
+                                                })()
+                                            )}
                                         </div>
                                     </div>
                                 );

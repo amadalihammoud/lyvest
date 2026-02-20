@@ -93,13 +93,12 @@ export default function RootLayout({
                 <link rel="icon" type="image/png" href="/logo.png" />
                 <link rel="manifest" href="/manifest.json" />
 
-                {/* PRELOAD HERO IMAGES — imagesrcset lets browser pick correct width for device DPR */}
+                {/* PRELOAD HERO IMAGES DIRECTLY - bypassing /_next/image proxy for pure CDN LCP speed */}
                 <link
                     rel="preload"
                     as="image"
                     type="image/webp"
-                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1-mobile.webp&w=640&q=75 640w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=750&q=75 750w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=828&q=75 828w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1080&q=75 1080w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1200&q=75 1200w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1400&q=75 1400w, /_next/image?url=%2Fbanner-slide-1-mobile.webp&w=1920&q=75 1920w"
-                    imageSizes="100vw"
+                    href="/banner-slide-1-mobile.webp"
                     media="(max-width: 767px)"
                     fetchPriority="high"
                 />
@@ -107,8 +106,7 @@ export default function RootLayout({
                     rel="preload"
                     as="image"
                     type="image/webp"
-                    imageSrcSet="/_next/image?url=%2Fbanner-slide-1.webp&w=640&q=75 640w, /_next/image?url=%2Fbanner-slide-1.webp&w=750&q=75 750w, /_next/image?url=%2Fbanner-slide-1.webp&w=828&q=75 828w, /_next/image?url=%2Fbanner-slide-1.webp&w=1080&q=75 1080w, /_next/image?url=%2Fbanner-slide-1.webp&w=1200&q=75 1200w, /_next/image?url=%2Fbanner-slide-1.webp&w=1400&q=75 1400w, /_next/image?url=%2Fbanner-slide-1.webp&w=1920&q=75 1920w"
-                    imageSizes="(max-width: 1400px) calc(100vw - 64px), 1336px"
+                    href="/banner-slide-1.webp"
                     media="(min-width: 768px)"
                     fetchPriority="high"
                 />
