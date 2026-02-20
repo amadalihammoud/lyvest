@@ -50,11 +50,11 @@ const Testimonials = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="flex overflow-x-auto pb-6 -mx-4 px-4 gap-6 md:grid md:grid-cols-3 md:gap-8 snap-x snap-mandatory scrollbar-hide md:pb-0 md:mx-0 md:px-0">
                     {testimonials.map((item, index) => (
                         <div
                             key={item.id}
-                            className={`bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative animate-fade-in`}
+                            className={`bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative animate-fade-in snap-center min-w-[280px] md:min-w-0`}
                             style={{ animationDelay: `${index * 150}ms` }}
                         >
                             <Quote className="absolute top-6 right-6 w-8 h-8 text-slate-100" />
