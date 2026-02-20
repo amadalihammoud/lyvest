@@ -34,7 +34,7 @@ function Hero() {
                            - Snap points for perfect alignment
                         */}
                         <div
-                            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[1.2/1] sm:aspect-[2.1/1] lg:aspect-[2.4/1]"
+                            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[4/5] sm:aspect-[1024/329]"
                             style={{
                                 minHeight: '200px',
                             }}
