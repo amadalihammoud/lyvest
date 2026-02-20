@@ -112,43 +112,6 @@ export default function RootLayout({
                     fetchPriority="high"
                 />
 
-                {/* CRITICAL CSS INLINE — Essential layout styles to ensure NO render delay on LCP element */}
-                <style id="critical-css" dangerouslySetInnerHTML={{
-                    __html: `
-                        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-                        html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;background:#FDF5F5}
-                        body{margin:0;font-family:system-ui,-apple-system,sans-serif;line-height:1.5;color:#1e293b;background:#FDF5F5;overflow-x:hidden}
-                        .flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-center{justify-content:center}
-                        .container{width:100%;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}
-                        @media (min-width:640px){.container{max-width:640px}}
-                        @media (min-width:768px){.container{max-width:768px}}
-                        @media (min-width:1024px){.container{max-width:1440px}}
-                        .bg-lyvest-500{background-color:#800020}.relative{position:relative}.overflow-hidden{overflow:hidden}
-                        .h-16{height:4rem}.md\\:h-12{height:3rem}.w-auto{width:auto}
-                        .sticky{position:sticky}.top-0{top:0}.z-50{z-index:50}.bg-white{background-color:#fff}.shadow-sm{box-shadow:0 1px 2px 0 rgba(0,0,0,0.05)}
-                        .hero-mobile-compact{padding-top:0.5rem;padding-bottom:1.5rem}
-                        @media (min-width:1024px){.lg\\:pt-4{padding-top:1rem}.lg\\:pb-20{padding-bottom:5rem}}
-                        .inset-0{position:absolute;top:0;right:0;bottom:0;left:0}.object-cover{object-block:cover}
-                        img{max-width:100%;height:auto;display:block}
-                        .bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}
-                        .from-lyvest-500{--tw-gradient-from:#800020;--tw-gradient-to:rgb(128 0 32 / 0);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}
-                    `
-                }} />
-
-                {/* LOAD MAIN CSS asynchronously to unblock LCP rendering */}
-                <link
-                    rel="stylesheet"
-                    href="/index.css"
-                    id="main-css"
-                    media="print"
-                />
-                <script dangerouslySetInnerHTML={{
-                    __html: `document.getElementById('main-css').onload = function() { this.media='all'; }`
-                }} />
-                <noscript>
-                    <link rel="stylesheet" href="/index.css" />
-                </noscript>
-
                 {/* Speculation Rules — prefetch likely navigation targets during idle time.
                     Chromium 109+, gracefully ignored by other browsers. */}
                 <script
