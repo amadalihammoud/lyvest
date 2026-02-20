@@ -5,14 +5,14 @@ import { getImageProps } from 'next/image';
 const slides = [
     {
         id: 1,
-        desktopImage: "https://placehold.co/1024x329/800020/FFFFFF/png?text=Em+Desenvolvimento",
-        mobileImage: "https://placehold.co/400x500/800020/FFFFFF/png?text=Em+Desenvolvimento",
+        desktopImage: "https://placehold.co/1024x329/800020/FFFFFF/png?text=Em+Desenvolvimento&v=2",
+        mobileImage: "https://placehold.co/400x500/800020/FFFFFF/png?text=Em+Desenvolvimento&v=2",
         alt: "Em desenvolvimento"
     },
     {
         id: 2,
-        desktopImage: "https://placehold.co/1024x329/600018/FFFFFF/png?text=Novidades+em+Breve",
-        mobileImage: "https://placehold.co/400x500/600018/FFFFFF/png?text=Novidades+em+Breve",
+        desktopImage: "https://placehold.co/1024x329/600018/FFFFFF/png?text=Novidades+em+Breve&v=2",
+        mobileImage: "https://placehold.co/400x500/600018/FFFFFF/png?text=Novidades+em+Breve&v=2",
         alt: "Em breve"
     }
 ];
