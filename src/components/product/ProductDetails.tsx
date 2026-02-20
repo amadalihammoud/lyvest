@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { generateSlug } from '../../utils/slug';
 import { productsData } from '../../data/mockData';
-import ProductCard from './ProductCard';
+// Removed static ProductCard import
 import { useI18n } from '../../hooks/useI18n';
 import { Product } from '../../services/ProductService';
 
@@ -11,6 +11,10 @@ import { ProductGallery } from './ProductGallery';
 import { ProductInfo } from './ProductInfo';
 import { ProductActions } from './ProductActions';
 import { ProductTabs } from './ProductTabs';
+import dynamic from 'next/dynamic';
+
+// Lazy loading "Related Products" to skip loading all ProductCard definitions in the initial bundle
+const RelatedProducts = dynamic(() => import('./RelatedProducts'), { ssr: false });
 
 interface ProductDetailsProps {
     product: Product;
@@ -90,32 +94,12 @@ function ProductDetails({ product, onAddToCart, onOpenVirtualFitting }: ProductD
 
             </div>
 
-            {/* RELATED PRODUCTS SECTION */}
-            <div className="mt-24 mb-12 border-t border-slate-100 pt-12">
-                <h2 className="text-3xl font-bold text-center text-lyvest-600 mb-12">{t('products.related')}</h2>
-
-                <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {productsData
-                            .filter(p => p.id !== product.id)
-                            .slice(0, 4)
-                            .map((relatedProduct) => (
-                                <ProductCard
-                                    key={relatedProduct.id}
-                                    product={relatedProduct as Product}
-                                    isFavorite={false}
-                                    onToggleFavorite={() => { }}
-                                    onAddToCart={(qty: number) => onAddToCart({ ...relatedProduct, quantity: qty } as Product)}
-                                    onQuickView={() => {
-                                        const slug = generateSlug(relatedProduct.name);
-                                        router.push(`/produto/${slug}`);
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }}
-                                />
-                            ))}
-                    </div>
-                </div>
-            </div>
+            {/* RELATED PRODUCTS SECTION - LAZY LOADED */}
+            <RelatedProducts
+                productId={product.id}
+                onAddToCart={onAddToCart}
+                t={t}
+            />
 
         </div>
     );

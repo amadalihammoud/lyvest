@@ -11,7 +11,9 @@ import { useI18n } from '@/context/I18nContext';
 
 import { Home } from 'lucide-react';
 import CategoryToolbar from '@/components/product/CategoryToolbar';
-import FilterSidebar from '@/components/product/FilterSidebar';
+import dynamic from 'next/dynamic';
+
+const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useModal } from '@/context/ModalContext';
@@ -163,10 +165,11 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
                 {/* Grid de Produtos */}
                 <div className="flex-1">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 md:gap-8">
-                        {filteredAndSortedProducts.map(product => (
+                        {filteredAndSortedProducts.map((product, index) => (
                             <ProductCard
                                 key={product.id}
                                 product={product}
+                                priority={index < 4} // The first 4 cards are very likely above the fold on most screens (LCP)
                                 isFavorite={favorites.includes(product.id)}
                                 onToggleFavorite={(e: React.MouseEvent) => toggleFavorite(e, product.id)}
                                 onAddToCart={(qty: number) => {

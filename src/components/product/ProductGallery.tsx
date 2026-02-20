@@ -44,17 +44,18 @@ export function ProductGallery({ images, activeImage, setActiveImage, video, pro
                 )}
             </div>
 
-            {/* Main Image */}
-            <div className="flex-1 bg-white flex items-center justify-center relative group h-[350px] lg:h-auto overflow-hidden">
-                <OptimizedProductImage
-                    src={activeImage}
-                    alt={productName}
-                    fill
-                    priority
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-contain transition-transform duration-500 hover:scale-105"
-                    fallbackText={productName.split(' ')[0]}
-                />
+            {/* Main Image - Bypassing Vercel Image Optimization for LCP */}
+            <div className="flex-1 bg-white flex items-center justify-center relative group h-[350px] lg:h-auto overflow-hidden rounded-xl">
+                <picture className="w-full h-full flex items-center justify-center">
+                    {/* If we had webp/avif specific sources we would add them here. 
+                        Since the mock data images are mostly static paths, we just load them directly. */}
+                    <img
+                        src={activeImage}
+                        alt={productName}
+                        className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
+                        fetchPriority="high"
+                    />
+                </picture>
             </div>
 
             {/* Thumbnails - Horizontal below image on mobile only */}

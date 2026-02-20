@@ -13,9 +13,10 @@ interface ProductCardProps {
     onToggleFavorite: (e: React.MouseEvent) => void;
     onAddToCart: (quantity: number) => void;
     onQuickView?: () => void;
+    priority?: boolean;
 }
 
-const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQuickView }: ProductCardProps) => {
+const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQuickView, priority = false }: ProductCardProps) => {
     const { formatCurrency, getProductData, t } = useI18n();
     const [quantity, setQuantity] = useState(1);
 
@@ -75,6 +76,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                         src={product.image}
                         alt={productName}
                         fill
+                        priority={priority}
                         sizes="(max-width: 640px) 260px, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
                         fallbackText={product.name.split(' ')[0]}
