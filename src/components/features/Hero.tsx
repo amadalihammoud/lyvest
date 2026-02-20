@@ -44,7 +44,7 @@ function Hero() {
                            - Snap points for perfect alignment
                         */}
                         <div
-                            className="flex overflow-x-auto scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[4/5] sm:aspect-[1024/329] relative bg-slate-100"
+                            className="flex overflow-x-auto scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[4/3] sm:aspect-[1024/329] relative bg-slate-100"
                         >
                             {slides.map((slide, index) => {
                                 const mobileImage = slide.mobileImage;

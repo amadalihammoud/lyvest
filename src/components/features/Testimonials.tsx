@@ -43,10 +43,10 @@ const Testimonials = () => {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12 animate-fade-in">
                     <h2 className="text-3xl md:text-4xl font-cookie text-lyvest-500 mb-4">
-                        {t('home.testimonials.title')}
+                        Quem comprou, amou! 💖
                     </h2>
                     <p className="text-slate-600 max-w-2xl mx-auto">
-                        {t('home.testimonials.subtitle')}
+                        Veja o que nossos clientes estão dizendo sobre os produtos.
                     </p>
                 </div>
 
