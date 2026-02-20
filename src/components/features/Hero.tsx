@@ -3,8 +3,18 @@ import { getImageProps } from 'next/image';
 
 
 const slides = [
-    { id: 1, image: "/banner-slide-1.webp", alt: "O abraço do sol na sua pele - Coleção de Verão Ly Vest" },
-    { id: 2, image: "/banner-slide-2.webp", alt: "O conforto que te abraça todo dia - Essenciais sem costura" }
+    {
+        id: 1,
+        desktopImage: "https://placehold.co/1024x329/800020/FFFFFF/png?text=Em+Desenvolvimento",
+        mobileImage: "https://placehold.co/400x500/800020/FFFFFF/png?text=Em+Desenvolvimento",
+        alt: "Em desenvolvimento"
+    },
+    {
+        id: 2,
+        desktopImage: "https://placehold.co/1024x329/600018/FFFFFF/png?text=Novidades+em+Breve",
+        mobileImage: "https://placehold.co/400x500/600018/FFFFFF/png?text=Novidades+em+Breve",
+        alt: "Em breve"
+    }
 ];
 
 function Hero() {
@@ -34,25 +44,22 @@ function Hero() {
                            - Snap points for perfect alignment
                         */}
                         <div
-                            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[4/5] sm:aspect-[1024/329]"
-                            style={{
-                                minHeight: '200px',
-                            }}
+                            className="flex overflow-x-auto scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[4/5] sm:aspect-[1024/329] relative bg-slate-100"
                         >
                             {slides.map((slide, index) => {
-                                const mobileImage = slide.image.replace('.webp', '-mobile.webp');
-                                const desktopImage = slide.image;
+                                const mobileImage = slide.mobileImage;
+                                const desktopImage = slide.desktopImage;
                                 const isLcp = index === 0;
 
                                 return (
                                     <div
                                         key={slide.id}
-                                        className="snap-center flex-shrink-0 w-full h-full relative"
+                                        className="w-full flex-shrink-0 relative overflow-hidden"
                                     >
-                                        <div className="relative h-full w-full sm:bg-white/60 sm:p-4 sm:rounded-3xl sm:border sm:border-white/50 sm:shadow-xl overflow-hidden">
+                                        <div className="absolute inset-0 w-full h-full">
                                             {/* Art Direction with PURE HTML for LCP bypass Vercel Proxy */}
                                             {isLcp ? (
-                                                <picture>
+                                                <picture className="w-full h-full">
                                                     <source media="(max-width: 767px)" srcSet={mobileImage} />
                                                     <source media="(min-width: 768px)" srcSet={desktopImage} />
                                                     <img
@@ -61,7 +68,7 @@ function Hero() {
                                                         fetchPriority="high"
                                                         decoding="sync"
                                                         loading="eager"
-                                                        className="object-cover object-center sm:rounded-2xl w-full h-full absolute inset-0"
+                                                        className="object-cover object-center w-full h-full"
                                                     />
                                                 </picture>
                                             ) : (
@@ -90,14 +97,14 @@ function Hero() {
                                                     });
 
                                                     return (
-                                                        <picture>
+                                                        <picture className="w-full h-full">
                                                             <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
                                                             <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
                                                             <img
                                                                 {...desktopProps}
                                                                 loading="lazy"
                                                                 decoding="async"
-                                                                className="object-cover object-center w-full h-full sm:rounded-2xl absolute inset-0"
+                                                                className="object-cover object-center w-full h-full"
                                                             />
                                                         </picture>
                                                     );
