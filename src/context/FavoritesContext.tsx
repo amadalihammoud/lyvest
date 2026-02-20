@@ -3,7 +3,6 @@
 'use client';
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode, useRef } from 'react';
 import { FAVORITES_CONFIG } from '../config/constants';
-import { useUser } from '@clerk/nextjs';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { logger } from '../utils/logger';
 
@@ -295,25 +294,6 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
             {children}
         </FavoritesContext.Provider>
     );
-};
-
-// Componente separado que USA Clerk (useUser) e sincroniza o contexto
-export const FavoritesSync = () => {
-    const { user, isLoaded } = useUser();
-    const context = useFavorites();
-
-    useEffect(() => {
-        if (isLoaded) {
-            if (context._setUserId) {
-                context._setUserId(user ? user.id : null);
-            }
-            if (user && context._syncWithUser) {
-                context._syncWithUser(user);
-            }
-        }
-    }, [user, isLoaded, context]);
-
-    return null;
 };
 
 export const useFavorites = () => {

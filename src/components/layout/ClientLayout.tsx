@@ -14,8 +14,10 @@ const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), { ssr: fa
 import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
 import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
-import { FavoritesSync } from '@/context/FavoritesContext';
 import { LazyClerkProvider } from '@/components/providers/LazyClerkProvider';
+
+// Isolate FavoritesSync so Clerk is not pulled into the global bundle
+const FavoritesSync = dynamic(() => import('@/components/auth/FavoritesSync'), { ssr: false });
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -76,44 +78,44 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
     return (
         <LazyClerkProvider shouldLoad={shouldLoad}>
-        <AppProviders>
-            <div className="flex flex-col min-h-screen">
-                {/* Defer Header rendering to avoid Clerk useUser during SSR/Lazy load */}
-                {shouldLoad ? (
-                    <Suspense fallback={<HeaderSkeleton />}>
-                        <Header />
-                    </Suspense>
-                ) : (
-                    <HeaderSkeleton />
-                )}
-                <main id="main-content" className="flex-grow">
-                    {children}
-                </main>
-
-                <div className="cv-auto-footer">
+            <AppProviders>
+                <div className="flex flex-col min-h-screen">
+                    {/* Defer Header rendering to avoid Clerk useUser during SSR/Lazy load */}
                     {shouldLoad ? (
-                        <Suspense fallback={<div className="min-h-[420px] bg-slate-50" />}>
-                            <Footer />
+                        <Suspense fallback={<HeaderSkeleton />}>
+                            <Header />
                         </Suspense>
                     ) : (
-                        <div className="min-h-[420px] bg-slate-50" />
+                        <HeaderSkeleton />
+                    )}
+                    <main id="main-content" className="flex-grow">
+                        {children}
+                    </main>
+
+                    <div className="cv-auto-footer">
+                        {shouldLoad ? (
+                            <Suspense fallback={<div className="min-h-[420px] bg-slate-50" />}>
+                                <Footer />
+                            </Suspense>
+                        ) : (
+                            <div className="min-h-[420px] bg-slate-50" />
+                        )}
+                    </div>
+
+                    {/* Lazy rendered auth modal */}
+                    {isOpen && shouldLoad && (
+                        <Suspense fallback={null}>
+                            <AuthModal />
+                        </Suspense>
+                    )}
+                    {/* Sync Favorites with Clerk (Only client-side when loaded) */}
+                    {shouldLoad && (
+                        <Suspense fallback={null}>
+                            <FavoritesSync />
+                        </Suspense>
                     )}
                 </div>
-
-                {/* Lazy rendered auth modal */}
-                {isOpen && shouldLoad && (
-                    <Suspense fallback={null}>
-                        <AuthModal />
-                    </Suspense>
-                )}
-                {/* Sync Favorites with Clerk (Only client-side when loaded) */}
-                {shouldLoad && (
-                    <Suspense fallback={null}>
-                        <FavoritesSync />
-                    </Suspense>
-                )}
-            </div>
-        </AppProviders>
+            </AppProviders>
         </LazyClerkProvider>
     );
 }
