@@ -102,7 +102,16 @@ const nextConfig = {
     async headers() {
         return [
             {
-                source: '/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico|woff|woff2|ttf|eot)',
+                source: '/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico)',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=86400, stale-while-revalidate=604800',
+                    },
+                ],
+            },
+            {
+                source: '/:all*(woff|woff2|ttf|eot)',
                 headers: [
                     {
                         key: 'Cache-Control',
