@@ -52,6 +52,7 @@ function Hero() {
                                                         alt={slide.alt}
                                                         fetchPriority="high"
                                                         decoding="sync"
+                                                        loading="eager"
                                                         className="object-cover sm:rounded-2xl w-full h-full absolute inset-0"
                                                     />
                                                 </picture>
