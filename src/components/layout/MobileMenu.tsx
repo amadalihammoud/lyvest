@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useI18n } from '../../hooks/useI18n';
 import LanguageSelector from '../features/LanguageSelector';
 import { X, Search, ChevronRight, User } from 'lucide-react';
-import { mainMenu } from '../../data/mockData';
+import { mainMenu } from '../../data/siteData';
 
 import { useShop } from '../../context/ShopContext';
 import { useUser, useClerk } from '@clerk/nextjs';

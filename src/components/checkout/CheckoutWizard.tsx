@@ -5,10 +5,12 @@ import { useCart } from '../../hooks/useCart';
 
 import { useI18n } from '../../hooks/useI18n';
 
+import dynamic from 'next/dynamic';
 import CheckoutAddress, { AddressFormData } from './CheckoutAddress';
-import CheckoutPayment from './CheckoutPayment';
 import CheckoutSummary from './CheckoutSummary';
-import OrderConfirmation from './OrderConfirmation';
+
+const CheckoutPayment = dynamic(() => import('./CheckoutPayment'), { ssr: false });
+const OrderConfirmation = dynamic(() => import('./OrderConfirmation'), { ssr: false });
 
 interface CheckoutWizardProps {
     onBack: () => void;

@@ -1,7 +1,7 @@
 
 import type { Metadata } from 'next';
 import ProductPageClient from '@/components/pages/ProductPageClient';
-import { productsData } from '@/data/mockData';
+import { productsData } from '@/data/products';
 import { generateSlug } from '@/utils/slug';
 
 export const dynamicParams = true;

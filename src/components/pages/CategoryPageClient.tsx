@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { productsData } from '@/data/mockData';
+import { productsData } from '@/data/products';
 import { generateSlug } from '@/utils/slug';
 import ProductCard from '@/components/product/ProductCard';
 import { useI18n } from '@/context/I18nContext';

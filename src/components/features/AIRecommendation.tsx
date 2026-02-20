@@ -3,7 +3,7 @@ import { CheckCircle2, Info, ShoppingBag, Plus } from 'lucide-react';
 import { SizeRecommendation, FitType } from '../../services/sizeAI';
 import { Product } from '../../services/ProductService';
 import BodyMannequin from './BodyMannequin';
-import { productsData } from '../../data/mockData';
+import { productsData } from '../../data/products';
 
 interface AIRecommendationProps {
     recommendation: SizeRecommendation;

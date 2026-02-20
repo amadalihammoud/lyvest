@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import ProductCard from '@/components/product/ProductCard';
-import { productsData } from '@/data/mockData';
+import { productsData } from '@/data/products';
 import { Product } from '@/services/ProductService';
 import { generateSlug } from '@/utils/slug';
 

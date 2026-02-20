@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useI18n } from '../../hooks/useI18n';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useCart } from '../../context/CartContext';
-import { productsData } from '../../data/mockData';
+import { productsData } from '../../data/products';
 import { generateSlug } from '../../utils/slug';
 
 export default function FavoritesSection() {

@@ -3,7 +3,7 @@ import { PackageSearch, X, CheckCircle } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
 
 import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { mockOrders } from '../../data/mockData';
+import { mockOrders } from '../../data/mockOrders';
 
 interface TrackingHistory {
     status: string;

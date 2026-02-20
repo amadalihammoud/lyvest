@@ -82,32 +82,29 @@ function SignInPageContent() {
     );
 }
 
-function SignInSkeleton() {
+function SignInSkeletonForm() {
     return (
-        <div className="flex items-center justify-center min-h-screen bg-[#FDF5F5]">
-            <div className="w-full max-w-5xl mx-4 bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-auto md:h-[700px] md:max-h-[90vh]">
-                {/* Left Side - Image (desktop only) */}
-                <div className="hidden md:flex w-1/2 bg-gradient-to-br from-[#800020] to-[#A0303C] items-center justify-center">
-                    <div className="animate-pulse w-24 h-24 bg-white/20 rounded-full" />
-                </div>
-                {/* Right Side - Skeleton */}
-                <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-8 md:p-12">
-                    <h1 className="text-4xl text-[#800020] font-cookie mb-2">Ly Vest</h1>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-8">Moda Intima Premium</p>
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#800020] mb-4"></div>
-                    <p className="text-slate-400 text-sm">Carregando...</p>
-                </div>
-            </div>
+        <div className="w-full flex flex-col items-center justify-center p-8 md:p-12">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#800020] mb-4"></div>
+            <p className="text-slate-400 text-sm">Carregando formulário...</p>
         </div>
     );
 }
 
-export default function SignInPage() {
+function LazySignInForm() {
     const shouldLoad = useUltraLazyLoad();
 
     if (!shouldLoad) {
-        return <SignInSkeleton />;
+        return <SignInSkeletonForm />;
     }
+    return (
+        <Suspense fallback={<SignInSkeletonForm />}>
+            <SignInPageContent />
+        </Suspense>
+    );
+}
+
+export default function SignInPage() {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-[#FDF5F5] py-8 px-4">
@@ -140,14 +137,7 @@ export default function SignInPage() {
                     </div>
 
                     <div className="p-6 md:p-8 flex items-center justify-center flex-1 w-full overflow-y-auto">
-                        <Suspense fallback={
-                            <div className="flex flex-col items-center">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#800020] mb-4"></div>
-                                <p className="text-slate-400 text-sm">Carregando...</p>
-                            </div>
-                        }>
-                            <SignInPageContent />
-                        </Suspense>
+                        <LazySignInForm />
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import UserDashboard from '@/components/dashboard/UserDashboard';
 
-import { mockOrders } from '@/data/mockData';
+import { mockOrders } from '@/data/mockOrders';
 import { useI18n } from '@/context/I18nContext';
 // import { useAuth, User } from '@/context/AuthContext'; // Removed
 import { useUser, useClerk } from '@clerk/nextjs';

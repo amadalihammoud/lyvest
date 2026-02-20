@@ -3,7 +3,7 @@ import { useModal } from '../../hooks/useModal';
 import { useCart } from '../../hooks/useCart';
 import { useFavorites } from '../../hooks/useFavorites';
 import { useI18n } from '../../hooks/useI18n';
-import { productsData } from '../../data/mockData';
+import { productsData } from '../../data/products';
 import { useRouter } from 'next/navigation';
 
 // Lazy load drawers

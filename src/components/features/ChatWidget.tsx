@@ -8,7 +8,7 @@ import { useCart } from '../../hooks/useCart';
 // react-markdown (~50 KB) carregado dinamicamente — só necessário quando o chat está aberto
 const ReactMarkdown = dynamic(() => import('react-markdown'), { ssr: false });
 import { useModal } from '../../hooks/useModal';
-import { productsData } from '../../data/mockData';
+import { productsData } from '../../data/products';
 
 // Custom type for simplified ToolInvocation
 interface ToolInvocation {

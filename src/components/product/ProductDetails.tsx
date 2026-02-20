@@ -1,7 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { generateSlug } from '../../utils/slug';
-import { productsData } from '../../data/mockData';
+import { productsData } from '../../data/products';
 // Removed static ProductCard import
 import { useI18n } from '../../hooks/useI18n';
 import { Product } from '../../services/ProductService';
