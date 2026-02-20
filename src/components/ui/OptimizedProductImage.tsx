@@ -72,11 +72,7 @@ export default function OptimizedProductImage({
         );
     }
 
-    // Prepare styles for loading state
-    const styles = {
-        transition: 'opacity 0.3s ease-in-out',
-        opacity: isLoading ? 0 : 1,
-    };
+    // Removed style loading state that was causing hydration mismatch
 
     return (
         <div className={`relative overflow-hidden ${!fill ? 'inline-block' : ''} ${className}`}>
@@ -96,13 +92,11 @@ export default function OptimizedProductImage({
                 fill={fill}
                 priority={priority}
                 sizes={sizes}
-                onLoad={handleLoad}
+                className={`object-cover bg-slate-50 relative z-10 ${className}`}
                 onError={(e) => {
                     console.error(`Image load error for ${src}`, e);
-                    handleError();
+                    setHasError(true);
                 }}
-                className={`object-cover ${className}`} // Apply className to Image too for object-fit etc
-                style={styles}
             />
         </div>
     );
