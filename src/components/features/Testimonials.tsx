@@ -52,18 +52,18 @@ const Testimonials = () => {
     };
 
     return (
-        <section className="py-8 md:py-16 bg-sky-50/30">
+        <section className="py-8 md:py-16 bg-sky-50">
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="text-center mb-8 md:mb-12">
                     {/* Title optimized for mobile single line */}
                     <h2 className="text-[17px] md:text-3xl font-extrabold text-slate-800 mb-2 whitespace-nowrap overflow-hidden text-ellipsis">
                         Quem comprou, amou! 💖
                     </h2>
-                    <p className="text-slate-500 text-sm md:text-base hidden md:block">
+                    <p className="text-slate-700 text-sm md:text-base hidden md:block">
                         Veja o que nossos clientes estão dizendo sobre os produtos.
                     </p>
                     {/* Mobile subtitle if needed, or hide as per concise request */}
-                    <p className="text-slate-500 text-xs md:hidden px-4">
+                    <p className="text-slate-700 text-xs md:hidden px-4">
                         Veja o que nossos clientes estão dizendo.
                     </p>
                 </div>
@@ -80,19 +80,19 @@ const Testimonials = () => {
                             className="h-full min-w-[85vw] md:min-w-0 snap-center bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center transition-transform hover:-translate-y-1 duration-300"
                         >
                             <div
-                                className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white mb-4 shadow-sm"
+                                className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-slate-800 mb-4 shadow-sm"
                                 style={{ backgroundColor: testimonial.color }}
                             >
                                 {testimonial.initials}
                             </div>
 
-                            <p className="text-slate-600 italic mb-6 leading-relaxed flex-1 text-sm md:text-base">
+                            <p className="text-slate-700 italic mb-6 leading-relaxed flex-1 text-sm md:text-base">
                                 "{testimonial.quote}"
                             </p>
 
                             <div className="mt-auto">
                                 <h3 className="font-bold text-slate-800">{testimonial.name}</h3>
-                                <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{testimonial.occupation}</p>
+                                <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">{testimonial.occupation}</p>
                             </div>
                         </div>
                     ))}
