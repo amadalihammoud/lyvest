@@ -43,18 +43,18 @@ const Testimonials = () => {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12 animate-fade-in">
                     <h2 className="text-3xl md:text-4xl font-cookie text-lyvest-500 mb-4">
-                        Quem comprou, amou! 💖
+                        {t('home.testimonials.title')}
                     </h2>
                     <p className="text-slate-600 max-w-2xl mx-auto">
-                        Veja o que nossos clientes estão dizendo sobre os produtos.
+                        {t('home.testimonials.subtitle')}
                     </p>
                 </div>
 
-                <div className="flex overflow-x-auto pb-6 -mx-4 px-4 gap-6 md:grid md:grid-cols-3 md:gap-8 snap-x snap-mandatory scrollbar-hide md:pb-0 md:mx-0 md:px-0">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {testimonials.map((item, index) => (
                         <div
                             key={item.id}
-                            className={`bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative animate-fade-in snap-center min-w-[280px] md:min-w-0`}
+                            className={`bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative animate-fade-in`}
                             style={{ animationDelay: `${index * 150}ms` }}
                         >
                             <Quote className="absolute top-6 right-6 w-8 h-8 text-slate-100" />
@@ -80,4 +80,10 @@ const Testimonials = () => {
     );
 };
 
-export default Testimonials;
+
+
+
+
+
+
+
