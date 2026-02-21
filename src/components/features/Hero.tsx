@@ -5,15 +5,15 @@ import { getImageProps } from 'next/image';
 const slides = [
     {
         id: 1,
-        desktopImage: "https://placehold.co/1024x329/800020/FFFFFF/png?text=Em+Desenvolvimento&v=2",
-        mobileImage: "https://placehold.co/400x500/800020/FFFFFF/png?text=Em+Desenvolvimento&v=2",
-        alt: "Em desenvolvimento"
+        desktopImage: "/banner-slide-1.webp",
+        mobileImage: "/banner-slide-1-mobile.webp",
+        alt: "O abraço do sol na sua pele - Coleção de Verão Ly Vest"
     },
     {
         id: 2,
-        desktopImage: "https://placehold.co/1024x329/600018/FFFFFF/png?text=Novidades+em+Breve&v=2",
-        mobileImage: "https://placehold.co/400x500/600018/FFFFFF/png?text=Novidades+em+Breve&v=2",
-        alt: "Em breve"
+        desktopImage: "/banner-slide-2.webp",
+        mobileImage: "/banner-slide-2-mobile.webp",
+        alt: "O conforto que te abraça todo dia - Essenciais sem costura"
     }
 ];
 

@@ -75,7 +75,10 @@ export default function OptimizedProductImage({
     // Removed style loading state that was causing hydration mismatch
 
     return (
-        <div className={`relative overflow-hidden ${!fill ? 'inline-block' : ''} ${className}`}>
+        <div
+            className={`relative overflow-hidden ${!fill ? 'inline-block' : 'w-full h-full'} ${className}`}
+            style={!fill && width && height ? { width, height } : undefined}
+        >
             {/* Skeleton loading */}
             {isLoading && (
                 <div
