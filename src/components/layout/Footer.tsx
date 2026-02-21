@@ -54,10 +54,10 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Social, Payment & Security */}
-                    <div className="flex flex-col items-center md:items-start gap-10 w-full">
-                        {/* Social Media - Top of Pyramid */}
-                        <div className="flex flex-col items-center md:items-start gap-4">
+                    {/* Social, Payment & Security - True Pyramid Column */}
+                    <div className="flex flex-col items-center gap-10 w-full">
+                        {/* Social Media - Pyramid Peak (Always Centered) */}
+                        <div className="flex flex-col items-center gap-4">
                             <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em]">{t('footer.followUs')}</h3>
                             <div className="flex items-center gap-6">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
@@ -72,12 +72,12 @@ export default function Footer() {
                             </div>
                         </div>
 
-                        {/* Payment & Security - Bottom of Pyramid */}
-                        <div className="grid grid-cols-2 gap-4 md:gap-8 w-full">
+                        {/* Payment & Security - Pyramid Base */}
+                        <div className="grid grid-cols-2 gap-x-8 md:gap-x-12 gap-y-8 w-full">
                             {/* Payment Methods */}
-                            <div className="flex flex-col items-center md:items-start gap-4">
-                                <h3 className="text-[13px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">{t('footer.paymentMethods')}</h3>
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                            <div className="flex flex-col items-center gap-4">
+                                <h3 className="text-[13px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center">{t('footer.paymentMethods')}</h3>
+                                <div className="flex flex-wrap items-center justify-center gap-3">
                                     <div className="h-10 px-3 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
                                         <Image src="/visa-logo.webp" alt="Visa" width={40} height={14} className="h-6 w-auto object-contain" />
                                     </div>
@@ -95,9 +95,9 @@ export default function Footer() {
                             </div>
 
                             {/* Security Seals */}
-                            <div className="flex flex-col items-center md:items-start gap-4">
-                                <h3 className="text-[13px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">{t('footer.security')}</h3>
-                                <div className="flex items-center gap-4 h-10">
+                            <div className="flex flex-col items-center gap-4">
+                                <h3 className="text-[13px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center">{t('footer.security')}</h3>
+                                <div className="flex items-center justify-center gap-4 h-10">
                                     <Image src="/lets-encrypt.webp" alt="Let's Encrypt" width={50} height={32} className="h-full w-auto object-contain" />
                                 </div>
                             </div>
