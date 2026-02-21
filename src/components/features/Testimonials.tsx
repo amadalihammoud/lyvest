@@ -24,68 +24,74 @@ const Testimonials = () => {
             setActiveIndex(index);
         }
     };
-    // Mock user for "Ana Silva" matches the screenshot provided by user usually
-    const testimonials: TestimonialItem[] = [
+
+    const testimonials = [
         {
             id: 1,
             name: "Mariana Silva",
-            role: "Cliente Verificada",
-            content: "As lingeries são maravilhosas, o tecido abraça o corpo e não marca absolutamente nada nas roupas. Já virei fã e recomendo para todas as amigas!",
-            rating: 5,
+            occupation: "Cliente Verificada",
+            quote: "As lingeries são maravilhosas, o tecido abraça o corpo e não marca absolutamente nada nas roupas. Já virei fã e recomendo para todas as amigas!",
+            initials: "MS",
+            color: "#A2D2FF" // Sky blue
         },
         {
             id: 2,
             name: "Juliana Costa",
-            role: "Cliente Verificada",
-            content: "Simplesmente apaixonada pelo conforto dos pijamas! Chegou super rápido e a embalagem é um capricho, dá para ver o carinho da Ly Vest em cada detalhe.",
-            rating: 5,
+            occupation: "Cliente Verificada",
+            quote: "Simplesmente apaixonada pelo conforto dos pijamas! Chegou super rápido e a embalagem é um capricho, dá para ver o carinho da Ly Vest em cada detalhe.",
+            initials: "JC",
+            color: "#FFB7C5" // Pink
         },
         {
             id: 3,
             name: "Carolina Mendes",
-            role: "Cliente Verificada",
-            content: "Como médica, valorizo muito roupas de qualidade. Ly Vest superou minhas expectativas!",
-            rating: 5
+            occupation: "Cliente Verificada",
+            quote: "Como médica, valorizo muito roupas de qualidade. Ly Vest superou minhas expectativas!",
+            initials: "CM",
+            color: "#FFA502" // Orange
         }
     ];
 
     return (
-        <section className="py-16 bg-[#F5E6E8]">
-            <div className="container mx-auto px-4">
-                <div className="text-center mb-12 animate-fade-in">
-                    <h2 className="text-3xl md:text-4xl font-cookie text-lyvest-500 mb-4">
+        <section className="py-8 md:py-16 bg-[#FDF5F5]">
+            <div className="container mx-auto px-4 max-w-6xl">
+                <div className="text-center mb-8 md:mb-12">
+                    <h2 className="text-[17px] md:text-3xl font-extrabold text-slate-800 mb-2 whitespace-nowrap overflow-hidden text-ellipsis">
                         Quem comprou, amou! 💖
                     </h2>
-                    <p className="text-slate-600 max-w-2xl mx-auto">
+                    <p className="text-slate-700 text-sm md:text-base hidden md:block">
                         Veja o que nossos clientes estão dizendo sobre os produtos.
+                    </p>
+                    <p className="text-slate-700 text-xs md:hidden px-4">
+                        Veja o que nossos clientes estão dizendo.
                     </p>
                 </div>
 
+                {/* Carousel Container */}
                 <div
                     ref={scrollRef}
                     onScroll={handleScroll}
                     className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 scrollbar-hide px-4 md:px-0 -mx-4 md:mx-0"
                 >
-                    {testimonials.map((item, index) => (
+                    {testimonials.map((testimonial) => (
                         <div
-                            key={item.id}
-                            className={`min-w-[85vw] md:min-w-0 snap-center h-full bg-white p-6 md:p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative animate-fade-in flex flex-col`}
-                            style={{ animationDelay: `${index * 150}ms` }}
+                            key={testimonial.id}
+                            className="h-full min-w-[85vw] md:min-w-0 snap-center bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center transition-transform hover:-translate-y-1 duration-300"
                         >
-                            <Quote className="absolute top-6 right-6 w-8 h-8 text-slate-100" />
-                            <div className="flex gap-1 text-yellow-400 mb-4">
-                                {[...Array(item.rating)].map((_, i) => (
-                                    <Star key={i} className="w-4 h-4 fill-current" />
-                                ))}
+                            <div
+                                className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-slate-800 mb-4 shadow-sm"
+                                style={{ backgroundColor: testimonial.color }}
+                            >
+                                {testimonial.initials}
                             </div>
-                            <p className="text-slate-600 mb-6 italic relative z-10 leading-relaxed">
-                                "{item.content}"
+
+                            <p className="text-slate-700 italic mb-6 leading-relaxed flex-1 text-sm md:text-base">
+                                "{testimonial.quote}"
                             </p>
-                            <div className="flex items-center gap-4">
-                                <div>
-                                    <h4 className="font-bold text-slate-800">{item.name}</h4>
-                                    <p className="text-sm text-slate-500">{item.role}</p>
-                                </div>
+
+                            <div className="mt-auto">
+                                <h3 className="font-bold text-slate-800">{testimonial.name}</h3>
+                                <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">{testimonial.occupation}</p>
                             </div>
                         </div>
                     ))}
