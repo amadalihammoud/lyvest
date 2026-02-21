@@ -104,7 +104,7 @@ export default function Footer() {
 
                                 {/* Security Group */}
                                 <div className="flex items-center justify-center h-9">
-                                    <Image src="/logo-segurança.webp" alt="Let's Encrypt" width={44} height={28} className="h-full w-auto object-contain" />
+                                    <Image src="/logo-seguranca.webp" alt="Let's Encrypt" width={44} height={28} className="h-full w-auto object-contain" />
                                 </div>
                             </div>
                         </div>
