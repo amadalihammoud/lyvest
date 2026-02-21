@@ -84,9 +84,9 @@ export default function Footer() {
                             <div className="flex items-center justify-center gap-3 md:gap-4 flex-nowrap overflow-visible h-9">
                                 {/* Flags Group */}
                                 <div className="flex items-center gap-4 md:gap-6 h-9">
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={72} height={24} className="h-5 md:h-6 w-auto object-contain" />
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={72} height={44} className="h-5 md:h-6 w-auto object-contain" />
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={72} height={40} className="h-5 md:h-6 w-auto object-contain" />
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={80} height={28} className="h-6 md:h-7 w-auto object-contain" />
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={80} height={48} className="h-7 md:h-8 w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={80} height={44} className="h-6 md:h-7 w-auto object-contain" />
                                 </div>
 
                                 {/* Divider */}
