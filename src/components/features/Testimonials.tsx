@@ -71,7 +71,7 @@ const Testimonials = () => {
                 <div
                     ref={scrollRef}
                     onScroll={handleScroll}
-                    className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 scrollbar-hide px-4 md:px-0 -mx-4 md:mx-0"
+                    className="flex md:grid md:grid-cols-3 items-stretch gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 scrollbar-hide px-4 md:px-0 -mx-4 md:mx-0"
                 >
                     {testimonials.map((testimonial) => (
                         <div
