@@ -73,7 +73,7 @@ export default function Footer() {
                         </div>
 
                         {/* Payment & Security - Bottom of Pyramid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-10 w-full">
+                        <div className="grid grid-cols-2 gap-4 md:gap-8 w-full">
                             {/* Payment Methods */}
                             <div className="flex flex-col items-center md:items-start gap-4">
                                 <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em] whitespace-nowrap">{t('footer.paymentMethods')}</h3>
