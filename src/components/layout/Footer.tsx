@@ -88,11 +88,7 @@ export default function Footer() {
                                         <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={72} height={24} className="h-5 md:h-6 w-auto object-contain" />
                                     </div>
                                     <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
-                                        <svg viewBox="0 0 131.39 86.9" className="h-5 md:h-6">
-                                            <circle fill="#EB001B" cx="43.45" cy="43.45" r="43.45" />
-                                            <circle fill="#F79E1B" cx="87.94" cy="43.45" r="43.45" />
-                                            <path fill="#FF5F00" d="M65.7 11.2a43.35 43.35 0 0 0-16.2 32.3 43.35 43.35 0 0 0 16.2 32.3 43.35 43.35 0 0 0 16.2-32.3 43.35 43.35 0 0 0-16.2-32.3z" />
-                                        </svg>
+                                        <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={72} height={44} className="h-5 md:h-6 w-auto object-contain" />
                                     </div>
                                     <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
                                         <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={72} height={40} className="h-5 md:h-6 w-auto object-contain" />
