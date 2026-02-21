@@ -13,6 +13,17 @@ interface TestimonialItem {
 
 const Testimonials = () => {
     const { t } = useI18n();
+    const [activeIndex, setActiveIndex] = React.useState(0);
+    const scrollRef = React.useRef<HTMLDivElement>(null);
+
+    const handleScroll = () => {
+        if (scrollRef.current) {
+            const scrollLeft = scrollRef.current.scrollLeft;
+            const width = scrollRef.current.offsetWidth;
+            const index = Math.round(scrollLeft / width);
+            setActiveIndex(index);
+        }
+    };
     // Mock user for "Ana Silva" matches the screenshot provided by user usually
     const testimonials: TestimonialItem[] = [
         {
@@ -50,11 +61,15 @@ const Testimonials = () => {
                     </p>
                 </div>
 
-                <div className="flex overflow-x-auto pb-6 -mx-4 px-4 gap-6 md:grid md:grid-cols-3 md:gap-8 snap-x snap-mandatory scrollbar-hide md:pb-0 md:mx-0 md:px-0">
+                <div
+                    ref={scrollRef}
+                    onScroll={handleScroll}
+                    className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 scrollbar-hide px-4 md:px-0 -mx-4 md:mx-0"
+                >
                     {testimonials.map((item, index) => (
                         <div
                             key={item.id}
-                            className={`bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative animate-fade-in snap-center min-w-[280px] md:min-w-0`}
+                            className={`min-w-[85vw] md:min-w-0 snap-center h-full bg-white p-6 md:p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative animate-fade-in flex flex-col`}
                             style={{ animationDelay: `${index * 150}ms` }}
                         >
                             <Quote className="absolute top-6 right-6 w-8 h-8 text-slate-100" />
@@ -73,6 +88,16 @@ const Testimonials = () => {
                                 </div>
                             </div>
                         </div>
+                    ))}
+                </div>
+
+                {/* Indicators / Dots (Mobile Only) */}
+                <div className="flex justify-center gap-2 mt-4 md:hidden">
+                    {testimonials.map((_, index) => (
+                        <div
+                            key={index}
+                            className={`h-2 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-6 bg-lyvest-500' : 'w-2 bg-slate-200'}`}
+                        />
                     ))}
                 </div>
             </div>
