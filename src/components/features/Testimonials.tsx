@@ -76,7 +76,7 @@ const Testimonials = () => {
                     {testimonials.map((testimonial) => (
                         <div
                             key={testimonial.id}
-                            className="h-full min-w-[85vw] md:min-w-0 snap-center bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center transition-transform hover:-translate-y-1 duration-300"
+                            className="h-full min-h-[380px] md:min-h-[420px] min-w-[85vw] md:min-w-0 snap-center bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center transition-transform hover:-translate-y-1 duration-300"
                         >
                             <div
                                 className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-slate-800 mb-4 shadow-sm"
