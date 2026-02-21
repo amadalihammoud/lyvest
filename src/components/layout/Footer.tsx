@@ -15,10 +15,10 @@ export default function Footer() {
     return (
         <footer id="footer" className="bg-white pt-16 pb-8 border-t border-slate-100" role="contentinfo">
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 mb-12 max-w-6xl mx-auto">
                     {/* Ajuda */}
                     <div className="flex flex-col h-full items-center md:items-start">
-                        <h3 className="text-xl font-bold text-slate-800 mb-5 text-center md:text-left">{t('footer.help')}</h3>
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] mb-6 text-center md:text-left">{t('footer.help')}</h3>
                         <div className="flex-1 w-full max-w-md mx-auto md:mx-0">
                             <ul className="flex flex-col gap-3 text-base text-slate-600 w-full">
                                 <li className="text-center md:text-left"><button onClick={() => setActiveModal('about')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-center md:text-left w-full p-0">{t('footer.about')}</button></li>
@@ -32,7 +32,7 @@ export default function Footer() {
 
                     {/* Legal */}
                     <div className="flex flex-col h-full items-center md:items-start">
-                        <h3 className="text-xl font-bold text-slate-800 mb-5 text-center md:text-left">{t('footer.legal')}</h3>
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] mb-6 text-center md:text-left">{t('footer.legal')}</h3>
                         <div className="flex-1 w-full max-w-md mx-auto md:mx-0">
                             <ul className="flex flex-col gap-3 text-sm md:text-base text-slate-600">
                                 <li className="text-center md:text-left">
@@ -55,10 +55,10 @@ export default function Footer() {
                     </div>
 
                     {/* Social, Payment & Security */}
-                    <div className="flex flex-col h-full items-center md:items-start gap-8">
+                    <div className="flex flex-col h-full items-center md:items-start gap-10">
                         {/* Social Media */}
                         <div className="flex flex-col items-center md:items-start gap-4">
-                            <h3 className="text-lg font-bold text-slate-800 uppercase tracking-wide">{t('footer.followUs')}</h3>
+                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em]">{t('footer.followUs')}</h3>
                             <div className="flex items-center gap-6">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
                                     <Image src="/instagram-logo.webp" alt="Instagram" width={32} height={32} className="w-8 h-8 object-contain" />
@@ -74,7 +74,7 @@ export default function Footer() {
 
                         {/* Payment Methods */}
                         <div className="flex flex-col items-center md:items-start gap-4">
-                            <span className="text-xs text-slate-500 font-semibold uppercase tracking-widest">{t('footer.paymentMethods')}</span>
+                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em]">{t('footer.paymentMethods')}</h3>
                             <div className="flex items-center gap-3">
                                 <div className="h-10 px-3 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
                                     <Image src="/visa-logo.webp" alt="Visa" width={40} height={14} className="h-6 w-auto object-contain" />
@@ -94,7 +94,7 @@ export default function Footer() {
 
                         {/* Security Seals */}
                         <div className="flex flex-col items-center md:items-start gap-4">
-                            <span className="text-xs text-slate-600 font-semibold uppercase tracking-widest">{t('footer.security')}</span>
+                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em]">{t('footer.security')}</h3>
                             <div className="flex items-center gap-4 h-10">
                                 <Image src="/lets-encrypt.webp" alt="Let's Encrypt" width={50} height={32} className="h-full w-auto object-contain" />
                             </div>
