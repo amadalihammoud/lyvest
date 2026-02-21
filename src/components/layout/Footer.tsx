@@ -72,38 +72,39 @@ export default function Footer() {
                             </div>
                         </div>
 
-                        {/* Payment & Security - Unified Pyramid Base */}
+                        {/* Payment & Security - Unified Pyramid Base Row */}
                         <div className="flex flex-col items-center gap-6 w-full">
-                            <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-                                {/* Payment Section */}
-                                <div className="flex flex-col items-center gap-4">
-                                    <h3 className="text-[13px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center">{t('footer.paymentMethods')}</h3>
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 px-3 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
-                                            <Image src="/visa-logo.webp" alt="Visa" width={40} height={14} className="h-6 w-auto object-contain" />
-                                        </div>
-                                        <div className="h-10 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
-                                            <svg viewBox="0 0 131.39 86.9" className="h-6">
-                                                <circle fill="#EB001B" cx="43.45" cy="43.45" r="43.45" />
-                                                <circle fill="#F79E1B" cx="87.94" cy="43.45" r="43.45" />
-                                                <path fill="#FF5F00" d="M65.7 11.2a43.35 43.35 0 0 0-16.2 32.3 43.35 43.35 0 0 0 16.2 32.3 43.35 43.35 0 0 0 16.2-32.3 43.35 43.35 0 0 0-16.2-32.3z" />
-                                            </svg>
-                                        </div>
-                                        <div className="h-10 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
-                                            <Image src="/pix-logo.webp" alt="Pix" width={40} height={22} className="h-6 w-auto object-contain" />
-                                        </div>
+                            {/* Combined Headers horizontally */}
+                            <div className="flex items-center justify-center gap-12 w-full">
+                                <h3 className="text-[12px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
+                                <h3 className="text-[12px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center whitespace-nowrap">{t('footer.security')}</h3>
+                            </div>
+
+                            {/* All Icons in a single horizontal line */}
+                            <div className="flex items-center justify-center gap-3 md:gap-4 flex-nowrap overflow-visible">
+                                {/* Flags Group */}
+                                <div className="flex items-center gap-2 md:gap-3">
+                                    <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
+                                        <Image src="/visa-logo.webp" alt="Visa" width={36} height={12} className="h-5 md:h-6 w-auto object-contain" />
+                                    </div>
+                                    <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
+                                        <svg viewBox="0 0 131.39 86.9" className="h-5 md:h-6">
+                                            <circle fill="#EB001B" cx="43.45" cy="43.45" r="43.45" />
+                                            <circle fill="#F79E1B" cx="87.94" cy="43.45" r="43.45" />
+                                            <path fill="#FF5F00" d="M65.7 11.2a43.35 43.35 0 0 0-16.2 32.3 43.35 43.35 0 0 0 16.2 32.3 43.35 43.35 0 0 0 16.2-32.3 43.35 43.35 0 0 0-16.2-32.3z" />
+                                        </svg>
+                                    </div>
+                                    <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
+                                        <Image src="/pix-logo.webp" alt="Pix" width={36} height={20} className="h-5 md:h-6 w-auto object-contain" />
                                     </div>
                                 </div>
 
-                                {/* Vertical Divider (Desktop Only) */}
-                                <div className="hidden md:block h-12 w-[1px] bg-slate-100 self-end mb-1"></div>
+                                {/* Divider */}
+                                <div className="h-8 w-[1px] bg-slate-100 mx-1 md:mx-2"></div>
 
-                                {/* Security Section */}
-                                <div className="flex flex-col items-center gap-4">
-                                    <h3 className="text-[13px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center">{t('footer.security')}</h3>
-                                    <div className="flex items-center justify-center h-10">
-                                        <Image src="/lets-encrypt.webp" alt="Let's Encrypt" width={50} height={32} className="h-full w-auto object-contain" />
-                                    </div>
+                                {/* Security Group */}
+                                <div className="flex items-center justify-center h-9">
+                                    <Image src="/lets-encrypt.webp" alt="Let's Encrypt" width={44} height={28} className="h-full w-auto object-contain" />
                                 </div>
                             </div>
                         </div>
