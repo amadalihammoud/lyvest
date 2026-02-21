@@ -51,7 +51,7 @@ export const metadata: Metadata = {
         type: 'website',
         images: [
             {
-                url: 'https://lyvest.vercel.app/banner-slide-1.webp',
+                url: 'https://lyvest.vercel.app/assets/banners/banner-slide-1.webp',
                 width: 1200,
                 height: 630,
                 alt: 'Ly Vest - Moda Íntima',
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Ly Vest - Moda Íntima Premium',
         description: 'Ly Vest - Moda íntima com conforto e sofisticação.',
-        images: ['https://lyvest.vercel.app/banner-slide-1.webp'],
+        images: ['https://lyvest.vercel.app/assets/banners/banner-slide-1.webp'],
     },
     robots: {
         index: true,
@@ -91,8 +91,8 @@ export default function RootLayout({
                 <link rel="dns-prefetch" href="https://img.clerk.com" />
                 <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
                 <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
-                <link rel="icon" type="image/png" href="/logo.png" />
-                <link rel="manifest" href="/manifest.json" />
+                <link rel="icon" type="image/png" href="/assets/logos/logo.png" />
+                <link rel="manifest" href="/assets/pwa/manifest.json" />
 
                 {/* Speculation Rules — prefetch likely navigation targets during idle time.
                     Chromium 109+, gracefully ignored by other browsers. */}

@@ -138,7 +138,7 @@ export default function AuthModal() {
                             className="hidden md:flex relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex-col md:flex-row h-[700px] max-h-[90vh]"
                         >
                             {/* Left Side (Image) */}
-                            <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/login-featured.webp')] bg-cover bg-center relative">
+                            <div className="hidden md:flex flex-col justify-between w-1/2 bg-[url('/assets/images/login-featured.webp')] bg-cover bg-center relative">
                             </div>
 
                             {/* Right Side (Form) */}

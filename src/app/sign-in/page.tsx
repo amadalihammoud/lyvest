@@ -112,7 +112,7 @@ export default function SignInPage() {
                 {/* Left Side - Featured Image (desktop only) */}
                 <div className="hidden md:flex flex-col justify-between w-1/2 relative overflow-hidden">
                     <Image
-                        src="/login-featured.webp"
+                        src="/assets/images/login-featured.webp"
                         alt="Ly Vest - Moda Intima"
                         fill
                         className="object-cover"

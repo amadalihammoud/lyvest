@@ -64,13 +64,13 @@ export default function Footer() {
                             {/* Social Icons - Occupying Rows 1 & 2 space */}
                             <div className="flex items-center justify-center gap-6 h-[60px]">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    <Image src="/instagram-logo.webp" alt="Instagram" width={32} height={32} className="w-8 h-8 object-contain" />
+                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={32} height={32} className="w-8 h-8 object-contain" />
                                 </a>
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    <Image src="/facebook-logo.webp" alt="Facebook" width={32} height={32} className="w-8 h-8 object-contain" />
+                                    <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={32} height={32} className="w-8 h-8 object-contain" />
                                 </a>
                                 <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="X">
-                                    <Image src="/x-logo.webp" alt="X" width={24} height={24} className="w-6 h-6 object-contain" />
+                                    <Image src="/assets/icons/x-logo.webp" alt="X" width={24} height={24} className="w-6 h-6 object-contain" />
                                 </a>
                             </div>
 
@@ -85,7 +85,7 @@ export default function Footer() {
                                 {/* Flags Group */}
                                 <div className="flex items-center gap-2 md:gap-3">
                                     <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
-                                        <Image src="/visa-logo.webp" alt="Visa" width={36} height={12} className="h-5 md:h-6 w-auto object-contain" />
+                                        <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={36} height={12} className="h-5 md:h-6 w-auto object-contain" />
                                     </div>
                                     <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
                                         <svg viewBox="0 0 131.39 86.9" className="h-5 md:h-6">
@@ -95,7 +95,7 @@ export default function Footer() {
                                         </svg>
                                     </div>
                                     <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
-                                        <Image src="/pix-logo.webp" alt="Pix" width={36} height={20} className="h-5 md:h-6 w-auto object-contain" />
+                                        <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={36} height={20} className="h-5 md:h-6 w-auto object-contain" />
                                     </div>
                                 </div>
 
@@ -104,7 +104,7 @@ export default function Footer() {
 
                                 {/* Security Group */}
                                 <div className="flex items-center justify-center h-9">
-                                    <Image src="/logo-seguranca.webp" alt="Let's Encrypt" width={44} height={28} className="h-full w-auto object-contain" />
+                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={44} height={28} className="h-full w-auto object-contain" />
                                 </div>
                             </div>
                         </div>

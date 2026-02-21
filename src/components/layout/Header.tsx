@@ -142,7 +142,7 @@ export default function Header(_props?: HeaderProps) {
                             onClick={handleLogoClick}
                         >
                             <Image
-                                src="/lyvest-red-logo.webp"
+                                src="/assets/logos/lyvest-red-logo.webp"
                                 alt="Ly Vest Logo"
                                 width={166}
                                 height={64}
