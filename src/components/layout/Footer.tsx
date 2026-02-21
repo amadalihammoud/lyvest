@@ -54,12 +54,13 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Social, Payment & Security - True Pyramid Column */}
-                    <div className="flex flex-col items-center gap-10 w-full">
-                        {/* Social Media - Pyramid Peak (Always Centered) */}
-                        <div className="flex flex-col items-center gap-4">
-                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em]">{t('footer.followUs')}</h3>
-                            <div className="flex items-center gap-6">
+                    {/* Social, Payment & Security - Mirrored 5-Line Column */}
+                    <div className="flex flex-col items-center gap-0 w-full md:h-full">
+                        {/* Peak Header (SIGA-NOS) */}
+                        <div className="flex flex-col items-center w-full">
+                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em] mb-6">{t('footer.followUs')}</h3>
+                            {/* Social Icons - Occupying Rows 1 & 2 space */}
+                            <div className="flex items-center gap-6 mb-11">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
                                     <Image src="/instagram-logo.webp" alt="Instagram" width={32} height={32} className="w-8 h-8 object-contain" />
                                 </a>
@@ -72,15 +73,15 @@ export default function Footer() {
                             </div>
                         </div>
 
-                        {/* Payment & Security - Unified Pyramid Base Row */}
-                        <div className="flex flex-col items-center gap-6 w-full">
-                            {/* Combined Headers horizontally */}
-                            <div className="flex items-center justify-center gap-12 w-full">
+                        {/* Base Section - Vertically Aligned to match Rows 3-5 of Legal Info */}
+                        <div className="flex flex-col items-center w-full mt-2">
+                            {/* Headers - Aligned with Row 3 ('Endereço') */}
+                            <div className="flex items-center justify-center gap-12 w-full mb-9">
                                 <h3 className="text-[12px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
                                 <h3 className="text-[12px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center whitespace-nowrap">{t('footer.security')}</h3>
                             </div>
 
-                            {/* All Icons in a single horizontal line */}
+                            {/* Icons Row - Aligned with Row 5 ('Telefone') */}
                             <div className="flex items-center justify-center gap-3 md:gap-4 flex-nowrap overflow-visible">
                                 {/* Flags Group */}
                                 <div className="flex items-center gap-2 md:gap-3">
