@@ -91,7 +91,7 @@ export default function RootLayout({
                 <link rel="dns-prefetch" href="https://img.clerk.com" />
                 <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
                 <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
-                <link rel="icon" type="image/png" href="/assets/logos/logo.png" />
+                <link rel="icon" type="image/png" href="/assets/pwa/pwa-192x192.png" />
                 <link rel="manifest" href="/assets/pwa/manifest.json" />
 
                 {/* Speculation Rules — prefetch likely navigation targets during idle time.
