@@ -15,7 +15,7 @@ export default function Footer() {
     return (
         <footer id="footer" className="bg-white pt-16 pb-8 border-t border-slate-100" role="contentinfo">
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 mb-12 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 mb-12 max-w-7xl mx-auto">
                     {/* Ajuda */}
                     <div className="flex flex-col h-full items-center md:items-start">
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] mb-6 text-center md:text-left">{t('footer.help')}</h3>
@@ -76,8 +76,8 @@ export default function Footer() {
                         <div className="grid grid-cols-2 gap-4 md:gap-8 w-full">
                             {/* Payment Methods */}
                             <div className="flex flex-col items-center md:items-start gap-4">
-                                <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em] whitespace-nowrap">{t('footer.paymentMethods')}</h3>
-                                <div className="flex items-center gap-3">
+                                <h3 className="text-[13px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">{t('footer.paymentMethods')}</h3>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                                     <div className="h-10 px-3 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
                                         <Image src="/visa-logo.webp" alt="Visa" width={40} height={14} className="h-6 w-auto object-contain" />
                                     </div>
@@ -96,7 +96,7 @@ export default function Footer() {
 
                             {/* Security Seals */}
                             <div className="flex flex-col items-center md:items-start gap-4">
-                                <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em]">{t('footer.security')}</h3>
+                                <h3 className="text-[13px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">{t('footer.security')}</h3>
                                 <div className="flex items-center gap-4 h-10">
                                     <Image src="/lets-encrypt.webp" alt="Let's Encrypt" width={50} height={32} className="h-full w-auto object-contain" />
                                 </div>
