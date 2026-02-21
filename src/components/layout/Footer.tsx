@@ -81,20 +81,20 @@ export default function Footer() {
                             </div>
 
                             {/* Base Icons - Bottom edge aligned with Row 5 Level ('Telefone') */}
-                            <div className="flex items-center justify-center gap-5 md:gap-8 flex-nowrap overflow-visible h-12 md:h-14">
+                            <div className="flex items-center justify-center gap-5 md:gap-8 flex-nowrap overflow-visible h-16 md:h-20">
                                 {/* Flags Group */}
-                                <div className="flex items-center gap-5 md:gap-6">
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-6 md:h-7 w-auto object-contain" />
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={60} className="h-8 md:h-9 w-auto object-contain" />
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={100} height={40} className="h-6 md:h-7 w-auto object-contain" />
+                                <div className="flex items-center gap-4 md:gap-6">
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={140} height={64} className="h-12 md:h-16 w-auto object-contain" />
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={36} className="h-7 md:h-9 w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={120} height={36} className="h-7 md:h-9 w-auto object-contain" />
                                 </div>
 
                                 {/* Divider */}
-                                <div className="h-8 w-[1px] bg-slate-100 mx-2 md:mx-4"></div>
+                                <div className="h-10 md:h-12 w-[1px] bg-slate-100 mx-1 md:mx-4"></div>
 
                                 {/* Security Group */}
-                                <div className="flex items-center justify-center h-12 md:h-14">
-                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={64} className="h-10 md:h-11 w-auto object-contain" />
+                                <div className="flex items-center justify-center h-16 md:h-20">
+                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={220} height={80} className="h-12 md:h-14 w-auto object-contain" />
                                 </div>
                             </div>
                         </div>
