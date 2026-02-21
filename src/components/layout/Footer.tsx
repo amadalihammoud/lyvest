@@ -81,12 +81,12 @@ export default function Footer() {
                             </div>
 
                             {/* Base Icons - Bottom edge aligned with Row 5 Level ('Telefone') */}
-                            <div className="flex items-center justify-center gap-3 md:gap-4 flex-nowrap overflow-visible h-9">
+                            <div className="flex items-center justify-center gap-3 md:gap-5 flex-nowrap overflow-visible h-10">
                                 {/* Flags Group */}
-                                <div className="flex items-center gap-4 md:gap-6 h-9">
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={80} height={28} className="h-6 md:h-7 w-auto object-contain" />
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={80} height={48} className="h-7 md:h-8 w-auto object-contain" />
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={80} height={44} className="h-6 md:h-7 w-auto object-contain" />
+                                <div className="flex items-center gap-4 md:gap-6">
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-8 md:h-9 w-auto object-contain" />
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={60} className="h-9 md:h-10 w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={100} height={50} className="h-8 md:h-9 w-auto object-contain" />
                                 </div>
 
                                 {/* Divider */}
