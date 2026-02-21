@@ -54,13 +54,15 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Social, Payment & Security - Mirrored 5-Line Column */}
-                    <div className="flex flex-col items-center gap-0 w-full md:h-full">
-                        {/* Peak Header (SIGA-NOS) */}
-                        <div className="flex flex-col items-center w-full">
-                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em] mb-6">{t('footer.followUs')}</h3>
+                    {/* Social, Payment & Security - Precision Mirrored Column */}
+                    <div className="flex flex-col items-center w-full">
+                        {/* Peak Header (SIGA-NOS) - Matched exactly with others */}
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em] mb-6 text-center">{t('footer.followUs')}</h3>
+
+                        {/* Content Area - Fixed height on desktop to mirror neighbor columns (5 lines * 24px + 4 gaps * 12px = 168px) */}
+                        <div className="flex flex-col items-center justify-between w-full md:h-[168px]">
                             {/* Social Icons - Occupying Rows 1 & 2 space */}
-                            <div className="flex items-center gap-6 mb-11">
+                            <div className="flex items-center justify-center gap-6 h-[60px]">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
                                     <Image src="/instagram-logo.webp" alt="Instagram" width={32} height={32} className="w-8 h-8 object-contain" />
                                 </a>
@@ -71,18 +73,15 @@ export default function Footer() {
                                     <Image src="/x-logo.webp" alt="X" width={24} height={24} className="w-6 h-6 object-contain" />
                                 </a>
                             </div>
-                        </div>
 
-                        {/* Base Section - Vertically Aligned to match Rows 3-5 of Legal Info */}
-                        <div className="flex flex-col items-center w-full mt-2">
-                            {/* Headers - Aligned with Row 3 ('Endereço') */}
-                            <div className="flex items-center justify-center gap-12 w-full mb-9">
-                                <h3 className="text-[12px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
-                                <h3 className="text-[12px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight text-center whitespace-nowrap">{t('footer.security')}</h3>
+                            {/* Base Headers - Centered at Row 3 Level ('Endereço') */}
+                            <div className="flex items-center justify-center gap-12 w-full h-6">
+                                <h3 className="text-[12px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
+                                <h3 className="text-[12px] md:text-[14px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
                             </div>
 
-                            {/* Icons Row - Aligned with Row 5 ('Telefone') */}
-                            <div className="flex items-center justify-center gap-3 md:gap-4 flex-nowrap overflow-visible">
+                            {/* Base Icons - Bottom edge aligned with Row 5 Level ('Telefone') */}
+                            <div className="flex items-center justify-center gap-3 md:gap-4 flex-nowrap overflow-visible h-9">
                                 {/* Flags Group */}
                                 <div className="flex items-center gap-2 md:gap-3">
                                     <div className="h-9 px-2 bg-white rounded-lg shadow-sm flex items-center justify-center border border-slate-100">
