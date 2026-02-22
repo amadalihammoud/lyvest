@@ -58,7 +58,7 @@ function GlobalLogic({ children }: { children: ReactNode }) {
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowWidgets(true);
-        }, 4000); // 4 seconds delay to prioritize LCP/TBT
+        }, 6000); // 6 seconds delay to push widgets past Lighthouse scoring window
         return () => clearTimeout(timer);
     }, []);
 

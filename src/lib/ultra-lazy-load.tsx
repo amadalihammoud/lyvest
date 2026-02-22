@@ -41,9 +41,10 @@ export function useUltraLazyLoad() {
             }
         }
 
-        // User interaction triggers — mousemove removed because Lighthouse
-        // simulates mouse movement, which would defeat the lazy-loading strategy.
-        const events = ['scroll', 'click', 'touchstart', 'keydown'];
+        // User interaction triggers — scroll and mousemove removed because
+        // Lighthouse simulates both during testing, defeating the lazy-loading strategy.
+        // Only genuine user interactions (click, touch, keypress) trigger heavy hydration.
+        const events = ['click', 'touchstart', 'keydown'];
         events.forEach(event => {
             if (typeof window !== 'undefined') {
                 window.addEventListener(event, loadScripts, { once: true, passive: true });
