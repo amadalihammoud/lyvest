@@ -88,9 +88,9 @@ export default function Footer() {
                                 {/* Visa: tight-cropped ~400x152px file → h-9 gives ~94px wide, 36px visual content */}
                                 <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
                                 {/* Mastercard: 200x200 source, circles fill ~80% → needs h-12 so circles appear same size as Visa text */}
-                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={55} className="h-12 md:h-[52px] w-auto object-contain" />
-                                {/* Pix: tight-cropped ~400x136px file → h-10 gives ~118px wide, proportional to Mastercard */}
-                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={44} className="h-10 md:h-11 w-auto object-contain" />
+                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={90} className="h-[82px] md:h-[88px] w-auto object-contain" />
+                                {/* Pix: +100% (40→80px / 44→88px) */}
+                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={88} className="h-[80px] md:h-[88px] w-auto object-contain" />
 
                                 {/* Divider — wider margins push security to the right */}
                                 <div className="h-10 w-[1px] bg-slate-200 mx-4 md:mx-10 shrink-0"></div>
