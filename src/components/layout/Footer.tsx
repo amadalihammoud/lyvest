@@ -77,26 +77,28 @@ export default function Footer() {
                                 </a>
                             </div>
 
-                            {/* Base Headers - Centered at Row 3 Level ('Endereço') */}
-                            <div className="flex items-center justify-center gap-12 w-full h-6 mt-2">
-                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
-                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
-                            </div>
+                            {/* Payment & Security — two columns, each with label on top and icon(s) below */}
+                            <div className="flex items-end justify-center gap-6 md:gap-10 flex-nowrap mt-4">
 
-                            {/* Icons row — calibrated per file aspect ratio for visual balance */}
-                            <div className="flex items-center justify-center gap-3 md:gap-5 flex-nowrap mt-3">
-                                {/* Visa: tight-cropped ~400x152px file → h-9 gives ~94px wide, 36px visual content */}
-                                <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
-                                {/* Mastercard: 200x200 source, circles fill ~80% → needs h-12 so circles appear same size as Visa text */}
-                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={90} className="h-[82px] md:h-[88px] w-auto object-contain" />
-                                {/* Pix: +100% (40→80px / 44→88px) */}
-                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={125} className="h-[114px] md:h-[125px] w-auto object-contain" />
+                                {/* Payment Column */}
+                                <div className="flex flex-col items-center gap-3">
+                                    <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
+                                    <div className="flex items-center gap-3 md:gap-5">
+                                        <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
+                                        <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={90} className="h-[82px] md:h-[88px] w-auto object-contain" />
+                                        <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={125} className="h-[114px] md:h-[125px] w-auto object-contain" />
+                                    </div>
+                                </div>
 
-                                {/* Divider — wider margins push security to the right */}
-                                <div className="h-10 w-[1px] bg-slate-200 mx-4 md:mx-10 shrink-0"></div>
+                                {/* Divider */}
+                                <div className="h-[130px] w-[1px] bg-slate-200 shrink-0 self-end"></div>
 
-                                {/* Security */}
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={60} className="h-11 md:h-12 w-auto object-contain" />
+                                {/* Security Column */}
+                                <div className="flex flex-col items-center gap-3">
+                                    <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
+                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={60} className="h-11 md:h-12 w-auto object-contain" />
+                                </div>
+
                             </div>
                         </div>
                     </div>
