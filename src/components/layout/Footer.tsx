@@ -77,33 +77,27 @@ export default function Footer() {
                                 </a>
                             </div>
 
-                            {/* CSS Grid: 3 cols (payment | divider | security) — label always above its icons */}
-                            <div className="grid grid-cols-[auto_1px_auto] gap-x-10 md:gap-x-16 mt-8 md:mt-10 items-start">
-
-                                {/* Row 1 col 1: Payment label */}
-                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap pb-3">{t('footer.paymentMethods')}</h3>
-
-                                {/* Row 1 col 2: empty divider header */}
+                            {/* Labels row — independently positioned to align with Trocas/Endereço level */}
+                            <div className="grid grid-cols-[auto_1px_auto] gap-x-10 md:gap-x-16 mt-5 md:mt-6">
+                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
                                 <span />
+                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
+                            </div>
 
-                                {/* Row 1 col 3: Security label */}
-                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap pb-3">{t('footer.security')}</h3>
-
-                                {/* Row 2 col 1: Payment icons */}
+                            {/* Icons row — same grid-cols pattern so columns align with labels above */}
+                            <div className="grid grid-cols-[auto_1px_auto] gap-x-10 md:gap-x-16 mt-3 items-center">
+                                {/* Payment icons */}
                                 <div className="flex items-center justify-center gap-3 md:gap-4">
                                     <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
                                     <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={90} className="h-[82px] md:h-[88px] w-auto object-contain" />
                                     <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={125} className="h-[114px] md:h-[125px] w-auto object-contain" />
                                 </div>
-
-                                {/* Row 2 col 2: Vertical divider */}
-                                <div className="bg-slate-200 w-full h-full min-h-[60px]"></div>
-
-                                {/* Row 2 col 3: Security icon */}
-                                <div className="flex items-center justify-center h-full">
+                                {/* Vertical divider */}
+                                <div className="bg-slate-200 w-full h-full min-h-[120px] self-stretch"></div>
+                                {/* Security icon */}
+                                <div className="flex items-center justify-center">
                                     <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={70} className="h-[62px] md:h-[67px] w-auto object-contain" />
                                 </div>
-
                             </div>
                         </div>
                     </div>
