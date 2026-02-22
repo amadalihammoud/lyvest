@@ -62,15 +62,15 @@ export default function Footer() {
                         {/* Content Area - Fixed height on desktop to mirror neighbor columns (5 lines * 24px + 4 gaps * 12px = 168px) */}
                         <div className="flex flex-col items-center justify-between w-full md:h-[168px]">
                             {/* Social Icons - Occupying Rows 1 & 2 space */}
-                            <div className="flex items-center justify-center gap-6 h-[60px]">
+                            <div className="flex items-center justify-center gap-8 h-[72px]">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={64} height={64} className="w-8 h-8 object-contain" />
+                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-11 h-11 object-contain" />
                                 </a>
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={64} height={64} className="w-8 h-8 object-contain" />
+                                    <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="w-11 h-11 object-contain" />
                                 </a>
                                 <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="X">
-                                    <Image src="/assets/icons/x-logo.webp" alt="X" width={48} height={48} className="w-6 h-6 object-contain" />
+                                    <Image src="/assets/icons/x-logo.webp" alt="X" width={80} height={80} className="w-11 h-11 object-contain" />
                                 </a>
                             </div>
 
@@ -82,11 +82,11 @@ export default function Footer() {
 
                             {/* Base Icons - Bottom edge aligned with Row 5 Level ('Telefone') */}
                             <div className="flex items-center justify-center gap-5 md:gap-8 flex-nowrap overflow-visible h-16 md:h-20">
-                                {/* Flags Group */}
-                                <div className="flex items-center gap-4 md:gap-6">
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={140} height={64} className="h-12 md:h-16 w-auto object-contain" />
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={36} className="h-7 md:h-9 w-auto object-contain" />
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={120} height={36} className="h-7 md:h-9 w-auto object-contain" />
+                                {/* Flags Group - Visa src file has ~60% transparent padding so needs 2x container vs Mastercard/Pix */}
+                                <div className="flex items-center gap-3 md:gap-5">
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={140} height={64} className="h-14 md:h-16 w-auto object-contain" />
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={120} height={44} className="h-9 md:h-11 w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={120} height={44} className="h-9 md:h-11 w-auto object-contain" />
                                 </div>
 
                                 {/* Divider */}
