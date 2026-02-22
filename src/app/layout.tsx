@@ -82,17 +82,7 @@ export const metadata: Metadata = {
 
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import Header from '@/components/layout/Header';
 import HeaderInteractive from '@/components/layout/HeaderInteractive';
-
-function HeaderFallback() {
-    return (
-        <Suspense fallback={<div className="h-20 w-full bg-white shadow-sm" />}>
-            <HeaderInteractive user={null} />
-        </Suspense>
-    );
-}
-
 export default function RootLayout({
     children,
 }: {
@@ -138,8 +128,8 @@ export default function RootLayout({
                 />
             </head>
             <body className="bg-[#FDF5F5] text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
-                <Suspense fallback={<HeaderFallback />}>
-                    <Header />
+                <Suspense fallback={<div className="h-20 w-full bg-white shadow-sm" />}>
+                    <HeaderInteractive />
                 </Suspense>
                 <ClientLayout>
                     {children}

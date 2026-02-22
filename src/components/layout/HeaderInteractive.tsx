@@ -36,7 +36,7 @@ export interface SerializedUser {
 }
 
 interface HeaderInteractiveProps {
-    user: SerializedUser | null;
+    // No props needed, it's a standalone client component that fetches its own user state via API.
 }
 
 interface MenuItem {
@@ -47,7 +47,7 @@ interface MenuItem {
     subcategories?: MenuItem[];
 }
 
-export default function HeaderInteractive({ user }: HeaderInteractiveProps) {
+export default function HeaderInteractive() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -56,6 +56,20 @@ export default function HeaderInteractive({ user }: HeaderInteractiveProps) {
     const { favorites } = useFavorites();
     const { openDrawer, closeDrawer, openModal } = useModal();
     const { onOpen } = useAuthModal();
+
+    const [user, setUser] = useState<SerializedUser | null>(null);
+
+    // Fetch user details silently outside of the SSR render path to ensure instant FCP
+    useEffect(() => {
+        fetch('/api/auth/me', { headers: { 'Cache-Control': 'no-cache' } })
+            .then(res => res.json())
+            .then(data => {
+                if (data?.user) {
+                    setUser(data.user);
+                }
+            })
+            .catch(() => { /* ignore */ });
+    }, []);
 
     const { selectedCategory, setSelectedCategory } = useShop();
     const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
