@@ -86,11 +86,11 @@ export default function Footer() {
 
                             {/* Icons row — same grid-cols pattern so columns align with labels above */}
                             <div className="grid grid-cols-[auto_1px_auto] gap-x-10 md:gap-x-16 mt-3 items-center">
-                                {/* Payment icons */}
+                                {/* Payment icons — calibrated to match reference proportions */}
                                 <div className="flex items-center justify-center gap-3 md:gap-4">
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={90} className="h-[82px] md:h-[88px] w-auto object-contain" />
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={125} className="h-[114px] md:h-[125px] w-auto object-contain" />
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={36} className="h-8 md:h-9 w-auto object-contain" />
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={48} className="h-10 md:h-12 w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={40} className="h-9 md:h-10 w-auto object-contain" />
                                 </div>
                                 {/* Vertical divider */}
                                 <div className="bg-slate-200 w-full h-full min-h-[120px] self-stretch"></div>
