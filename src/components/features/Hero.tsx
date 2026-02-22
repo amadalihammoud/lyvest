@@ -65,6 +65,8 @@ function Hero() {
                                                     <img
                                                         src={desktopImage}
                                                         alt={slide.alt}
+                                                        width={1400}
+                                                        height={450}
                                                         fetchPriority="high"
                                                         decoding="sync"
                                                         loading="eager"

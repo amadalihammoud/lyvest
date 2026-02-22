@@ -89,6 +89,22 @@ export default function RootLayout({
     return (
         <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
             <head>
+                {/* Preload LCP hero banner images — starts download before React renders */}
+                <link
+                    rel="preload"
+                    as="image"
+                    href="/assets/banners/banner-slide-1-mobile.webp"
+                    media="(max-width: 767px)"
+                    fetchPriority="high"
+                />
+                <link
+                    rel="preload"
+                    as="image"
+                    href="/assets/banners/banner-slide-1.webp"
+                    media="(min-width: 768px)"
+                    fetchPriority="high"
+                />
+
                 {/* DNS-prefetch for non-critical third-party origins */}
                 <link rel="dns-prefetch" href="https://img.clerk.com" />
                 <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
