@@ -85,10 +85,13 @@ export default function Footer() {
 
                             {/* Base Icons - Bottom edge aligned with Row 5 Level ('Telefone') */}
                             <div className="flex items-center justify-center gap-5 md:gap-8 flex-nowrap overflow-visible h-16 md:h-20">
-                                {/* Flags Group — source files are now tightly cropped so same height = same visual weight */}
+                                {/* Flags Group — individually tuned to balance visual weight */}
                                 <div className="flex items-center gap-4 md:gap-6">
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={120} height={44} className="h-8 md:h-9 w-auto object-contain" />
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={44} className="h-9 md:h-10 w-auto object-contain" />
+                                    {/* Visa: bold ALL-CAPS wordmark appears larger at same px — reduce height */}
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={30} className="h-5 md:h-6 w-auto object-contain" />
+                                    {/* Mastercard: circular icon graphic */}
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={44} className="h-8 md:h-9 w-auto object-contain" />
+                                    {/* Pix: icon+text combination */}
                                     <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={44} className="h-8 md:h-9 w-auto object-contain" />
                                 </div>
 
