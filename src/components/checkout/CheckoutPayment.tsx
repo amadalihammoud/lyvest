@@ -3,7 +3,7 @@ import { useUser } from '@clerk/nextjs';
 import { CreditCard, QrCode, AlertCircle, Lock } from 'lucide-react';
 import { useState, ChangeEvent, FormEvent } from 'react';
 
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../store/useCartStore';
 import { useI18n } from '../../hooks/useI18n';
 import { paymentService } from '../../services/payment';
 import { paymentSchema, validateForm } from '../../utils/schemas';

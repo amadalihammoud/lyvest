@@ -2,7 +2,7 @@ import { Heart, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
 import EmptyState from './EmptyState';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../store/useCartStore';
 import { useFavorites } from '../../context/FavoritesContext';
 import { productsData } from '../../data/products';
 import { useI18n } from '../../hooks/useI18n';

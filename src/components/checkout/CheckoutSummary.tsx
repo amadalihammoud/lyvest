@@ -1,6 +1,6 @@
 import { ShoppingBag } from 'lucide-react';
 
-import { CartItem } from '../../context/CartContext';
+import { CartItem } from '../../store/useCartStore';
 import { useI18n } from '../../hooks/useI18n';
 
 interface CheckoutSummaryProps {

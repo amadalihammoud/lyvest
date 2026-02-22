@@ -1,7 +1,7 @@
 import { ArrowRight, Check, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../store/useCartStore';
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
 
