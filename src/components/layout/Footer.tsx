@@ -78,7 +78,7 @@ export default function Footer() {
                             </div>
 
                             {/* CSS Grid: 3 cols (payment | divider | security) — label always above its icons */}
-                            <div className="grid grid-cols-[auto_1px_auto] gap-x-8 md:gap-x-12 mt-4 items-start">
+                            <div className="grid grid-cols-[auto_1px_auto] gap-x-10 md:gap-x-16 mt-8 md:mt-10 items-start">
 
                                 {/* Row 1 col 1: Payment label */}
                                 <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap pb-3">{t('footer.paymentMethods')}</h3>
@@ -101,7 +101,7 @@ export default function Footer() {
 
                                 {/* Row 2 col 3: Security icon */}
                                 <div className="flex items-center justify-center h-full">
-                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={60} className="h-11 md:h-12 w-auto object-contain" />
+                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={70} className="h-[62px] md:h-[67px] w-auto object-contain" />
                                 </div>
 
                             </div>
