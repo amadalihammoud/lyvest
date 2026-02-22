@@ -2,7 +2,7 @@
 
 import { Smile } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
 
 // Hero and InfoStrip moved to page.tsx for LCP optimization
@@ -24,12 +24,22 @@ const Testimonials = dynamic(() => import('@/components/features/Testimonials'),
 // 1. Dynamic Component: Handles URL params and Product Grid
 function ProductShowcase() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const categoryParam = searchParams.get('categoria') || 'Todos';
-    const searchParam = searchParams.get('busca') || '';
 
-    const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-    const [searchQuery, setSearchQuery] = useState(searchParam);
+    const [selectedCategory, setSelectedCategory] = useState('Todos');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Hydrate state from URL only on the client. 
+    // This allows the server to statically generate the default 'Todos' 
+    // product grid instantly in the initial HTML.
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const categoryParam = params.get('categoria');
+            const searchParam = params.get('busca');
+            if (categoryParam) setSelectedCategory(categoryParam);
+            if (searchParam) setSearchQuery(searchParam);
+        }
+    }, []);
 
     const { addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
@@ -147,36 +157,14 @@ function ProductShowcase() {
     );
 }
 
-// 2. Updated Skeleton: Only for the Product Grid (Hero is visible)
-function ProductGridSkeleton() {
-    return (
-        <section className="py-16 bg-transparent">
-            <div className="container mx-auto px-4">
-                <div className="text-center mb-12">
-                    <div className="h-12 w-64 bg-slate-200 rounded mx-auto"></div>
-                </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="bg-white rounded-xl h-80 shadow-sm"></div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-}
-
-// 3. Main Component: Renders Static Parts + Suspended Dynamic Part
+// 3. Main Component: Renders Static Parts
 export default function HomePageClient() {
     const { t } = useI18n();
 
     return (
         <>
-            {/* Hero & InfoStrip are now rendered in page.tsx for LCP optimization */}
-
-            {/* Suspended Product Grid - Loading State only affects this part */}
-            <Suspense fallback={<ProductGridSkeleton />}>
-                <ProductShowcase />
-            </Suspense>
+            {/* Static Product Grid - Instantly parsed from HTML */}
+            <ProductShowcase />
 
             {/* Testimonials moved here with ssr: false for JS diet */}
             <div className="cv-auto-sm">

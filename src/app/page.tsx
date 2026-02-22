@@ -31,9 +31,7 @@ export default async function HomePage() {
 
             {/* Lazy Load Product Grid for TBT win — cv-auto skips rendering until scrolled into view */}
             <div className="container mx-auto px-4 pb-8 lg:pb-12 pt-2 lg:pt-4 cv-auto">
-                <Suspense fallback={<div className="h-96 md:h-[600px] bg-slate-50 rounded-xl" />}>
-                    <HomePageClient />
-                </Suspense>
+                <HomePageClient />
             </div>
         </main>
     );
