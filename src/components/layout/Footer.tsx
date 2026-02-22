@@ -16,9 +16,9 @@ export default function Footer() {
         <footer id="footer" className="bg-white pt-16 pb-8 border-t border-slate-100" role="contentinfo">
             <div className="container mx-auto px-4">
                 {/* Top Columns (Help & Legal) */}
-                <div className="flex flex-col md:flex-row justify-center gap-12 md:gap-32 w-full max-w-5xl mx-auto items-start mb-12">
+                <div className="flex flex-col md:flex-row justify-center gap-12 md:gap-32 w-full max-w-5xl mx-auto items-center md:items-start mb-12">
                     {/* Ajuda */}
-                    <div className="flex flex-col h-full items-center md:items-start">
+                    <div className="flex flex-col h-full items-center md:items-start w-full md:w-auto">
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] mb-6 text-center md:text-left">{t('footer.help')}</h3>
                         <div className="flex-1 w-full max-w-md mx-auto md:mx-0">
                             <ul className="flex flex-col gap-3 text-base text-slate-600 w-full">
@@ -32,7 +32,7 @@ export default function Footer() {
                     </div>
 
                     {/* Legal */}
-                    <div className="flex flex-col h-full items-center md:items-start">
+                    <div className="flex flex-col h-full items-center md:items-start w-full md:w-auto">
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] mb-6 text-center md:text-left">{t('footer.legal')}</h3>
                         <div className="flex-1 w-full max-w-md mx-auto md:mx-0">
                             <ul className="flex flex-col gap-3 text-sm md:text-base text-slate-600">
