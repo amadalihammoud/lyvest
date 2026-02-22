@@ -5,13 +5,8 @@ import { generateSlug } from '@/utils/slug';
 
 export const dynamicParams = true; // or false if we want strict paths
 
-export async function generateStaticParams() {
-    // Generate paths for all categories found in productsData
-    const categories = new Set(productsData.map(p => p.category));
-    return Array.from(categories).map(cat => ({
-        slug: generateSlug(cat),
-    }));
-}
+// Intentionally skipping generateStaticParams to allow Dynamic Rendering (SSR) 
+// avoiding layout conflicts with the Suspense dynamic header.
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;

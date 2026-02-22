@@ -7,12 +7,8 @@ import { generateSlug } from '@/utils/slug';
 
 export const dynamicParams = true;
 
-// Pre-generate some popular products for speed
-export async function generateStaticParams() {
-    return productsData.slice(0, 10).map(p => ({
-        slug: generateSlug(p.name),
-    }));
-}
+// Intentionally skipping generateStaticParams to allow Dynamic Rendering (SSR) 
+// avoiding layout conflicts with the Suspense dynamic header.
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
