@@ -60,7 +60,7 @@ export default function Footer() {
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em] mb-6 text-center">{t('footer.followUs')}</h3>
 
                         {/* Content Area - Fixed height on desktop to mirror neighbor columns (5 lines * 24px + 4 gaps * 12px = 168px) */}
-                        <div className="flex flex-col items-center justify-between w-full md:h-[168px]">
+                        <div className="flex flex-col items-center justify-between w-full md:h-[200px]">
                             {/* Social Icons - Occupying Rows 1 & 2 space */}
                             <div className="flex items-center justify-center gap-6 h-[72px]">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
@@ -83,20 +83,20 @@ export default function Footer() {
                                 <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
                             </div>
 
-                            {/* Base Icons - Bottom edge aligned with Row 5 Level ('Telefone') */}
-                            <div className="flex items-center justify-center gap-5 md:gap-8 flex-nowrap overflow-visible h-16 md:h-20">
-                                {/* Flags Group — individually tuned to balance visual weight */}
-                                <div className="flex items-center gap-4 md:gap-6">
+                            {/* Base Icons - ALL icons share the same bottom baseline (aligned with Telefone / Política de privacidade) */}
+                            <div className="flex items-end justify-center gap-5 md:gap-8 flex-nowrap overflow-visible">
+                                {/* Flags Group */}
+                                <div className="flex items-end gap-4 md:gap-6">
                                     <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={30} className="h-5 md:h-6 w-auto object-contain" />
                                     <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={70} className="h-14 md:h-[60px] w-auto object-contain" />
                                     <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={90} className="h-[83px] md:h-[90px] w-auto object-contain" />
                                 </div>
 
                                 {/* Divider */}
-                                <div className="h-10 md:h-12 w-[1px] bg-slate-100 mx-1 md:mx-4"></div>
+                                <div className="h-[90px] w-[1px] bg-slate-100 mx-1 md:mx-4"></div>
 
                                 {/* Security Group */}
-                                <div className="flex items-center justify-center h-16 md:h-20">
+                                <div className="flex items-end justify-center">
                                     <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={220} height={80} className="h-12 md:h-14 w-auto object-contain" />
                                 </div>
                             </div>
