@@ -68,8 +68,8 @@ export default function Footer() {
                                     <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-[37px] h-[37px] object-contain" />
                                 </a>
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    {/* Facebook 'f' letterform has lots of white canvas — scaled up to visually match Instagram */}
-                                    <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="w-[52px] h-[52px] object-contain" />
+                                    {/* Facebook 'f' letterform has lots of white canvas — scaled up to visually match Instagram (+10%) */}
+                                    <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="w-[57px] h-[57px] object-contain" />
                                 </a>
                                 <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="X">
                                     {/* X letterform also has white canvas — scaled up to visually match Instagram */}
