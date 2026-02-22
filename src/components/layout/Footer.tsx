@@ -90,7 +90,7 @@ export default function Footer() {
                                 {/* Mastercard: 200x200 source, circles fill ~80% → needs h-12 so circles appear same size as Visa text */}
                                 <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={90} className="h-[82px] md:h-[88px] w-auto object-contain" />
                                 {/* Pix: +100% (40→80px / 44→88px) */}
-                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={114} className="h-[104px] md:h-[114px] w-auto object-contain" />
+                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={125} className="h-[114px] md:h-[125px] w-auto object-contain" />
 
                                 {/* Divider — wider margins push security to the right */}
                                 <div className="h-10 w-[1px] bg-slate-200 mx-4 md:mx-10 shrink-0"></div>
