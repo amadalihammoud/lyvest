@@ -83,28 +83,20 @@ export default function Footer() {
                                 <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
                             </div>
 
-                            {/* Base Icons - each icon in a fixed h-[90px] column with justify-end → guaranteed same baseline */}
-                            <div className="flex justify-center gap-5 md:gap-8 flex-nowrap overflow-visible">
-                                {/* Flags Group */}
-                                <div className="flex gap-4 md:gap-6">
-                                    <div className="flex flex-col justify-end h-[90px]">
-                                        <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={30} className="h-5 md:h-6 w-auto object-contain" />
-                                    </div>
-                                    <div className="flex flex-col justify-end h-[90px]">
-                                        <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={70} className="h-14 md:h-[60px] w-auto object-contain" />
-                                    </div>
-                                    <div className="flex flex-col justify-end h-[90px]">
-                                        <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={90} className="h-[83px] md:h-[90px] w-auto object-contain" />
-                                    </div>
-                                </div>
+                            {/* Icons row — all side by side, same center alignment */}
+                            <div className="flex items-center justify-center gap-4 md:gap-6 flex-nowrap mt-3">
+                                {/* Visa */}
+                                <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
+                                {/* Mastercard */}
+                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
+                                {/* Pix */}
+                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={40} className="h-9 md:h-10 w-auto object-contain" />
 
                                 {/* Divider */}
-                                <div className="h-[90px] w-[1px] bg-slate-100 mx-2 md:mx-8"></div>
+                                <div className="h-10 w-[1px] bg-slate-200 mx-2 md:mx-6 shrink-0"></div>
 
-                                {/* Security Group */}
-                                <div className="flex flex-col justify-end h-[90px] ml-2 md:ml-4">
-                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={220} height={80} className="h-12 md:h-14 w-auto object-contain" />
-                                </div>
+                                {/* Security */}
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={60} className="h-11 md:h-12 w-auto object-contain" />
                             </div>
                         </div>
                     </div>
