@@ -12,6 +12,13 @@
     "test:unit": "vitest run",
     "test:e2e": "playwright test"
   },
+  "browserslist": [
+    "Chrome >= 90",
+    "Firefox >= 88",
+    "Safari >= 14",
+    "Edge >= 90",
+    "iOS >= 14"
+  ],
   "dependencies": {
     "@ai-sdk/openai": "^3.0.18",
     "@ai-sdk/react": "^3.0.51",

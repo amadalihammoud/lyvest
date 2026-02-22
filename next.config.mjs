@@ -49,8 +49,7 @@ const nextConfig = {
     },
 
     turbopack: {},
-    // Webpack: Usar defaults do Next.js + Lazy Loading já resolvem
-    // Removido custom splitChunks para evitar conflito com dynamic imports
+    // Webpack: Removido custom splitChunks para evitar conflito com dynamic imports e permitir que o Next.js lide com isso nativamente
     webpack: (config, { isServer }) => {
         if (!isServer) {
             // Remover polyfills desnecessários no client
@@ -59,28 +58,6 @@ const nextConfig = {
                 fs: false,
                 net: false,
                 tls: false,
-            };
-
-            // Code Splitting Agressivo (Optimization 8)
-            config.optimization.splitChunks = {
-                chunks: 'all',
-                cacheGroups: {
-                    clerk: {
-                        test: /[\\/]node_modules[\\/]@clerk[\\/]/,
-                        name: 'clerk',
-                        priority: 20,
-                    },
-                    vendor: {
-                        test: /[\\/]node_modules[\\/]/,
-                        name(module) {
-                            const packageName = module.context?.match(
-                                /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-                            )?.[1]
-                            return packageName ? `vendor.${packageName.replace('@', '')}` : 'vendor.unknown'
-                        },
-                        priority: 10,
-                    },
-                },
             };
         }
         return config;

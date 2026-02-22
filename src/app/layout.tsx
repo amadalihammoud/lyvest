@@ -1,5 +1,5 @@
-
 import { Lato, Cookie } from 'next/font/google';
+import { preload } from 'react-dom';
 
 import type { Metadata, Viewport } from 'next';
 
@@ -88,25 +88,18 @@ export default function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
+    // 1. Desktop and Mobile LCP responsive preload using imageSrcSet
+    // This perfectly matches the <picture> tag in Hero.tsx and hoists it above CSS
+    preload('/assets/banners/banner-slide-1.webp', {
+        as: 'image',
+        fetchPriority: 'high',
+        imageSrcSet: '/assets/banners/banner-slide-1-mobile.webp 767w, /assets/banners/banner-slide-1.webp 1400w',
+        imageSizes: '(max-width: 767px) 100vw, 100vw'
+    });
+
     return (
         <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
             <head>
-                {/* Preload LCP hero banner images — starts download before React renders */}
-                <link
-                    rel="preload"
-                    as="image"
-                    href="/assets/banners/banner-slide-1-mobile.webp"
-                    media="(max-width: 767px)"
-                    fetchPriority="high"
-                />
-                <link
-                    rel="preload"
-                    as="image"
-                    href="/assets/banners/banner-slide-1.webp"
-                    media="(min-width: 768px)"
-                    fetchPriority="high"
-                />
-
                 {/* DNS-prefetch for non-critical third-party origins */}
                 <link rel="dns-prefetch" href="https://img.clerk.com" />
                 <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
@@ -142,6 +135,6 @@ export default function RootLayout({
                 <Analytics />
                 <SpeedInsights />
             </body>
-        </html>
+        </html >
     );
 }
