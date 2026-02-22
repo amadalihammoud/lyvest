@@ -77,25 +77,30 @@ export default function Footer() {
                                 </a>
                             </div>
 
-                            {/* Payment & Security — two columns aligned from the top */}
-                            <div className="flex items-start justify-center gap-6 md:gap-10 flex-nowrap mt-4">
+                            {/* CSS Grid: 3 cols (payment | divider | security) — label always above its icons */}
+                            <div className="grid grid-cols-[auto_1px_auto] gap-x-8 md:gap-x-12 mt-4 items-start">
 
-                                {/* Payment Column */}
-                                <div className="flex flex-col items-center gap-3">
-                                    <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
-                                    <div className="flex items-center gap-3 md:gap-5">
-                                        <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
-                                        <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={90} className="h-[82px] md:h-[88px] w-auto object-contain" />
-                                        <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={125} className="h-[114px] md:h-[125px] w-auto object-contain" />
-                                    </div>
+                                {/* Row 1 col 1: Payment label */}
+                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap pb-3">{t('footer.paymentMethods')}</h3>
+
+                                {/* Row 1 col 2: empty divider header */}
+                                <span />
+
+                                {/* Row 1 col 3: Security label */}
+                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap pb-3">{t('footer.security')}</h3>
+
+                                {/* Row 2 col 1: Payment icons */}
+                                <div className="flex items-center justify-center gap-3 md:gap-4">
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={90} className="h-[82px] md:h-[88px] w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={125} className="h-[114px] md:h-[125px] w-auto object-contain" />
                                 </div>
 
-                                {/* Divider */}
-                                <div className="h-[130px] w-[1px] bg-slate-200 shrink-0 self-end"></div>
+                                {/* Row 2 col 2: Vertical divider */}
+                                <div className="bg-slate-200 w-full h-full min-h-[60px]"></div>
 
-                                {/* Security Column */}
-                                <div className="flex flex-col items-center gap-3">
-                                    <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
+                                {/* Row 2 col 3: Security icon */}
+                                <div className="flex items-center justify-center h-full">
                                     <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={60} className="h-11 md:h-12 w-auto object-contain" />
                                 </div>
 
