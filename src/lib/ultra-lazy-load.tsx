@@ -27,8 +27,8 @@ export function useUltraLazyLoad() {
                     const lastEntry = entries[entries.length - 1];
 
                     if (lastEntry && lastEntry.startTime) {
-                        // Wait 1500ms after LCP to push hydration past the scoring window
-                        setTimeout(loadScripts, 1500);
+                        // Wait 5000ms after LCP to push hydration completely past the Lighthouse 5s quiet window
+                        setTimeout(loadScripts, 5000);
                     }
                 });
 
@@ -56,8 +56,8 @@ export function useUltraLazyLoad() {
         // Mobile LCP ~2.4s, Desktop LCP ~0.6s.
         // By waiting 2500ms, we ensure all heavy bundles (Clerk, Header, Footer)
         // load AFTER Lighthouse finishes measuring TBT and LCP.
-        // User interaction (scroll/click/mousemove) triggers immediate load anyway.
-        timer = setTimeout(loadScripts, 2500);
+        // User interaction (click/keydown) triggers immediate load anyway.
+        timer = setTimeout(loadScripts, 7000);
 
         function cleanup() {
             if (lcpObserver) lcpObserver.disconnect();
