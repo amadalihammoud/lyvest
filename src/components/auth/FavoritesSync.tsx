@@ -8,18 +8,20 @@ import { useFavorites } from '@/store/useFavoritesStore';
 // Componente separado que USA Clerk (useUser) e sincroniza o contexto
 export const FavoritesSync = () => {
     const { user, isLoaded } = useUser();
-    const context = useFavorites();
+    const _setUserId = useFavorites(state => state._setUserId);
+    const _syncWithUser = useFavorites(state => state._syncWithUser);
 
     useEffect(() => {
         if (isLoaded) {
-            if (context._setUserId) {
-                context._setUserId(user ? user.id : null);
+            if (_setUserId) {
+                _setUserId(user ? user.id : null);
             }
-            if (user && context._syncWithUser) {
-                context._syncWithUser(user);
+            if (user && _syncWithUser) {
+                _syncWithUser(user);
             }
         }
-    }, [user, isLoaded, context]);
+        // _setUserId and _syncWithUser remain stable in Zustand
+    }, [user, isLoaded, _setUserId, _syncWithUser]);
 
     return null;
 };
