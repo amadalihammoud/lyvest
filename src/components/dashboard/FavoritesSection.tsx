@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import EmptyState from './EmptyState';
 import { useCart } from '../../store/useCartStore';
-import { useFavorites } from '../../context/FavoritesContext';
+import { useFavorites } from '../../store/useFavoritesStore';
 import { productsData } from '../../data/products';
 import { useI18n } from '../../hooks/useI18n';
 import { generateSlug } from '../../utils/slug';

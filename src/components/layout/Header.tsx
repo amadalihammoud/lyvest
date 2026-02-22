@@ -7,8 +7,8 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo, ChangeEvent, Suspense } from 'react';
 
 import { useCart } from '../../store/useCartStore';
-import { useFavorites } from '../../context/FavoritesContext';
-import { useModal } from '../../context/ModalContext';
+import { useFavorites } from '../../store/useFavoritesStore';
+import { useModal } from '../../store/useModalStore';
 import { productsData } from '../../data/products';
 import { mainMenu } from '../../data/siteData';
 import { useDebounce } from '../../hooks/useDebounce';

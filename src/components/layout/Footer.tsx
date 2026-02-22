@@ -2,7 +2,7 @@
 'use client';
 import Image from 'next/image';
 
-import { useModal } from '../../context/ModalContext';
+import { useModal } from '../../store/useModalStore';
 import { useI18n } from '../../hooks/useI18n';
 
 export default function Footer() {
