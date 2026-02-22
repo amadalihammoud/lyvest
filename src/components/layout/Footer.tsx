@@ -84,8 +84,10 @@ export default function Footer() {
                         <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
                         <div className="flex items-center justify-center gap-3 md:gap-5">
                             <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-6 md:h-7 w-auto object-contain" />
-                            <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={44} className="h-[38px] md:h-11 w-auto object-contain" />
-                            <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={44} className="h-[38px] md:h-11 w-auto object-contain" />
+                            {/* Increased 60% relative to Visa */}
+                            <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[60px] md:h-[70px] w-auto object-contain" />
+                            {/* Increased 80% relative to Visa */}
+                            <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[68px] md:h-[80px] w-auto object-contain" />
                         </div>
                     </div>
 
