@@ -80,6 +80,7 @@ export const metadata: Metadata = {
 };
 
 import { Analytics } from "@vercel/analytics/next";
+import Header from '@/components/layout/Header';
 
 export default function RootLayout({
     children,
@@ -133,6 +134,7 @@ export default function RootLayout({
                 />
             </head>
             <body className="bg-[#FDF5F5] text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
+                <Header />
                 <ClientLayout>
                     {children}
                 </ClientLayout>

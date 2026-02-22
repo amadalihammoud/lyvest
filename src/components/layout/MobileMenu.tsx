@@ -1,4 +1,5 @@
-﻿import { useUser, useClerk } from '@clerk/nextjs';
+﻿// useUser inside MobileMenu is removed to prevent Clerk JS bundle download
+// import { useUser, useClerk } from '@clerk/nextjs';
 import { X, Search, ChevronRight, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -20,28 +21,23 @@ interface MobileMenuProps {
     onClose: () => void;
     onOpenLogin: () => void;
     navigateToDashboard: () => void;
+    user: any;
 }
 
 export default function MobileMenu({
     isOpen,
     onClose,
     onOpenLogin,
-    navigateToDashboard
+    navigateToDashboard,
+    user
 }: MobileMenuProps) {
     const router = useRouter(); // Initialize router
-    const { user, isSignedIn } = useUser();
     const { onOpen } = useAuthModal();
 
-    // Get Clerk object safely
-    const clerk = useClerk();
-    // Force cast to any to avoid TS errors if types are outdated, 
-    // but try to use safe access pattern
-    const safeClerk = clerk as any;
-
-    const isLoggedIn = isSignedIn;
+    const isLoggedIn = !!user;
 
     // Helper to get user name
-    const userName = user?.fullName || user?.firstName || 'Usuário';
+    const userName = user?.fullName || 'Usuário';
     const userAvatar = user?.imageUrl;
     const { searchQuery, setSearchQuery } = useShop();
     const { handleMenuClick: baseHandleMenuClick } = useShopNavigation();
