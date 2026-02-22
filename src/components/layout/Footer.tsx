@@ -15,7 +15,8 @@ export default function Footer() {
     return (
         <footer id="footer" className="bg-white pt-16 pb-8 border-t border-slate-100" role="contentinfo">
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 mb-12 max-w-7xl mx-auto">
+                {/* Top Columns (Help & Legal) */}
+                <div className="flex flex-col md:flex-row justify-center gap-12 md:gap-32 w-full max-w-5xl mx-auto items-start mb-12">
                     {/* Ajuda */}
                     <div className="flex flex-col h-full items-center md:items-start">
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] mb-6 text-center md:text-left">{t('footer.help')}</h3>
@@ -54,10 +55,7 @@ export default function Footer() {
                         </div>
                     </div>
 
-
-                </div>
-
-                {/* Horizontal Bar: Social, Payment & Security */}
+                </div>                {/* Horizontal Bar: Social, Payment & Security */}
                 <div className="w-full pb-10 pt-4 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16">
 
                     {/* Social Group */}
