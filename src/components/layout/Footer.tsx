@@ -64,8 +64,8 @@ export default function Footer() {
                             {/* Social Icons - Occupying Rows 1 & 2 space */}
                             <div className="flex items-center justify-center gap-6 h-[72px]">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    {/* Instagram has a full colorful square so w-11 fills the space perfectly */}
-                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-11 h-11 object-contain" />
+                                    {/* Instagram has a full colorful square so width reduced by ~15% (44px -> 37px) */}
+                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-[37px] h-[37px] object-contain" />
                                 </a>
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Facebook">
                                     {/* Facebook 'f' letterform has lots of white canvas — scaled up to visually match Instagram */}
