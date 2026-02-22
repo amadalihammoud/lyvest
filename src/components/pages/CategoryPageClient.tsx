@@ -13,10 +13,10 @@ import CategoryToolbar from '@/components/product/CategoryToolbar';
 import ProductCard from '@/components/product/ProductCard';
 
 const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
-import { useCart } from '@/context/CartContext';
-import { useFavorites } from '@/context/FavoritesContext';
-import { useI18n } from '@/context/I18nContext';
-import { useModal } from '@/context/ModalContext';
+import { useCart } from '@/store/useCartStore';
+import { useFavorites } from '@/store/useFavoritesStore';
+import { useI18n } from '@/store/useI18nStore';
+import { useModal } from '@/store/useModalStore';
 import { generateSlug } from '@/utils/slug';
 
 interface CategoryPageClientProps {

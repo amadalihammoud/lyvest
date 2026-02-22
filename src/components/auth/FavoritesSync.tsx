@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useEffect } from 'react';
 
-import { useFavorites } from '@/context/FavoritesContext';
+import { useFavorites } from '@/store/useFavoritesStore';
 
 // Componente separado que USA Clerk (useUser) e sincroniza o contexto
 export const FavoritesSync = () => {

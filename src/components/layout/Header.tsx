@@ -20,7 +20,7 @@ const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
 // Lazy-load auth UI — defers entire Clerk SDK (~200KB) from critical path
 const HeaderAuth = dynamic(() => import('./HeaderAuth'), { ssr: false });
 
-import { useShop } from '../../context/ShopContext';
+import { useShop } from '../../store/useShopStore';
 
 import { useAuthModal } from '@/store/useAuthModal';
 

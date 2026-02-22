@@ -4,9 +4,9 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 import UserDashboard from '@/components/dashboard/UserDashboard';
-import { useI18n } from '@/context/I18nContext';
+import { useI18n } from '@/store/useI18nStore';
 // import { useAuth, User } from '@/context/AuthContext'; // Removed
-import { useModal } from '@/context/ModalContext';
+import { useModal } from '@/store/useModalStore';
 import { mockOrders } from '@/data/mockOrders';
 import { Order } from '@/types/dashboard';
 

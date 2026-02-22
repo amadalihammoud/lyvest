@@ -1,1 +1,1 @@
-export { useI18n } from '../context/I18nContext';
+export { useI18n } from '../store/useI18nStore';

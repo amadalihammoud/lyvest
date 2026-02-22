@@ -9,10 +9,10 @@ import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
 // import Hero from '@/components/features/Hero';
 import ProductCard from '@/components/product/ProductCard';
 // import InfoStrip from '@/components/features/InfoStrip';
-import { useCart } from '@/context/CartContext';
-import { useFavorites } from '@/context/FavoritesContext';
-import { useI18n } from '@/context/I18nContext';
-import { useModal } from '@/context/ModalContext';
+import { useCart } from '@/store/useCartStore';
+import { useFavorites } from '@/store/useFavoritesStore';
+import { useI18n } from '@/store/useI18nStore';
+import { useModal } from '@/store/useModalStore';
 import { productsData } from '@/data/products';
 import { quickFilters } from '@/data/siteData';
 

@@ -7,8 +7,8 @@ import { useState } from 'react';
 import VirtualFitting from '@/components/features/VirtualFitting';
 import ProductDetails from '@/components/product/ProductDetails';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import { useCart , CartItem } from '@/context/CartContext';
-import { useModal } from '@/context/ModalContext';
+import { useCart, CartItem } from '@/store/useCartStore';
+import { useModal } from '@/store/useModalStore';
 import { Product } from '@/services/ProductService';
 import { generateSlug } from '@/utils/slug';
 
@@ -20,8 +20,6 @@ interface ProductPageClientProps {
 export default function ProductPageClient({ slug, initialProduct }: ProductPageClientProps) {
     const { addToCart } = useCart();
     const { openModal } = useModal();
-    // We rely on initialProduct passed from server. 
-    // If we wanted to re-validate, we could, but for optimization we trust server.
     const product = initialProduct;
 
     const [isVirtualFittingOpen, setIsVirtualFittingOpen] = useState(false);

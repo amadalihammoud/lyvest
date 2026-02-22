@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
 
 import CheckoutWizard from '@/components/checkout/CheckoutWizard';
-import { useI18n } from '@/context/I18nContext';
+import { useI18n } from '@/store/useI18nStore';
 
 export default function CheckoutPageClient() {
     const router = useRouter();

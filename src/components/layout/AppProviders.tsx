@@ -2,15 +2,10 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, ReactNode, lazy, Suspense } from 'react';
 
-// Contexts
+// Zustand stores replace Context Providers — no wrappers needed
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
-import { CartProvider } from '@/context/CartContext';
-import { FavoritesProvider } from '@/context/FavoritesContext';
-import { I18nProvider, useI18n } from '@/context/I18nContext';
-import { ModalProvider, useModal } from '@/context/ModalContext';
-import { ShopProvider } from '@/context/ShopContext';
-
-// Global Components
+import { useI18n } from '@/store/useI18nStore';
+import { useModal } from '@/store/useModalStore';
 
 // Lazy load ALL non-critical components to minimize initial JS
 const ModalManager = lazy(() => import('./ModalManager'));
@@ -18,10 +13,6 @@ const DrawerManager = lazy(() => import('./DrawerManager'));
 const CookieBanner = lazy(() => import('./CookieBanner'));
 const FloatingWhatsApp = lazy(() => import('@/components/features/FloatingWhatsApp'));
 const ChatWidget = lazy(() => import('@/components/features/ChatWidget'));
-
-
-// Lazy load preload
-// const preloadCheckout = () => import('../../pages/CheckoutPage'); // Removed for Next.js
 
 
 interface AppProvidersProps {
@@ -37,20 +28,6 @@ function GlobalLogic({ children }: { children: ReactNode }) {
         openModal
     } = useModal();
     const { t } = useI18n();
-
-    // Login success handler removed — Clerk handles redirects natively
-
-    // Idle Preload effect
-
-    // Idle Preload effect (Removed for Next.js)
-    // useEffect(() => {
-    //     const timer = setTimeout(() => {
-    //         preloadCheckout();
-    //     }, 2000);
-    //     return () => clearTimeout(timer);
-    // }, []);
-
-
 
     // Delay heavy widgets to reduce TBT
     const [showWidgets, setShowWidgets] = useState(false);
@@ -107,22 +84,15 @@ function GlobalLogic({ children }: { children: ReactNode }) {
     );
 }
 
+// NO MORE PROVIDER NESTING!
+// Zustand stores are global singletons — they don't need React providers.
+// This eliminates 5 levels of Provider nesting and their initialization overhead.
 export default function AppProviders({ children }: AppProvidersProps) {
     return (
-        <I18nProvider>
-            <ShopProvider>
-                <CartProvider>
-                    <FavoritesProvider>
-                        <ModalProvider>
-                            <ErrorBoundary>
-                                <GlobalLogic>
-                                    {children}
-                                </GlobalLogic>
-                            </ErrorBoundary>
-                        </ModalProvider>
-                    </FavoritesProvider>
-                </CartProvider>
-            </ShopProvider>
-        </I18nProvider>
+        <ErrorBoundary>
+            <GlobalLogic>
+                {children}
+            </GlobalLogic>
+        </ErrorBoundary>
     );
 }

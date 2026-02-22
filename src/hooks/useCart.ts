@@ -1,1 +1,2 @@
-export { useCart } from '../context/CartContext';
+export { useCart } from '../store/useCartStore';
+export type { CartItem } from '../store/useCartStore';

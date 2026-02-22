@@ -1,1 +1,1 @@
-export { useModal } from '../context/ModalContext';
+export { useModal } from '../store/useModalStore';

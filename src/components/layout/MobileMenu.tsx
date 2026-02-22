@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
-import { useShop } from '../../context/ShopContext';
+import { useShop } from '../../store/useShopStore';
 import { mainMenu } from '../../data/siteData';
 import { useI18n } from '../../hooks/useI18n';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
