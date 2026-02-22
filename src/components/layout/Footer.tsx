@@ -77,8 +77,8 @@ export default function Footer() {
                                 </a>
                             </div>
 
-                            {/* Payment & Security — two columns, each with label on top and icon(s) below */}
-                            <div className="flex items-end justify-center gap-6 md:gap-10 flex-nowrap mt-4">
+                            {/* Payment & Security — two columns aligned from the top */}
+                            <div className="flex items-start justify-center gap-6 md:gap-10 flex-nowrap mt-4">
 
                                 {/* Payment Column */}
                                 <div className="flex flex-col items-center gap-3">
