@@ -8,7 +8,10 @@ import AppProviders from '@/components/layout/AppProviders';
 // Footer lazy loaded to reduce initial TBT
 const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true });
 // AuthModal lazy loaded to remove Clerk/Framer from initial bundle
-const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), { ssr: false });
+const AuthModalDeferred = dynamic(
+    () => import('@/components/auth/AuthModal').then(mod => mod.default),
+    { ssr: false }
+);
 
 // Strictly decouple LazyClerkProvider from the module graph until needed
 // This prevents Next.js from sending the 200KB clerk.js chunk in the initial HTML
@@ -22,7 +25,10 @@ import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
 
 // Isolate FavoritesSync so Clerk is not pulled into the global bundle
-const FavoritesSync = dynamic(() => import('@/components/auth/FavoritesSync'), { ssr: false });
+const FavoritesSyncDeferred = dynamic(
+    () => import('@/components/auth/FavoritesSync').then(mod => mod.FavoritesSync),
+    { ssr: false }
+);
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -76,13 +82,13 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 {/* Lazy rendered auth modal */}
                 {isOpen && shouldLoad && (
                     <Suspense fallback={null}>
-                        <AuthModal />
+                        <AuthModalDeferred />
                     </Suspense>
                 )}
                 {/* Sync Favorites with Clerk (Only client-side when loaded) */}
                 {shouldLoad && (
                     <Suspense fallback={null}>
-                        <FavoritesSync />
+                        <FavoritesSyncDeferred />
                     </Suspense>
                 )}
             </div>
