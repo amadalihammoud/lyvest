@@ -10,7 +10,13 @@ const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true }
 // AuthModal lazy loaded to remove Clerk/Framer from initial bundle
 const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), { ssr: false });
 
-import { LazyClerkProvider } from '@/components/providers/LazyClerkProvider';
+// Strictly decouple LazyClerkProvider from the module graph until needed
+// This prevents Next.js from sending the 200KB clerk.js chunk in the initial HTML
+const LazyClerkProviderDeferred = dynamic(
+    () => import('@/components/providers/LazyClerkProvider').then(mod => mod.LazyClerkProvider),
+    { ssr: false }
+);
+
 import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
@@ -50,38 +56,49 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         }
     }, [shouldLoad]);
 
-    return (
-        <LazyClerkProvider shouldLoad={shouldLoad}>
-            <AppProviders>
-                <div className="flex flex-col min-h-screen">
-                    <main id="main-content" className="flex-grow">
-                        {children}
-                    </main>
+    const childrenContent = (
+        <AppProviders>
+            <div className="flex flex-col min-h-screen">
+                <main id="main-content" className="flex-grow">
+                    {children}
+                </main>
 
-                    <div className="cv-auto-footer">
-                        {shouldLoad ? (
-                            <Suspense fallback={<div className="min-h-[420px] bg-slate-50" />}>
-                                <Footer />
-                            </Suspense>
-                        ) : (
-                            <div className="min-h-[420px] bg-slate-50" />
-                        )}
-                    </div>
-
-                    {/* Lazy rendered auth modal */}
-                    {isOpen && shouldLoad && (
-                        <Suspense fallback={null}>
-                            <AuthModal />
+                <div className="cv-auto-footer">
+                    {shouldLoad ? (
+                        <Suspense fallback={<div className="min-h-[420px] bg-slate-50" />}>
+                            <Footer />
                         </Suspense>
-                    )}
-                    {/* Sync Favorites with Clerk (Only client-side when loaded) */}
-                    {shouldLoad && (
-                        <Suspense fallback={null}>
-                            <FavoritesSync />
-                        </Suspense>
+                    ) : (
+                        <div className="min-h-[420px] bg-slate-50" />
                     )}
                 </div>
-            </AppProviders>
-        </LazyClerkProvider>
+
+                {/* Lazy rendered auth modal */}
+                {isOpen && shouldLoad && (
+                    <Suspense fallback={null}>
+                        <AuthModal />
+                    </Suspense>
+                )}
+                {/* Sync Favorites with Clerk (Only client-side when loaded) */}
+                {shouldLoad && (
+                    <Suspense fallback={null}>
+                        <FavoritesSync />
+                    </Suspense>
+                )}
+            </div>
+        </AppProviders>
+    );
+
+    // If ultra-lazy trigger hasn't fired yet (first paint/LCP time),
+    // NEVER mount ClerkProvider even conditionally as a wrapper, to avoid the chunk payload.
+    // Instead, return the bare children. Clerk initializes later transparently.
+    if (!shouldLoad) {
+        return childrenContent;
+    }
+
+    return (
+        <LazyClerkProviderDeferred shouldLoad={true}>
+            {childrenContent}
+        </LazyClerkProviderDeferred>
     );
 }
