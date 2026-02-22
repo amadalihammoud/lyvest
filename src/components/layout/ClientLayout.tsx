@@ -1,34 +1,25 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { ReactNode, Suspense, useEffect } from 'react';
+import { ReactNode, Suspense, useEffect, lazy } from 'react';
 
 import AppProviders from '@/components/layout/AppProviders';
 
 // Footer lazy loaded to reduce initial TBT
-const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true });
+const Footer = lazy(() => import('@/components/layout/Footer'));
+
 // AuthModal lazy loaded to remove Clerk/Framer from initial bundle
-const AuthModalDeferred = dynamic(
-    () => import('@/components/auth/AuthModal').then(mod => mod.default),
-    { ssr: false }
-);
+const AuthModalDeferred = lazy(() => import('@/components/auth/AuthModal'));
 
 // Strictly decouple LazyClerkProvider from the module graph until needed
 // This prevents Next.js from sending the 200KB clerk.js chunk in the initial HTML
-const LazyClerkProviderDeferred = dynamic(
-    () => import('@/components/providers/LazyClerkProvider').then(mod => mod.LazyClerkProvider),
-    { ssr: false }
-);
+const LazyClerkProviderDeferred = lazy(() => import('@/components/providers/LazyClerkProvider').then(mod => ({ default: mod.LazyClerkProvider })));
 
 import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
 
 // Isolate FavoritesSync so Clerk is not pulled into the global bundle
-const FavoritesSyncDeferred = dynamic(
-    () => import('@/components/auth/FavoritesSync').then(mod => mod.FavoritesSync),
-    { ssr: false }
-);
+const FavoritesSyncDeferred = lazy(() => import('@/components/auth/FavoritesSync').then(mod => ({ default: mod.FavoritesSync })));
 
 interface ClientLayoutProps {
     children: ReactNode;
@@ -103,8 +94,10 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     }
 
     return (
-        <LazyClerkProviderDeferred shouldLoad={true}>
-            {childrenContent}
-        </LazyClerkProviderDeferred>
+        <Suspense fallback={childrenContent}>
+            <LazyClerkProviderDeferred shouldLoad={true}>
+                {childrenContent}
+            </LazyClerkProviderDeferred>
+        </Suspense>
     );
 }
