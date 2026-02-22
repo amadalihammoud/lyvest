@@ -89,7 +89,7 @@ export default function Footer() {
                                 <div className="flex items-center gap-4 md:gap-6">
                                     <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={30} className="h-5 md:h-6 w-auto object-contain" />
                                     <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={70} className="h-14 md:h-[60px] w-auto object-contain" />
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={80} className="h-[66px] md:h-[72px] w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={90} className="h-[83px] md:h-[90px] w-auto object-contain" />
                                 </div>
 
                                 {/* Divider */}
