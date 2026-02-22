@@ -93,11 +93,11 @@ function ProductShowcase() {
     };
 
     return (
-        <section id="products-grid" className="py-16 bg-transparent min-h-[600px]">
+        <section id="products-grid" className="pt-4 pb-16 md:pt-8 bg-transparent min-h-[600px]">
             <div className="container mx-auto px-4">
                 {/* Header da Seção */}
-                <div className="text-center mb-12">
-                    <h2 className="text-[31px] md:text-5xl font-cookie text-lyvest-500 mb-4 relative inline-block animate-fade-in"
+                <div className="text-center mb-10 md:mb-12">
+                    <h2 className="text-[31px] md:text-5xl font-cookie text-lyvest-500 mb-2 md:mb-4 relative inline-block animate-fade-in"
                         style={{ textShadow: "3px 3px 0px rgba(253, 226, 243, 1)" }}
                     >
                         {searchQuery
@@ -140,9 +140,10 @@ function ProductShowcase() {
                             />
                         ))}
                     </div>
-                )}
-            </div>
-        </section>
+                )
+                }
+            </div >
+        </section >
     );
 }
 
