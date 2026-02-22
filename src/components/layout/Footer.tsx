@@ -85,14 +85,11 @@ export default function Footer() {
 
                             {/* Base Icons - Bottom edge aligned with Row 5 Level ('Telefone') */}
                             <div className="flex items-center justify-center gap-5 md:gap-8 flex-nowrap overflow-visible h-16 md:h-20">
-                                {/* Flags Group — each icon has different canvas padding so heights are individually tuned */}
+                                {/* Flags Group — source files are now tightly cropped so same height = same visual weight */}
                                 <div className="flex items-center gap-4 md:gap-6">
-                                    {/* Visa: bold text fills ~40% of 200x200 canvas — keep at h-9 so it's not overpowering */}
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={140} height={44} className="h-9 md:h-10 w-auto object-contain" />
-                                    {/* Mastercard: circles fill ~80% of canvas — h-9 gives correct visual weight */}
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={120} height={44} className="h-8 md:h-9 w-auto object-contain" />
                                     <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={44} className="h-9 md:h-10 w-auto object-contain" />
-                                    {/* Pix: tiny icon+text fills only ~25% of canvas — needs h-16 to match others visually */}
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={200} height={80} className="h-14 md:h-16 w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={44} className="h-8 md:h-9 w-auto object-contain" />
                                 </div>
 
                                 {/* Divider */}
