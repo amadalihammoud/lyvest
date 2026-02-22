@@ -86,17 +86,20 @@ export default function Footer() {
 
                             {/* Icons row — same grid-cols pattern so columns align with labels above */}
                             <div className="grid grid-cols-[auto_1px_auto] gap-x-10 md:gap-x-16 mt-3 items-center">
-                                {/* Payment icons — calibrated to match reference proportions */}
-                                <div className="flex items-center justify-center gap-3 md:gap-4">
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={36} className="h-8 md:h-9 w-auto object-contain" />
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={48} className="h-10 md:h-12 w-auto object-contain" />
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={40} className="h-9 md:h-10 w-auto object-contain" />
+                                {/* Payment icons — matched to reference proportions */}
+                                <div className="flex items-center justify-center gap-3 md:gap-5">
+                                    {/* Visa: tight-crop (400×152), bold wordmark → h-6/h-7 makes it dominant but compact */}
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-6 md:h-7 w-auto object-contain" />
+                                    {/* Mastercard: 200×200 square, circles fill 80% → needs h-[38px]/h-11 to appear same visual weight as Visa */}
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={44} className="h-[38px] md:h-11 w-auto object-contain" />
+                                    {/* Pix: tight-crop wide file, h-[38px]/h-11 shows diamond+text proportionally */}
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={44} className="h-[38px] md:h-11 w-auto object-contain" />
                                 </div>
-                                {/* Vertical divider */}
-                                <div className="bg-slate-200 w-full h-full min-h-[120px] self-stretch"></div>
-                                {/* Security icon */}
+                                {/* Vertical divider — spans full icon row */}
+                                <div className="bg-slate-200 w-full self-stretch min-h-[44px]"></div>
+                                {/* Let's Encrypt — reference shows it similar size to MC/Pix */}
                                 <div className="flex items-center justify-center">
-                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={70} className="h-[62px] md:h-[67px] w-auto object-contain" />
+                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-10 md:h-11 w-auto object-contain" />
                                 </div>
                             </div>
                         </div>
