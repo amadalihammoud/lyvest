@@ -87,12 +87,12 @@ export default function Footer() {
                             <div className="flex items-center justify-center gap-5 md:gap-8 flex-nowrap overflow-visible h-16 md:h-20">
                                 {/* Flags Group — individually tuned to balance visual weight */}
                                 <div className="flex items-center gap-4 md:gap-6">
-                                    {/* Visa: bold ALL-CAPS wordmark appears larger at same px — reduce height */}
+                                    {/* Visa: unchanged */}
                                     <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={30} className="h-5 md:h-6 w-auto object-contain" />
-                                    {/* Mastercard: circular icon graphic */}
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={44} className="h-8 md:h-9 w-auto object-contain" />
-                                    {/* Pix: icon+text combination */}
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={44} className="h-8 md:h-9 w-auto object-contain" />
+                                    {/* Mastercard: +35% (32→44px / 36→48px) */}
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={60} className="h-11 md:h-12 w-auto object-contain" />
+                                    {/* Pix: +35% (32→44px / 36→48px) */}
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={60} className="h-11 md:h-12 w-auto object-contain" />
                                 </div>
 
                                 {/* Divider */}
