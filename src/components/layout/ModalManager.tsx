@@ -8,8 +8,8 @@ import { useModal } from '../../hooks/useModal';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
 // Lazy load Clerk components to remove ~250KiB from initial bundle
-const ClerkSignIn = dynamic(() => import('@clerk/nextjs').then(mod => ({ default: mod.SignIn })), { ssr: false, loading: () => <div className="flex justify-center py-12"><LoadingSpinner /></div> });
-const ClerkSignUp = dynamic(() => import('@clerk/nextjs').then(mod => ({ default: mod.SignUp })), { ssr: false, loading: () => <div className="flex justify-center py-12"><LoadingSpinner /></div> });
+// removed
+// removed
 
 // Import Modals (Keep small modals static or lazy? Small ones are fine static)
 // const LoginModal = lazy(() => import('../modals/LoginModal')); // Replaced by Clerk
@@ -45,36 +45,6 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
 
     const renderModalContent = () => {
         switch (activeModal) {
-            case 'login':
-                return (
-                    <div className="flex justify-center py-8">
-                        <ClerkSignIn
-                            routing="hash"
-                            appearance={{
-                                elements: {
-                                    rootBox: "mx-auto",
-                                    card: "shadow-none border-none",
-                                    footer: "hidden"
-                                }
-                            }}
-                        />
-                    </div>
-                );
-            case 'register':
-                return (
-                    <div className="flex justify-center py-8">
-                        <ClerkSignUp
-                            routing="hash"
-                            appearance={{
-                                elements: {
-                                    rootBox: "mx-auto",
-                                    card: "shadow-none border-none",
-                                    footer: "hidden"
-                                }
-                            }}
-                        />
-                    </div>
-                );
             case 'contact':
                 return <ContactModal />;
             case 'about':
@@ -122,14 +92,12 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
     // I should adjust the wrapper width based on modal type.
 
     const isQuickView = activeModal === 'quickview';
-    const isRegister = activeModal === 'register';
     const isAddedToCart = activeModal === 'addedToCart';
     const isDashboardModal = ['faq', 'shipping', 'terms', 'privacy', 'returns'].includes(activeModal);
     const isContentModal = ['about', 'contact'].includes(activeModal);
 
     let maxWidthClass = 'max-w-md';
     if (isQuickView) maxWidthClass = 'max-w-4xl';
-    else if (isRegister) maxWidthClass = 'max-w-3xl';
     else if (isAddedToCart) maxWidthClass = 'max-w-lg';
     else if (isDashboardModal) maxWidthClass = 'max-w-[95vw] lg:max-w-6xl h-[85vh]'; // Fixed height for complex UIs
     else if (isContentModal) maxWidthClass = 'max-w-[95vw] lg:max-w-7xl'; // Auto height for simple content pages
