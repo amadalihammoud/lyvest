@@ -54,31 +54,30 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Social, Payment & Security - Precision Mirrored Column */}
-                    <div className="flex flex-col items-center w-full">
-                        {/* Peak Header (SIGA-NOS) - Matched exactly with others */}
-                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em] mb-6 text-center">{t('footer.followUs')}</h3>
 
-                        {/* Content Area */}
-                        <div className="flex flex-col items-center justify-start w-full md:h-full">
-                            {/* Social Icons */}
-                            <div className="flex items-center justify-center gap-6 h-[72px]">
-                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-[37px] h-[37px] object-contain" />
-                                </a>
-                                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="w-[57px] h-[57px] object-contain" />
-                                </a>
-                                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="X">
-                                    <Image src="/assets/icons/x-logo.webp" alt="X" width={80} height={80} className="w-[46px] h-[46px] object-contain" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                {/* Horizontal Bar: Payment & Security - placed below the 3 columns */}
-                <div className="w-full pb-10 pt-4 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20">
+                {/* Horizontal Bar: Social, Payment & Security */}
+                <div className="w-full pb-10 pt-4 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16">
+
+                    {/* Social Group */}
+                    <div className="flex flex-col items-center gap-4">
+                        <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.followUs')}</h3>
+                        <div className="flex items-center justify-center gap-6 min-h-[50px]">
+                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
+                                <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-[37px] h-[37px] object-contain" />
+                            </a>
+                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Facebook">
+                                <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="w-[57px] h-[57px] object-contain" />
+                            </a>
+                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="X">
+                                <Image src="/assets/icons/x-logo.webp" alt="X" width={80} height={80} className="w-[46px] h-[46px] object-contain" />
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="hidden md:block w-[1px] h-16 bg-slate-200"></div>
 
                     {/* Payment Group */}
                     <div className="flex flex-col items-center gap-4">
