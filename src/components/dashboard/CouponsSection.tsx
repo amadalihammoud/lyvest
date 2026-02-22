@@ -1,7 +1,9 @@
-import { useState } from 'react';
 import { Ticket, Copy, CheckCircle, ArrowRight, ExternalLink } from 'lucide-react';
-import { useI18n } from '../../hooks/useI18n';
 import Link from 'next/link';
+import { useState } from 'react';
+
+import { useI18n } from '../../hooks/useI18n';
+
 
 interface Coupon {
     id: string;

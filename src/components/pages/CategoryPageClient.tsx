@@ -1,22 +1,23 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { productsData } from '@/data/products';
-import { generateSlug } from '@/utils/slug';
-import ProductCard from '@/components/product/ProductCard';
-import { useI18n } from '@/context/I18nContext';
 
 import { Home } from 'lucide-react';
-import CategoryToolbar from '@/components/product/CategoryToolbar';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+
+import CategoryToolbar from '@/components/product/CategoryToolbar';
+import ProductCard from '@/components/product/ProductCard';
 
 const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
+import { useI18n } from '@/context/I18nContext';
 import { useModal } from '@/context/ModalContext';
+import { generateSlug } from '@/utils/slug';
 
 interface CategoryPageClientProps {
     slug: string;

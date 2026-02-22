@@ -1,17 +1,16 @@
 
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ProductDetails from '@/components/product/ProductDetails';
-import { useCart } from '@/context/CartContext';
-import { useModal } from '@/context/ModalContext';
+import { useState } from 'react';
 
-import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import { generateSlug } from '@/utils/slug';
-import { CartItem } from '@/context/CartContext';
-import { Product } from '@/services/ProductService';
 import VirtualFitting from '@/components/features/VirtualFitting';
+import ProductDetails from '@/components/product/ProductDetails';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import { useCart , CartItem } from '@/context/CartContext';
+import { useModal } from '@/context/ModalContext';
+import { Product } from '@/services/ProductService';
+import { generateSlug } from '@/utils/slug';
 
 interface ProductPageClientProps {
     slug: string;

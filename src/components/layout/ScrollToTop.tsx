@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 /**
  * Component that scrolls to top on route change

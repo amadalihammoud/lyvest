@@ -1,25 +1,29 @@
 ﻿'use client';
-import { useState, useEffect, useMemo, ChangeEvent, Suspense } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 'lucide-react';
-import { mainMenu } from '../../data/siteData';
-import { productsData } from '../../data/products';
-import { useDebounce } from '../../hooks/useDebounce';
-import LanguageSelector from '../features/LanguageSelector';
-import { useI18n } from '../../hooks/useI18n';
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useMemo, ChangeEvent, Suspense } from 'react';
+
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useModal } from '../../context/ModalContext';
-import dynamic from 'next/dynamic';
+import { productsData } from '../../data/products';
+import { mainMenu } from '../../data/siteData';
+import { useDebounce } from '../../hooks/useDebounce';
+import { useI18n } from '../../hooks/useI18n';
+import LanguageSelector from '../features/LanguageSelector';
+
 const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
 
 // Lazy-load auth UI — defers entire Clerk SDK (~200KB) from critical path
 const HeaderAuth = dynamic(() => import('./HeaderAuth'), { ssr: false });
 
 import { useShop } from '../../context/ShopContext';
+
 import { useAuthModal } from '@/store/useAuthModal';
+
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Lightweight XSS check — replaces heavy security.ts import (DOMPurify ~17KB)

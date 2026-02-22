@@ -2,8 +2,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import CheckoutWizard from '@/components/checkout/CheckoutWizard';
 
+import CheckoutWizard from '@/components/checkout/CheckoutWizard';
 import { useI18n } from '@/context/I18nContext';
 
 export default function CheckoutPageClient() {

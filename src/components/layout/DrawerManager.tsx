@@ -1,10 +1,11 @@
-﻿import React, { Suspense, lazy } from 'react';
-import { useModal } from '../../hooks/useModal';
+﻿import { useRouter } from 'next/navigation';
+import React, { Suspense, lazy } from 'react';
+
+import { productsData } from '../../data/products';
 import { useCart } from '../../hooks/useCart';
 import { useFavorites } from '../../hooks/useFavorites';
 import { useI18n } from '../../hooks/useI18n';
-import { productsData } from '../../data/products';
-import { useRouter } from 'next/navigation';
+import { useModal } from '../../hooks/useModal';
 
 // Lazy load drawers
 // Lazy load drawers

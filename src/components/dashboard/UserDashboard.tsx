@@ -1,9 +1,10 @@
 import { useState, lazy, Suspense, memo } from 'react';
-import { useI18n } from '../../hooks/useI18n';
+
 import DashboardSidebar from './DashboardSidebar';
+import { useI18n } from '../../hooks/useI18n';
+import { Order } from '../../types/dashboard';
 import { getUserAvatar } from '../../utils/userUtils';
 import Breadcrumbs from '../ui/Breadcrumbs';
-import { Order } from '../../types/dashboard';
 // import { User } from '../../context/AuthContext';
 
 export interface User {

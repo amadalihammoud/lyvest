@@ -1,12 +1,13 @@
-﻿import { Suspense, lazy } from 'react';
-import { useModal } from '../../hooks/useModal';
-import { X } from 'lucide-react';
-import { useI18n } from '../../hooks/useI18n';
+﻿import { X } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { Suspense, lazy } from 'react';
+
 import { useCart } from '../../hooks/useCart';
+import { useI18n } from '../../hooks/useI18n';
+import { useModal } from '../../hooks/useModal';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
 // Lazy load Clerk components to remove ~250KiB from initial bundle
-import dynamic from 'next/dynamic';
 const ClerkSignIn = dynamic(() => import('@clerk/nextjs').then(mod => ({ default: mod.SignIn })), { ssr: false, loading: () => <div className="flex justify-center py-12"><LoadingSpinner /></div> });
 const ClerkSignUp = dynamic(() => import('@clerk/nextjs').then(mod => ({ default: mod.SignUp })), { ssr: false, loading: () => <div className="flex justify-center py-12"><LoadingSpinner /></div> });
 

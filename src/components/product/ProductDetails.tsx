@@ -1,17 +1,19 @@
-﻿import React, { useState } from 'react';
+﻿import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { generateSlug } from '../../utils/slug';
+import React, { useState } from 'react';
+
+import { ProductActions } from './ProductActions';
+import { ProductGallery } from './ProductGallery';
+import { ProductInfo } from './ProductInfo';
+import { ProductTabs } from './ProductTabs';
 import { productsData } from '../../data/products';
 // Removed static ProductCard import
 import { useI18n } from '../../hooks/useI18n';
 import { Product } from '../../services/ProductService';
 
 // Sub-components
-import { ProductGallery } from './ProductGallery';
-import { ProductInfo } from './ProductInfo';
-import { ProductActions } from './ProductActions';
-import { ProductTabs } from './ProductTabs';
-import dynamic from 'next/dynamic';
+import { generateSlug } from '../../utils/slug';
+
 
 // Lazy loading "Related Products" to skip loading all ProductCard definitions in the initial bundle
 const RelatedProducts = dynamic(() => import('./RelatedProducts'), { ssr: false });

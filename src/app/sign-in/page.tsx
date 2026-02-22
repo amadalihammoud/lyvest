@@ -1,9 +1,10 @@
 'use client';
 
 import { SignIn, useClerk } from "@clerk/nextjs";
-import { useEffect, useState, Suspense } from "react";
-import { useUltraLazyLoad } from "@/lib/ultra-lazy-load";
 import Image from "next/image";
+import { useEffect, useState, Suspense } from "react";
+
+import { useUltraLazyLoad } from "@/lib/ultra-lazy-load";
 
 function SignInPageContent() {
     const clerk = useClerk();

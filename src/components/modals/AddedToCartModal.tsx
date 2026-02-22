@@ -1,8 +1,9 @@
-import { useModal } from '../../hooks/useModal';
-import { useI18n } from '../../hooks/useI18n';
-import { useCart } from '../../context/CartContext';
 import { ArrowRight, Check, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
+import { useCart } from '../../context/CartContext';
+import { useI18n } from '../../hooks/useI18n';
+import { useModal } from '../../hooks/useModal';
 
 const FREE_SHIPPING_THRESHOLD = 350;
 

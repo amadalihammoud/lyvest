@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { useUser, useClerk } from '@clerk/nextjs';
+import Image from 'next/image';
 
 interface HeaderAuthProps {
     onOpen: () => void;

@@ -112,7 +112,7 @@ export class RateLimiter {
 export function detectXSS(input: string): boolean {
     if (typeof input !== 'string') return false;
 
-    // eslint-disable-next-line security/detect-unsafe-regex
+     
     const xssPatterns = [
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
         /javascript:/gi,

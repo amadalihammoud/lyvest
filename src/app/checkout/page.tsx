@@ -1,8 +1,9 @@
 
 'use client';
 
-import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
 import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 
 const CheckoutPageClient = dynamic(

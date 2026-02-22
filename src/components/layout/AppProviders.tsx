@@ -1,16 +1,16 @@
 'use client';
-import { useEffect, useState, ReactNode, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState, ReactNode, lazy, Suspense } from 'react';
 
 // Contexts
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { CartProvider } from '@/context/CartContext';
-import { ShopProvider } from '@/context/ShopContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
-import { ModalProvider, useModal } from '@/context/ModalContext';
 import { I18nProvider, useI18n } from '@/context/I18nContext';
+import { ModalProvider, useModal } from '@/context/ModalContext';
+import { ShopProvider } from '@/context/ShopContext';
 
 // Global Components
-import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
 // Lazy load ALL non-critical components to minimize initial JS
 const ModalManager = lazy(() => import('./ModalManager'));

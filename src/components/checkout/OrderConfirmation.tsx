@@ -1,5 +1,6 @@
-import React from 'react';
 import { CheckCircle, Package, ArrowRight, Heart } from 'lucide-react';
+import React from 'react';
+
 import { useI18n } from '../../hooks/useI18n';
 
 interface OrderConfirmationProps {

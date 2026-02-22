@@ -1,9 +1,9 @@
-import React from 'react';
 import { PackageSearch, X, CheckCircle } from 'lucide-react';
-import { useI18n } from '../../hooks/useI18n';
+import React from 'react';
 
-import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { mockOrders } from '../../data/mockOrders';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useI18n } from '../../hooks/useI18n';
 
 interface TrackingHistory {
     status: string;

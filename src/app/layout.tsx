@@ -1,6 +1,8 @@
 
-import type { Metadata, Viewport } from 'next';
 import { Lato, Cookie } from 'next/font/google';
+
+import type { Metadata, Viewport } from 'next';
+
 import '@/index.css';
 import ClientLayout from '@/components/layout/ClientLayout';
 

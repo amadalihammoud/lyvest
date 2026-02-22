@@ -2,8 +2,9 @@
 /* eslint-disable react-refresh/only-export-components */
 // src/context/I18nContext.tsx
 import { useState, useCallback, useMemo, useEffect, useContext, createContext, ReactNode } from 'react';
-import { defaultTranslations, loadLocale, TranslationData } from '../data/translations';
+
 import { I18N_CONFIG } from '../config/constants';
+import { defaultTranslations, loadLocale, TranslationData } from '../data/translations';
 
 interface I18nContextType {
     locale: string;

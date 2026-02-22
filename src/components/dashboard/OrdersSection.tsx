@@ -1,8 +1,9 @@
-import { memo } from 'react';
 import { Package } from 'lucide-react';
-import { useI18n } from '../../hooks/useI18n';
-import OrderCard from './OrderCard';
+import { memo } from 'react';
+
 import EmptyState from './EmptyState';
+import OrderCard from './OrderCard';
+import { useI18n } from '../../hooks/useI18n';
 import { Order } from '../../types/dashboard';
 
 interface OrdersSectionProps {

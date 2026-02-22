@@ -1,12 +1,11 @@
-import React from 'react';
 import { Heart, ShoppingBag, X } from 'lucide-react';
 import Link from 'next/link';
-import { useI18n } from '../../hooks/useI18n';
-import { generateSlug } from '../../utils/slug';
+import React from 'react';
 
 import { useFocusTrap } from '../../hooks/useFocusTrap';
-
+import { useI18n } from '../../hooks/useI18n';
 import { Product } from '../../services/ProductService';
+import { generateSlug } from '../../utils/slug';
 
 interface DrawerFavoritesProps {
     isOpen: boolean;

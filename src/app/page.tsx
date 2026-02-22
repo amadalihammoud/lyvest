@@ -1,10 +1,12 @@
 
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
 import type { Metadata } from 'next';
+
 // HomePageClient is now dynamic
 import Hero from '@/components/features/Hero';
 import InfoStrip from '@/components/features/InfoStrip';
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
 export const metadata: Metadata = {
     title: 'Ly Vest - Moda Íntima Premium',

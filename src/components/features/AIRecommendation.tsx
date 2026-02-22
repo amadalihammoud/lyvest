@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
 import { CheckCircle2, Info, ShoppingBag, Plus } from 'lucide-react';
-import { SizeRecommendation, FitType } from '../../services/sizeAI';
-import { Product } from '../../services/ProductService';
+import { useState, useEffect } from 'react';
+
 import BodyMannequin from './BodyMannequin';
 import { productsData } from '../../data/products';
+import { Product } from '../../services/ProductService';
+import { SizeRecommendation, FitType } from '../../services/sizeAI';
 
 interface AIRecommendationProps {
     recommendation: SizeRecommendation;

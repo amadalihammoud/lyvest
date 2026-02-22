@@ -58,6 +58,16 @@ export default tseslint.config(
       // Code quality
       'complexity': ['warn', 15],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+      // Custom overrides for Next.js patterns
+      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/set-state-in-effect': 'warn',
+      'jsx-a11y/label-has-associated-control': 'warn',
+      'jsx-a11y/click-events-have-key-events': 'warn',
+      'jsx-a11y/no-static-element-interactions': 'warn',
+      'jsx-a11y/alt-text': 'warn',
+      '@typescript-eslint/no-empty-interface': 'warn',
+      '@typescript-eslint/no-empty-object-type': 'warn',
     },
   },
   eslintConfigPrettier,

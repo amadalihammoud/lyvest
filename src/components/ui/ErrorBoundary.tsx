@@ -1,6 +1,7 @@
 'use client';
-import { Component, ErrorInfo, ReactNode } from 'react';
 import { RefreshCw, Home, AlertTriangle } from 'lucide-react';
+import { Component, ErrorInfo, ReactNode } from 'react';
+
 import { analytics } from '../../utils/analytics';
 
 interface ErrorBoundaryProps {

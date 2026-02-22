@@ -1,4 +1,5 @@
 import { User, Ruler, Weight } from 'lucide-react';
+
 import { ReferenceModel } from '../../data/sizeGuide';
 import OptimizedProductImage from '../ui/OptimizedProductImage';
 

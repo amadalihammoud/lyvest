@@ -1,8 +1,9 @@
 'use client';
 
-import { ReactNode, ReactElement } from 'react';
-import { redirect } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
+import { ReactNode, ReactElement } from 'react';
+
 import PageLoader from '../ui/PageLoader';
 
 interface ProtectedRouteProps {

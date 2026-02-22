@@ -1,15 +1,19 @@
-﻿import React from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useI18n } from '../../hooks/useI18n';
-import LanguageSelector from '../features/LanguageSelector';
+﻿import { useUser, useClerk } from '@clerk/nextjs';
 import { X, Search, ChevronRight, User } from 'lucide-react';
-import { mainMenu } from '../../data/siteData';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 
 import { useShop } from '../../context/ShopContext';
-import { useUser, useClerk } from '@clerk/nextjs';
-import { useAuthModal } from '@/store/useAuthModal';
+import { mainMenu } from '../../data/siteData';
+import { useI18n } from '../../hooks/useI18n';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
+import LanguageSelector from '../features/LanguageSelector';
+
+
+
+import { useAuthModal } from '@/store/useAuthModal';
+
 
 interface MobileMenuProps {
     isOpen: boolean;

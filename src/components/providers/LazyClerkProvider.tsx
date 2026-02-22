@@ -1,7 +1,7 @@
 'use client';
 
-import { ReactNode } from 'react';
 import dynamic from 'next/dynamic';
+import { ReactNode } from 'react';
 
 // Dynamically import ClerkProvider + ptBR together to keep them out of the main bundle
 const ClerkProvider = dynamic(

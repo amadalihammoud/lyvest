@@ -1,6 +1,7 @@
 
 import { Play } from 'lucide-react';
 import Image from 'next/image';
+
 import OptimizedProductImage from '../ui/OptimizedProductImage';
 
 interface ProductGalleryProps {

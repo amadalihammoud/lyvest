@@ -1,7 +1,9 @@
-import { useModal } from '../../hooks/useModal';
-import { useI18n } from '../../hooks/useI18n';
-import { legalContent } from '../../data/legalData';
 import { Mail, Instagram } from 'lucide-react';
+
+import { legalContent } from '../../data/legalData';
+import { useI18n } from '../../hooks/useI18n';
+import { useModal } from '../../hooks/useModal';
+
 
 /**
  * Contact modal with email and social media links

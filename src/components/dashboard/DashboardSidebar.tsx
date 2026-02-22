@@ -1,5 +1,6 @@
-import React from 'react';
 import { Package, Heart, LogOut, User, MapPin, LayoutDashboard } from 'lucide-react';
+import React from 'react';
+
 import { useI18n } from '../../hooks/useI18n';
 
 // Explicit Settings Icon Component

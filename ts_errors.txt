@@ -1,0 +1,114 @@
+﻿src/__tests__/productUtils.test.ts(29,37): error TS2345: Argument of type 'MockProduct' is not assignable to parameter of type 'Product'.
+  Types of property 'category' are incompatible.
+    Type 'string | string[] | { name: string; slug: string; }[] | undefined' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+      Type 'string[]' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+        Type 'string[]' is not assignable to type '{ name: string; slug: string; }[]'.
+          Type 'string' is not assignable to type '{ name: string; slug: string; }'.
+src/__tests__/productUtils.test.ts(34,37): error TS2345: Argument of type 'MockProduct' is not assignable to parameter of type 'Product'.
+  Types of property 'category' are incompatible.
+    Type 'string | string[] | { name: string; slug: string; }[] | undefined' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+      Type 'string[]' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+        Type 'string[]' is not assignable to type '{ name: string; slug: string; }[]'.
+          Type 'string' is not assignable to type '{ name: string; slug: string; }'.
+src/__tests__/productUtils.test.ts(41,37): error TS2345: Argument of type 'MockProduct' is not assignable to parameter of type 'Product'.
+  Types of property 'category' are incompatible.
+    Type 'string | string[] | { name: string; slug: string; }[] | undefined' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+      Type 'string[]' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+        Type 'string[]' is not assignable to type '{ name: string; slug: string; }[]'.
+          Type 'string' is not assignable to type '{ name: string; slug: string; }'.
+src/__tests__/productUtils.test.ts(49,37): error TS2345: Argument of type 'MockProduct' is not assignable to parameter of type 'Product'.
+  Types of property 'category' are incompatible.
+    Type 'string | string[] | { name: string; slug: string; }[] | undefined' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+      Type 'string[]' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+        Type 'string[]' is not assignable to type '{ name: string; slug: string; }[]'.
+          Type 'string' is not assignable to type '{ name: string; slug: string; }'.
+src/__tests__/productUtils.test.ts(54,37): error TS2345: Argument of type 'MockProduct' is not assignable to parameter of type 'Product'.
+  Types of property 'category' are incompatible.
+    Type 'string | string[] | { name: string; slug: string; }[] | undefined' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+      Type 'string[]' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+        Type 'string[]' is not assignable to type '{ name: string; slug: string; }[]'.
+          Type 'string' is not assignable to type '{ name: string; slug: string; }'.
+src/__tests__/productUtils.test.ts(59,37): error TS2345: Argument of type 'MockProduct' is not assignable to parameter of type 'Product'.
+  Types of property 'category' are incompatible.
+    Type 'string | string[] | { name: string; slug: string; }[] | undefined' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+      Type 'string[]' is not assignable to type 'string | { name: string; slug: string; } | { name: string; slug: string; }[] | undefined'.
+        Type 'string[]' is not assignable to type '{ name: string; slug: string; }[]'.
+          Type 'string' is not assignable to type '{ name: string; slug: string; }'.
+src/__tests__/utils.test.ts(13,10): error TS2614: Module '"../utils/validation"' has no exported member 'validateForm'. Did you mean to use 'import validateForm from "../utils/validation"' instead?
+src/__tests__/utils.test.ts(13,24): error TS2614: Module '"../utils/validation"' has no exported member 'loginSchema'. Did you mean to use 'import loginSchema from "../utils/validation"' instead?
+src/__tests__/utils.test.ts(13,37): error TS2614: Module '"../utils/validation"' has no exported member 'paymentSchema'. Did you mean to use 'import paymentSchema from "../utils/validation"' instead?
+src/components/__tests__/CheckoutAddress.test.tsx(4,29): error TS2307: Cannot find module '../CheckoutAddress' or its corresponding type declarations.
+src/components/__tests__/CheckoutPayment.test.tsx(4,29): error TS2307: Cannot find module '../CheckoutPayment' or its corresponding type declarations.
+src/components/__tests__/CheckoutPayment.test.tsx(77,26): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+src/components/__tests__/CheckoutWizard.test.tsx(4,28): error TS2307: Cannot find module '../CheckoutWizard' or its corresponding type declarations.
+src/components/__tests__/CheckoutWizard.test.tsx(16,26): error TS7031: Binding element 'children' implicitly has an 'any' type.
+src/components/__tests__/CheckoutWizard.test.tsx(28,25): error TS2739: Type '{ id: number; name: string; price: number; qty: number; }' is missing the following properties from type 'CartItem': image, category
+src/components/__tests__/CookieBanner.test.tsx(4,26): error TS2307: Cannot find module '../CookieBanner' or its corresponding type declarations.
+src/components/__tests__/DrawerCart.test.tsx(63,17): error TS2739: Type '{ isOpen: boolean; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerCartProps': cartItems, onRemoveFromCart, onCheckout
+src/components/__tests__/DrawerCart.test.tsx(68,17): error TS2739: Type '{ isOpen: false; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerCartProps': cartItems, onRemoveFromCart, onCheckout
+src/components/__tests__/DrawerCart.test.tsx(74,17): error TS2739: Type '{ isOpen: boolean; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerCartProps': cartItems, onRemoveFromCart, onCheckout
+src/components/__tests__/DrawerCart.test.tsx(79,17): error TS2739: Type '{ isOpen: boolean; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerCartProps': cartItems, onRemoveFromCart, onCheckout
+src/components/__tests__/DrawerCart.test.tsx(86,17): error TS2739: Type '{ onClose: Mock<Procedure>; isOpen: boolean; }' is missing the following properties from type 'DrawerCartProps': cartItems, onRemoveFromCart, onCheckout
+src/components/__tests__/DrawerCart.test.tsx(95,17): error TS2739: Type '{ isOpen: boolean; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerCartProps': cartItems, onRemoveFromCart, onCheckout
+src/components/__tests__/DrawerFavorites.test.tsx(65,17): error TS2739: Type '{ isOpen: boolean; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerFavoritesProps': favoriteProducts, onAddToCart, onToggleFavorite, setNotification
+src/components/__tests__/DrawerFavorites.test.tsx(70,17): error TS2739: Type '{ isOpen: false; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerFavoritesProps': favoriteProducts, onAddToCart, onToggleFavorite, setNotification
+src/components/__tests__/DrawerFavorites.test.tsx(76,17): error TS2739: Type '{ isOpen: boolean; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerFavoritesProps': favoriteProducts, onAddToCart, onToggleFavorite, setNotification
+src/components/__tests__/DrawerFavorites.test.tsx(81,17): error TS2739: Type '{ isOpen: boolean; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerFavoritesProps': favoriteProducts, onAddToCart, onToggleFavorite, setNotification
+src/components/__tests__/DrawerFavorites.test.tsx(88,17): error TS2739: Type '{ onClose: Mock<Procedure>; isOpen: boolean; }' is missing the following properties from type 'DrawerFavoritesProps': favoriteProducts, onAddToCart, onToggleFavorite, setNotification
+src/components/__tests__/DrawerFavorites.test.tsx(97,17): error TS2739: Type '{ isOpen: boolean; onClose: Mock<Procedure>; }' is missing the following properties from type 'DrawerFavoritesProps': favoriteProducts, onAddToCart, onToggleFavorite, setNotification
+src/components/__tests__/Footer.test.tsx(4,20): error TS2307: Cannot find module '../Footer' or its corresponding type declarations.
+src/components/__tests__/ModalManager.test.tsx(4,26): error TS2307: Cannot find module '../ModalManager' or its corresponding type declarations.
+src/components/__tests__/ModalManager.test.tsx(9,25): error TS7031: Binding element 'modalName' implicitly has an 'any' type.
+src/components/__tests__/ModalManager.test.tsx(14,30): error TS7006: Parameter 'modalName' implicitly has an 'any' type.
+src/components/__tests__/NewsletterForm.test.tsx(4,28): error TS2307: Cannot find module '../NewsletterForm' or its corresponding type declarations.
+src/components/__tests__/NewsletterForm.test.tsx(109,27): error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+src/components/__tests__/ProductDetails.test.tsx(129,54): error TS2322: Type '{ isModal: boolean; product: { id: number; name: string; description: string; price: number; image: string; rating: number; reviews: number; badge: string; category: string; specs: { Dimens├Áes: string; Folhas: string; }; }; onClose: Mock<...>; onAddToCart: Mock<...>; }' is not assignable to type 'IntrinsicAttributes & ProductDetailsProps'.
+  Property 'isModal' does not exist on type 'IntrinsicAttributes & ProductDetailsProps'.
+src/components/__tests__/ProductDetails.test.tsx(135,54): error TS2322: Type '{ isModal: boolean; onClose: Mock<Procedure>; product: { id: number; name: string; description: string; price: number; image: string; rating: number; reviews: number; badge: string; category: string; specs: { ...; }; }; onAddToCart: Mock<...>; }' is not assignable to type 'IntrinsicAttributes & ProductDetailsProps'.
+  Property 'isModal' does not exist on type 'IntrinsicAttributes & ProductDetailsProps'.
+src/components/__tests__/ProductDetails.test.tsx(146,29): error TS2322: Type 'null' is not assignable to type 'Product'.
+src/components/__tests__/Testimonials.test.tsx(4,26): error TS2307: Cannot find module '../Testimonials' or its corresponding type declarations.
+src/context/__tests__/FavoritesContext.test.tsx(10,33): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/context/__tests__/FavoritesContext.test.tsx(11,42): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/context/__tests__/FavoritesContext.test.tsx(13,45): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/context/__tests__/FavoritesContext.test.tsx(19,20): error TS7031: Binding element 'children' implicitly has an 'any' type.
+src/context/__tests__/FavoritesContext.test.tsx(139,43): error TS2345: Argument of type '{ stopPropagation: Mock<Procedure>; preventDefault: Mock<Procedure>; }' is not assignable to parameter of type 'string | number | SyntheticEvent<Element, Event>'.
+  Type '{ stopPropagation: Mock<Procedure>; preventDefault: Mock<Procedure>; }' is missing the following properties from type 'SyntheticEvent<Element, Event>': nativeEvent, currentTarget, target, bubbles, and 9 more.
+src/context/__tests__/I18nContext.test.tsx(8,24): error TS2339: Property 'setLocale' does not exist on type 'I18nContextType'.
+src/context/__tests__/I18nContext.test.tsx(15,41): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/context/__tests__/ModalContext.test.tsx(25,46): error TS2322: Type 'string | Notification' is not assignable to type 'ReactNode'.
+  Type 'Notification' is not assignable to type 'ReactNode'.
+    Type 'Notification' is missing the following properties from type 'ReactPortal': children, props, key
+src/hooks/__tests__/useDebounce.test.ts(81,53): error TS2554: Expected 1-2 arguments, but got 3.
+src/hooks/__tests__/useFocusTrap.test.ts(7,9): error TS7034: Variable 'container' implicitly has type 'any' in some locations where its type cannot be determined.
+src/hooks/__tests__/useFocusTrap.test.ts(20,35): error TS7005: Variable 'container' implicitly has an 'any' type.
+src/hooks/__tests__/useFocusTrap.test.ts(37,34): error TS7005: Variable 'container' implicitly has an 'any' type.
+src/hooks/__tests__/useFocusTrap.test.ts(40,22): error TS7005: Variable 'container' implicitly has an 'any' type.
+src/hooks/__tests__/useFocusTrap.test.ts(41,22): error TS7005: Variable 'container' implicitly has an 'any' type.
+src/hooks/__tests__/useFocusTrap.test.ts(49,34): error TS7005: Variable 'container' implicitly has an 'any' type.
+src/hooks/__tests__/useFocusTrap.test.ts(51,27): error TS7005: Variable 'container' implicitly has an 'any' type.
+src/services/__tests__/api.test.ts(17,27): error TS2341: Property 'baseUrl' is private and only accessible within class 'ApiClient'.
+src/services/__tests__/api.test.ts(22,27): error TS2341: Property 'baseUrl' is private and only accessible within class 'ApiClient'.
+src/services/__tests__/api.test.ts(27,26): error TS2339: Property 'mockResolvedValueOnce' does not exist on type '{ (input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>; (input: string | Request | URL, init?: RequestInit | undefined): Promise<...>; }'.
+src/services/__tests__/api.test.ts(44,26): error TS2339: Property 'mockResolvedValueOnce' does not exist on type '{ (input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>; (input: string | Request | URL, init?: RequestInit | undefined): Promise<...>; }'.
+src/services/__tests__/api.test.ts(63,26): error TS2339: Property 'mockResolvedValueOnce' does not exist on type '{ (input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>; (input: string | Request | URL, init?: RequestInit | undefined): Promise<...>; }'.
+src/services/__tests__/api.test.ts(75,26): error TS2339: Property 'mockRejectedValueOnce' does not exist on type '{ (input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>; (input: string | Request | URL, init?: RequestInit | undefined): Promise<...>; }'.
+src/services/__tests__/api.test.ts(86,27): error TS2341: Property 'defaultHeaders' is private and only accessible within class 'ApiClient'.
+src/services/__tests__/api.test.ts(94,27): error TS2341: Property 'defaultHeaders' is private and only accessible within class 'ApiClient'.
+src/services/__tests__/api.test.ts(98,26): error TS2339: Property 'mockResolvedValueOnce' does not exist on type '{ (input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>; (input: string | Request | URL, init?: RequestInit | undefined): Promise<...>; }'.
+src/utils/__tests__/formatters.test.ts(6,5): error TS2724: '"../formatters"' has no exported member named 'formatCPF'. Did you mean 'formatCEP'?
+src/utils/__tests__/formatters.test.ts(7,5): error TS2724: '"../formatters"' has no exported member named 'formatCNPJ'. Did you mean 'formatCEP'?
+src/utils/__tests__/formatters.test.ts(9,5): error TS2305: Module '"../formatters"' has no exported member 'formatExpiry'.
+src/utils/__tests__/security.test.ts(81,30): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/utils/__tests__/security.test.ts(82,30): error TS2345: Argument of type 'null' is not assignable to parameter of type 'string'.
+src/utils/__tests__/security.test.ts(83,30): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'string'.
+src/utils/__tests__/security.test.ts(115,38): error TS2345: Argument of type 'null' is not assignable to parameter of type 'string'.
+src/utils/__tests__/validation.test.ts(3,5): error TS2614: Module '"../validation"' has no exported member 'validateCardNumber'. Did you mean to use 'import validateCardNumber from "../validation"' instead?
+src/utils/__tests__/validation.test.ts(4,5): error TS2614: Module '"../validation"' has no exported member 'validateCPF'. Did you mean to use 'import validateCPF from "../validation"' instead?
+src/utils/__tests__/validation.test.ts(5,5): error TS2724: '"../validation"' has no exported member named 'validateEmail'. Did you mean 'isValidEmail'?
+src/utils/__tests__/validation.test.ts(6,5): error TS2614: Module '"../validation"' has no exported member 'validateCEP'. Did you mean to use 'import validateCEP from "../validation"' instead?
+src/utils/__tests__/validation.test.ts(8,5): error TS2724: '"../validation"' has no exported member named 'formatCPF'. Did you mean 'formatCEP'?
+src/utils/__tests__/validation.test.ts(10,5): error TS2614: Module '"../validation"' has no exported member 'validateForm'. Did you mean to use 'import validateForm from "../validation"' instead?
+src/utils/__tests__/validation.test.ts(11,5): error TS2614: Module '"../validation"' has no exported member 'paymentSchema'. Did you mean to use 'import paymentSchema from "../validation"' instead?
+src/utils/__tests__/validation.test.ts(12,5): error TS2614: Module '"../validation"' has no exported member 'checkoutSchema'. Did you mean to use 'import checkoutSchema from "../validation"' instead?
+tests/e2e/dashboard.spec.ts(49,26): error TS2304: Cannot find name 'avatar'.

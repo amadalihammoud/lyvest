@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { isValidCreditCard } from './validation';
 
 // Schema de endereço para checkout

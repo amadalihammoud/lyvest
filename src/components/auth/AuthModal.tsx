@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuthModal } from '@/store/useAuthModal';
 import { SignIn, SignUp, useSignIn, useSignUp } from '@clerk/nextjs';
-import { X } from 'lucide-react';
 import { m, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
+import { X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+import { useAuthModal } from '@/store/useAuthModal';
 
 export default function AuthModal() {
     const { isOpen, view, onClose, setView } = useAuthModal();

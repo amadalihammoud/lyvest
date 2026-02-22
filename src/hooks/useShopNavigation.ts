@@ -1,6 +1,7 @@
 import { useRouter } from 'next/navigation';
-import { useShop } from '../context/ShopContext';
+
 import { useModal } from '../context/ModalContext';
+import { useShop } from '../context/ShopContext';
 import { generateSlug } from '../utils/slug';
 
 export const useShopNavigation = () => {

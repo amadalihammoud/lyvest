@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
-import { User, Mail, Smartphone, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
-import { useI18n } from '../../hooks/useI18n';
-// import { useAuth } from '../../context/AuthContext';
 import { useUser } from '@clerk/nextjs';
+import { User, Mail, Smartphone, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+import { useI18n } from '../../hooks/useI18n';
+
+// import { useAuth } from '../../context/AuthContext';
+
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 // import { User as UserType } from '../../context/AuthContext';
 

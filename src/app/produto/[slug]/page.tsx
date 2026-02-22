@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+
 import ProductPageClient from '@/components/pages/ProductPageClient';
 import { productsData } from '@/data/products';
 import { generateSlug } from '@/utils/slug';

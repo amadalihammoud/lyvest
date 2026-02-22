@@ -1,12 +1,12 @@
-﻿import React from 'react';
-import { ShoppingBag } from 'lucide-react';
+﻿import { ShoppingBag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { generateSlug } from '../../utils/slug';
+import React from 'react';
+
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
-import OptimizedProductImage from '../ui/OptimizedProductImage';
-
 import { Product } from '../../services/ProductService';
+import { generateSlug } from '../../utils/slug';
+import OptimizedProductImage from '../ui/OptimizedProductImage';
 
 interface ProductQuickViewProps {
     product: Product | null;

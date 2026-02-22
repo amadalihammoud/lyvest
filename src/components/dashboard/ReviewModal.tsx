@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Star, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { useUser } from '@clerk/nextjs';
+import { X, Star, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+
 import { useI18n } from '../../hooks/useI18n';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+
+
 
 interface ReviewModalProps {
     isOpen: boolean;

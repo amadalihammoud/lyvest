@@ -1,9 +1,9 @@
 ﻿
 'use client';
-import { useI18n } from '../../hooks/useI18n';
 import Image from 'next/image';
 
 import { useModal } from '../../context/ModalContext';
+import { useI18n } from '../../hooks/useI18n';
 
 export default function Footer() {
     const { t } = useI18n();

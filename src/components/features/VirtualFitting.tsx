@@ -1,12 +1,13 @@
+import { X, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Sparkles } from 'lucide-react';
-import { Product } from '../../services/ProductService';
-import { BodyMeasurements, SizeRecommendation, calculateSize } from '../../services/sizeAI';
-import { findSimilarModels } from '../../data/sizeGuide';
-import SizeCalculator from './SizeCalculator';
+
 import AIRecommendation from './AIRecommendation';
 import ModelGallery from './ModelGallery';
+import SizeCalculator from './SizeCalculator';
+import { findSimilarModels } from '../../data/sizeGuide';
+import { Product } from '../../services/ProductService';
+import { BodyMeasurements, SizeRecommendation, calculateSize } from '../../services/sizeAI';
 import { getProductGender } from '../../utils/productUtils';
 
 interface VirtualFittingProps {

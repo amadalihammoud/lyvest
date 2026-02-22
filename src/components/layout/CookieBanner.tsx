@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
 import { Cookie } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface CookieBannerProps {
     onOpenPrivacy: () => void;

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
 import { Ruler, Weight } from 'lucide-react';
-import { BodyMeasurements } from '../../services/sizeAI';
-import { Product } from '../../services/ProductService';
+import React, { useState } from 'react';
+
 import BodyMannequin from './BodyMannequin';
+import { Product } from '../../services/ProductService';
+import { BodyMeasurements } from '../../services/sizeAI';
 
 interface SizeCalculatorProps {
     onCalculate: (measurements: BodyMeasurements) => void;

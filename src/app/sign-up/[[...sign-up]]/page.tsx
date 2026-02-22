@@ -2,6 +2,7 @@
 
 import { SignUp } from "@clerk/nextjs";
 import { Suspense } from "react";
+
 import { useUltraLazyLoad } from "@/lib/ultra-lazy-load";
 
 function SignUpPageContent() {

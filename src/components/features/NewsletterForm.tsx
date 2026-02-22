@@ -1,10 +1,11 @@
 ﻿// src/components/features/NewsletterForm.tsx
-import React, { useState, useCallback } from 'react';
 import { Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { validateForm, newsletterSchema } from '../../utils/schemas';
-import { RateLimiter, createHoneypot, detectXSS } from '../../utils/security';
+import React, { useState, useCallback } from 'react';
+
 import { useDebounce } from '../../hooks/useDebounce';
 import { useI18n } from '../../hooks/useI18n';
+import { validateForm, newsletterSchema } from '../../utils/schemas';
+import { RateLimiter, createHoneypot, detectXSS } from '../../utils/security';
 
 // Rate limiter: 3 tentatives per minute
 const newsletterLimiter = new RateLimiter('newsletter', 3, 60000);

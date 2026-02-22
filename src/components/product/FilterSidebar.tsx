@@ -1,5 +1,6 @@
-import React, { useState, useLayoutEffect } from 'react';
 import { X, Filter, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import React, { useState, useLayoutEffect } from 'react';
+
 import Button from '../ui/Button';
 
 

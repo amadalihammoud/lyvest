@@ -1,10 +1,11 @@
-import EmptyState from './EmptyState';
 import { Heart, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
-import { useI18n } from '../../hooks/useI18n';
-import { useFavorites } from '../../context/FavoritesContext';
+
+import EmptyState from './EmptyState';
 import { useCart } from '../../context/CartContext';
+import { useFavorites } from '../../context/FavoritesContext';
 import { productsData } from '../../data/products';
+import { useI18n } from '../../hooks/useI18n';
 import { generateSlug } from '../../utils/slug';
 
 export default function FavoritesSection() {

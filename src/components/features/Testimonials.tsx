@@ -1,7 +1,8 @@
 'use client';
-import React from 'react';
-import { useI18n } from '../../hooks/useI18n';
 import { Quote, Star } from 'lucide-react';
+import React from 'react';
+
+import { useI18n } from '../../hooks/useI18n';
 
 interface TestimonialItem {
     id: number;

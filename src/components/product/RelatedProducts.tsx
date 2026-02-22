@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
 import { useRouter } from 'next/navigation';
+import React from 'react';
+
 import ProductCard from '@/components/product/ProductCard';
 import { productsData } from '@/data/products';
 import { Product } from '@/services/ProductService';

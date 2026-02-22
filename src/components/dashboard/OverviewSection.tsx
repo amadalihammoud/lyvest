@@ -1,9 +1,11 @@
-import { memo } from 'react';
 import { Package, Truck, CheckCircle, Clock, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { memo } from 'react';
+
+import { User as UserType } from './UserDashboard';
 import { useI18n } from '../../hooks/useI18n';
 import { Order } from '../../types/dashboard';
-import { User as UserType } from './UserDashboard';
-import Link from 'next/link';
+
 
 interface OverviewSectionProps {
     user: UserType;

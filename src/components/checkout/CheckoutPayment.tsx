@@ -1,14 +1,16 @@
 ﻿'use client';
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { CreditCard, QrCode, AlertCircle, Lock } from 'lucide-react';
-import { formatCardNumber } from '../../utils/validation';
+import { useState, ChangeEvent, FormEvent } from 'react';
+
+import { useCart } from '../../context/CartContext';
+import { useI18n } from '../../hooks/useI18n';
+import { paymentService } from '../../services/payment';
 import { paymentSchema, validateForm } from '../../utils/schemas';
 import { RateLimiter, detectXSS } from '../../utils/security';
-import { paymentService } from '../../services/payment';
-import { useI18n } from '../../hooks/useI18n';
-import { useCart } from '../../context/CartContext';
+import { formatCardNumber } from '../../utils/validation';
+
 // import { useAuth } from '../../context/AuthContext'; // Removed
-import { useUser } from '@clerk/nextjs';
 
 // Define types based on our validation schema
 type PaymentFormData = {

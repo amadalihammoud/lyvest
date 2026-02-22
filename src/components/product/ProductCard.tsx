@@ -1,11 +1,11 @@
-﻿import React, { useState } from 'react';
+﻿import { Heart, Eye, Minus, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { Heart, Eye, Minus, Plus } from 'lucide-react';
-import { generateSlug } from '../../utils/slug';
-import { useI18n } from '../../hooks/useI18n';
-import OptimizedProductImage from '../ui/OptimizedProductImage';
+import React, { useState } from 'react';
 
+import { useI18n } from '../../hooks/useI18n';
 import { Product } from '../../services/ProductService';
+import { generateSlug } from '../../utils/slug';
+import OptimizedProductImage from '../ui/OptimizedProductImage';
 
 interface ProductCardProps {
     product: Product;

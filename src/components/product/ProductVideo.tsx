@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect, MouseEvent } from 'react';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { useRef, useState, useEffect, MouseEvent } from 'react';
 
 interface ProductVideoProps {
     videoUrl?: string;

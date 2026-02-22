@@ -2,8 +2,8 @@
 // src/utils/analytics.ts
 // Serviço de analytics preparado para integração com GA4, Plausible, etc.
 
-import { ANALYTICS_CONFIG } from '../config/constants';
 import { analyticsLogger } from './logger';
+import { ANALYTICS_CONFIG } from '../config/constants';
 
 declare global {
     interface Window {

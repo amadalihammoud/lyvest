@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
+import { useEffect } from 'react';
+
 import { useFavorites } from '@/context/FavoritesContext';
 
 // Componente separado que USA Clerk (useUser) e sincroniza o contexto

@@ -1,7 +1,8 @@
 'use client';
 
-import { ReactNode, Suspense, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { ReactNode, Suspense, useEffect } from 'react';
+
 import AppProviders from '@/components/layout/AppProviders';
 
 // Lazy load Header to defer Clerk useUser/useClerk from critical path
@@ -11,10 +12,10 @@ const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: true }
 // AuthModal lazy loaded to remove Clerk/Framer from initial bundle
 const AuthModal = dynamic(() => import('@/components/auth/AuthModal'), { ssr: false });
 
+import { LazyClerkProvider } from '@/components/providers/LazyClerkProvider';
+import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
-import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
-import { LazyClerkProvider } from '@/components/providers/LazyClerkProvider';
 
 // Isolate FavoritesSync so Clerk is not pulled into the global bundle
 const FavoritesSync = dynamic(() => import('@/components/auth/FavoritesSync'), { ssr: false });

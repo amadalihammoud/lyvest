@@ -1,5 +1,5 @@
-import { useI18n } from '../../hooks/useI18n';
 import { legalContent } from '../../data/legalData';
+import { useI18n } from '../../hooks/useI18n';
 
 interface FAQItem {
     question: string;

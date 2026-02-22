@@ -1,13 +1,12 @@
 'use client';
-import { useState } from 'react';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
-import { useCart } from '../../hooks/useCart';
-
-import { useI18n } from '../../hooks/useI18n';
-
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
+
 import CheckoutAddress, { AddressFormData } from './CheckoutAddress';
 import CheckoutSummary from './CheckoutSummary';
+import { useCart } from '../../hooks/useCart';
+import { useI18n } from '../../hooks/useI18n';
 
 const CheckoutPayment = dynamic(() => import('./CheckoutPayment'), { ssr: false });
 const OrderConfirmation = dynamic(() => import('./OrderConfirmation'), { ssr: false });

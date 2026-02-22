@@ -2,6 +2,7 @@
 // src/context/CartContext.tsx
 'use client';
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
+
 import { CART_CONFIG } from '../config/constants';
 
 // Interface para o item do carrinho

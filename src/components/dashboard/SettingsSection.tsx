@@ -1,13 +1,18 @@
-import { useState, memo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useI18n } from '../../hooks/useI18n';
-// import { useAuth, User } from '../../context/AuthContext';
 import { useUser, useClerk } from '@clerk/nextjs';
-import { supabase, isSupabaseConfigured } from '../../lib/supabase';
-// jsPDF is loaded dynamically when needed to reduce bundle size
 import { Shield, Lock, Bell, Camera, Download, Trash2, CheckCircle, AlertTriangle, AlertCircle, X, FileText } from 'lucide-react';
-import { getUserAvatar } from '../../utils/userUtils';
+import { useRouter } from 'next/navigation';
+import { useState, memo } from 'react';
+
+import { useI18n } from '../../hooks/useI18n';
+
+// import { useAuth, User } from '../../context/AuthContext';
+
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+
+// jsPDF is loaded dynamically when needed to reduce bundle size
+
 import { UserAddress, Order } from '../../types/dashboard';
+import { getUserAvatar } from '../../utils/userUtils';
 
 interface SettingsSectionProps {
     user: any;

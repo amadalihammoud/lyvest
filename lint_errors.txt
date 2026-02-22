@@ -1,0 +1,91 @@
+﻿
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\app\sign-in\page.tsx
+  16:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\app\sign-in\page.tsx:16:13
+  14 |         if (clerk && clerk.loaded) {
+  15 |             const url = clerk.buildSignInUrl();
+> 16 |             setSignInUrl(url);
+     |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  17 |         }
+  18 |     }, [clerk]);
+  19 |  react-hooks/set-state-in-effect
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\components\dashboard\AddressSection.tsx
+  400:25  error  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\components\dashboard\ProfileSection.tsx
+  325:29  error  A form label must have accessible text  jsx-a11y/label-has-associated-control
+  338:29  error  A form label must have accessible text  jsx-a11y/label-has-associated-control
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\components\dashboard\ReviewModal.tsx
+   82:13  error  Visible, non-interactive elements with click handlers must have at least one keyboard listener                                                                                                     jsx-a11y/click-events-have-key-events
+   82:13  error  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+  125:29  error  A form label must be associated with a control                                                                                                                                                     jsx-a11y/label-has-associated-control
+  156:29  error  A form label must be associated with a control                                                                                                                                                     jsx-a11y/label-has-associated-control
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\components\features\Hero.tsx
+  103:61  error  img elements must have an alt prop, either with meaningful text, or an empty string for decorative images  jsx-a11y/alt-text
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\components\features\VirtualFitting.tsx
+  120:9   error  Visible, non-interactive elements with click handlers must have at least one keyboard listener                                                                                                     jsx-a11y/click-events-have-key-events
+  120:9   error  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+  124:13  error  Visible, non-interactive elements with click handlers must have at least one keyboard listener                                                                                                     jsx-a11y/click-events-have-key-events
+  124:13  error  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\components\layout\Header.tsx
+  33:11  error  An empty interface declaration allows any non-nullish value, including literals like `0` and `""`.
+- If that's what you want, disable this lint rule with an inline comment or configure the 'allowInterfaces' rule option.
+- If you want a type meaning "any object", you probably want `object` instead.
+- If you want a type meaning "any value", you probably want `unknown` instead  @typescript-eslint/no-empty-object-type
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\components\product\SizeGuideModal.tsx
+  65:9   error  Visible, non-interactive elements with click handlers must have at least one keyboard listener                                                                                                     jsx-a11y/click-events-have-key-events
+  65:9   error  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+  66:13  error  Visible, non-interactive elements with click handlers must have at least one keyboard listener                                                                                                     jsx-a11y/click-events-have-key-events
+  66:13  error  Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element  jsx-a11y/no-static-element-interactions
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\context\CartContext.tsx
+  144:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\context\CartContext.tsx:144:13
+  142 |         const savedCart = loadCartFromStorage();
+  143 |         if (savedCart.length > 0) {
+> 144 |             setCartItems(savedCart);
+      |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  145 |         }
+  146 |         setIsHydrated(true);
+  147 |     }, []);  react-hooks/set-state-in-effect
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\context\I18nContext.tsx
+  55:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\amada\OneDrive\├ürea de Trabalho\Ecommerce Ly Vest\src\context\I18nContext.tsx:55:9
+  53 |             // Falha silenciosa
+  54 |         }
+> 55 |         setIsHydrated(true);
+     |         ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  56 |     }, []);
+  57 |
+  58 |     // Persistir mudan├ºas e configurar dire├º├úo (RTL/LTR)  react-hooks/set-state-in-effect
+
+Ô£û 20 problems (20 errors, 0 warnings)
+

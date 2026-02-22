@@ -1,11 +1,11 @@
-import React from 'react';
 import { ShoppingBag, Trash2, X } from 'lucide-react';
+import React from 'react';
+
+import { useCart , CartItem } from '../../context/CartContext';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useI18n } from '../../hooks/useI18n';
 
-import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { useCart } from '../../context/CartContext';
 
-import { CartItem } from '../../context/CartContext';
 
 interface DrawerCartProps {
     isOpen: boolean;

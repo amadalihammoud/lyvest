@@ -1,19 +1,21 @@
 'use client';
 
-import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
+import { Smile } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
+
 // Hero and InfoStrip moved to page.tsx for LCP optimization
 // import Hero from '@/components/features/Hero';
 import ProductCard from '@/components/product/ProductCard';
 // import InfoStrip from '@/components/features/InfoStrip';
-import { productsData } from '@/data/products';
-import { quickFilters } from '@/data/siteData';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
-import { useModal } from '@/context/ModalContext';
-import { Smile } from 'lucide-react';
 import { useI18n } from '@/context/I18nContext';
-import dynamic from 'next/dynamic';
+import { useModal } from '@/context/ModalContext';
+import { productsData } from '@/data/products';
+import { quickFilters } from '@/data/siteData';
+
 
 // Lazy load below-the-fold components — ssr: false to isolate heavy deps like Zod
 const NewsletterForm = dynamic(() => import('@/components/features/NewsletterForm'), { ssr: false });
