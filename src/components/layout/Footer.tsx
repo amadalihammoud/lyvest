@@ -83,17 +83,17 @@ export default function Footer() {
                                 <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
                             </div>
 
-                            {/* Icons row — all side by side, same center alignment */}
-                            <div className="flex items-center justify-center gap-4 md:gap-6 flex-nowrap mt-3">
-                                {/* Visa */}
+                            {/* Icons row — calibrated per file aspect ratio for visual balance */}
+                            <div className="flex items-center justify-center gap-3 md:gap-5 flex-nowrap mt-3">
+                                {/* Visa: tight-cropped ~400x152px file → h-9 gives ~94px wide, 36px visual content */}
                                 <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
-                                {/* Mastercard */}
-                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={40} className="h-9 md:h-10 w-auto object-contain" />
-                                {/* Pix */}
-                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={40} className="h-9 md:h-10 w-auto object-contain" />
+                                {/* Mastercard: 200x200 source, circles fill ~80% → needs h-12 so circles appear same size as Visa text */}
+                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={100} height={55} className="h-12 md:h-[52px] w-auto object-contain" />
+                                {/* Pix: tight-cropped ~400x136px file → h-10 gives ~118px wide, proportional to Mastercard */}
+                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={160} height={44} className="h-10 md:h-11 w-auto object-contain" />
 
-                                {/* Divider */}
-                                <div className="h-10 w-[1px] bg-slate-200 mx-2 md:mx-6 shrink-0"></div>
+                                {/* Divider — wider margins push security to the right */}
+                                <div className="h-10 w-[1px] bg-slate-200 mx-4 md:mx-10 shrink-0"></div>
 
                                 {/* Security */}
                                 <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={200} height={60} className="h-11 md:h-12 w-auto object-contain" />
