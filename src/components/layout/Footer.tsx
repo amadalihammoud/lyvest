@@ -56,12 +56,12 @@ export default function Footer() {
                     </div>
 
                 </div>                {/* Horizontal Bar: Social, Payment & Security */}
-                <div className="w-full pb-10 pt-4 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16">
+                <div className="w-full pb-10 pt-4 flex flex-col md:flex-row items-center md:items-start justify-center gap-10 md:gap-12">
 
                     {/* Social Group */}
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-center gap-5">
                         <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.followUs')}</h3>
-                        <div className="flex items-center justify-center gap-6 min-h-[50px]">
+                        <div className="flex items-center justify-center gap-6 min-h-[70px]">
                             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
                                 <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-[37px] h-[37px] object-contain" />
                             </a>
@@ -75,27 +75,29 @@ export default function Footer() {
                     </div>
 
                     {/* Divider */}
-                    <div className="hidden md:block w-[1px] h-16 bg-slate-200"></div>
+                    <div className="hidden md:block w-[1px] h-[60px] bg-slate-200 mt-8"></div>
 
                     {/* Payment Group */}
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-center gap-5">
                         <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
-                        <div className="flex items-center justify-center gap-3 md:gap-5">
+                        <div className="flex items-center justify-center gap-4 md:gap-5 min-h-[70px]">
                             <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-6 md:h-7 w-auto object-contain" />
-                            {/* Increased 60% relative to Visa */}
                             <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[60px] md:h-[70px] w-auto object-contain" />
-                            {/* Increased 80% relative to Visa */}
-                            <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[68px] md:h-[80px] w-auto object-contain" />
+                            {/* Pix reduced by 30% */}
+                            <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[48px] md:h-[56px] w-auto object-contain" />
                         </div>
                     </div>
 
                     {/* Divider */}
-                    <div className="hidden md:block w-[1px] h-16 bg-slate-200"></div>
+                    <div className="hidden md:block w-[1px] h-[60px] bg-slate-200 mt-8"></div>
 
                     {/* Security Group */}
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-center gap-5">
                         <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
-                        <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-10 md:h-11 w-auto object-contain" />
+                        <div className="flex items-center justify-center min-h-[70px]">
+                            {/* Let's Encrypt increased */}
+                            <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[52px] md:h-[60px] w-auto object-contain" />
+                        </div>
                     </div>
 
                 </div>
