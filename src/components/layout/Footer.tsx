@@ -59,51 +59,46 @@ export default function Footer() {
                         {/* Peak Header (SIGA-NOS) - Matched exactly with others */}
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.15em] mb-6 text-center">{t('footer.followUs')}</h3>
 
-                        {/* Content Area - Fixed height on desktop to mirror neighbor columns (5 lines * 24px + 4 gaps * 12px = 168px) */}
-                        <div className="flex flex-col items-center justify-between w-full md:h-[200px]">
-                            {/* Social Icons - Occupying Rows 1 & 2 space */}
+                        {/* Content Area */}
+                        <div className="flex flex-col items-center justify-start w-full md:h-full">
+                            {/* Social Icons */}
                             <div className="flex items-center justify-center gap-6 h-[72px]">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    {/* Instagram has a full colorful square so width reduced by ~15% (44px -> 37px) */}
                                     <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-[37px] h-[37px] object-contain" />
                                 </a>
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    {/* Facebook 'f' letterform has lots of white canvas — scaled up to visually match Instagram (+10%) */}
                                     <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="w-[57px] h-[57px] object-contain" />
                                 </a>
                                 <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="group hover:scale-110 transition-transform duration-200" aria-label="X">
-                                    {/* X letterform also has white canvas — scaled up to visually match Instagram */}
                                     <Image src="/assets/icons/x-logo.webp" alt="X" width={80} height={80} className="w-[46px] h-[46px] object-contain" />
                                 </a>
                             </div>
-
-                            {/* Labels row — independently positioned to align with Trocas/Endereço level */}
-                            <div className="grid grid-cols-[auto_1px_auto] gap-x-10 md:gap-x-16 mt-5 md:mt-6">
-                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
-                                <span />
-                                <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
-                            </div>
-
-                            {/* Icons row — same grid-cols pattern so columns align with labels above */}
-                            <div className="grid grid-cols-[auto_1px_auto] gap-x-10 md:gap-x-16 mt-3 items-center">
-                                {/* Payment icons — matched to reference proportions */}
-                                <div className="flex items-center justify-center gap-3 md:gap-5">
-                                    {/* Visa: tight-crop (400×152), bold wordmark → h-6/h-7 makes it dominant but compact */}
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-6 md:h-7 w-auto object-contain" />
-                                    {/* Mastercard: 200×200 square, circles fill 80% → needs h-[38px]/h-11 to appear same visual weight as Visa */}
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={44} className="h-[38px] md:h-11 w-auto object-contain" />
-                                    {/* Pix: tight-crop wide file, h-[38px]/h-11 shows diamond+text proportionally */}
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={44} className="h-[38px] md:h-11 w-auto object-contain" />
-                                </div>
-                                {/* Vertical divider — spans full icon row */}
-                                <div className="bg-slate-200 w-full self-stretch min-h-[44px]"></div>
-                                {/* Let's Encrypt — reference shows it similar size to MC/Pix */}
-                                <div className="flex items-center justify-center">
-                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-10 md:h-11 w-auto object-contain" />
-                                </div>
-                            </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Horizontal Bar: Payment & Security - placed below the 3 columns */}
+                <div className="w-full pb-10 pt-4 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20">
+
+                    {/* Payment Group */}
+                    <div className="flex flex-col items-center gap-4">
+                        <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.paymentMethods')}</h3>
+                        <div className="flex items-center justify-center gap-3 md:gap-5">
+                            <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-6 md:h-7 w-auto object-contain" />
+                            <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={44} className="h-[38px] md:h-11 w-auto object-contain" />
+                            <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={44} className="h-[38px] md:h-11 w-auto object-contain" />
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="hidden md:block w-[1px] h-16 bg-slate-200"></div>
+
+                    {/* Security Group */}
+                    <div className="flex flex-col items-center gap-4">
+                        <h3 className="text-[13px] md:text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-none text-center whitespace-nowrap">{t('footer.security')}</h3>
+                        <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-10 md:h-11 w-auto object-contain" />
+                    </div>
+
                 </div>
 
                 {/* Copyright */}
