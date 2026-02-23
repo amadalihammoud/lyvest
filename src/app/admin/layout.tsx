@@ -1,4 +1,4 @@
-import { currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -11,6 +11,14 @@ import {
 import { SignOutButton } from '@clerk/nextjs';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+    // 1. Lightweight auth check (doesn't trigger deep cookie hydration errors on Edge)
+    const { userId } = await auth();
+
+    if (!userId) {
+        redirect('/');
+    }
+
+    // 2. Fetch full user data safely ONLY after confirming auth exists
     const user = await currentUser();
     const adminEmail = process.env.ADMIN_USER_EMAIL?.trim().toLowerCase();
 
