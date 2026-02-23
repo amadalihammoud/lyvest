@@ -14,6 +14,7 @@ const AuthModalDeferred = lazy(() => import('@/components/auth/AuthModal'));
 // This prevents Next.js from sending the 200KB clerk.js chunk in the initial HTML
 const LazyClerkProviderDeferred = lazy(() => import('@/components/providers/LazyClerkProvider').then(mod => ({ default: mod.LazyClerkProvider })));
 
+import { usePathname } from 'next/navigation';
 import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
@@ -28,6 +29,19 @@ interface ClientLayoutProps {
 export default function ClientLayout({ children }: ClientLayoutProps) {
     const { isOpen } = useAuthModal();
     const shouldLoad = useUltraLazyLoad();
+    const pathname = usePathname();
+    const isAdmin = pathname?.startsWith('/admin');
+
+    // Se for rota administrativa, ignora o footer, favs e tracking do frontend
+    if (isAdmin) {
+        return (
+            <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
+                <LazyClerkProviderDeferred shouldLoad={true}>
+                    {children}
+                </LazyClerkProviderDeferred>
+            </Suspense>
+        );
+    }
 
     // Defer Sentry initialization to idle callback (non-blocking)
     useEffect(() => {
