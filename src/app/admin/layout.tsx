@@ -12,10 +12,10 @@ import { SignOutButton } from '@clerk/nextjs';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
     const user = await currentUser();
-    const adminEmail = process.env.ADMIN_USER_EMAIL;
+    const adminEmail = process.env.ADMIN_USER_EMAIL?.trim().toLowerCase();
 
     // Type-safe verification of the master admin email
-    const isAuthorized = user?.emailAddresses?.some(e => e.emailAddress === adminEmail);
+    const isAuthorized = user?.emailAddresses?.some(e => e.emailAddress.toLowerCase() === adminEmail);
 
     if (!user || !isAuthorized) {
         redirect('/'); // Kick intruders back to the storefront
