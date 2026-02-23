@@ -59,9 +59,6 @@ export default function HeaderInteractive() {
 
     const [user, setUser] = useState<SerializedUser | null>(null);
 
-    const isAdmin = pathname?.startsWith('/admin');
-    if (isAdmin) return null;
-
     // Fetch user details silently outside of the SSR render path to ensure instant FCP
     useEffect(() => {
         fetch('/api/auth/me', { headers: { 'Cache-Control': 'no-cache' } })
