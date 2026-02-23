@@ -36,9 +36,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     if (isAdmin) {
         return (
             <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
-                <LazyClerkProviderDeferred shouldLoad={true}>
-                    {children}
-                </LazyClerkProviderDeferred>
+                {children}
             </Suspense>
         );
     }
