@@ -26,7 +26,23 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     const isAuthorized = user?.emailAddresses?.some(e => e.emailAddress.toLowerCase() === adminEmail);
 
     if (!user || !isAuthorized) {
-        redirect('/'); // Kick intruders back to the storefront
+        return (
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center flex-col text-center p-6">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-6">
+                    <span className="text-red-500 text-2xl font-bold">!</span>
+                </div>
+                <h1 className="text-2xl font-bold text-white mb-2">Acesso Negado</h1>
+                <p className="text-slate-400 max-w-md mb-8">
+                    Você está logado como <strong className="text-white">{user?.primaryEmailAddress?.emailAddress || 'Desconhecido'}</strong>, mas este e-mail não possui privilégios de Administrador.
+                </p>
+                <div className="flex gap-4">
+                    <Link href="/" className="px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition">Voltar para a Loja</Link>
+                    <SignOutButton signOutOptions={{ redirectUrl: '/' }}>
+                        <button className="px-6 py-2 bg-lyvest-500 text-white rounded-lg hover:bg-lyvest-600 transition">Trocar de Conta</button>
+                    </SignOutButton>
+                </div>
+            </div>
+        );
     }
 
     return (
