@@ -112,33 +112,35 @@ export default function Footer() {
                         </a>
                     </div>
 
-                    {/* Base — FORMAS DE PAGAMENTO + SEGURANÇA: col 3, rows 4-6 — alinha com Trocas/Endereço */}
-                    <div className="flex flex-col gap-2 w-full order-15 md:order-none md:col-start-3 md:row-start-4 md:row-span-3">
+                    {/* Base — PAGAMENTO + SEGURANÇA: col 3, rows 4-6 — 3 linhas verticais */}
+                    <div className="flex flex-col gap-3 w-full order-15 md:order-none md:col-start-3 md:row-start-4 md:row-span-3">
 
-                        {/* Linha de títulos */}
+                        {/* Linha 1: títulos lado a lado */}
                         <div className="flex items-start justify-between w-full">
-                            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] text-center leading-tight">
+                            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                                 {t('footer.paymentMethods')}
                             </h3>
-                            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] text-center leading-tight">
+                            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                                 {t('footer.security')}
                             </h3>
                         </div>
 
-                        {/* Linha de ícones — caixas fixas 48×36 px: objeto contido, mesma célula visual */}
-                        <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-2">
-                                <div className="w-[62px] h-[47px] flex items-center justify-center">
-                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
-                                </div>
-                                <div className="w-[81px] h-[61px] flex items-center justify-center">
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="max-w-full max-h-full object-contain" />
-                                </div>
-                                <div className="w-[81px] h-[61px] flex items-center justify-center">
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="max-w-full max-h-full object-contain" />
-                                </div>
+                        {/* Linha 2: ícones de pagamento — alinhados à esquerda */}
+                        <div className="flex items-center gap-2">
+                            <div className="w-[62px] h-[47px] flex items-center justify-center">
+                                <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
                             </div>
-                            <div className="w-[125px] h-[94px] flex items-center justify-center">
+                            <div className="w-[81px] h-[61px] flex items-center justify-center">
+                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="max-w-full max-h-full object-contain" />
+                            </div>
+                            <div className="w-[81px] h-[61px] flex items-center justify-center">
+                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="max-w-full max-h-full object-contain" />
+                            </div>
+                        </div>
+
+                        {/* Linha 3: Let's Encrypt — alinhado à direita, +80% (125→225 px) */}
+                        <div className="flex justify-end">
+                            <div className="w-[225px] h-[64px] flex items-center justify-center">
                                 <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
