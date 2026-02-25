@@ -106,7 +106,8 @@ export default function Footer() {
                         </a>
                         <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
                             <div className="w-[42px] h-[42px] flex items-center justify-center">
-                                <Image src="/assets/icons/x-logo.webp" alt="X" width={80} height={80} className="max-w-full max-h-full object-contain" />
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src="/assets/icons/x-logo.svg" alt="X" className="max-w-full max-h-full object-contain" />
                             </div>
                         </a>
                     </div>
