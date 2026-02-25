@@ -103,17 +103,17 @@ export default function Footer() {
                         </div>
 
                         {/* Base — Formas de Pagamento (esq.) + Segurança (dir.) */}
-                        <div className="grid grid-cols-2 gap-4 w-full">
+                        <div className="flex items-start justify-between w-full">
 
                             {/* Formas de Pagamento */}
                             <div className="flex flex-col items-center gap-2">
                                 <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] text-center leading-tight">
                                     {t('footer.paymentMethods')}
                                 </h3>
-                                <div className="flex items-center justify-center gap-2">
+                                <div className="flex items-center justify-center gap-1">
                                     <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-[18px] w-auto object-contain" />
-                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[22px] w-auto object-contain" />
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[18px] w-auto object-contain" />
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[28px] w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[22px] w-auto object-contain" />
                                 </div>
                             </div>
 
@@ -123,7 +123,7 @@ export default function Footer() {
                                     {t('footer.security')}
                                 </h3>
                                 <div className="flex items-center justify-center">
-                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[52px] w-auto object-contain" />
+                                    <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[40px] w-auto object-contain" />
                                 </div>
                             </div>
 
