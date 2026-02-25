@@ -103,24 +103,22 @@ export default function Footer() {
                         </div>
 
                         {/* Base — Formas de Pagamento (esq.) + Segurança (dir.) */}
-                        <div className="grid grid-cols-2 gap-6 w-full">
+                        <div className="grid grid-cols-2 gap-4 w-full">
 
                             {/* Formas de Pagamento */}
-                            <div className="flex flex-col items-center gap-3">
+                            <div className="flex flex-col items-center gap-2">
                                 <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] text-center leading-tight">
                                     {t('footer.paymentMethods')}
                                 </h3>
-                                <div className="flex flex-col items-center gap-1">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-5 w-auto object-contain" />
-                                        <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[42px] w-auto object-contain" />
-                                    </div>
-                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[38px] w-auto object-contain" />
+                                <div className="flex items-center justify-center gap-2">
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-[18px] w-auto object-contain" />
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[22px] w-auto object-contain" />
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[18px] w-auto object-contain" />
                                 </div>
                             </div>
 
                             {/* Segurança */}
-                            <div className="flex flex-col items-center gap-3">
+                            <div className="flex flex-col items-center gap-2">
                                 <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] text-center leading-tight">
                                     {t('footer.security')}
                                 </h3>
