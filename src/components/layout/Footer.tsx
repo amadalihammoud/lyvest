@@ -122,14 +122,14 @@ export default function Footer() {
                                 <div className="w-[48px] h-[36px] flex items-center justify-center">
                                     <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
                                 </div>
-                                <div className="w-[48px] h-[36px] flex items-center justify-center">
+                                <div className="w-[62px] h-[47px] flex items-center justify-center">
                                     <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="max-w-full max-h-full object-contain" />
                                 </div>
-                                <div className="w-[48px] h-[36px] flex items-center justify-center">
+                                <div className="w-[62px] h-[47px] flex items-center justify-center">
                                     <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="max-w-full max-h-full object-contain" />
                                 </div>
                             </div>
-                            <div className="w-[48px] h-[36px] flex items-center justify-center">
+                            <div className="w-[96px] h-[72px] flex items-center justify-center">
                                 <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
