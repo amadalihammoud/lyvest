@@ -118,13 +118,13 @@ export default function Footer() {
 
                         {/* Linha de ícones — todos na mesma linha horizontal */}
                         <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-1">
-                                <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-[18px] w-auto object-contain" />
-                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[28px] w-auto object-contain" />
-                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[22px] w-auto object-contain" />
+                            <div className="flex items-center gap-2">
+                                <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-[32px] w-auto object-contain" />
+                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[32px] w-auto object-contain" />
+                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[32px] w-auto object-contain" />
                             </div>
                             <div>
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[28px] w-auto object-contain" />
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[32px] w-auto object-contain" />
                             </div>
                         </div>
 
