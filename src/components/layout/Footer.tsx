@@ -98,10 +98,11 @@ export default function Footer() {
                                 <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="max-w-full max-h-full object-contain" />
                             </div>
                         </a>
-                        {/* Facebook — "f" com muito whitespace → caixa maior para compensar */}
+                        {/* Facebook — SVG novo */}
                         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
                             <div className="w-[58px] h-[58px] flex items-center justify-center">
-                                <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="max-w-full max-h-full object-contain" />
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
                             </div>
                         </a>
                         {/* X — arte ocupa ~60% → caixa levemente maior */}
