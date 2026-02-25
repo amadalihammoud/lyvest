@@ -124,7 +124,7 @@ export default function Footer() {
                                 <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[22px] w-auto object-contain" />
                             </div>
                             <div>
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[40px] w-auto object-contain" />
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[28px] w-auto object-contain" />
                             </div>
                         </div>
 
