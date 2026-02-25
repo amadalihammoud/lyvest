@@ -116,15 +116,21 @@ export default function Footer() {
                             </h3>
                         </div>
 
-                        {/* Linha de ícones — todos na mesma linha horizontal */}
+                        {/* Linha de ícones — caixas fixas 48×36 px: objeto contido, mesma célula visual */}
                         <div className="flex items-center justify-between w-full">
                             <div className="flex items-center gap-2">
-                                <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-[22px] w-auto object-contain" />
-                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[36px] w-auto object-contain" />
-                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[28px] w-auto object-contain" />
+                                <div className="w-[48px] h-[36px] flex items-center justify-center">
+                                    <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
+                                </div>
+                                <div className="w-[48px] h-[36px] flex items-center justify-center">
+                                    <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="max-w-full max-h-full object-contain" />
+                                </div>
+                                <div className="w-[48px] h-[36px] flex items-center justify-center">
+                                    <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="max-w-full max-h-full object-contain" />
+                                </div>
                             </div>
-                            <div>
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[28px] w-auto object-contain" />
+                            <div className="w-[48px] h-[36px] flex items-center justify-center">
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
 
