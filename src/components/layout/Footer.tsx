@@ -21,64 +21,64 @@ export default function Footer() {
                     {/* ── Cols 1+2: 12 filhos intercalados (auto-placement preenche col1 e col2) ── */}
 
                     {/* Row 1 — cabeçalhos */}
-                    <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] pb-3 text-center md:text-left order-1 md:order-none">
+                    <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] pb-3 text-center md:text-left order-1 md:order-none md:col-start-1">
                         {t('footer.help')}
                     </h3>
-                    <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] pb-3 text-center md:text-left order-7 md:order-none">
+                    <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] pb-3 text-center md:text-left order-7 md:order-none md:col-start-2">
                         {t('footer.legal')}
                     </h3>
 
                     {/* Row 2 */}
-                    <div className="text-base text-slate-600 text-center md:text-left order-2 md:order-none">
+                    <div className="text-base text-slate-600 text-center md:text-left order-2 md:order-none md:col-start-1">
                         <button onClick={() => setActiveModal('about')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
                             {t('footer.about')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-8 md:order-none">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-8 md:order-none md:col-start-2">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.razaoSocial')}:</strong>{' '}
                         <span>Ly Vest Moda Feminina LTDA</span>
                     </div>
 
                     {/* Row 3 */}
-                    <div className="text-base text-slate-600 text-center md:text-left order-3 md:order-none">
+                    <div className="text-base text-slate-600 text-center md:text-left order-3 md:order-none md:col-start-1">
                         <button onClick={() => setActiveModal('shipping')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
                             {t('footer.shipping')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-9 md:order-none">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-9 md:order-none md:col-start-2">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.cnpj')}:</strong>{' '}
                         <span>29.015.357/0001-25</span>
                     </div>
 
                     {/* Row 4 */}
-                    <div className="text-base text-slate-600 text-center md:text-left order-4 md:order-none">
+                    <div className="text-base text-slate-600 text-center md:text-left order-4 md:order-none md:col-start-1">
                         <button onClick={() => setActiveModal('returns')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
                             {t('footer.returns')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-10 md:order-none">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-10 md:order-none md:col-start-2">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.address')}:</strong>{' '}
                         <span>Av. Ana Costa, 433 - Santos - SP</span>
                     </div>
 
                     {/* Row 5 */}
-                    <div className="text-base text-slate-600 text-center md:text-left order-5 md:order-none">
+                    <div className="text-base text-slate-600 text-center md:text-left order-5 md:order-none md:col-start-1">
                         <button onClick={() => setActiveModal('faq')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
                             {t('footer.faq')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-11 md:order-none">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-11 md:order-none md:col-start-2">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.email')}:</strong>{' '}
                         <span>contato@lyvest.com.br</span>
                     </div>
 
                     {/* Row 6 */}
-                    <div className="text-base text-slate-600 text-center md:text-left order-6 md:order-none">
+                    <div className="text-base text-slate-600 text-center md:text-left order-6 md:order-none md:col-start-1">
                         <button onClick={() => setActiveModal('privacy')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
                             {t('footer.privacy')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-12 md:order-none">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-12 md:order-none md:col-start-2">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.phone')}:</strong>{' '}
                         <span>(13) 9 9624-6969</span>
                     </div>
