@@ -104,7 +104,7 @@ export default function Footer() {
                     </div>
 
                     {/* Base — FORMAS DE PAGAMENTO + SEGURANÇA: col 3, row 4 — alinha com Trocas/Endereço */}
-                    <div className="flex items-start justify-between w-full order-14 md:order-none md:col-start-3 md:row-start-4">
+                    <div className="flex items-start justify-between w-full order-14 md:order-none md:col-start-3 md:row-start-4 md:row-span-3">
 
                         {/* Formas de Pagamento */}
                         <div className="flex flex-col items-center gap-2">
