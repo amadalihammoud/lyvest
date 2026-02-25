@@ -99,7 +99,7 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
     let maxWidthClass = 'max-w-md';
     if (isQuickView) maxWidthClass = 'max-w-4xl';
     else if (isAddedToCart) maxWidthClass = 'max-w-lg';
-    else if (isDashboardModal) maxWidthClass = 'max-w-[95vw] lg:max-w-6xl h-[85vh]'; // Fixed height for complex UIs
+    else if (isDashboardModal) maxWidthClass = 'max-w-[95vw] lg:max-w-2xl'; // Document-style: narrow column, auto height
     else if (isContentModal) maxWidthClass = 'max-w-[95vw] lg:max-w-7xl'; // Auto height for simple content pages
 
 
