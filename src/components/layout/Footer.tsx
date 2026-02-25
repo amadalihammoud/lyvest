@@ -18,67 +18,72 @@ export default function Footer() {
                 {/* Main 3-column grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto mb-12">
 
-                    {/* Coluna 1 — Ajuda */}
-                    <div className="flex flex-col items-center md:items-start">
-                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] mb-6 text-center md:text-left">
+                    {/* Colunas 1+2 — subgrid compartilhado: itens irmãos intercalados garantem alinhamento horizontal por linha */}
+                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3 items-start">
+
+                        {/* — Cabeçalhos (row 1) — */}
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] pb-3 text-center md:text-left order-1 md:order-none">
                             {t('footer.help')}
                         </h3>
-                        <ul className="flex flex-col gap-3 text-base text-slate-600">
-                            <li className="text-center md:text-left">
-                                <button onClick={() => setActiveModal('about')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-center md:text-left w-full p-0">
-                                    {t('footer.about')}
-                                </button>
-                            </li>
-                            <li className="text-center md:text-left">
-                                <button onClick={() => setActiveModal('shipping')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-center md:text-left w-full p-0">
-                                    {t('footer.shipping')}
-                                </button>
-                            </li>
-                            <li className="text-center md:text-left">
-                                <button onClick={() => setActiveModal('returns')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-center md:text-left w-full p-0">
-                                    {t('footer.returns')}
-                                </button>
-                            </li>
-                            <li className="text-center md:text-left">
-                                <button onClick={() => setActiveModal('faq')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-center md:text-left w-full p-0">
-                                    {t('footer.faq')}
-                                </button>
-                            </li>
-                            <li className="text-center md:text-left">
-                                <button onClick={() => setActiveModal('privacy')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 text-center md:text-left w-full p-0">
-                                    {t('footer.privacy')}
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Coluna 2 — Informações Legais */}
-                    <div className="flex flex-col items-center md:items-start">
-                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] mb-6 text-center md:text-left">
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] pb-3 text-center md:text-left order-7 md:order-none">
                             {t('footer.legal')}
                         </h3>
-                        <ul className="flex flex-col gap-3 text-sm text-slate-600">
-                            <li className="text-center md:text-left">
-                                <strong className="text-slate-700 font-semibold">{t('footer.company.razaoSocial')}:</strong>{' '}
-                                <span>Ly Vest Moda Feminina LTDA</span>
-                            </li>
-                            <li className="text-center md:text-left">
-                                <strong className="text-slate-700 font-semibold">{t('footer.company.cnpj')}:</strong>{' '}
-                                <span>29.015.357/0001-25</span>
-                            </li>
-                            <li className="text-center md:text-left">
-                                <strong className="text-slate-700 font-semibold">{t('footer.company.address')}:</strong>{' '}
-                                <span>Av. Ana Costa, 433 - Santos - SP</span>
-                            </li>
-                            <li className="text-center md:text-left">
-                                <strong className="text-slate-700 font-semibold">{t('footer.company.email')}:</strong>{' '}
-                                <span>contato@lyvest.com.br</span>
-                            </li>
-                            <li className="text-center md:text-left">
-                                <strong className="text-slate-700 font-semibold">{t('footer.company.phone')}:</strong>{' '}
-                                <span>(13) 9 9624-6969</span>
-                            </li>
-                        </ul>
+
+                        {/* — Row 2 — */}
+                        <div className="text-base text-slate-600 text-center md:text-left order-2 md:order-none">
+                            <button onClick={() => setActiveModal('about')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
+                                {t('footer.about')}
+                            </button>
+                        </div>
+                        <div className="text-sm text-slate-600 text-center md:text-left order-8 md:order-none">
+                            <strong className="text-slate-700 font-semibold">{t('footer.company.razaoSocial')}:</strong>{' '}
+                            <span>Ly Vest Moda Feminina LTDA</span>
+                        </div>
+
+                        {/* — Row 3 — */}
+                        <div className="text-base text-slate-600 text-center md:text-left order-3 md:order-none">
+                            <button onClick={() => setActiveModal('shipping')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
+                                {t('footer.shipping')}
+                            </button>
+                        </div>
+                        <div className="text-sm text-slate-600 text-center md:text-left order-9 md:order-none">
+                            <strong className="text-slate-700 font-semibold">{t('footer.company.cnpj')}:</strong>{' '}
+                            <span>29.015.357/0001-25</span>
+                        </div>
+
+                        {/* — Row 4 — */}
+                        <div className="text-base text-slate-600 text-center md:text-left order-4 md:order-none">
+                            <button onClick={() => setActiveModal('returns')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
+                                {t('footer.returns')}
+                            </button>
+                        </div>
+                        <div className="text-sm text-slate-600 text-center md:text-left order-10 md:order-none">
+                            <strong className="text-slate-700 font-semibold">{t('footer.company.address')}:</strong>{' '}
+                            <span>Av. Ana Costa, 433 - Santos - SP</span>
+                        </div>
+
+                        {/* — Row 5 — */}
+                        <div className="text-base text-slate-600 text-center md:text-left order-5 md:order-none">
+                            <button onClick={() => setActiveModal('faq')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
+                                {t('footer.faq')}
+                            </button>
+                        </div>
+                        <div className="text-sm text-slate-600 text-center md:text-left order-11 md:order-none">
+                            <strong className="text-slate-700 font-semibold">{t('footer.company.email')}:</strong>{' '}
+                            <span>contato@lyvest.com.br</span>
+                        </div>
+
+                        {/* — Row 6 — */}
+                        <div className="text-base text-slate-600 text-center md:text-left order-6 md:order-none">
+                            <button onClick={() => setActiveModal('privacy')} className="hover:text-lyvest-500 transition-colors hover:translate-x-1 duration-200 w-full text-center md:text-left p-0">
+                                {t('footer.privacy')}
+                            </button>
+                        </div>
+                        <div className="text-sm text-slate-600 text-center md:text-left order-12 md:order-none">
+                            <strong className="text-slate-700 font-semibold">{t('footer.company.phone')}:</strong>{' '}
+                            <span>(13) 9 9624-6969</span>
+                        </div>
+
                     </div>
 
                     {/* Coluna 3 — Pirâmide: Siga-nos (vértice) + Pagamento & Segurança (base) */}
