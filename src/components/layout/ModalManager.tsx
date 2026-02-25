@@ -93,8 +93,8 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
 
     const isQuickView = activeModal === 'quickview';
     const isAddedToCart = activeModal === 'addedToCart';
-    const isDashboardModal = ['faq', 'shipping', 'terms', 'privacy', 'returns'].includes(activeModal);
-    const isContentModal = ['about', 'contact'].includes(activeModal);
+    const isDashboardModal = ['faq', 'shipping', 'terms', 'privacy', 'returns', 'about'].includes(activeModal);
+    const isContentModal = ['contact'].includes(activeModal);
 
     let maxWidthClass = 'max-w-md';
     // Document modals handle their own internal scroll; others use the wrapper scroll
