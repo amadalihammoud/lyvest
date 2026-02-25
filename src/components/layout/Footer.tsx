@@ -85,26 +85,26 @@ export default function Footer() {
 
                     {/* ── Col 3: posicionamento explícito ── */}
 
-                    {/* Vértice — SIGA-NOS: col 3, rows 1-3 */}
-                    <div className="flex flex-col items-center gap-4 order-13 md:order-none md:col-start-3 md:row-start-1 md:row-span-3">
-                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] pb-3 text-center">
-                            {t('footer.followUs')}
-                        </h3>
-                        <div className="flex items-center justify-center gap-6">
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-[37px] h-[37px] object-contain" />
-                            </a>
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="w-[57px] h-[57px] object-contain" />
-                            </a>
-                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
-                                <Image src="/assets/icons/x-logo.webp" alt="X" width={80} height={80} className="w-[46px] h-[46px] object-contain" />
-                            </a>
-                        </div>
+                    {/* SIGA-NOS — título: col 3, row 1 */}
+                    <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] pb-3 text-center order-13 md:order-none md:col-start-3 md:row-start-1">
+                        {t('footer.followUs')}
+                    </h3>
+
+                    {/* SIGA-NOS — ícones: col 3, rows 2-3, centrados verticalmente */}
+                    <div className="flex items-center justify-center gap-6 order-14 md:order-none md:col-start-3 md:row-start-2 md:row-span-2 md:self-center">
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
+                            <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="w-[44px] h-[44px] object-contain" />
+                        </a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
+                            <Image src="/assets/icons/facebook-logo.webp" alt="Facebook" width={80} height={80} className="w-[44px] h-[44px] object-contain" />
+                        </a>
+                        <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
+                            <Image src="/assets/icons/x-logo.webp" alt="X" width={80} height={80} className="w-[44px] h-[44px] object-contain" />
+                        </a>
                     </div>
 
                     {/* Base — FORMAS DE PAGAMENTO + SEGURANÇA: col 3, rows 4-6 — alinha com Trocas/Endereço */}
-                    <div className="flex flex-col gap-2 w-full order-14 md:order-none md:col-start-3 md:row-start-4 md:row-span-3">
+                    <div className="flex flex-col gap-2 w-full order-15 md:order-none md:col-start-3 md:row-start-4 md:row-span-3">
 
                         {/* Linha de títulos */}
                         <div className="flex items-start justify-between w-full">
