@@ -13,7 +13,7 @@ export default function FaqModal(): React.ReactElement {
     const { t } = useI18n();
 
     return (
-        <div className="bg-white px-8 md:px-14 py-10">
+        <div className="bg-white max-h-[90vh] overflow-y-auto px-8 md:px-14 py-10">
             {/* Title */}
             <h2 className="text-2xl md:text-3xl font-bold text-lyvest-600 text-center leading-tight">
                 {t('modals.faq.title')}

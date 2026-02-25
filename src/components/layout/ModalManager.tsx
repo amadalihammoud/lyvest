@@ -97,10 +97,15 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
     const isContentModal = ['about', 'contact'].includes(activeModal);
 
     let maxWidthClass = 'max-w-md';
+    // Document modals handle their own internal scroll; others use the wrapper scroll
+    let overflowClass = 'max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-[#F5E6E8] scrollbar-track-transparent';
     if (isQuickView) maxWidthClass = 'max-w-4xl';
     else if (isAddedToCart) maxWidthClass = 'max-w-lg';
-    else if (isDashboardModal) maxWidthClass = 'max-w-[95vw] lg:max-w-2xl'; // Document-style: narrow column, auto height
-    else if (isContentModal) maxWidthClass = 'max-w-[95vw] lg:max-w-7xl'; // Auto height for simple content pages
+    else if (isDashboardModal) {
+        maxWidthClass = 'max-w-[95vw] lg:max-w-2xl';
+        overflowClass = 'overflow-hidden'; // DocumentModal/FaqModal scroll internally
+    }
+    else if (isContentModal) maxWidthClass = 'max-w-[95vw] lg:max-w-7xl';
 
 
 
@@ -111,7 +116,7 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
             aria-modal="true"
             aria-labelledby="modal-title"
         >
-            <div className={`bg-white rounded-3xl w-[95%] md:w-full ${maxWidthClass} max-h-[90vh] overflow-y-auto shadow-2xl relative animate-scale-up scrollbar-thin scrollbar-thumb-[#F5E6E8] scrollbar-track-transparent`}>
+            <div className={`bg-white rounded-3xl w-[95%] md:w-full ${maxWidthClass} ${overflowClass} shadow-2xl relative animate-scale-up`}>
                 <button onClick={closeModal} className="absolute top-4 right-4 z-50 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors cursor-pointer" aria-label={t('aria.closeModal')}>
                     <X className="w-5 h-5 text-slate-500" />
                 </button>
