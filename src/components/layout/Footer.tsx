@@ -92,22 +92,20 @@ export default function Footer() {
 
                     {/* SIGA-NOS — ícones: col 3, rows 2-3, centrados verticalmente */}
                     <div className="flex items-center justify-center gap-6 order-14 md:order-none md:col-start-3 md:row-start-2 md:row-span-2 md:self-center">
-                        {/* Instagram — arte preenche ~100% da imagem → caixa menor */}
+                        {/* Todos os três ícones preenchem bem seus bounds → caixa igual 42×42 */}
                         <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                            <div className="w-[40px] h-[40px] flex items-center justify-center">
+                            <div className="w-[42px] h-[42px] flex items-center justify-center">
                                 <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="max-w-full max-h-full object-contain" />
                             </div>
                         </a>
-                        {/* Facebook — SVG novo */}
                         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                            <div className="w-[58px] h-[58px] flex items-center justify-center">
+                            <div className="w-[42px] h-[42px] flex items-center justify-center">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
                             </div>
                         </a>
-                        {/* X — arte ocupa ~60% → caixa levemente maior */}
                         <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
-                            <div className="w-[46px] h-[46px] flex items-center justify-center">
+                            <div className="w-[42px] h-[42px] flex items-center justify-center">
                                 <Image src="/assets/icons/x-logo.webp" alt="X" width={80} height={80} className="max-w-full max-h-full object-contain" />
                             </div>
                         </a>
