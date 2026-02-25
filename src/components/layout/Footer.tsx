@@ -103,27 +103,27 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Base — FORMAS DE PAGAMENTO + SEGURANÇA: col 3, row 4 — alinha com Trocas/Endereço */}
-                    <div className="flex items-start justify-between w-full order-14 md:order-none md:col-start-3 md:row-start-4 md:row-span-3">
+                    {/* Base — FORMAS DE PAGAMENTO + SEGURANÇA: col 3, rows 4-6 — alinha com Trocas/Endereço */}
+                    <div className="flex flex-col gap-2 w-full order-14 md:order-none md:col-start-3 md:row-start-4 md:row-span-3">
 
-                        {/* Formas de Pagamento */}
-                        <div className="flex flex-col items-center gap-2">
+                        {/* Linha de títulos */}
+                        <div className="flex items-start justify-between w-full">
                             <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] text-center leading-tight">
                                 {t('footer.paymentMethods')}
                             </h3>
-                            <div className="flex items-center justify-center gap-1">
+                            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] text-center leading-tight">
+                                {t('footer.security')}
+                            </h3>
+                        </div>
+
+                        {/* Linha de ícones — todos na mesma linha horizontal */}
+                        <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-1">
                                 <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="h-[18px] w-auto object-contain" />
                                 <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="h-[28px] w-auto object-contain" />
                                 <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="h-[22px] w-auto object-contain" />
                             </div>
-                        </div>
-
-                        {/* Segurança */}
-                        <div className="flex flex-col items-center gap-2">
-                            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] text-center leading-tight">
-                                {t('footer.security')}
-                            </h3>
-                            <div className="flex items-center justify-center">
+                            <div>
                                 <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={180} height={50} className="h-[40px] w-auto object-contain" />
                             </div>
                         </div>
