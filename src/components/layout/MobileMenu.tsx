@@ -61,11 +61,11 @@ export default function MobileMenu({
         };
 
         updateHeight();
-        window.addEventListener('scroll', updateHeight);
+        // scroll removed: header height is fixed while menu is open — scroll listener
+        // caused getBoundingClientRect() forced-reflow on every scroll event.
         window.addEventListener('resize', updateHeight);
 
         return () => {
-            window.removeEventListener('scroll', updateHeight);
             window.removeEventListener('resize', updateHeight);
         };
     }, []);

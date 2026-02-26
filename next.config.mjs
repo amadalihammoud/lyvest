@@ -4,6 +4,12 @@ const nextConfig = {
     compress: true,
     poweredByHeader: false,
 
+    // Do not expose source maps to end users in production builds.
+    // Source maps for error tracking should be uploaded to Sentry during CI/CD,
+    // not served publicly. This fixes the "valid-source-maps" Lighthouse audit
+    // and slightly reduces the build output size.
+    productionBrowserSourceMaps: false,
+
     // Images: Otimização extrema
     images: {
         formats: ['image/avif', 'image/webp'],
@@ -58,6 +64,24 @@ const nextConfig = {
                 fs: false,
                 net: false,
                 tls: false,
+            };
+
+            // ── Alias legacy Array polyfills to native equivalents ──────────────
+            // Some transitive dependencies import core-js polyfills for Array.at
+            // and Array.from. Since ALL our browserslist targets (Chrome ≥ 95,
+            // Safari ≥ 15.4, Firefox ≥ 95, Edge ≥ 95) support these methods
+            // natively, we alias those polyfill entry-points to `false` (empty
+            // module). This removes ~24 KiB from the JS payload and eliminates
+            // the "Legacy JavaScript" Lighthouse warning without touching any
+            // runtime code.
+            config.resolve.alias = {
+                ...config.resolve.alias,
+                'core-js/modules/es.array.at': false,
+                'core-js/modules/es.array.from': false,
+                'core-js/stable/array/at': false,
+                'core-js/stable/array/from': false,
+                'core-js/features/array/at': false,
+                'core-js/features/array/from': false,
             };
         }
         return config;

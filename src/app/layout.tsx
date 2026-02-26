@@ -95,10 +95,13 @@ export default function RootLayout({
                 <link rel="preload" href="/assets/banners/banner-slide-1-mobile.webp" as="image" type="image/webp" fetchPriority="high" media="(max-width: 767px)" />
                 <link rel="preload" href="/assets/banners/banner-slide-1.webp" as="image" type="image/webp" fetchPriority="high" media="(min-width: 768px)" />
 
-                {/* DNS-prefetch for non-critical third-party origins */}
+                {/* Preconnect for third-party origins loaded during page interaction.
+                    preconnect (vs dns-prefetch) also performs the TCP + TLS handshake
+                    early, saving ~100-200 ms on the first real request to each origin. */}
+                <link rel="preconnect" href="https://va.vercel-scripts.com" crossOrigin="anonymous" />
+                <link rel="preconnect" href="https://vitals.vercel-insights.com" crossOrigin="anonymous" />
+                {/* img.clerk.com only loads after user interaction (lazy Clerk) — dns-prefetch is enough */}
                 <link rel="dns-prefetch" href="https://img.clerk.com" />
-                <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
-                <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
                 <link rel="icon" type="image/png" href="/assets/pwa/pwa-192x192.png" />
                 <link rel="manifest" href="/assets/pwa/manifest.json" />
 
