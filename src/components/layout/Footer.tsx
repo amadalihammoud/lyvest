@@ -84,7 +84,7 @@ export default function Footer() {
                     </div>
 
                     {/* ── Col 3, Row 1: títulos SIGA-NOS ←→ SEGURANÇA ── */}
-                    <div className="flex items-start justify-between w-full order-13 md:order-none md:col-start-3 md:row-start-1">
+                    <div className="flex items-start justify-between w-full self-start order-13 md:order-none md:col-start-3 md:row-start-1">
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                             {t('footer.followUs')}
                         </h3>
@@ -93,8 +93,8 @@ export default function Footer() {
                         </h3>
                     </div>
 
-                    {/* ── Col 3, Row 2: cluster social (esq.) + LE (dir.) — centrados na row via items-center no grid ── */}
-                    <div className="flex items-center w-full order-14 md:order-none md:col-start-3 md:row-start-2">
+                    {/* ── Col 3, Row 2: cluster social (esq.) + LE (dir.) — LE abs para não inflacionar o row track ── */}
+                    <div className="relative flex items-center w-full order-14 md:order-none md:col-start-3 md:row-start-2">
                         {/* Cluster social — 27×27 (−20%), gap-[30px] */}
                         <div className="flex items-center gap-[30px]">
                             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
@@ -115,8 +115,8 @@ export default function Footer() {
                                 </div>
                             </a>
                         </div>
-                        {/* Let's Encrypt — 220×61 (+80%) */}
-                        <div className="ml-auto w-[220px] h-[61px] flex items-center justify-center">
+                        {/* Let's Encrypt — 220×61 (+80%) — abs no desktop para não afetar row track height */}
+                        <div className="ml-auto w-[220px] h-[61px] flex items-center justify-center md:ml-0 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2">
                             <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={220} height={61} className="max-w-full max-h-full object-contain" />
                         </div>
                     </div>
