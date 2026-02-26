@@ -16,7 +16,7 @@ export default function Footer() {
             <div className="container mx-auto px-4">
 
                 {/* Grid flat único 3 colunas — cols 1+2 auto-placement intercalado, col 3 posicionamento explícito */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-3 max-w-5xl mx-auto mb-12 items-start">
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1.5fr] gap-x-12 gap-y-3 max-w-5xl mx-auto mb-12 items-start">
 
                     {/* ── Cols 1+2: 12 filhos intercalados (auto-placement preenche col1 e col2) ── */}
 
@@ -116,9 +116,9 @@ export default function Footer() {
                                     </div>
                                 </a>
                             </div>
-                            {/* Let's Encrypt — 122×34 (+35%) */}
-                            <div className="ml-auto w-[122px] h-[34px] flex items-center justify-center">
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={122} height={34} className="max-w-full max-h-full object-contain" />
+                            {/* Let's Encrypt — 220×61 (+80%) */}
+                            <div className="ml-auto w-[220px] h-[61px] flex items-center justify-center">
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={220} height={61} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
                     </div>
