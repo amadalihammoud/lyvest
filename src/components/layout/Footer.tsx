@@ -85,9 +85,12 @@ export default function Footer() {
 
                     {/* ── Col 3, Row 1: títulos SIGA-NOS ←→ SEGURANÇA ── */}
                     <div className="flex items-start justify-between w-full self-start order-13 md:order-none md:col-start-3 md:row-start-1">
-                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
-                            {t('footer.followUs')}
-                        </h3>
+                        {/* wrapper 141px = largura do cluster social → texto centrado acima do ícone Facebook */}
+                        <div className="md:w-[141px] md:text-center">
+                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                                {t('footer.followUs')}
+                            </h3>
+                        </div>
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                             {t('footer.security')}
                         </h3>
