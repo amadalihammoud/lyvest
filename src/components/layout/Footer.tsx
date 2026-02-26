@@ -91,9 +91,12 @@ export default function Footer() {
                                 {t('footer.followUs')}
                             </h3>
                         </div>
-                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
-                            {t('footer.security')}
-                        </h3>
+                        {/* wrapper 220px = largura do LE → texto centrado acima do logo Let's Encrypt */}
+                        <div className="md:w-[220px] md:text-center">
+                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                                {t('footer.security')}
+                            </h3>
+                        </div>
                     </div>
 
                     {/* ── Col 3, Row 2: cluster social (esq.) + LE (dir.) — LE abs para não inflacionar o row track ── */}
