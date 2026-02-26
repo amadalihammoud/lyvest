@@ -98,8 +98,8 @@ export default function Footer() {
 
                         {/* Linha B — sociais (esq.) + LE (dir.) com ~20px de respiro entre os grupos */}
                         <div className="flex items-center w-full">
-                            {/* Cluster social — 34×34, gap-8 (32px = −7%) */}
-                            <div className="flex items-center gap-8">
+                            {/* Cluster social — 34×34, gap-[30px] */}
+                            <div className="flex items-center gap-[30px]">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
                                     <div className="w-[34px] h-[34px] flex items-center justify-center">
                                         <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={68} height={68} className="max-w-full max-h-full object-contain" />
