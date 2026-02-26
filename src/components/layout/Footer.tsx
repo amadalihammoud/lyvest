@@ -96,28 +96,29 @@ export default function Footer() {
                         </div>
                         {/* Cluster social (esq.) + LE (dir.) — empurrados para a base via justify-between */}
                         <div className="flex items-center w-full">
+                            {/* Cluster social — 27×27 (−20%), gap-[30px] */}
                             <div className="flex items-center gap-[30px]">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    <div className="w-[34px] h-[34px] flex items-center justify-center">
-                                        <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={68} height={68} className="max-w-full max-h-full object-contain" />
+                                    <div className="w-[27px] h-[27px] flex items-center justify-center">
+                                        <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={54} height={54} className="max-w-full max-h-full object-contain" />
                                     </div>
                                 </a>
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    <div className="w-[34px] h-[34px] flex items-center justify-center">
+                                    <div className="w-[27px] h-[27px] flex items-center justify-center">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
                                     </div>
                                 </a>
                                 <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
-                                    <div className="w-[34px] h-[34px] flex items-center justify-center">
+                                    <div className="w-[27px] h-[27px] flex items-center justify-center">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src="/assets/icons/x-logo.svg" alt="X" className="max-w-full max-h-full object-contain" />
                                     </div>
                                 </a>
                             </div>
-                            {/* Let's Encrypt — 90×25 */}
-                            <div className="ml-auto w-[90px] h-[25px] flex items-center justify-center">
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={90} height={25} className="max-w-full max-h-full object-contain" />
+                            {/* Let's Encrypt — 122×34 (+35%) */}
+                            <div className="ml-auto w-[122px] h-[34px] flex items-center justify-center">
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={122} height={34} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
                     </div>
