@@ -184,7 +184,7 @@ export const ptBR = {
         terms: 'Termos de Uso',
         contact: 'Fale Conosco',
         copyright: 'Copyright © 2026 Ly Vest. Todos os direitos reservados.',
-        paymentMethods: 'Formas de Pagamento',
+        paymentMethods: 'Pagamento',
         security: 'Segurança',
         securePurchase: 'Compra',
         secureLabel: 'Segura',

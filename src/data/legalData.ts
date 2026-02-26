@@ -1,3 +1,22 @@
+export interface PolicySection {
+    title: string;
+    content: string;
+    bullets?: string[];
+}
+
+export interface PolicyTable {
+    headers: string[];
+    rows: string[][];
+}
+
+export interface PolicyDocument {
+    title: string;
+    lastUpdated: string;
+    intro: string;
+    sections: PolicySection[];
+    table?: PolicyTable;
+}
+
 export const legalContent = {
     companyInfo: {
         razaoSocial: "Ly Vest Moda Feminina LTDA",
@@ -7,6 +26,7 @@ export const legalContent = {
         phone: "(13) 9 9624-6969",
         attendance: "Respondemos em até 24h úteis"
     },
+
     faq: [
         {
             question: "Quanto tempo demora para meu pedido chegar?",
@@ -33,90 +53,153 @@ export const legalContent = {
             answer: "Sim. Nosso site possui certificado SSL (cadeado de segurança) e seus dados de pagamento são processados por operadoras certificadas, não ficando armazenados conosco."
         }
     ],
+
     termsAndExchanges: {
-        title: "Termos de Uso e Política de Trocas",
+        title: "Política de Trocas e Devoluções",
+        lastUpdated: "Fevereiro de 2026",
+        intro: "A nossa política foi elaborada com base no Código de Defesa do Consumidor (CDC) para garantir transparência, respeito aos seus direitos e, acima de tudo, a segurança e a saúde de todos os nossos clientes.",
         sections: [
             {
-                title: "1. Identificação",
-                content: "Este site é operado por Ly Vest Moda Feminina LTDA, CNPJ 29.015.357/0001-25, endereço Av. Ana Costa, 433 - Santos - SP."
+                title: "1. Direito de Arrependimento",
+                content: "Conforme o Artigo 49 do CDC, você tem o direito de desistir da sua compra online no prazo de até 7 dias corridos, contados a partir do recebimento do pedido.",
+                bullets: [
+                    "O produto deve ser devolvido na embalagem original.",
+                    "O produto não pode apresentar nenhum indício de uso ou lavagem.",
+                    "O lacre de segurança e higiene deve estar estritamente intacto."
+                ]
             },
             {
-                title: "2. Direito de Arrependimento",
-                content: "O cliente possui o prazo de 07 (sete) dias corridos, a contar do recebimento, para desistir da compra. O reembolso será integral (produto + frete) após a devolução e conferência do item."
+                title: "2. Condição Especial para Peças Íntimas",
+                content: "Por questões de saúde pública e biossegurança (Artigos 4º, 6º e 8º do CDC), peças íntimas (como calcinhas) possuem regras rigorosas de devolução.",
+                bullets: [
+                    "Não aceitamos a devolução ou troca de peças íntimas cujo lacre de proteção tenha sido rompido ou violado.",
+                    "O rompimento do lacre caracteriza a inviabilidade de revenda do produto, suspendendo o direito de arrependimento para resguardar a saúde da coletividade contra riscos sanitários."
+                ]
             },
             {
-                title: "3. Trocas por Defeito",
-                content: "Em caso de defeito de fabricação ou erro no envio, o prazo para solicitação é de 30 (trinta) dias corridos para produtos não duráveis e 90 dias para duráveis. O frete de retorno é por nossa conta."
+                title: "3. Produtos com Defeito",
+                content: "Se a peça apresentar algum vício ou defeito de fabricação (Artigo 18 do CDC), o rompimento do lacre não anula o seu direito à garantia.",
+                bullets: [
+                    "Defeitos aparentes: Devem ser reportados imediatamente após a conferência do produto.",
+                    "Defeitos ocultos: Se o defeito surgir após o uso ou lavagem (ex: costura desfeita), o prazo para reclamação é de até 30 dias a partir da descoberta.",
+                    "A peça defeituosa deverá ser enviada para nossa análise. Constatado o defeito, realizaremos a troca ou o reembolso integral. Peças com defeito são descartadas."
+                ]
             },
             {
-                title: "4. Prazos e Entrega (Resumo)",
-                content: "A Ly Vest informa que o prazo de entrega é composto pelo prazo de postagem somado ao prazo da transportadora. Para detalhes completos, consulte nossa Política de Prazos e Envios."
-            },
-            {
-                title: "5. Propriedade Intelectual",
-                content: "As imagens, designs e layouts vendidos são protegidos pela Lei de Direitos Autorais. É vedada a reprodução, cópia ou uso indevido das imagens sem autorização expressa."
-            },
-            {
-                title: "6. Foro",
-                content: "Fica eleito o foro da comarca de Santos/SP para dirimir eventuais controvérsias."
+                title: "4. Resumo das Condições",
+                content: "Consulte a tabela abaixo para entender rapidamente o status de cada situação:"
             }
-        ]
-    },
+        ],
+        table: {
+            headers: ["Motivo da Solicitação", "Condição do Lacre", "Status da Devolução"],
+            rows: [
+                ["Desistência / Arrependimento", "Intacto", "Aceita (Troca ou Reembolso)"],
+                ["Desistência / Arrependimento", "Rompido", "Recusada (Risco sanitário)"],
+                ["Defeito de Fabricação", "Rompido ou Intacto", "Aceita (Após análise técnica)"]
+            ]
+        }
+    } as PolicyDocument,
+
     shippingPolicy: {
         title: "Política de Prazos e Envios",
+        lastUpdated: "Fevereiro de 2026",
+        intro: "Nosso compromisso é garantir que seu pedido chegue com segurança e dentro do prazo estimado. Leia atentamente para entender como funciona cada etapa do envio.",
         sections: [
             {
                 title: "1. Prazo de Postagem (Separação)",
-                content: "Após a aprovação do pagamento, nosso time tem até 3 dias úteis para separar, embalar e postar seu pedido. Este prazo é necessário para garantir que suas peças cheguem perfeitas."
+                content: "Após a aprovação do pagamento, nosso time tem até 3 dias úteis para separar, embalar e postar seu pedido.",
+                bullets: [
+                    "Este prazo é necessário para garantir que suas peças sejam cuidadosamente conferidas e embaladas.",
+                    "Pedidos feitos após as 18h serão processados a partir do próximo dia útil."
+                ]
             },
             {
                 title: "2. Prazo de Entrega (Transporte)",
-                content: "O prazo exibido no carrinho é uma estimativa calculada pelos Correios ou Transportadora. O prazo de entrega começa a contar após a postagem do pedido, não na data do pagamento."
+                content: "O prazo exibido no carrinho é uma estimativa calculada pelos Correios ou transportadora parceira.",
+                bullets: [
+                    "O prazo de entrega começa a contar após a postagem do pedido, não na data do pagamento.",
+                    "Prazo estimado: de 3 a 15 dias úteis após a postagem, dependendo da região."
+                ]
             },
             {
                 title: "3. Código de Rastreio",
-                content: "O código de rastreamento será enviado automaticamente para o e-mail cadastrado assim que o pedido for postado."
+                content: "O código de rastreamento será enviado automaticamente para o e-mail cadastrado assim que o pedido for postado.",
+                bullets: [
+                    "Verifique sua caixa de spam caso não receba o e-mail.",
+                    "O rastreamento pode levar até 24h para ser atualizado após a postagem."
+                ]
             },
             {
                 title: "4. Endereço Incorreto",
-                content: "É responsabilidade do cliente preencher o endereço de entrega corretamente. Caso o produto retorne para nós devido a endereço incompleto ou incorreto, o frete de reenvio será cobrado do cliente."
+                content: "É responsabilidade do cliente preencher o endereço de entrega corretamente.",
+                bullets: [
+                    "Caso o produto retorne para nós devido a endereço incompleto ou incorreto, o frete de reenvio será cobrado do cliente.",
+                    "Confira sempre o CEP e o número do imóvel antes de finalizar a compra."
+                ]
             },
             {
                 title: "5. Extravios ou Roubos de Carga",
-                content: "Em caso de extravio confirmado pela transportadora, a Ly Vest realizará o reenvio do pedido sem custos ou o reembolso integral, conforme preferência do cliente."
+                content: "Em caso de extravio confirmado pela transportadora, a Ly Vest tomará as providências necessárias sem custo para você.",
+                bullets: [
+                    "Realizaremos o reenvio do pedido sem custos ou o reembolso integral, conforme preferência do cliente.",
+                    "Para acionar o seguro de carga, é necessário aguardar o prazo de investigação da transportadora (geralmente 10 dias úteis)."
+                ]
             }
         ]
-    },
+    } as PolicyDocument,
+
     privacyPolicy: {
         title: "Política de Privacidade",
+        lastUpdated: "Fevereiro de 2026",
+        intro: "A Ly Vest respeita e protege a privacidade de seus clientes. Esta política descreve como coletamos, usamos e protegemos seus dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).",
         sections: [
             {
                 title: "1. Coleta de Dados",
-                content: "Coletamos apenas dados necessários para a venda e entrega: Nome, CPF (para Nota Fiscal), Endereço (para envio) e E-mail/Telefone (para contato)."
+                content: "Coletamos apenas os dados estritamente necessários para a execução da venda e entrega do pedido.",
+                bullets: [
+                    "Nome completo e CPF (para emissão de Nota Fiscal).",
+                    "Endereço de entrega (para envio do pedido).",
+                    "E-mail e telefone (para comunicação e atualizações de entrega)."
+                ]
             },
             {
-                title: "2. Pagamentos",
-                content: "Dados de cartão de crédito são criptografados e processados diretamente pelo gateway de pagamento. A loja não armazena números de cartão."
+                title: "2. Dados de Pagamento",
+                content: "Seus dados financeiros são tratados com máxima segurança.",
+                bullets: [
+                    "Dados de cartão de crédito são criptografados e processados diretamente pelo gateway de pagamento.",
+                    "A Ly Vest não armazena números de cartão em seus servidores.",
+                    "Transações via Pix são processadas pelo seu banco, sem intermediação de dados sensíveis."
+                ]
             },
             {
-                title: "3. Compartilhamento",
-                content: "Compartilhamos dados estritamente necessários com: Transportadoras (Correios), Plataforma de E-commerce e Órgãos Fiscais (Receita Federal). Não vendemos seus dados."
+                title: "3. Compartilhamento de Dados",
+                content: "Compartilhamos apenas os dados mínimos necessários com parceiros de confiança.",
+                bullets: [
+                    "Transportadoras (Correios e parceiros) — para viabilizar a entrega.",
+                    "Plataforma de E-commerce — para gestão do pedido.",
+                    "Receita Federal — para obrigações fiscais (Nota Fiscal).",
+                    "Não vendemos, alugamos ou cedemos seus dados a terceiros para fins de marketing."
+                ]
             },
             {
                 title: "4. Cookies",
-                content: "Utilizamos cookies essenciais para funcionamento do carrinho e cookies de análise (anônimos) para melhorar a experiência no site."
+                content: "Utilizamos cookies para melhorar sua experiência de navegação.",
+                bullets: [
+                    "Cookies essenciais: necessários para o funcionamento do carrinho de compras.",
+                    "Cookies analíticos (anônimos): utilizados para entender o comportamento de navegação e melhorar o site.",
+                    "Você pode desativar cookies analíticos a qualquer momento nas configurações do seu navegador."
+                ]
             },
             {
                 title: "5. Seus Direitos (LGPD)",
-                content: "Você pode solicitar a visualização, correção ou exclusão de seus dados a qualquer momento através do e-mail contato@lyvest.com.br."
+                content: "Como titular dos dados, você possui os seguintes direitos garantidos por lei.",
+                bullets: [
+                    "Acesso: solicitar a visualização dos dados que possuímos sobre você.",
+                    "Correção: solicitar a correção de dados incompletos ou incorretos.",
+                    "Exclusão: solicitar a remoção dos seus dados de nossa base.",
+                    "Para exercer qualquer direito, entre em contato pelo e-mail contato@lyvest.com.br."
+                ]
             }
         ]
-    }
+    } as PolicyDocument
 };
-
-
-
-
-
-
-
