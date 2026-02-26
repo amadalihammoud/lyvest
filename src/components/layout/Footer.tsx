@@ -91,7 +91,7 @@ export default function Footer() {
                             <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                                 {t('footer.followUs')}
                             </h3>
-                            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                                 {t('footer.security')}
                             </h3>
                         </div>
@@ -129,7 +129,7 @@ export default function Footer() {
 
                         {/* Linha C — PAGAMENTO centralizado */}
                         <div className="flex justify-center">
-                            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                                 {t('footer.paymentMethods')}
                             </h3>
                         </div>
