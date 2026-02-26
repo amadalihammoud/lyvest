@@ -96,10 +96,10 @@ export default function Footer() {
                             </h3>
                         </div>
 
-                        {/* Linha B — sociais (esq.) na mesma linha que Let's Encrypt (dir.) */}
-                        <div className="flex items-center justify-between w-full">
-                            {/* Cluster social — esquerda */}
-                            <div className="flex items-center gap-[10px]">
+                        {/* Linha B — sociais (esq.) + LE (dir.) com ~20px de respiro entre os grupos */}
+                        <div className="flex items-center w-full">
+                            {/* Cluster social — esquerda, gap-3 para respirar igual aos ícones de pagamento */}
+                            <div className="flex items-center gap-3">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
                                     <div className="w-[30px] h-[30px] flex items-center justify-center">
                                         <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={60} height={60} className="max-w-full max-h-full object-contain" />
@@ -118,9 +118,9 @@ export default function Footer() {
                                     </div>
                                 </a>
                             </div>
-                            {/* Let's Encrypt — direita */}
-                            <div className="w-[190px] h-[53px] flex items-center justify-center flex-shrink-0">
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={190} height={53} className="max-w-full max-h-full object-contain" />
+                            {/* Let's Encrypt — ml-auto empurra à direita, 165px cria ~20px de respiro */}
+                            <div className="ml-auto w-[165px] h-[46px] flex items-center justify-center">
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={165} height={46} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
 
