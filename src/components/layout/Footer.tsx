@@ -98,8 +98,8 @@ export default function Footer() {
 
                         {/* Linha B — sociais (esq.) + LE (dir.) com ~20px de respiro entre os grupos */}
                         <div className="flex items-center w-full">
-                            {/* Cluster social — 40×40, gap-2 (8px) = mesma proporção dos ícones de pagamento */}
-                            <div className="flex items-center gap-2">
+                            {/* Cluster social — 40×40, gap-4 (16px) = +100% espaçamento */}
+                            <div className="flex items-center gap-4">
                                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
                                     <div className="w-[40px] h-[40px] flex items-center justify-center">
                                         <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={80} height={80} className="max-w-full max-h-full object-contain" />
@@ -118,9 +118,9 @@ export default function Footer() {
                                     </div>
                                 </a>
                             </div>
-                            {/* Let's Encrypt — 155×43 ajustado para caber com social 136px */}
-                            <div className="ml-auto w-[155px] h-[43px] flex items-center justify-center">
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={155} height={43} className="max-w-full max-h-full object-contain" />
+                            {/* Let's Encrypt — 135×38 ajustado para caber com social 152px (gap-4) */}
+                            <div className="ml-auto w-[135px] h-[38px] flex items-center justify-center">
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={135} height={38} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
 
