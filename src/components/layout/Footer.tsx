@@ -121,8 +121,8 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* ── Col 3, Row 3: divisor sutil ── */}
-                    <div className="border-t border-slate-100 w-full order-15 md:order-none md:col-start-3 md:row-start-3" />
+                    {/* ── Col 3, Row 3: divisor sutil — self-center para alinhar com mid-text dos adjacentes ── */}
+                    <div className="border-t border-slate-100 w-full self-center order-15 md:order-none md:col-start-3 md:row-start-3" />
 
                     {/* ── Col 3, Row 4: PAGAMENTO — alinhado com "Trocas e Devoluções" ── */}
                     <div className="flex justify-center order-16 md:order-none md:col-start-3 md:row-start-4">
