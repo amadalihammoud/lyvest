@@ -83,70 +83,65 @@ export default function Footer() {
                         <span>(13) 9 9624-6969</span>
                     </div>
 
-                    {/* ── Col 3: wrapper único ▽ triângulo invertido ── */}
-                    <div className="flex flex-col gap-4 w-full order-13 md:order-none md:col-start-3 md:row-start-1 md:row-span-6">
+                    {/* ── Col 3, Row 1: títulos SIGA-NOS ←→ SEGURANÇA ── */}
+                    <div className="flex items-start justify-between w-full order-13 md:order-none md:col-start-3 md:row-start-1">
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                            {t('footer.followUs')}
+                        </h3>
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                            {t('footer.security')}
+                        </h3>
+                    </div>
 
-                        {/* Linha A — títulos: SIGA-NOS (esq.) ←→ SEGURANÇA (dir.) */}
-                        <div className="flex items-start justify-between w-full">
-                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
-                                {t('footer.followUs')}
-                            </h3>
-                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
-                                {t('footer.security')}
-                            </h3>
+                    {/* ── Col 3, Row 2: ícones sociais (esq.) + LE (dir.) ── */}
+                    <div className="flex items-center w-full order-14 md:order-none md:col-start-3 md:row-start-2">
+                        {/* Cluster social — 34×34, gap-[30px] */}
+                        <div className="flex items-center gap-[30px]">
+                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
+                                <div className="w-[34px] h-[34px] flex items-center justify-center">
+                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={68} height={68} className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
+                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
+                                <div className="w-[34px] h-[34px] flex items-center justify-center">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
+                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
+                                <div className="w-[34px] h-[34px] flex items-center justify-center">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/assets/icons/x-logo.svg" alt="X" className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
                         </div>
-
-                        {/* Linha B — sociais (esq.) + LE (dir.) com ~20px de respiro entre os grupos */}
-                        <div className="flex items-center w-full">
-                            {/* Cluster social — 34×34, gap-[30px] */}
-                            <div className="flex items-center gap-[30px]">
-                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    <div className="w-[34px] h-[34px] flex items-center justify-center">
-                                        <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={68} height={68} className="max-w-full max-h-full object-contain" />
-                                    </div>
-                                </a>
-                                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    <div className="w-[34px] h-[34px] flex items-center justify-center">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
-                                    </div>
-                                </a>
-                                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
-                                    <div className="w-[34px] h-[34px] flex items-center justify-center">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src="/assets/icons/x-logo.svg" alt="X" className="max-w-full max-h-full object-contain" />
-                                    </div>
-                                </a>
-                            </div>
-                            {/* Let's Encrypt — 90×25 ajustado para caber com social 198px (gap-12) */}
-                            <div className="ml-auto w-[90px] h-[25px] flex items-center justify-center">
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={90} height={25} className="max-w-full max-h-full object-contain" />
-                            </div>
+                        {/* Let's Encrypt — 90×25 */}
+                        <div className="ml-auto w-[90px] h-[25px] flex items-center justify-center">
+                            <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={90} height={25} className="max-w-full max-h-full object-contain" />
                         </div>
+                    </div>
 
-                        {/* Divisor sutil entre topo e base */}
-                        <div className="border-t border-slate-100 w-full" />
+                    {/* ── Col 3, Row 3: divisor sutil ── */}
+                    <div className="border-t border-slate-100 w-full order-15 md:order-none md:col-start-3 md:row-start-3" />
 
-                        {/* Linha C — PAGAMENTO centralizado */}
-                        <div className="flex justify-center">
-                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
-                                {t('footer.paymentMethods')}
-                            </h3>
+                    {/* ── Col 3, Row 4: PAGAMENTO — alinhado com "Trocas e Devoluções" ── */}
+                    <div className="flex justify-center order-16 md:order-none md:col-start-3 md:row-start-4">
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                            {t('footer.paymentMethods')}
+                        </h3>
+                    </div>
+
+                    {/* ── Col 3, Rows 5-6: ícones de pagamento centralizados (ponta ▽) ── */}
+                    <div className="flex items-center justify-center gap-2 order-17 md:order-none md:col-start-3 md:row-start-5 md:row-span-2">
+                        <div className="w-[62px] h-[47px] flex items-center justify-center">
+                            <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
                         </div>
-
-                        {/* Linha D — ícones de pagamento centralizados (ponta ▽) */}
-                        <div className="flex items-center justify-center gap-2">
-                            <div className="w-[62px] h-[47px] flex items-center justify-center">
-                                <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
-                            </div>
-                            <div className="w-[81px] h-[61px] flex items-center justify-center">
-                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="max-w-full max-h-full object-contain" />
-                            </div>
-                            <div className="w-[81px] h-[61px] flex items-center justify-center">
-                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="max-w-full max-h-full object-contain" />
-                            </div>
+                        <div className="w-[81px] h-[61px] flex items-center justify-center">
+                            <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="max-w-full max-h-full object-contain" />
                         </div>
-
+                        <div className="w-[81px] h-[61px] flex items-center justify-center">
+                            <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="max-w-full max-h-full object-contain" />
+                        </div>
                     </div>
 
                 </div>
