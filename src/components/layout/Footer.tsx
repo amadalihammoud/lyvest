@@ -96,31 +96,31 @@ export default function Footer() {
                             </h3>
                         </div>
 
-                        {/* Linha B — ícones: sociais (esq.) ←→ Let's Encrypt (dir.) */}
-                        <div className="flex items-center justify-between w-full">
-                            {/* Cluster social */}
-                            <div className="flex items-center gap-3">
-                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                    <div className="w-[38px] h-[38px] flex items-center justify-center">
-                                        <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={76} height={76} className="max-w-full max-h-full object-contain" />
-                                    </div>
-                                </a>
-                                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                    <div className="w-[38px] h-[38px] flex items-center justify-center">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
-                                    </div>
-                                </a>
-                                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
-                                    <div className="w-[38px] h-[38px] flex items-center justify-center">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src="/assets/icons/x-logo.svg" alt="X" className="max-w-full max-h-full object-contain" />
-                                    </div>
-                                </a>
-                            </div>
-                            {/* Let's Encrypt */}
-                            <div className="w-[150px] h-[42px] flex items-center justify-center flex-shrink-0">
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={150} height={42} className="max-w-full max-h-full object-contain" />
+                        {/* Linha B1 — ícones sociais left-aligned, 30×30 (−20%) */}
+                        <div className="flex items-center gap-[10px]">
+                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
+                                <div className="w-[30px] h-[30px] flex items-center justify-center">
+                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={60} height={60} className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
+                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
+                                <div className="w-[30px] h-[30px] flex items-center justify-center">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
+                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
+                                <div className="w-[30px] h-[30px] flex items-center justify-center">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="/assets/icons/x-logo.svg" alt="X" className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
+                        </div>
+
+                        {/* Linha B2 — Let's Encrypt right-aligned, 270×75 (+80%) */}
+                        <div className="flex justify-end">
+                            <div className="w-[270px] h-[75px] flex items-center justify-center">
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={270} height={75} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
 
