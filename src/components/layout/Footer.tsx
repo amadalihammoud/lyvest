@@ -117,10 +117,10 @@ export default function Footer() {
                             </a>
                         </div>
 
-                        {/* Linha B2 — Let's Encrypt right-aligned, 270×75 (+80%) */}
+                        {/* Linha B2 — Let's Encrypt right-aligned, 190×53 (right-alignment visível) */}
                         <div className="flex justify-end">
-                            <div className="w-[270px] h-[75px] flex items-center justify-center">
-                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={270} height={75} className="max-w-full max-h-full object-contain" />
+                            <div className="w-[190px] h-[53px] flex items-center justify-center">
+                                <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={190} height={53} className="max-w-full max-h-full object-contain" />
                             </div>
                         </div>
 
