@@ -2,8 +2,6 @@
 import { Play } from 'lucide-react';
 import Image from 'next/image';
 
-import OptimizedProductImage from '../ui/OptimizedProductImage';
-
 interface ProductGalleryProps {
     images: string[];
     activeImage: string;
@@ -21,6 +19,7 @@ export function ProductGallery({ images, activeImage, setActiveImage, video, pro
                 {images.map((thumb, idx) => (
                     <button
                         key={idx}
+                        aria-label={`Ver imagem ${idx + 1} de ${productName}`}
                         className={`w-20 h-20 border-2 rounded-lg cursor-pointer transition-all p-1 ${activeImage === thumb && idx === 0 ? 'border-lyvest-500' : 'border-slate-100 hover:border-lyvest-200'} relative overflow-hidden`}
                         onClick={() => setActiveImage(thumb)}
                     >
@@ -45,18 +44,16 @@ export function ProductGallery({ images, activeImage, setActiveImage, video, pro
                 )}
             </div>
 
-            {/* Main Image - Bypassing Vercel Image Optimization for LCP */}
-            <div className="flex-1 bg-white flex items-center justify-center relative group h-[350px] lg:h-auto overflow-hidden rounded-xl">
-                <picture className="w-full h-full flex items-center justify-center">
-                    {/* If we had webp/avif specific sources we would add them here. 
-                        Since the mock data images are mostly static paths, we just load them directly. */}
-                    <img
-                        src={activeImage}
-                        alt={productName}
-                        className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
-                        fetchPriority="high"
-                    />
-                </picture>
+            {/* Main Image - next/image for automatic WebP/AVIF + LCP priority */}
+            <div className="flex-1 bg-white relative group h-[350px] lg:h-auto overflow-hidden rounded-xl">
+                <Image
+                    src={activeImage}
+                    alt={productName}
+                    fill
+                    className="object-contain transition-transform duration-500 hover:scale-105"
+                    priority={true}
+                    sizes="(max-width: 1024px) 100vw, 500px"
+                />
             </div>
 
             {/* Thumbnails - Horizontal below image on mobile only */}
@@ -64,6 +61,7 @@ export function ProductGallery({ images, activeImage, setActiveImage, video, pro
                 {images.map((thumb, idx) => (
                     <button
                         key={idx}
+                        aria-label={`Ver imagem ${idx + 1} de ${productName}`}
                         className={`flex-shrink-0 w-16 h-16 border-2 rounded-lg cursor-pointer transition-all p-1 ${activeImage === thumb && idx === 0 ? 'border-lyvest-500' : 'border-slate-100 hover:border-lyvest-200'} relative overflow-hidden`}
                         onClick={() => setActiveImage(thumb)}
                     >

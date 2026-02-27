@@ -22,7 +22,7 @@ export function ProductInfo({ product, productName, formatCurrency, t }: Product
 
             {/* Price */}
             <div>
-                <span className="text-slate-400 line-through text-sm">de: R$ {(product.price * 1.2).toFixed(2).replace('.', ',')}</span>
+                <span className="text-slate-500 line-through text-sm">de: R$ {(product.price * 1.2).toFixed(2).replace('.', ',')}</span>
                 <div className="flex items-end gap-2 mb-1">
                     <span className="text-lg text-slate-800 font-bold mb-1">{t('products.priceBy') || 'por:'}</span>
                     <span className="text-4xl font-bold text-slate-900">{formatCurrency(product.price)}</span>

@@ -2,9 +2,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
-
-import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
+import { Suspense, useEffect, useState } from 'react';
 
 // Dynamically import client component to ensure no SSR attempts
 const DashboardPageClient = dynamic(
@@ -25,9 +23,15 @@ function DashboardSkeleton() {
 }
 
 export default function DashboardPage() {
-    const shouldLoad = useUltraLazyLoad();
+    // Dashboard is a protected route navigated to intentionally — load immediately on mount
+    // instead of waiting for the ultra-lazy 7s fallback used by the homepage.
+    const [mounted, setMounted] = useState(false);
 
-    if (!shouldLoad) {
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
         return <DashboardSkeleton />;
     }
 
