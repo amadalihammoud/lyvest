@@ -16,11 +16,27 @@ const Testimonials = () => {
     const { t } = useI18n();
     const [activeIndex, setActiveIndex] = React.useState(0);
     const scrollRef = React.useRef<HTMLDivElement>(null);
+    // Cache offsetWidth to avoid forced reflow on every scroll event.
+    // ResizeObserver keeps this up-to-date whenever the container resizes.
+    const cachedWidthRef = React.useRef<number>(0);
+
+    React.useEffect(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+        // Seed initial value
+        cachedWidthRef.current = el.offsetWidth;
+        const ro = new ResizeObserver((entries) => {
+            cachedWidthRef.current = entries[0]?.contentRect.width ?? el.offsetWidth;
+        });
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
 
     const handleScroll = () => {
         if (scrollRef.current) {
             const scrollLeft = scrollRef.current.scrollLeft;
-            const width = scrollRef.current.offsetWidth;
+            // Use cached width — no forced reflow
+            const width = cachedWidthRef.current || scrollRef.current.offsetWidth;
             const index = Math.round(scrollLeft / width);
             setActiveIndex(index);
         }
