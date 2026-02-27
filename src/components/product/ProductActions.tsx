@@ -42,11 +42,11 @@ export function ProductActions({
             <div className="flex flex-row gap-4 mt-2">
                 {/* Quantity */}
                 <div className="flex items-center bg-slate-100 rounded-md h-12">
-                    <button onClick={() => handleQuantityChange(-1)} className="px-4 h-full text-slate-500 hover:text-lyvest-600 transition-colors" type="button">
+                    <button aria-label="Diminuir quantidade" onClick={() => handleQuantityChange(-1)} className="px-4 h-full text-slate-500 hover:text-lyvest-600 transition-colors" type="button">
                         <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-10 text-center font-bold text-slate-800">{quantity}</span>
-                    <button onClick={() => handleQuantityChange(1)} className="px-4 h-full text-slate-500 hover:text-lyvest-600 transition-colors" type="button">
+                    <span className="w-10 text-center font-bold text-slate-800" aria-live="polite" aria-label={`Quantidade: ${quantity}`}>{quantity}</span>
+                    <button aria-label="Aumentar quantidade" onClick={() => handleQuantityChange(1)} className="px-4 h-full text-slate-500 hover:text-lyvest-600 transition-colors" type="button">
                         <Plus className="w-4 h-4" />
                     </button>
                 </div>
@@ -94,7 +94,7 @@ export function ProductActions({
 
             {/* Shipping Calculator */}
             <div className="mt-6">
-                <h3 className="text-lyvest-600 font-bold text-sm mb-2">{t('products.shipping.title')}</h3>
+                <h2 className="text-lyvest-600 font-bold text-sm mb-2">{t('products.shipping.title')}</h2>
                 <div className="flex gap-2 max-w-md">
                     <div className="relative flex-1">
                         <input

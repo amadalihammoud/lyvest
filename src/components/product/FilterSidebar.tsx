@@ -150,6 +150,7 @@ export default function FilterSidebar({
                         </h2>
                         <button
                             onClick={onClose}
+                            aria-label="Fechar filtros"
                             className="p-2 hover:bg-slate-100 rounded-full text-slate-500"
                         >
                             <X className="w-5 h-5" />
@@ -176,7 +177,8 @@ export default function FilterSidebar({
                                             <input id="mobile-max-price" type="number" min={filters.minPrice} max={priceRange.max} value={filters.maxPrice || ''} placeholder={priceRange.max.toString()} onChange={handleMaxPriceChange} className="w-full h-8 px-2 border border-slate-200 rounded-md text-sm" />
                                         </div>
                                     </div>
-                                    <input type="range" min={0} max={priceRange.max} value={filters.maxPrice || priceRange.max} onChange={handleMaxPriceChange} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-lyvest-500" />
+                                    <label htmlFor="mobile-range-max-price" className="sr-only">Preço máximo</label>
+                                    <input id="mobile-range-max-price" type="range" min={0} max={priceRange.max} value={filters.maxPrice || priceRange.max} onChange={handleMaxPriceChange} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-lyvest-500" />
                                 </div>
                             )}
                         </div>
@@ -260,6 +262,7 @@ export default function FilterSidebar({
                         </h2>
                         <button
                             onClick={onClose}
+                            aria-label="Fechar filtros"
                             className="lg:hidden p-2 hover:bg-slate-100 rounded-full text-slate-500"
                         >
                             <X className="w-5 h-5" />
@@ -308,7 +311,9 @@ export default function FilterSidebar({
                                     </div>
                                 </div>
 
+                                <label htmlFor="desktop-range-max-price" className="sr-only">Preço máximo</label>
                                 <input
+                                    id="desktop-range-max-price"
                                     type="range"
                                     min={0}
                                     max={priceRange.max}

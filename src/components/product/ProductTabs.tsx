@@ -19,7 +19,7 @@ export function ProductTabs({ activeTab, setActiveTab, productDescription, produ
                         onClick={() => setActiveTab('description')}
                         className={`flex-1 py-4 text-center font-bold uppercase tracking-wider transition-colors ${activeTab === 'description'
                             ? 'text-lyvest-600 border-b-2 border-lyvest-600'
-                            : 'text-slate-400 hover:text-slate-600'
+                            : 'text-slate-600 hover:text-slate-800'
                             }`}
                     >
                         {'Descrição'}
@@ -28,7 +28,7 @@ export function ProductTabs({ activeTab, setActiveTab, productDescription, produ
                         onClick={() => setActiveTab('specs')}
                         className={`flex-1 py-4 text-center font-bold uppercase tracking-wider transition-colors ${activeTab === 'specs'
                             ? 'text-lyvest-600 border-b-2 border-lyvest-600'
-                            : 'text-slate-400 hover:text-slate-600'
+                            : 'text-slate-600 hover:text-slate-800'
                             }`}
                     >
                         {'Especificações'}
