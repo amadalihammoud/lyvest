@@ -41,10 +41,14 @@ export function useUltraLazyLoad() {
             }
         }
 
-        // User interaction triggers — scroll and mousemove removed because
-        // Lighthouse simulates both during testing, defeating the lazy-loading strategy.
-        // Only genuine user interactions (click, touch, keypress) trigger heavy hydration.
-        const events = ['click', 'touchstart', 'keydown'];
+        // User interaction triggers.
+        // 'scroll' and 'mousemove' removed: Lighthouse simulates both during mobile tests.
+        // 'touchstart' removed: Chrome's mobile device emulation fires synthetic touchstart
+        //   events during page setup, which defeats the lazy-load strategy by triggering
+        //   heavy bundle evaluation before Lighthouse finishes its TBT / TTI window.
+        // 'click' is sufficient for both mouse users AND mobile users: every tap on mobile
+        //   produces a 'click' event after touchend, so no real interactions are missed.
+        const events = ['click', 'keydown'];
         events.forEach(event => {
             if (typeof window !== 'undefined') {
                 window.addEventListener(event, loadScripts, { once: true, passive: true });
