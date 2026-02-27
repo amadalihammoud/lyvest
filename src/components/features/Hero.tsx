@@ -1,4 +1,5 @@
 import { getImageProps } from 'next/image';
+import Link from 'next/link';
 // No icons needed
 
 
@@ -7,13 +8,15 @@ const slides = [
         id: 1,
         desktopImage: "/assets/banners/banner-slide-1.webp",
         mobileImage: "/assets/banners/banner-slide-1-mobile.webp",
-        alt: "O abraço do sol na sua pele - Coleção de Verão Ly Vest"
+        alt: "O abraço do sol na sua pele - Coleção de Verão Ly Vest",
+        href: "/?categoria=Calcinhas"
     },
     {
         id: 2,
         desktopImage: "/assets/banners/banner-slide-2.webp",
         mobileImage: "/assets/banners/banner-slide-2-mobile.webp",
-        alt: "O conforto que te abraça todo dia - Essenciais sem costura"
+        alt: "O conforto que te abraça todo dia - Essenciais sem costura",
+        href: "/?categoria=Calcinhas"
     }
 ];
 
@@ -52,11 +55,14 @@ function Hero() {
                                 const isLcp = index === 0;
 
                                 return (
-                                    <div
+                                    <Link
                                         key={slide.id}
-                                        className="w-full flex-shrink-0 relative overflow-hidden"
+                                        href={slide.href}
+                                        className="w-full flex-shrink-0 relative overflow-hidden block cursor-pointer group/slide"
+                                        aria-label={slide.alt}
+                                        draggable={false}
                                     >
-                                        <div className="absolute inset-0 w-full h-full">
+                                        <div className="absolute inset-0 w-full h-full transition-transform duration-500 group-hover/slide:scale-[1.02]">
                                             {/* Art Direction with PURE HTML for LCP bypass Vercel Proxy */}
                                             {isLcp ? (
                                                 <picture className="w-full h-full">
@@ -113,7 +119,7 @@ function Hero() {
                                                 })()
                                             )}
                                         </div>
-                                    </div>
+                                    </Link>
                                 );
                             })}
                         </div>
