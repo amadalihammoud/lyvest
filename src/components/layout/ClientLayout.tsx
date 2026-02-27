@@ -72,7 +72,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     const childrenContent = (
         <AppProviders>
             <div className="flex flex-col min-h-screen">
-                <main id="main-content" className="flex-grow">
+                <main id="main-content" tabIndex={-1} className="flex-grow outline-none">
                     {children}
                 </main>
 
