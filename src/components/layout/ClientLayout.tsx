@@ -1,6 +1,7 @@
 'use client';
 
-import { ReactNode, Suspense, useEffect, lazy } from 'react';
+import { ReactNode, Suspense, useEffect, useState, lazy } from 'react';
+import { usePathname } from 'next/navigation';
 
 import AppProviders from '@/components/layout/AppProviders';
 
@@ -18,6 +19,10 @@ import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 import { useAuthModal } from '@/store/useAuthModal';
 import { initSentry } from '@/utils/sentry';
 
+// Routes that require Clerk auth immediately (skip the lazy 7s window).
+// These are protected pages the user navigates to intentionally.
+const EAGER_CLERK_ROUTES = ['/dashboard', '/admin', '/conta', '/pedidos'];
+
 // Isolate FavoritesSync so Clerk is not pulled into the global bundle
 const FavoritesSyncDeferred = lazy(() => import('@/components/auth/FavoritesSync').then(mod => ({ default: mod.FavoritesSync })));
 
@@ -27,7 +32,18 @@ interface ClientLayoutProps {
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
     const { isOpen } = useAuthModal();
-    const shouldLoad = useUltraLazyLoad();
+    const pathname = usePathname();
+    const ultraShouldLoad = useUltraLazyLoad();
+
+    // For auth-required routes, load Clerk immediately on mount instead of waiting
+    // for the ultra-lazy 7s timer used to optimize the public-facing homepage LCP.
+    const isEagerRoute = EAGER_CLERK_ROUTES.some(r => pathname?.startsWith(r));
+    const [eagerLoaded, setEagerLoaded] = useState(false);
+    useEffect(() => {
+        if (isEagerRoute) setEagerLoaded(true);
+    }, [isEagerRoute]);
+
+    const shouldLoad = ultraShouldLoad || eagerLoaded;
 
     // Defer Sentry initialization to idle callback (non-blocking)
     useEffect(() => {
