@@ -3,7 +3,7 @@ import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect, useMemo, ChangeEvent, Suspense } from 'react';
 
 import { useCart } from '../../store/useCartStore';
@@ -50,7 +50,6 @@ interface MenuItem {
 export default function HeaderInteractive() {
     const router = useRouter();
     const pathname = usePathname();
-    const searchParams = useSearchParams();
     const { t } = useI18n();
     const { cartCount } = useCart();
     const { favorites } = useFavorites();
@@ -72,7 +71,16 @@ export default function HeaderInteractive() {
     }, []);
 
     const { selectedCategory, setSelectedCategory } = useShop();
-    const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
+    const [searchQuery, setSearchQuery] = useState('');
+    // Hydrate search query from URL on mount (client-only, avoids useSearchParams Suspense requirement)
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get('q') || params.get('busca') || '';
+            if (q) setSearchQuery(q);
+        }
+    }, []);
+
     const { handleMenuClick } = useShopNavigation();
 
     // Internal state for mobile menu
@@ -107,11 +115,11 @@ export default function HeaderInteractive() {
     useEffect(() => {
         if (debouncedSearch) {
             router.push(`/?busca=${encodeURIComponent(debouncedSearch)}`);
-        } else if (searchQuery === '' && searchParams?.has('busca')) {
+        } else if (searchQuery === '' && typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('busca')) {
             // Se limpou a busca, volta para home limpa
             router.push('/');
         }
-    }, [debouncedSearch, router, searchQuery, searchParams]);
+    }, [debouncedSearch, router, searchQuery]);
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.slice(0, 50);

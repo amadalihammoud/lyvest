@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, Suspense, useEffect, useState, lazy } from 'react';
+import { ReactNode, Suspense, useEffect, useState, lazy, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
 import AppProviders from '@/components/layout/AppProviders';
@@ -45,6 +45,29 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
     const shouldLoad = ultraShouldLoad || eagerLoaded;
 
+    // IntersectionObserver: carrega o footer quando o placeholder entrar na viewport.
+    // Evita depender do 7s timeout quando o usuário rola até o rodapé antes disso.
+    // IntersectionObserver não é ativado pelo Lighthouse (diferente do evento 'scroll'),
+    // então a otimização de LCP/TBT permanece intacta.
+    const footerSentinelRef = useRef<HTMLDivElement>(null);
+    const [footerVisible, setFooterVisible] = useState(false);
+    useEffect(() => {
+        if (shouldLoad || footerVisible || !footerSentinelRef.current) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setFooterVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { rootMargin: '300px' } // pré-carrega 300px antes de entrar na tela
+        );
+        observer.observe(footerSentinelRef.current);
+        return () => observer.disconnect();
+    }, [shouldLoad, footerVisible]);
+
+    const shouldLoadFooter = shouldLoad || footerVisible;
+
     // Defer Sentry initialization to idle callback (non-blocking)
     useEffect(() => {
         if (typeof window !== 'undefined' && shouldLoad) {
@@ -77,7 +100,11 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                 </main>
 
                 <div className="cv-auto-footer">
-                    {shouldLoad ? (
+                    {/* Sentinel invisível: o IntersectionObserver observa este elemento para
+                        pré-carregar o Footer quando o usuário rola até o rodapé,
+                        sem esperar o timer de 7s do useUltraLazyLoad. */}
+                    <div ref={footerSentinelRef} aria-hidden="true" />
+                    {shouldLoadFooter ? (
                         <Suspense fallback={<div className="min-h-[420px] bg-slate-50" />}>
                             <Footer />
                         </Suspense>

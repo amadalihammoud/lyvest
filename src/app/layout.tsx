@@ -126,9 +126,7 @@ export default function RootLayout({
                 />
             </head>
             <body className="bg-[#FDF5F5] text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
-                <Suspense fallback={<div className="h-20 w-full bg-white shadow-sm" />}>
-                    <HeaderInteractive />
-                </Suspense>
+                <HeaderInteractive />
                 <ClientLayout>
                     {children}
                 </ClientLayout>
