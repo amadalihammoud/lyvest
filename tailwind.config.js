@@ -10,22 +10,36 @@ export default {
                 'xs': '400px', // Extra small screens - controls wrap below this
             },
             colors: {
-                // Cores baseadas no logo Ly Vest (Bordô Elegante)
+                // ─── Paleta Oficial — Manual de Marca Ly Vest v1.0 ───────────────
+                // PALETA PRINCIPAL
                 'lyvest': {
-                    50: '#FDF8F8',
+                    // Vermelho Carmim (#702121) — cor principal, 60% do uso visual
+                    50:  '#FDF8F8',
                     100: '#F5E6E8',
                     200: '#E8C4C8',
                     300: '#D9A0A8',
-                    400: '#C05060',
-                    500: '#800020', // Cor principal - Bordô
-                    600: '#600018',
-                    700: '#500014',
-                    800: '#400010',
-                    900: '#30000C',
+                    400: '#A84040',
+                    500: '#702121', // ← Vermelho Carmim (principal)
+                    600: '#5A1A1A',
+                    700: '#481515',
+                    800: '#361010',
+                    900: '#240B0B',
                 },
+                // Preto Absoluto — neutrals / texto
+                'lyvest-black': '#0D0D0D',
+                // Creme Marfim — background, superfícies
+                'lyvest-cream': '#F5EDE8',
+
+                // PALETA SECUNDÁRIA
+                'lyvest-terracota': '#C4927A', // Terracota Rosé
+                'lyvest-siena':     '#9E6B5A', // Siena
+                'lyvest-mist':      '#EAD9D1', // Névoa Rosada
+                // Branco Puro já coberto pelo white padrão do Tailwind
             },
             fontFamily: {
-                sans: ['var(--font-lato)', 'sans-serif'],
+                // Tipografia oficial: Helvetica / Arial (fontes do sistema)
+                // Lato mantido como fallback para ambientes sem Helvetica
+                sans: ['Helvetica Neue', 'Helvetica', 'Arial', 'var(--font-lato)', 'sans-serif'],
                 cookie: ['var(--font-cookie)', 'cursive'],
                 lato: ['var(--font-lato)', 'sans-serif'],
             },

@@ -247,7 +247,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                                             value="male"
                                             checked={formData.gender === 'male'}
                                             onChange={(e) => handleChange('gender', e.target.value)}
-                                            className="text-lyvest-500 focus:ring-[#800020]"
+                                            className="text-lyvest-500 focus:ring-[#702121]"
                                         />
                                         <span className="font-medium">{t('dashboard.profile.genderMale')}</span>
                                     </label>
@@ -258,7 +258,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                                             value="female"
                                             checked={formData.gender === 'female'}
                                             onChange={(e) => handleChange('gender', e.target.value)}
-                                            className="text-lyvest-500 focus:ring-[#800020]"
+                                            className="text-lyvest-500 focus:ring-[#702121]"
                                         />
                                         <span className="font-medium">{t('dashboard.profile.genderFemale')}</span>
                                     </label>
@@ -269,7 +269,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                                             value="other"
                                             checked={formData.gender === 'other'}
                                             onChange={(e) => handleChange('gender', e.target.value)}
-                                            className="text-lyvest-500 focus:ring-[#800020]"
+                                            className="text-lyvest-500 focus:ring-[#702121]"
                                         />
                                         <span className="font-medium">{t('dashboard.profile.genderOther')}</span>
                                     </label>
@@ -327,7 +327,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                                     type="checkbox"
                                     checked={formData.marketing_email}
                                     onChange={(e) => handleChange('marketing_email', e.target.checked)}
-                                    className="w-5 h-5 rounded text-lyvest-500 focus:ring-[#800020]"
+                                    className="w-5 h-5 rounded text-lyvest-500 focus:ring-[#702121]"
                                 />
                                 <div>
                                     <span className="font-bold text-slate-700 block">E-mails Promocionais</span>
@@ -340,7 +340,7 @@ export default function ProfileSection({ user: propUser }: ProfileSectionProps) 
                                     type="checkbox"
                                     checked={formData.marketing_whatsapp}
                                     onChange={(e) => handleChange('marketing_whatsapp', e.target.checked)}
-                                    className="w-5 h-5 rounded text-lyvest-500 focus:ring-[#800020]"
+                                    className="w-5 h-5 rounded text-lyvest-500 focus:ring-[#702121]"
                                 />
                                 <div>
                                     <span className="font-bold text-slate-700 block">WhatsApp</span>

@@ -55,7 +55,7 @@ export default function ChatWidget() {
             {/* Floating Action Button */}
             <button
                 onClick={() => setIsOpen(true)}
-                className={`fixed bottom-32 sm:bottom-24 right-6 z-[95] flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#800020] focus:ring-offset-2 bg-[#800020] text-white
+                className={`fixed bottom-32 sm:bottom-24 right-6 z-[95] flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#702121] focus:ring-offset-2 bg-[#702121] text-white
                     ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
                 aria-label="Falar com a Ly"
             >
@@ -65,13 +65,13 @@ export default function ChatWidget() {
             {/* Chat Window */}
             {isOpen && (
                 <div className="fixed bottom-24 left-4 right-4 z-[95] flex h-[450px] max-h-[45vh] flex-col overflow-hidden rounded-2xl bg-white/95 shadow-2xl backdrop-blur-xl transition-all duration-300 animate-slide-up sm:bottom-28 sm:left-auto sm:right-6 sm:max-h-[80vh] sm:h-[510px] sm:w-[440px] border border-stone-100">
-                    <div className="flex items-center justify-between bg-gradient-to-r from-[#800020] to-[#600018] p-4 text-white shadow-md">
+                    <div className="flex items-center justify-between bg-gradient-to-r from-[#702121] to-[#5A1A1A] p-4 text-white shadow-md">
                         <div className="flex items-center gap-3">
                             <div className="relative">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full shadow-inner overflow-hidden bg-white">
                                     <img src="/assets/images/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
                                 </div>
-                                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-[#800020]"></span>
+                                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-[#702121]"></span>
                             </div>
                             <div>
                                 <h3 className="font-bold text-sm">Ly</h3>
@@ -116,8 +116,8 @@ export default function ChatWidget() {
                                         <div className={`flex flex-col gap-1 max-w-[85%] ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
                                             <div
                                                 className={`rounded-2xl p-3 text-sm shadow-sm ${m.role === 'user'
-                                                    ? 'bg-[#800020] text-white rounded-tr-none'
-                                                    : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-sm max-w-none prose-p:my-1 prose-strong:text-[#800020] prose-a:text-[#800020] prose-a:font-bold'
+                                                    ? 'bg-[#702121] text-white rounded-tr-none'
+                                                    : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-sm max-w-none prose-p:my-1 prose-strong:text-[#702121] prose-a:text-[#702121] prose-a:font-bold'
                                                     }`}
                                             >
                                                 <ReactMarkdown>{m.content}</ReactMarkdown>
@@ -168,7 +168,7 @@ export default function ChatWidget() {
                                     <button
                                         key={reply}
                                         onClick={() => handleQuickReply(reply)}
-                                        className="whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-[#800020] hover:bg-white hover:text-[#800020]"
+                                        className="whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-[#702121] hover:bg-white hover:text-[#702121]"
                                     >
                                         {reply}
                                     </button>
@@ -181,12 +181,12 @@ export default function ChatWidget() {
                                 value={input}
                                 onChange={handleInputChange}
                                 placeholder="Digite sua dúvida..."
-                                className="flex-1 rounded-full border border-slate-200 bg-slate-50 pl-4 pr-10 py-2.5 text-sm transition-all focus:border-[#800020] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#800020]/20"
+                                className="flex-1 rounded-full border border-slate-200 bg-slate-50 pl-4 pr-10 py-2.5 text-sm transition-all focus:border-[#702121] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#702121]/20"
                             />
                             <button
                                 type="submit"
                                 disabled={isLoading || !(input || '').trim()}
-                                className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-[#800020] text-white transition-transform hover:bg-[#600018] active:scale-95 disabled:opacity-50 disabled:scale-100"
+                                className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-[#702121] text-white transition-transform hover:bg-[#5A1A1A] active:scale-95 disabled:opacity-50 disabled:scale-100"
                             >
                                 <Send className="h-3.5 w-3.5 ml-0.5" />
                             </button>
@@ -233,7 +233,7 @@ function AddToCartButton({ productId }: AddToCartButtonProps) {
     return (
         <button
             onClick={handleAdd}
-            className='w-full bg-[#800020] text-white py-2 rounded-md text-xs font-bold hover:bg-[#600018] transition-colors flex items-center justify-center gap-2'
+            className='w-full bg-[#702121] text-white py-2 rounded-md text-xs font-bold hover:bg-[#5A1A1A] transition-colors flex items-center justify-center gap-2'
         >
             <ShoppingBag className='w-3 h-3' /> Adicionar ao Carrinho
         </button>

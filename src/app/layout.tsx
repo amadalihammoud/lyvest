@@ -9,7 +9,8 @@ import ClientLayout from '@/components/layout/ClientLayout';
 export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
-    themeColor: '#800020',
+    // Vermelho Carmim — cor principal, Manual de Marca Ly Vest §03
+    themeColor: '#702121',
 };
 
 // Font configuration with display: swap for better FCP
@@ -125,7 +126,8 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className="bg-[#FDF5F5] text-slate-900 font-sans antialiased selection:bg-rose-100 selection:text-rose-900">
+            {/* Creme Marfim (#F5EDE8) + Preto Absoluto (#0D0D0D) — Manual de Marca §03 */}
+        <body className="bg-[#F5EDE8] text-[#0D0D0D] font-sans antialiased selection:bg-[#EAD9D1] selection:text-[#702121]">
                 <HeaderInteractive />
                 <ClientLayout>
                     {children}

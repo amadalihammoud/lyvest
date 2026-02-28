@@ -70,7 +70,7 @@ const Testimonials = () => {
     ];
 
     return (
-        <section className="py-8 md:py-16 bg-[#FDF5F5]">
+        <section className="py-8 md:py-16 bg-[#F5EDE8]">
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="text-center mb-8 md:mb-12">
                     <h2 className="text-[17px] md:text-3xl font-extrabold text-slate-800 mb-2 whitespace-nowrap overflow-hidden text-ellipsis">

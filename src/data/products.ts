@@ -61,7 +61,7 @@ export const productsData: Product[] = [
         ean: "7891234561002",
         sizes: ["P", "M", "G"],
         colors: [
-            { name: "Vinho", hex: "#800020" },
+            { name: "Vinho", hex: "#702121" },
             { name: "Preto", hex: "#000000" }
         ],
         specs: {

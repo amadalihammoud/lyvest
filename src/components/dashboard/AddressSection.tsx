@@ -266,7 +266,7 @@ export default function AddressSection() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-20">
-                <div className="w-10 h-10 border-4 border-lyvest-100 border-t-[#800020] rounded-full animate-spin" />
+                <div className="w-10 h-10 border-4 border-lyvest-100 border-t-[#702121] rounded-full animate-spin" />
             </div>
         );
     }
@@ -413,7 +413,7 @@ export default function AddressSection() {
                             type="checkbox"
                             checked={formData.is_default}
                             onChange={(e) => handleChange('is_default', e.target.checked)}
-                            className="w-5 h-5 rounded text-lyvest-500 focus:ring-[#800020]"
+                            className="w-5 h-5 rounded text-lyvest-500 focus:ring-[#702121]"
                         />
                         <span className="text-slate-600 font-medium">Definir como endereço padrão</span>
                     </label>

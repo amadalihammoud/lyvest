@@ -59,7 +59,7 @@ export default function CookieBanner({ onOpenPrivacy }: CookieBannerProps): Reac
                     </button>
                     <button
                         onClick={handleAccept}
-                        className="px-6 py-3 rounded-xl bg-slate-900 text-white hover:bg-lyvest-500 font-bold transition-all duration-200 shadow-lg hover:shadow-[#800020]/30 hover:scale-105 active:scale-95 text-sm whitespace-nowrap"
+                        className="px-6 py-3 rounded-xl bg-slate-900 text-white hover:bg-lyvest-500 font-bold transition-all duration-200 shadow-lg hover:shadow-[#702121]/30 hover:scale-105 active:scale-95 text-sm whitespace-nowrap"
                     >
                         Aceitar Todos
                     </button>

@@ -174,7 +174,7 @@ export default function HomePageClient() {
             </div>
 
             {/* Newsletter — cv-auto-sm skips rendering until scrolled into view */}
-            <section className="py-20 bg-[#FDF5F5] cv-auto-sm">
+            <section className="py-20 bg-[#F5EDE8] cv-auto-sm">
                 <div className="container mx-auto px-4 text-center max-w-2xl">
                     {/* Newsletter heading */}
                     <h2 className="text-3xl md:text-4xl font-cookie text-lyvest-500 mb-3"

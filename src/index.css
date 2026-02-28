@@ -1,4 +1,8 @@
-/* Google Fonts imported via link in index.html for performance */
+/* ─── Manual de Marca Ly Vest v1.0 ───────────────────────────────
+   Paleta Principal:  Vermelho Carmim #702121 | Preto Absoluto #0D0D0D | Creme Marfim #F5EDE8
+   Paleta Secundária: Terracota Rosé #C4927A | Siena #9E6B5A | Névoa Rosada #EAD9D1
+   Tipografia:        Helvetica Neue → Helvetica → Arial → Lato (fallback)
+   ─────────────────────────────────────────────────────────────── */
 
 @tailwind base;
 @tailwind components;
@@ -20,32 +24,37 @@
 }
 
 body {
-  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: #FDF5F5;
-  /* Fundo rosado suave — unificado com layout.tsx */
-  color: #334155;
+  /* Tipografia oficial: Helvetica/Arial do sistema — Manual de Marca §04 */
+  font-family: 'Helvetica Neue', Helvetica, Arial, var(--font-lato), sans-serif;
+  /* Creme Marfim (#F5EDE8) — cor de fundo oficial — Manual de Marca §03 */
+  background-color: #F5EDE8;
+  /* Preto Absoluto (#0D0D0D) — cor de texto oficial */
+  color: #0D0D0D;
 
-  /* default text */
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom WCAG contrast overrides */
-.bg-\[\#800020\] {
-  background-color: hsl(340, 70%, 45%) !important;
+/* ─── Custom WCAG contrast overrides — Vermelho Carmim #702121 ─── */
+.bg-\[\#800020\],
+.bg-\[\#702121\] {
+  background-color: #702121 !important;
 }
 
-.bg-\[\#600018\] {
-  background-color: hsl(340, 70%, 35%) !important;
+.bg-\[\#600018\],
+.bg-\[\#5A1A1A\] {
+  background-color: #5A1A1A !important;
 }
 
-.text-\[\#800020\] {
-  color: hsl(340, 70%, 20%) !important;
+.text-\[\#800020\],
+.text-\[\#702121\] {
+  color: #702121 !important;
 }
 
-.text-\[\#600018\] {
-  color: hsl(340, 70%, 15%) !important;
+.text-\[\#600018\],
+.text-\[\#5A1A1A\] {
+  color: #5A1A1A !important;
 }
 
 .bg-sky-500 {
@@ -101,15 +110,15 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #800020;
-  /* lyvest-500 - Bordô sempre */
+  background: #702121;
+  /* Vermelho Carmim — Manual de Marca §03 */
   border-radius: 4px;
-  border: 2px solid #f8fafc;
+  border: 2px solid #F5EDE8;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #600018;
-  /* lyvest-600 - Bordô escuro */
+  background: #5A1A1A;
+  /* Vermelho Carmim escuro */
 }
 
 /* Hide scrollbar for elements with scrollbar-hide class */
@@ -130,11 +139,10 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #800020;
-  /* lyvest-500 */
+  outline: 2px solid #702121;
+  /* Vermelho Carmim — Manual de Marca §03 */
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(128, 0, 32, 0.3);
-  /* lyvest-500 with opacity */
+  box-shadow: 0 0 0 4px rgba(112, 33, 33, 0.3);
   z-index: 50;
 }
 

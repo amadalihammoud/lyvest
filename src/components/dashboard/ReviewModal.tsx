@@ -84,7 +84,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="bg-[#800020] px-8 py-6 text-white text-center relative">
+                <div className="bg-[#702121] px-8 py-6 text-white text-center relative">
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
@@ -172,7 +172,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full py-4 bg-[#800020] text-white font-bold rounded-full hover:bg-[#600018] transition-all shadow-lg shadow-[#F5E6E8] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-1"
+                            className="w-full py-4 bg-[#702121] text-white font-bold rounded-full hover:bg-[#5A1A1A] transition-all shadow-lg shadow-[#F5E6E8] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-1"
                         >
                             {isSubmitting ? (
                                 <>
