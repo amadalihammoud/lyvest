@@ -16,7 +16,7 @@ export default function Footer() {
             <div className="container mx-auto px-4">
 
                 {/* Grid flat único 3 colunas — cols 1+2 auto-placement intercalado, col 3 posicionamento explícito */}
-                <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1.5fr] gap-x-12 gap-y-3 max-w-5xl mx-auto mb-12 items-center">
+                <div className="grid grid-cols-1 md:grid-cols-[auto_auto_1fr] gap-x-10 gap-y-3 max-w-5xl mx-auto mb-12 items-center">
 
                     {/* ── Cols 1+2: 12 filhos intercalados (auto-placement preenche col1 e col2) ── */}
 
@@ -34,7 +34,7 @@ export default function Footer() {
                             {t('footer.about')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-8 md:order-none md:col-start-2">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-8 md:order-none md:col-start-2 whitespace-nowrap">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.razaoSocial')}:</strong>{' '}
                         <span>Ly Vest Moda Feminina LTDA</span>
                     </div>
@@ -45,7 +45,7 @@ export default function Footer() {
                             {t('footer.shipping')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-9 md:order-none md:col-start-2">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-9 md:order-none md:col-start-2 whitespace-nowrap">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.cnpj')}:</strong>{' '}
                         <span>29.015.357/0001-25</span>
                     </div>
@@ -56,7 +56,7 @@ export default function Footer() {
                             {t('footer.returns')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-10 md:order-none md:col-start-2">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-10 md:order-none md:col-start-2 whitespace-nowrap">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.address')}:</strong>{' '}
                         <span>Av. Ana Costa, 433 - Santos - SP</span>
                     </div>
@@ -67,7 +67,7 @@ export default function Footer() {
                             {t('footer.faq')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-11 md:order-none md:col-start-2">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-11 md:order-none md:col-start-2 whitespace-nowrap">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.email')}:</strong>{' '}
                         <span>contato@lyvest.com.br</span>
                     </div>
@@ -78,7 +78,7 @@ export default function Footer() {
                             {t('footer.privacy')}
                         </button>
                     </div>
-                    <div className="text-sm text-slate-600 text-center md:text-left order-12 md:order-none md:col-start-2">
+                    <div className="text-sm text-slate-600 text-center md:text-left order-12 md:order-none md:col-start-2 whitespace-nowrap">
                         <strong className="text-slate-700 font-semibold">{t('footer.company.phone')}:</strong>{' '}
                         <span>(13) 9 9624-6969</span>
                     </div>
