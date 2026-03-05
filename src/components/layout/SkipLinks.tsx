@@ -22,7 +22,7 @@ export default function SkipLinks(): React.ReactElement {
         {
             href: '#main-content',
             label: t('skipLinks.mainContent') || 'Pular para o conteúdo principal',
-            color: 'bg-lyvest-500 focus:ring-offset-[#702121]'
+            color: 'bg-lyvest-500 focus:ring-offset-[#7D2121]'
         },
         {
             href: '#products-grid',

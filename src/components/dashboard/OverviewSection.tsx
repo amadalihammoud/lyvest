@@ -31,7 +31,7 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
         const s = status.toLowerCase();
         if (s.includes('entregue')) return 'text-emerald-600 bg-emerald-50';
         if (s.includes('cancelado')) return 'text-red-600 bg-red-50';
-        return 'text-[#702121] bg-rose-50';
+        return 'text-[#7D2121] bg-rose-50';
     };
 
     const getFirstName = (fullName?: string) => {
@@ -49,7 +49,7 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
                         </h3>
                         <button
                             onClick={() => setActiveTab('orders')}
-                            className="text-sm font-medium text-[#702121] hover:text-[#5A1A1A] transition-colors flex items-center gap-1 group"
+                            className="text-sm font-medium text-[#7D2121] hover:text-[#5A1A1A] transition-colors flex items-center gap-1 group"
                         >
                             Ver histórico
                             <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -103,14 +103,14 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
                         {!featuredOrder.status.toLowerCase().includes('cancelado') && (
                             <div className="mt-8 pt-6 border-t border-slate-50">
                                 <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
-                                    <span className={getStatusStep(featuredOrder.status) >= 1 ? 'text-[#702121]' : ''}>Recebido</span>
-                                    <span className={getStatusStep(featuredOrder.status) >= 2 ? 'text-[#702121]' : ''}>Processando</span>
-                                    <span className={getStatusStep(featuredOrder.status) >= 3 ? 'text-[#702121]' : ''}>Envio</span>
-                                    <span className={getStatusStep(featuredOrder.status) >= 4 ? 'text-[#702121]' : ''}>Entregue</span>
+                                    <span className={getStatusStep(featuredOrder.status) >= 1 ? 'text-[#7D2121]' : ''}>Recebido</span>
+                                    <span className={getStatusStep(featuredOrder.status) >= 2 ? 'text-[#7D2121]' : ''}>Processando</span>
+                                    <span className={getStatusStep(featuredOrder.status) >= 3 ? 'text-[#7D2121]' : ''}>Envio</span>
+                                    <span className={getStatusStep(featuredOrder.status) >= 4 ? 'text-[#7D2121]' : ''}>Entregue</span>
                                 </div>
                                 <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-[#702121] transition-all duration-1000 ease-out"
+                                        className="h-full bg-[#7D2121] transition-all duration-1000 ease-out"
                                         style={{ width: `${getStatusStep(featuredOrder.status) * 25}%` }}
                                     />
                                 </div>
@@ -125,7 +125,7 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
                     <p className="text-slate-400 text-sm mb-6">Você ainda não fez nenhuma compra conosco.</p>
                     <Link
                         href="/"
-                        className="inline-flex items-center justify-center px-6 py-2.5 bg-[#702121] text-white text-sm font-medium rounded-lg hover:bg-[#5A1A1A] transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-2.5 bg-[#7D2121] text-white text-sm font-medium rounded-lg hover:bg-[#5A1A1A] transition-colors"
                     >
                         Começar a comprar
                     </Link>

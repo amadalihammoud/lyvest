@@ -338,17 +338,17 @@ export default function HeaderInteractive() {
                                     <li key={index} className="group relative cursor-pointer">
                                         <button
                                             onClick={() => handleMenuClick(item)}
-                                            className={`flex items-center gap-1.5 hover:text-[#FFE4E1] transition-colors py-1 uppercase text-xs sm:text-sm
-                                                ${selectedCategory === item.category ? 'text-[#FFE4E1]' : ''}`}
+                                            className={`flex items-center gap-1.5 hover:text-[#EAD9D1] transition-colors py-1 uppercase text-xs sm:text-sm
+                                                ${selectedCategory === item.category ? 'text-[#EAD9D1]' : ''}`}
                                             aria-current={selectedCategory === item.category ? 'page' : undefined}
                                         >
                                             {t(item.translationKey) || item.label}
                                             {item.subcategories && item.subcategories.length > 0 && (
-                                                <ChevronDown className="w-3.5 h-3.5 text-white group-hover:text-[#FFE4E1] transition-colors" />
+                                                <ChevronDown className="w-3.5 h-3.5 text-white group-hover:text-[#EAD9D1] transition-colors" />
                                             )}
                                         </button>
                                         {/* Active/Hover Line */}
-                                        <span className={`absolute bottom-0 left-0 h-0.5 bg-[#FFE4E1] transition-all duration-300 ${selectedCategory === item.category ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+                                        <span className={`absolute bottom-0 left-0 h-0.5 bg-[#EAD9D1] transition-all duration-300 ${selectedCategory === item.category ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
                                     </li>
                                 ))}
                             </ul>

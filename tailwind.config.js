@@ -10,20 +10,20 @@ export default {
                 'xs': '400px', // Extra small screens - controls wrap below this
             },
             colors: {
-                // ─── Paleta Oficial — Manual de Marca Ly Vest v1.0 ───────────────
+                // ─── Paleta Oficial — Manual de Marca Ly Vest v7 ───────────────
                 // PALETA PRINCIPAL
                 'lyvest': {
-                    // Vermelho Carmim (#702121) — cor principal, 60% do uso visual
-                    50:  '#FDF8F8',
-                    100: '#F5E6E8',
-                    200: '#E8C4C8',
-                    300: '#D9A0A8',
-                    400: '#A84040',
-                    500: '#702121', // ← Vermelho Carmim (principal)
-                    600: '#5A1A1A',
-                    700: '#481515',
-                    800: '#361010',
-                    900: '#240B0B',
+                    // Vermelho Carmim (#7D2121) — cor principal, 60% do uso visual
+                    50: '#FEF8F8',
+                    100: '#F8E8E8',
+                    200: '#EDCACA',
+                    300: '#DFA6A6',
+                    400: '#AD4A4A',
+                    500: '#7D2121', // ← Vermelho Carmim (principal) — Manual §03
+                    600: '#651A1A',
+                    700: '#501515',
+                    800: '#3C1010',
+                    900: '#280B0B',
                 },
                 // Preto Absoluto — neutrals / texto
                 'lyvest-black': '#0D0D0D',
@@ -32,8 +32,8 @@ export default {
 
                 // PALETA SECUNDÁRIA
                 'lyvest-terracota': '#C4927A', // Terracota Rosé
-                'lyvest-siena':     '#9E6B5A', // Siena
-                'lyvest-mist':      '#EAD9D1', // Névoa Rosada
+                'lyvest-siena': '#9E6B5A', // Siena
+                'lyvest-mist': '#EAD9D1', // Névoa Rosada
                 // Branco Puro já coberto pelo white padrão do Tailwind
             },
             fontFamily: {

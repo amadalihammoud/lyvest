@@ -134,7 +134,7 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
     // Renderizar apenas a seção ativa com lazy loading
     const renderActiveSection = () => {
         return (
-            <Suspense fallback={<div className="flex justify-center p-12 animate-fade-in"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#702121]"></div></div>}>
+            <Suspense fallback={<div className="flex justify-center p-12 animate-fade-in"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7D2121]"></div></div>}>
                 {activeTab === 'overview' && <OverviewSection user={user} orders={orders} setActiveTab={setActiveTab} onTrackOrder={onTrackOrder} />}
                 {activeTab === 'orders' && <OrdersSection orders={orders} onTrackOrder={onTrackOrder} />}
                 {activeTab === 'favorites' && <FavoritesSection />}
@@ -151,9 +151,9 @@ function UserDashboard({ user, orders, onTrackOrder, onLogout }: UserDashboardPr
                                     navbar: "hidden", // Hide navbar to use our own or keep it if preferred
                                     headerTitle: "hidden", // Hide Clerk header since we have our own
                                     headerSubtitle: "hidden",
-                                    formButtonPrimary: "bg-[#702121] hover:bg-[#5A1A1A]",
-                                    fileDropAreaBox: "border-slate-300 hover:border-[#702121]",
-                                    fileDropAreaIconBox: "text-[#702121] bg-rose-50",
+                                    formButtonPrimary: "bg-[#7D2121] hover:bg-[#5A1A1A]",
+                                    fileDropAreaBox: "border-slate-300 hover:border-[#7D2121]",
+                                    fileDropAreaIconBox: "text-[#7D2121] bg-rose-50",
                                     fileDropAreaIcon: "text-[color:var(--cl-colors-text-primary)]",
                                 }
                             }}

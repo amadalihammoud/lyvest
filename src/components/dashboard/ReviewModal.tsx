@@ -84,7 +84,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="bg-[#702121] px-8 py-6 text-white text-center relative">
+                <div className="bg-[#7D2121] px-8 py-6 text-white text-center relative">
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
@@ -135,8 +135,8 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                                     >
                                         <Star
                                             className={`w-10 h-10 ${star <= (hoverRating || rating)
-                                                    ? 'fill-amber-400 text-amber-400'
-                                                    : 'text-slate-200'
+                                                ? 'fill-amber-400 text-amber-400'
+                                                : 'text-slate-200'
                                                 } transition-colors duration-200`}
                                         />
                                     </button>
@@ -172,7 +172,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full py-4 bg-[#702121] text-white font-bold rounded-full hover:bg-[#5A1A1A] transition-all shadow-lg shadow-[#F5E6E8] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-1"
+                            className="w-full py-4 bg-[#7D2121] text-white font-bold rounded-full hover:bg-[#5A1A1A] transition-all shadow-lg shadow-[#F5E6E8] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-1"
                         >
                             {isSubmitting ? (
                                 <>

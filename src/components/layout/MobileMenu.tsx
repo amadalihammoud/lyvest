@@ -88,7 +88,7 @@ export default function MobileMenu({
                         {isLoggedIn ? (
                             <button
                                 onClick={() => { onClose(); navigateToDashboard(); }}
-                                className="flex items-center gap-2 px-4 py-1.5 bg-[#702121] hover:bg-[#5A1A1A] text-white rounded-full transition-colors shadow-sm"
+                                className="flex items-center gap-2 px-4 py-1.5 bg-[#7D2121] hover:bg-[#5A1A1A] text-white rounded-full transition-colors shadow-sm"
                             >
                                 <img
                                     src={userAvatar}
@@ -98,7 +98,7 @@ export default function MobileMenu({
                                 <span className="text-xs font-bold truncate max-w-[80px]">{userName}</span>
                             </button>
                         ) : (
-                            <div className="flex items-center gap-2 pr-4 py-1.5 bg-[#702121] text-white rounded-full font-bold shadow-sm hover:bg-[#5A1A1A] active:scale-95 transition-all text-xs whitespace-nowrap cursor-pointer">
+                            <div className="flex items-center gap-2 pr-4 py-1.5 bg-[#7D2121] text-white rounded-full font-bold shadow-sm hover:bg-[#5A1A1A] active:scale-95 transition-all text-xs whitespace-nowrap cursor-pointer">
                                 <button onClick={() => { onClose(); onOpen(); }} className="flex items-center gap-2 pl-3 w-full h-full">
                                     <User className="w-4 h-4" />
                                     {t('nav.login') || 'Entrar'}

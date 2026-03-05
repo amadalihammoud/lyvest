@@ -10,7 +10,7 @@ const ClerkProvider = dynamic(
         import('@clerk/localizations').then((mod) => mod.ptBR),
     ]).then(([ClerkProviderComponent, ptBRLocale]) => {
         // Wrap so dynamic() receives a default export component with ptBR baked in
-        const Wrapped = ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => (
+        const Wrapped = ({ children, ...props }: { children: ReactNode;[key: string]: unknown }) => (
             <ClerkProviderComponent {...props} localization={ptBRLocale}>
                 {children}
             </ClerkProviderComponent>
@@ -38,7 +38,7 @@ export function LazyClerkProvider({ children, shouldLoad }: LazyClerkProviderPro
             publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
             appearance={{
                 variables: {
-                    colorPrimary: '#702121',
+                    colorPrimary: '#7D2121',
                     colorText: '#334155',
                     colorTextSecondary: '#64748B',
                     colorBackground: '#ffffff',
@@ -50,17 +50,17 @@ export function LazyClerkProvider({ children, shouldLoad }: LazyClerkProviderPro
                 elements: {
                     rootBox: "w-full",
                     card: "shadow-2xl shadow-rose-900/10 border border-rose-100 p-8 rounded-2xl bg-white/95 backdrop-blur-sm",
-                    headerTitle: "text-[#702121] text-2xl mb-2 font-bold font-cookie tracking-wide",
+                    headerTitle: "text-[#7D2121] text-2xl mb-2 font-bold font-cookie tracking-wide",
                     headerSubtitle: "text-slate-500 text-sm font-medium",
                     socialButtonsBlockButton: "border border-slate-200 hover:bg-rose-50 hover:border-rose-200 text-slate-600 transition-all duration-300",
-                    socialButtonsBlockButtonText: "font-medium group-hover:text-[#702121]",
+                    socialButtonsBlockButtonText: "font-medium group-hover:text-[#7D2121]",
                     dividerLine: "bg-gradient-to-r from-transparent via-slate-200 to-transparent",
                     dividerText: "text-slate-400 text-xs font-medium uppercase tracking-widest px-3 bg-white",
                     formFieldLabel: "text-slate-700 font-semibold text-sm mb-1.5",
-                    formFieldInput: "bg-slate-50 border-slate-200 focus:border-[#702121] focus:ring-[#702121]/20 transition-all duration-300 rounded-xl py-2.5",
-                    formButtonPrimary: "bg-gradient-to-r from-[#702121] to-[#5A1A1A] hover:from-[#8A2828] hover:to-[#702121] text-white rounded-xl font-bold py-3 shadow-lg shadow-rose-900/20 transform transition-all hover:-translate-y-0.5 active:translate-y-0 text-sm tracking-wide uppercase",
+                    formFieldInput: "bg-slate-50 border-slate-200 focus:border-[#7D2121] focus:ring-[#7D2121]/20 transition-all duration-300 rounded-xl py-2.5",
+                    formButtonPrimary: "bg-gradient-to-r from-[#7D2121] to-[#5A1A1A] hover:from-[#8A2828] hover:to-[#7D2121] text-white rounded-xl font-bold py-3 shadow-lg shadow-rose-900/20 transform transition-all hover:-translate-y-0.5 active:translate-y-0 text-sm tracking-wide uppercase",
                     footerActionText: "text-slate-500 font-medium",
-                    footerActionLink: "text-[#702121] hover:text-[#5A1A1A] font-bold hover:underline decoration-2 underline-offset-4 transition-all"
+                    footerActionLink: "text-[#7D2121] hover:text-[#5A1A1A] font-bold hover:underline decoration-2 underline-offset-4 transition-all"
                 },
                 layout: {
                     socialButtonsPlacement: "bottom",

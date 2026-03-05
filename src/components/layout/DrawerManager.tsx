@@ -68,7 +68,7 @@ export default function DrawerManager() {
                 aria-labelledby={`${activeDrawer}-title`}
                 dir={isRTL ? 'rtl' : 'ltr'}
             >
-                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-8 h-8 border-4 border-lyvest-100 border-t-[#702121] rounded-full animate-spin" /></div>}>
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-8 h-8 border-4 border-lyvest-100 border-t-[#7D2121] rounded-full animate-spin" /></div>}>
                     {activeDrawer === 'cart' && (
                         <DrawerCart
                             isOpen={true}

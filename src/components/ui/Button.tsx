@@ -29,11 +29,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
     // Base styles applied to all buttons
     const baseStyles = "inline-flex items-center justify-center rounded-full font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 touch-target";
 
-    // Variants map - usando cores Ly Vest (#702121 - Vermelho Carmesim)
+    // Variants map - usando cores Ly Vest (#7D2121 - Vermelho Carmesim)
     const variants: Record<ButtonVariant, string> = {
-        primary: "bg-lyvest-500 hover:bg-lyvest-600 text-white focus:ring-[#702121]",
+        primary: "bg-lyvest-500 hover:bg-lyvest-600 text-white focus:ring-[#7D2121]",
         secondary: "bg-red-100 hover:bg-red-200 text-lyvest-500 focus:ring-red-300",
-        outline: "border-2 border-lyvest-500 text-lyvest-500 hover:bg-lyvest-100/30 focus:ring-[#702121]",
+        outline: "border-2 border-lyvest-500 text-lyvest-500 hover:bg-lyvest-100/30 focus:ring-[#7D2121]",
         ghost: "bg-transparent hover:bg-slate-100 text-slate-600 hover:text-lyvest-500 focus:ring-slate-300",
         danger: "bg-lyvest-100/300 hover:bg-red-600 text-white focus:ring-red-400",
     };

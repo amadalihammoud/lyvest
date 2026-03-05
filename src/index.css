@@ -1,5 +1,5 @@
-/* ─── Manual de Marca Ly Vest v1.0 ───────────────────────────────
-   Paleta Principal:  Vermelho Carmim #702121 | Preto Absoluto #0D0D0D | Creme Marfim #F5EDE8
+/* ─── Manual de Marca Ly Vest v7 ─────────────────────────────────
+   Paleta Principal:  Vermelho Carmim #7D2121 | Preto Absoluto #0D0D0D | Creme Marfim #F5EDE8
    Paleta Secundária: Terracota Rosé #C4927A | Siena #9E6B5A | Névoa Rosada #EAD9D1
    Tipografia:        Helvetica Neue → Helvetica → Arial → Lato (fallback)
    ─────────────────────────────────────────────────────────────── */
@@ -36,25 +36,29 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Custom WCAG contrast overrides — Vermelho Carmim #702121 ─── */
+/* ─── WCAG contrast overrides — Vermelho Carmim #7D2121 — Manual §03 ─── */
 .bg-\[\#800020\],
-.bg-\[\#702121\] {
-  background-color: #702121 !important;
+.bg-\[\#702121\],
+.bg-\[\#7D2121\] {
+  background-color: #7D2121 !important;
 }
 
 .bg-\[\#600018\],
-.bg-\[\#5A1A1A\] {
-  background-color: #5A1A1A !important;
+.bg-\[\#5A1A1A\],
+.bg-\[\#651A1A\] {
+  background-color: #651A1A !important;
 }
 
 .text-\[\#800020\],
-.text-\[\#702121\] {
-  color: #702121 !important;
+.text-\[\#702121\],
+.text-\[\#7D2121\] {
+  color: #7D2121 !important;
 }
 
 .text-\[\#600018\],
-.text-\[\#5A1A1A\] {
-  color: #5A1A1A !important;
+.text-\[\#5A1A1A\],
+.text-\[\#651A1A\] {
+  color: #651A1A !important;
 }
 
 .bg-sky-500 {
@@ -110,14 +114,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #702121;
-  /* Vermelho Carmim — Manual de Marca §03 */
+  background: #7D2121;
+  /* Vermelho Carmim — Manual de Marca v7 §03 */
   border-radius: 4px;
   border: 2px solid #F5EDE8;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #5A1A1A;
+  background: #651A1A;
   /* Vermelho Carmim escuro */
 }
 
@@ -139,10 +143,10 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #702121;
-  /* Vermelho Carmim — Manual de Marca §03 */
+  outline: 2px solid #7D2121;
+  /* Vermelho Carmim — Manual de Marca v7 §03 */
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(112, 33, 33, 0.3);
+  box-shadow: 0 0 0 4px rgba(125, 33, 33, 0.3);
   z-index: 50;
 }
 

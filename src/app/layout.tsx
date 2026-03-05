@@ -10,7 +10,7 @@ export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
     // Vermelho Carmim — cor principal, Manual de Marca Ly Vest §03
-    themeColor: '#702121',
+    themeColor: '#7D2121',
 };
 
 // Font configuration with display: swap for better FCP
@@ -127,7 +127,7 @@ export default function RootLayout({
                 />
             </head>
             {/* Creme Marfim (#F5EDE8) + Preto Absoluto (#0D0D0D) — Manual de Marca §03 */}
-        <body className="bg-[#F5EDE8] text-[#0D0D0D] font-sans antialiased selection:bg-[#EAD9D1] selection:text-[#702121]">
+            <body className="bg-[#F5EDE8] text-[#0D0D0D] font-sans antialiased selection:bg-[#EAD9D1] selection:text-[#7D2121]">
                 <HeaderInteractive />
                 <ClientLayout>
                     {children}
