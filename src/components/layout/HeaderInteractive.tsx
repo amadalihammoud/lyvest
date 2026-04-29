@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -162,16 +162,16 @@ export default function HeaderInteractive() {
                         </button>
                         <Link
                             href="/"
-                            aria-label="Ly Vest Home"
+                            aria-label="Lyvest Home"
                             onClick={handleLogoClick}
+                            className="group inline-flex flex-col items-start leading-none"
                         >
-                            <Image
-                                src="/assets/logos/lyvest-red-logo.webp"
-                                alt="Ly Vest Logo"
-                                width={166}
-                                height={64}
-                                className="h-16 md:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105"
-                            />
+                            <span className="font-serif text-3xl md:text-4xl font-light tracking-tight text-primary group-hover:text-lyvest-600 transition-colors">
+                                Lyvest
+                            </span>
+                            <span className="hidden md:block mt-1 text-[9px] tracking-[0.3em] uppercase text-muted-foreground">
+                                Moda Íntima
+                            </span>
                         </Link>
                     </div>
 
