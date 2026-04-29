@@ -9,10 +9,10 @@ function Hero() {
             aria-label="Coleção em destaque"
         >
             <div className="container mx-auto px-4 lg:px-8 pt-6 md:pt-8 lg:pt-10 pb-8 md:pb-10 lg:pb-12">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch lg:h-[460px] xl:h-[500px]">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
 
-                    {/* ─── Coluna texto editorial ──────────────────────────── */}
-                    <div className="lg:col-span-6 xl:col-span-6 order-2 lg:order-1 text-center lg:text-left flex flex-col justify-center">
+                    {/* ─── Coluna texto editorial (mais larga) ──────────── */}
+                    <div className="lg:col-span-7 xl:col-span-7 order-2 lg:order-1 text-center lg:text-left">
 
                         {/* Eyebrow */}
                         <div className="flex items-center justify-center lg:justify-start mb-4 md:mb-5 animate-fade-in">
@@ -63,15 +63,15 @@ function Hero() {
                     </div>
 
                     {/* ─── Coluna imagem editorial ─────────────────────────── */}
-                    <div className="lg:col-span-6 xl:col-span-6 order-1 lg:order-2 relative">
-                        <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-auto lg:h-full w-full max-h-[400px] lg:max-h-none overflow-hidden bg-muted/40">
+                    <div className="lg:col-span-5 xl:col-span-5 order-1 lg:order-2 relative lg:flex lg:justify-end">
+                        <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-[4/5] w-full lg:max-w-[380px] xl:max-w-[420px] max-h-[400px] lg:max-h-[520px] overflow-hidden bg-muted/40">
                             <Image
                                 src="/assets/banners/hero-editorial.jpg"
                                 alt="Coleção Lyvest verão 2026"
                                 fill
                                 priority
                                 fetchPriority="high"
-                                sizes="(max-width: 1024px) 100vw, 60vw"
+                                sizes="(max-width: 1024px) 100vw, 420px"
                                 quality={85}
                                 className="object-cover object-center"
                             />
