@@ -8,14 +8,14 @@ function Hero() {
             className="relative bg-background"
             aria-label="Coleção em destaque"
         >
-            <div className="container mx-auto px-4 lg:px-8 pt-8 md:pt-12 lg:pt-16 pb-12 md:pb-16 lg:pb-20">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            <div className="container mx-auto px-4 lg:px-8 pt-6 md:pt-8 lg:pt-10 pb-8 md:pb-10 lg:pb-12">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
                     {/* ─── Coluna texto editorial ──────────────────────────── */}
                     <div className="lg:col-span-5 xl:col-span-5 order-2 lg:order-1 text-center lg:text-left">
 
                         {/* Eyebrow */}
-                        <div className="flex items-center justify-center lg:justify-start mb-5 md:mb-7 animate-fade-in">
+                        <div className="flex items-center justify-center lg:justify-start mb-4 md:mb-5 animate-fade-in">
                             <span className="h-px w-8 bg-primary/50" aria-hidden="true" />
                             <span className="mx-3 text-[10px] md:text-[11px] font-medium tracking-[0.3em] uppercase text-primary">
                                 Coleção Verão 2026
@@ -23,19 +23,19 @@ function Hero() {
                         </div>
 
                         {/* Headline serif */}
-                        <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-[5rem] xl:text-[5.75rem] font-light leading-[1.02] tracking-tight text-foreground text-balance animate-fade-up">
+                        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-[3.75rem] xl:text-[4.5rem] font-light leading-[1.05] tracking-tight text-foreground text-balance animate-fade-up">
                             O abraço do sol
                             <span className="block italic text-primary mt-1">na sua pele.</span>
                         </h1>
 
                         {/* Sublinha */}
-                        <p className="mt-6 md:mt-8 text-base md:text-lg text-muted-foreground max-w-md mx-auto lg:mx-0 text-pretty leading-relaxed">
+                        <p className="mt-5 md:mt-6 text-base md:text-lg text-muted-foreground max-w-md mx-auto lg:mx-0 text-pretty leading-relaxed">
                             Peças desenhadas para o conforto que você merece todo dia.
                             Tecidos selecionados, acabamento impecável.
                         </p>
 
                         {/* CTAs */}
-                        <div className="mt-8 md:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4">
+                        <div className="mt-7 md:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4">
                             <Link
                                 href="/?categoria=Calcinhas"
                                 className="group inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-4 text-xs font-medium tracking-[0.2em] uppercase hover:bg-lyvest-600 transition-colors"
@@ -52,7 +52,7 @@ function Hero() {
                         </div>
 
                         {/* Trust bar editorial */}
-                        <div className="mt-10 md:mt-14 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-[11px] tracking-[0.18em] uppercase text-muted-foreground">
+                        <div className="mt-8 md:mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-[11px] tracking-[0.18em] uppercase text-muted-foreground">
                             <span className="flex items-center gap-2">
                                 <span className="text-primary text-base leading-none">★</span>
                                 4.9 / 5 — +10 mil clientes
@@ -64,7 +64,7 @@ function Hero() {
 
                     {/* ─── Coluna imagem editorial ─────────────────────────── */}
                     <div className="lg:col-span-7 xl:col-span-7 order-1 lg:order-2 relative">
-                        <div className="relative aspect-[4/5] md:aspect-[5/6] lg:aspect-[4/5] w-full overflow-hidden bg-muted/40">
+                        <div className="relative aspect-[4/5] md:aspect-[5/6] lg:aspect-[5/6] xl:aspect-[6/7] w-full max-h-[560px] lg:max-h-[600px] overflow-hidden bg-muted/40">
                             <Image
                                 src="/assets/banners/hero-editorial.jpg"
                                 alt="Coleção Lyvest verão 2026"
