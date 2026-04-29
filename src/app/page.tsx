@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
 import type { Metadata } from 'next';
 
@@ -7,30 +6,26 @@ import Hero from '@/components/features/Hero';
 import InfoStrip from '@/components/features/InfoStrip';
 
 export const metadata: Metadata = {
-    title: 'Ly Vest - Moda Íntima Premium',
-    description: 'Ly Vest - Moda íntima com conforto e sofisticação. Descubra nossa coleção exclusiva de lingeries, pijamas e acessórios.',
+    title: 'Lyvest — Moda Íntima Premium',
+    description: 'Lyvest. Moda íntima com conforto e sofisticação. Tecidos selecionados, acabamento impecável e o cuidado de quem entende de feminino.',
     openGraph: {
-        title: 'Ly Vest - Moda Íntima Premium',
-        description: 'Ly Vest - Moda íntima com conforto e sofisticação. Descubra nossa coleção exclusiva.',
+        title: 'Lyvest — Moda Íntima Premium',
+        description: 'Moda íntima com conforto e sofisticação. Coleção exclusiva.',
         images: ['https://lyvest.vercel.app/banner-slide-1.webp'],
     },
 };
 
-// Lazy load viewport-dependent components
 const HomePageClient = dynamic(() => import('@/components/pages/HomePageClient'), { ssr: true });
-const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: true });
 
 export default async function HomePage() {
     return (
-        <main className="min-h-screen">
-            {/* Critical Path: Loaded Immediately - Restoring Brand Gradient */}
-            <div className="bg-gradient-to-b from-lyvest-500 via-[#A0303C] to-white">
-                <Hero />
-                <InfoStrip />
-            </div>
+        <main id="main-content" className="min-h-screen bg-background">
+            {/* Critical Path — Hero editorial em fundo creme limpo */}
+            <Hero />
+            <InfoStrip />
 
-            {/* Lazy Load Product Grid for TBT win — cv-auto skips rendering until scrolled into view */}
-            <div className="container mx-auto px-4 pb-8 lg:pb-12 pt-2 lg:pt-4 cv-auto">
+            {/* Below-the-fold lazy-loaded com cv-auto */}
+            <div className="cv-auto">
                 <HomePageClient />
             </div>
         </main>

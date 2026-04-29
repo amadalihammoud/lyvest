@@ -1,83 +1,69 @@
-import { CreditCard, Truck, Percent, Lock } from 'lucide-react';
+import { Sparkles, RotateCcw, PackageOpen, MessageCircleHeart } from 'lucide-react';
 
-// Server Component — sem 'use client', sem hooks, sem hydration delay.
-// Textos em pt-BR hardcoded para evitar dependência do I18nContext
-// (que forçaria 'use client' e causaria CLS por mismatch de min-height).
-
-// All 4 items for desktop
-const allItems = [
+// Benefícios alinhados ao posicionamento premium da marca,
+// não os genéricos "6x sem juros / Frete grátis" que toda loja tem.
+const items = [
     {
-        icon: CreditCard,
-        title: 'Até 6x no Cartão de Crédito',
-        subtitle: 'Parcele sem juros',
+        icon: Sparkles,
+        title: 'Tecidos selecionados',
+        subtitle: 'Microfibra macia e algodão de toque suave',
     },
     {
-        icon: Truck,
-        title: 'Frete Grátis',
-        subtitle: 'Para todo o Brasil',
+        icon: RotateCcw,
+        title: 'Troca em 30 dias',
+        subtitle: 'Sem perguntas, sem complicação',
     },
     {
-        icon: Percent,
-        title: '10% de desconto',
-        subtitle: 'À vista no boleto',
+        icon: PackageOpen,
+        title: 'Embalagem discreta',
+        subtitle: 'Privacidade do envio à sua porta',
     },
     {
-        icon: Lock,
-        title: 'Compra 100% segura',
-        subtitle: 'Loja certificada',
+        icon: MessageCircleHeart,
+        title: 'Atendimento humano',
+        subtitle: 'Falamos com você pelo WhatsApp',
     },
 ];
 
-// Mobile: only the 2 most impactful items (user request)
-const mobileItems = [allItems[0], allItems[2]]; // "Até 6x" + "10% desconto"
+// Mobile: 2 cards mais impactantes
+const mobileItems = [items[0], items[1]];
 
 export default function InfoStrip() {
     return (
-        <section className="bg-transparent py-4 md:py-6 -mt-4 md:-mt-12 relative z-20">
+        <section className="bg-background border-y border-foreground/10 mt-12 md:mt-20" aria-label="Diferenciais Lyvest">
             <div className="container mx-auto px-4">
 
-                {/* --- MOBILE VERSION: 2 cards side by side (less DOM, no scroll) --- */}
-                <div className="md:hidden grid grid-cols-2 gap-3">
+                {/* MOBILE — 2 itens lado a lado, layout limpo sem cards pesados */}
+                <div className="md:hidden grid grid-cols-2 divide-x divide-foreground/10 py-6">
                     {mobileItems.map((item, index) => {
                         const Icon = item.icon;
                         return (
-                            <div
-                                key={index}
-                                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white shadow-sm border border-slate-100"
-                            >
-                                <div className="p-2 rounded-full bg-lyvest-50 shrink-0">
-                                    <Icon className="w-4 h-4 text-lyvest-500" />
-                                </div>
-                                <div className="min-w-0">
-                                    <h3 className="text-slate-800 font-bold text-xs leading-tight mb-0.5">
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-slate-500 text-[10px] leading-tight">
-                                        {item.subtitle}
-                                    </p>
-                                </div>
+                            <div key={index} className="px-4 text-center">
+                                <Icon className="w-5 h-5 text-primary mx-auto mb-2" aria-hidden="true" />
+                                <h3 className="font-medium text-foreground text-xs leading-tight mb-1">
+                                    {item.title}
+                                </h3>
+                                <p className="text-muted-foreground text-[10px] leading-snug">
+                                    {item.subtitle}
+                                </p>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* --- DESKTOP VERSION: All 4 items (icon left, text right) --- */}
-                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {allItems.map((item, index) => {
+                {/* DESKTOP — 4 itens com divisores verticais editoriais */}
+                <div className="hidden md:grid md:grid-cols-4 divide-x divide-foreground/10 py-10 lg:py-12">
+                    {items.map((item, index) => {
                         const Icon = item.icon;
                         return (
-                            <div key={index} className="flex items-center gap-4 p-4 border border-transparent hover:border-lyvest-100/50 rounded-xl transition-all duration-300 hover:bg-white/40">
-                                <div className="p-3 border border-lyvest-100 rounded-xl bg-white shadow-sm text-lyvest-500 shrink-0">
-                                    <Icon className="w-8 h-8 text-lyvest-500" />
-                                </div>
-                                <div className="text-left">
-                                    <h3 className="text-slate-700 font-bold text-base md:text-base lg:text-lg leading-tight mb-1">
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-slate-500 text-sm md:text-sm lg:text-base leading-tight">
-                                        {item.subtitle}
-                                    </p>
-                                </div>
+                            <div key={index} className="flex flex-col items-center text-center px-6">
+                                <Icon className="w-6 h-6 text-primary mb-4" aria-hidden="true" strokeWidth={1.5} />
+                                <h3 className="font-medium text-foreground text-sm tracking-wide uppercase mb-2">
+                                    {item.title}
+                                </h3>
+                                <p className="text-muted-foreground text-sm leading-relaxed max-w-[220px]">
+                                    {item.subtitle}
+                                </p>
                             </div>
                         );
                     })}

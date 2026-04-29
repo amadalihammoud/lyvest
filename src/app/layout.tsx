@@ -1,5 +1,4 @@
-import { Lato, Cookie } from 'next/font/google';
-import { Suspense } from 'react';
+import { Inter, Cormorant_Garamond } from 'next/font/google';
 
 import type { Metadata, Viewport } from 'next';
 
@@ -9,47 +8,47 @@ import ClientLayout from '@/components/layout/ClientLayout';
 export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
-    // Vermelho Carmim — cor principal, Manual de Marca Ly Vest §03
+    // Vermelho Carmim — cor principal, Manual de Marca Lyvest §03
     themeColor: '#7D2121',
 };
 
-// Font configuration with display: swap for better FCP
-// Inter font removed — Lato is the primary font, Inter was unused
-const lato = Lato({
-    weight: ['400', '700'],
+// Inter — sans corpo (substitui Lato com melhor legibilidade)
+const inter = Inter({
     subsets: ['latin'],
-    variable: '--font-lato',
+    variable: '--font-sans',
     display: 'swap',
-    adjustFontFallback: false, // Avoid extra CSS for fallback metrics — reduces render-blocking
+    adjustFontFallback: false,
 });
-const cookie = Cookie({
-    weight: ['400'],
+
+// Cormorant Garamond — serif editorial para títulos display
+const cormorant = Cormorant_Garamond({
+    weight: ['400', '500', '600', '700'],
     subsets: ['latin'],
-    variable: '--font-cookie',
+    variable: '--font-serif',
     display: 'swap',
     adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
     title: {
-        default: 'Ly Vest - Moda Íntima Premium',
-        template: '%s | Ly Vest'
+        default: 'Lyvest — Moda Íntima Premium',
+        template: '%s | Lyvest'
     },
-    description: 'Ly Vest - Moda íntima com conforto e sofisticação. Descubra nossa coleção exclusiva de lingeries, pijamas e acessórios.',
-    keywords: ['moda íntima', 'lingerie', 'conforto', 'sofisticação', 'ly vest', 'sutiã', 'calcinha', 'pijama'],
-    authors: [{ name: 'Ly Vest' }],
-    creator: 'Ly Vest',
-    publisher: 'Ly Vest',
+    description: 'Lyvest. Moda íntima com conforto e sofisticação. Tecidos selecionados, acabamento impecável e o cuidado de quem entende de feminino.',
+    keywords: ['moda íntima', 'lingerie', 'conforto', 'sofisticação', 'lyvest', 'sutiã', 'calcinha', 'pijama'],
+    authors: [{ name: 'Lyvest' }],
+    creator: 'Lyvest',
+    publisher: 'Lyvest',
     formatDetection: {
         email: false,
         address: false,
         telephone: false,
     },
     openGraph: {
-        title: 'Ly Vest - Moda Íntima Premium',
-        description: 'Ly Vest - Moda íntima com conforto e sofisticação. Descubra nossa coleção exclusiva.',
+        title: 'Lyvest — Moda Íntima Premium',
+        description: 'Moda íntima com conforto e sofisticação. Coleção exclusiva.',
         url: 'https://lyvest.vercel.app',
-        siteName: 'Ly Vest',
+        siteName: 'Lyvest',
         locale: 'pt_BR',
         type: 'website',
         images: [
@@ -57,14 +56,14 @@ export const metadata: Metadata = {
                 url: 'https://lyvest.vercel.app/assets/banners/banner-slide-1.webp',
                 width: 1200,
                 height: 630,
-                alt: 'Ly Vest - Moda Íntima',
+                alt: 'Lyvest — Moda Íntima',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Ly Vest - Moda Íntima Premium',
-        description: 'Ly Vest - Moda íntima com conforto e sofisticação.',
+        title: 'Lyvest — Moda Íntima Premium',
+        description: 'Moda íntima com conforto e sofisticação.',
         images: ['https://lyvest.vercel.app/assets/banners/banner-slide-1.webp'],
     },
     robots: {
@@ -83,31 +82,25 @@ export const metadata: Metadata = {
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import HeaderInteractive from '@/components/layout/HeaderInteractive';
+
 export default function RootLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-
     return (
-        <html lang="pt-BR" className={`${lato.variable} ${cookie.variable}`}>
+        <html lang="pt-BR" className={`${inter.variable} ${cormorant.variable} bg-background`}>
             <head>
-                {/* 1. LCP native responsive preloads: forces discovery 800ms earlier on Mobile/Desktop */}
+                {/* LCP native responsive preloads */}
                 <link rel="preload" href="/assets/banners/banner-slide-1-mobile.webp" as="image" type="image/webp" fetchPriority="high" media="(max-width: 767px)" />
                 <link rel="preload" href="/assets/banners/banner-slide-1.webp" as="image" type="image/webp" fetchPriority="high" media="(min-width: 768px)" />
 
-                {/* Preconnect for third-party origins loaded during page interaction.
-                    preconnect (vs dns-prefetch) also performs the TCP + TLS handshake
-                    early, saving ~100-200 ms on the first real request to each origin. */}
                 <link rel="preconnect" href="https://va.vercel-scripts.com" crossOrigin="anonymous" />
                 <link rel="preconnect" href="https://vitals.vercel-insights.com" crossOrigin="anonymous" />
-                {/* img.clerk.com only loads after user interaction (lazy Clerk) — dns-prefetch is enough */}
                 <link rel="dns-prefetch" href="https://img.clerk.com" />
                 <link rel="icon" type="image/png" href="/assets/pwa/pwa-192x192.png" />
                 <link rel="manifest" href="/assets/pwa/manifest.json" />
 
-                {/* Speculation Rules — prefetch likely navigation targets during idle time.
-                    Chromium 109+, gracefully ignored by other browsers. */}
                 <script
                     type="speculationrules"
                     dangerouslySetInnerHTML={{
@@ -126,8 +119,7 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            {/* Creme Marfim (#F5EDE8) + Preto Absoluto (#0D0D0D) — Manual de Marca §03 */}
-            <body className="bg-[#F5EDE8] text-[#0D0D0D] font-sans antialiased selection:bg-[#EAD9D1] selection:text-[#7D2121]">
+            <body className="bg-background text-foreground font-sans antialiased min-h-screen">
                 <HeaderInteractive />
                 <ClientLayout>
                     {children}
@@ -135,6 +127,6 @@ export default function RootLayout({
                 <Analytics />
                 <SpeedInsights />
             </body>
-        </html >
+        </html>
     );
 }

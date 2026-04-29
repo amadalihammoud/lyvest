@@ -45,7 +45,7 @@ function SignInPageContent() {
                         elements: {
                             rootBox: "w-full flex justify-center",
                             card: "shadow-none w-full border-none p-0 bg-transparent",
-                            headerTitle: "text-[#7D2121] text-2xl mb-2 font-bold font-cookie tracking-wide",
+                            headerTitle: "text-[#7D2121] text-3xl mb-2 font-serif font-light tracking-tight",
                             headerSubtitle: "text-slate-500 text-sm font-medium",
                             socialButtonsBlockButton: "border border-slate-200 hover:bg-rose-50 hover:border-rose-200 text-slate-600 transition-all duration-300",
                             socialButtonsBlockButtonText: "font-medium",
@@ -124,8 +124,8 @@ export default function SignInPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                     {/* Brand text at bottom */}
                     <div className="relative z-10 p-8 mt-auto">
-                        <h2 className="text-white text-3xl font-cookie mb-1">Ly Vest</h2>
-                        <p className="text-white/80 text-sm">Moda intima com conforto e sofisticacao</p>
+                        <h2 className="text-white font-serif text-4xl font-light tracking-tight mb-1">Lyvest</h2>
+                        <p className="text-white/80 text-[11px] tracking-[0.2em] uppercase">Moda íntima com conforto e sofisticação</p>
                     </div>
                 </div>
 
@@ -133,8 +133,8 @@ export default function SignInPage() {
                 <div className="w-full md:w-1/2 bg-white flex flex-col relative overflow-hidden">
                     {/* Mobile-only Logo */}
                     <div className="md:hidden pt-8 pb-4 flex flex-col items-center">
-                        <h1 className="text-4xl text-[#7D2121] font-cookie">Ly Vest</h1>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Moda Intima Premium</p>
+                        <h1 className="font-serif text-5xl font-light tracking-tight text-[#7D2121]">Lyvest</h1>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Moda Íntima Premium</p>
                     </div>
 
                     <div className="p-6 md:p-8 flex items-center justify-center flex-1 w-full overflow-y-auto">

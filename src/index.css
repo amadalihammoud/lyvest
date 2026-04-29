@@ -1,12 +1,30 @@
-/* ─── Manual de Marca Ly Vest v7 ─────────────────────────────────
+/* ─── Manual de Marca Lyvest v7 ─────────────────────────────────
    Paleta Principal:  Vermelho Carmim #7D2121 | Preto Absoluto #0D0D0D | Creme Marfim #F5EDE8
    Paleta Secundária: Terracota Rosé #C4927A | Siena #9E6B5A | Névoa Rosada #EAD9D1
-   Tipografia:        Helvetica Neue → Helvetica → Arial → Lato (fallback)
+   Tipografia:        Inter (sans, corpo) + Cormorant Garamond (serif, display)
+                      Helvetica/Arial mantidos como fallback fiel ao Manual §04
    ─────────────────────────────────────────────────────────────── */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* HSL components for tokens — usados via hsl(var(--token) / <alpha>) */
+    --background: 22 38% 93%;       /* #F5EDE8 — Creme Marfim */
+    --foreground: 0 0% 5%;          /* #0D0D0D — Preto Absoluto */
+    --muted: 22 25% 88%;            /* #EAD9D1 — Névoa Rosada */
+    --muted-foreground: 22 8% 44%;  /* #7A6E66 — Stone (neutro quente) */
+    --primary: 0 58% 31%;           /* #7D2121 — Vermelho Carmim */
+    --primary-foreground: 22 38% 96%;
+    --accent: 19 38% 62%;           /* #C4927A — Terracota Rosé */
+    --accent-foreground: 0 0% 5%;
+    --border: 22 18% 80%;
+    --ring: 0 58% 31%;
+    --radius: 0.5rem;
+  }
+}
 
 * {
   box-sizing: border-box;
@@ -23,58 +41,50 @@
   pointer-events: none !important;
 }
 
-body {
-  /* Tipografia oficial: Helvetica/Arial do sistema — Manual de Marca §04 */
-  font-family: 'Helvetica Neue', Helvetica, Arial, var(--font-lato), sans-serif;
-  /* Creme Marfim (#F5EDE8) — cor de fundo oficial — Manual de Marca §03 */
-  background-color: #F5EDE8;
-  /* Preto Absoluto (#0D0D0D) — cor de texto oficial */
-  color: #0D0D0D;
+html {
+  scroll-behavior: smooth;
+}
 
+body {
+  /* Inter primária + fallback fiel ao Manual (Helvetica/Arial) */
+  font-family: var(--font-sans), 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'cv11', 'cv02';
 }
 
-/* ─── WCAG contrast overrides — Vermelho Carmim #7D2121 — Manual §03 ─── */
-.bg-\[\#800020\],
-.bg-\[\#702121\],
-.bg-\[\#7D2121\] {
-  background-color: #7D2121 !important;
+/* Selection com cor da marca */
+::selection {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--primary));
 }
 
-.bg-\[\#600018\],
-.bg-\[\#5A1A1A\],
-.bg-\[\#651A1A\] {
-  background-color: #651A1A !important;
+/* ─── Tipografia editorial — utilitários ────────────────────────── */
+.font-display,
+.font-serif {
+  font-family: var(--font-serif), 'Cormorant Garamond', 'Georgia', serif;
+  font-feature-settings: 'liga', 'dlig', 'kern';
+  letter-spacing: -0.01em;
 }
 
-.text-\[\#800020\],
-.text-\[\#702121\],
-.text-\[\#7D2121\] {
-  color: #7D2121 !important;
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
 }
 
-.text-\[\#600018\],
-.text-\[\#5A1A1A\],
-.text-\[\#651A1A\] {
-  color: #651A1A !important;
-}
-
-.bg-sky-500 {
-  background-color: hsl(200, 70%, 45%) !important;
-}
-
-.bg-sky-600 {
-  background-color: hsl(200, 70%, 35%) !important;
-}
-
-.text-sky-500 {
-  color: hsl(200, 70%, 20%) !important;
-}
-
-.text-sky-600 {
-  color: hsl(200, 70%, 15%) !important;
+.editorial-rule {
+  display: inline-block;
+  width: 2.5rem;
+  height: 1px;
+  background-color: hsl(var(--primary));
+  vertical-align: middle;
+  margin: 0 0.625rem;
 }
 
 /* Screen Reader Only - visually hidden but accessible */
@@ -103,29 +113,27 @@ body {
   white-space: normal;
 }
 
-/* Scrollbar personalizada */
+/* Scrollbar personalizada — Carmim sobre Creme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: hsl(var(--muted) / 0.4);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #7D2121;
-  /* Vermelho Carmim — Manual de Marca v7 §03 */
+  background: hsl(var(--primary));
   border-radius: 4px;
-  border: 2px solid #F5EDE8;
+  border: 2px solid hsl(var(--background));
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #651A1A;
-  /* Vermelho Carmim escuro */
 }
 
-/* Hide scrollbar for elements with scrollbar-hide class */
+/* Hide scrollbar */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -135,29 +143,23 @@ body {
   display: none;
 }
 
-/* Line clamp and image-reveal removed — Tailwind 3.3+ has built-in line-clamp */
-
-/* Focus styles */
+/* Focus styles — Carmim com halo elegante */
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #7D2121;
-  /* Vermelho Carmim — Manual de Marca v7 §03 */
+  outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(125, 33, 33, 0.3);
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.18);
   z-index: 50;
 }
-
-/* Animation Keyframes — fade-in, scale-up, bounce-in, blob are defined in tailwind.config.js */
 
 @keyframes slide-up {
   from {
     opacity: 0;
     transform: translateY(100%);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -169,14 +171,11 @@ textarea:focus-visible {
     opacity: 1;
     transform: translateY(0);
   }
-
   to {
     opacity: 0;
     transform: translateY(100%);
   }
 }
-
-/* Custom Animation Classes — fade-in, scale-up, bounce-in, blob handled by Tailwind */
 
 .animate-slide-up {
   animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -190,10 +189,7 @@ textarea:focus-visible {
   animation-delay: 2s;
 }
 
-/* =================================
-   CONTENT-VISIBILITY — skip rendering for below-fold sections
-   Reduces TBT/FCP by deferring layout/paint of off-screen content
-   ================================= */
+/* CONTENT-VISIBILITY — defer below-fold paint */
 .cv-auto {
   content-visibility: auto;
   contain-intrinsic-size: auto 600px;
@@ -209,22 +205,16 @@ textarea:focus-visible {
   contain-intrinsic-size: auto 500px;
 }
 
-/* =================================
-   OTIMIZAÇÕES MOBILE
-   ================================= */
-
-/* Safe areas para iPhone com notch */
+/* OTIMIZAÇÕES MOBILE */
 @supports (padding: env(safe-area-inset-top)) {
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }
-
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
 
-/* Touch-friendly: mínimo 44px para áreas tocáveis */
 .touch-target {
   min-width: 44px;
   min-height: 44px;
@@ -233,9 +223,7 @@ textarea:focus-visible {
   justify-content: center;
 }
 
-/* Feedback tátil para botões */
 @media (hover: none) and (pointer: coarse) {
-
   button:active,
   a:active,
   .clickable:active {
@@ -245,9 +233,6 @@ textarea:focus-visible {
   }
 }
 
-/* mobile-scroll removed — not used in any component */
-
-/* Modal mobile fullscreen com melhor UX */
 @media (max-width: 768px) {
   .modal-mobile-full {
     position: fixed;
@@ -257,41 +242,26 @@ textarea:focus-visible {
     max-height: 100%;
     overflow-y: auto;
   }
-}
 
-/* Botão de fechar maior no mobile */
-@media (max-width: 768px) {
   .close-btn-mobile {
     min-width: 48px;
     min-height: 48px;
     font-size: 1.25rem;
   }
-}
-
-/* Input otimizado para mobile */
-@media (max-width: 768px) {
 
   input[type="text"],
   input[type="email"],
   input[type="search"] {
     font-size: 16px !important;
-    /* Previne zoom automático no iOS */
   }
-}
 
-/* Hero mais compacto no mobile */
-@media (max-width: 768px) {
   .hero-mobile-compact {
     padding-top: 1rem;
     padding-bottom: 2rem;
   }
-
-  /* hero-title-mobile removed — not used in any component */
 }
 
-/* Animações reduzidas para preferência do usuário */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {

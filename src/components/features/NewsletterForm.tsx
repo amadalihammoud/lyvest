@@ -1,17 +1,15 @@
-﻿// src/components/features/NewsletterForm.tsx
+// src/components/features/NewsletterForm.tsx
 import { Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 
 import { useDebounce } from '../../hooks/useDebounce';
 import { useI18n } from '../../hooks/useI18n';
 import { validateForm, newsletterSchema } from '../../utils/schemas';
-import { RateLimiter, createHoneypot, detectXSS } from '../../utils/security';
+import { RateLimiter, detectXSS } from '../../utils/security';
 
-// Rate limiter: 3 tentatives per minute
-const newsletterLimiter = new RateLimiter('newsletter', 3, 60000);
-
-// Honeypot anti-spam
 import Honeypot from '../ui/Honeypot';
+
+const newsletterLimiter = new RateLimiter('newsletter', 3, 60000);
 const honeypotFieldName = '_gotcha';
 
 function NewsletterForm() {
@@ -23,10 +21,8 @@ function NewsletterForm() {
     const [errors, setErrors] = useState<Record<string, string | undefined>>({});
     const [rateLimitError, setRateLimitError] = useState<boolean>(false);
 
-    // Debounce for real-time validation
     const debouncedEmail = useDebounce(email, 500);
 
-    // Real-time validation
     React.useEffect(() => {
         if (debouncedEmail) {
             const result = validateForm(newsletterSchema.pick({ email: true }), { email: debouncedEmail });
@@ -41,14 +37,11 @@ function NewsletterForm() {
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Check honeypot (anti-bot)
         if (honeypotValue) {
-            // Silently fail for bots
             setStatus('success');
             return;
         }
 
-        // Check rate limit
         if (!newsletterLimiter.attempt()) {
             setRateLimitError(true);
             setStatus('error');
@@ -56,13 +49,11 @@ function NewsletterForm() {
             return;
         }
 
-        // Check XSS
         if (detectXSS(email)) {
             setErrors({ email: t('errors.invalidCharacters') });
             return;
         }
 
-        // Validate form
         const result = validateForm(newsletterSchema, { email, consent });
 
         if (!result.success && result.errors) {
@@ -73,122 +64,104 @@ function NewsletterForm() {
         setStatus('loading');
         setErrors({});
 
-        // Simulate submission
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         setStatus('success');
         setEmail('');
         setConsent(false);
 
-        // Reset after 5 seconds
-        setTimeout(() => setStatus('idle'), 5000);
+        setTimeout(() => setStatus('idle'), 8000);
     }, [email, consent, honeypotValue, t]);
 
     if (status === 'success') {
         return (
-            <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
-                <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-                <div>
-                    <p className="font-bold text-green-700">{t('newsletter.success')}</p>
-                    <p className="text-sm text-green-600">{t('newsletter.successMessage')}</p>
+            <div className="flex flex-col items-center gap-4 p-6 bg-background/5 border border-background/15 backdrop-blur-sm">
+                <CheckCircle className="w-10 h-10 text-primary flex-shrink-0" strokeWidth={1.5} />
+                <div className="text-center">
+                    <p className="font-serif text-2xl text-background mb-1">Bem-vinda à Lyvest.</p>
+                    <p className="text-sm text-background/70 mb-4">Confira seu e-mail para o cupom de boas-vindas.</p>
+                    <div className="inline-flex items-center gap-3 px-4 py-2 border border-primary/40 bg-primary/10">
+                        <span className="text-[10px] tracking-[0.3em] uppercase text-primary/80">Seu cupom</span>
+                        <span className="font-mono text-base font-bold text-primary">LYVEST10</span>
+                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Honeypot - invisible field for bots */}
+        <form onSubmit={handleSubmit} className="space-y-5 max-w-md mx-auto" noValidate>
             <Honeypot
                 fieldName={honeypotFieldName}
                 value={honeypotValue}
                 onChange={(e) => setHoneypotValue(e.target.value)}
             />
 
-            {/* Email Field */}
-            <div>
-                <div className="relative">
+            {/* Campo Email + Botão integrados num input editorial */}
+            <div className="relative">
+                <div className={`flex items-stretch border-b ${errors.email ? 'border-red-400' : 'border-background/30 focus-within:border-primary'} transition-colors`}>
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value.slice(0, 100))}
-                        placeholder={t('newsletter.placeholder')}
-                        className={`w-full px-4 py-3 rounded-xl border ${errors.email
-                            ? 'border-red-300 focus:ring-red-200'
-                            : 'border-slate-200 focus:ring-[#F5E6E8]'
-                            } focus:outline-none focus:ring-2 transition-all`}
+                        placeholder="seu@email.com"
+                        className="flex-1 bg-transparent px-1 py-3 text-background placeholder:text-background/40 focus:outline-none"
                         disabled={status === 'loading'}
                         aria-invalid={!!errors.email}
                         aria-describedby={errors.email ? 'email-error' : undefined}
                     />
-                    {status === 'loading' && (
-                        <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#C05060] animate-spin" />
-                    )}
+                    <button
+                        type="submit"
+                        disabled={status === 'loading'}
+                        className="flex items-center justify-center gap-2 px-5 py-2 text-xs font-medium tracking-[0.2em] uppercase text-background hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="Inscrever-se"
+                    >
+                        {status === 'loading' ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                            <>
+                                Inscrever
+                                <Send className="w-3.5 h-3.5" aria-hidden="true" />
+                            </>
+                        )}
+                    </button>
                 </div>
                 {errors.email && (
-                    <p id="email-error" className="mt-1 text-sm text-[#F5E6E8]/300 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
+                    <p id="email-error" className="mt-2 text-xs text-red-300 flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
                         {t(errors.email)}
                     </p>
                 )}
             </div>
 
-            {/* Consent Checkbox */}
-            <label className="flex items-start gap-3 cursor-pointer group">
+            {/* Consent — minimalista */}
+            <label className="flex items-start gap-3 cursor-pointer text-left">
                 <input
                     type="checkbox"
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
-                    className="mt-0.5 w-5 h-5 rounded border-slate-300 text-lyvest-500 focus:ring-[#F5E6E8]"
+                    className="mt-0.5 w-4 h-4 accent-primary cursor-pointer"
                     disabled={status === 'loading'}
                 />
-                <span className={`text-sm ${errors.consent ? 'text-[#F5E6E8]/300' : 'text-slate-600'} group-hover:text-slate-800`}>
+                <span className={`text-xs leading-relaxed ${errors.consent ? 'text-red-300' : 'text-background/60'}`}>
                     {t('newsletter.consent')}
                 </span>
             </label>
             {errors.consent && (
-                <p className="text-sm text-[#F5E6E8]/300 flex items-center gap-1 -mt-2">
-                    <AlertCircle className="w-4 h-4" />
+                <p className="text-xs text-red-300 flex items-center gap-1.5 -mt-3">
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
                     {t(errors.consent)}
                 </p>
             )}
 
-            {/* Rate Limit Error */}
             {rateLimitError && errors.form && (
-                <p className="text-sm text-[#F5E6E8]/300 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
+                <p className="text-xs text-red-300 flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
                     {errors.form}
                 </p>
             )}
-
-            {/* Submit Button */}
-            <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-full hover:brightness-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {status === 'loading' ? (
-                    <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        {t('common.processing')}
-                    </>
-                ) : (
-                    <>
-                        <Send className="w-5 h-5" />
-                        {t('newsletter.button')}
-                    </>
-                )}
-            </button>
         </form>
     );
 }
 
 export default React.memo(NewsletterForm);
-
-
-
-
-
-
-
-

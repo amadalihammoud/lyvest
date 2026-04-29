@@ -3,34 +3,26 @@
 import { Smile } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
+import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 
-// Hero and InfoStrip moved to page.tsx for LCP optimization
-// import Hero from '@/components/features/Hero';
 import ProductCard from '@/components/product/ProductCard';
-// import InfoStrip from '@/components/features/InfoStrip';
 import { useCart } from '@/store/useCartStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';
 import { useModal } from '@/store/useModalStore';
 import { productsData } from '@/data/products';
-import { quickFilters } from '@/data/siteData';
 
-
-// Lazy load below-the-fold components — ssr: false to isolate heavy deps like Zod
+// Lazy load below-the-fold components
 const NewsletterForm = dynamic(() => import('@/components/features/NewsletterForm'), { ssr: false });
 const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: false });
 
-// 1. Dynamic Component: Handles URL params and Product Grid
+// 1. Product Showcase
 function ProductShowcase() {
     const router = useRouter();
 
     const [selectedCategory, setSelectedCategory] = useState('Todos');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Hydrate state from URL only on the client. 
-    // This allows the server to statically generate the default 'Todos' 
-    // product grid instantly in the initial HTML.
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
@@ -46,7 +38,6 @@ function ProductShowcase() {
     const { openModal } = useModal();
     const { t } = useI18n();
 
-    // Update URL when category/search changes (avoid loop by not depending on searchParams)
     const isFirstRender = useRef(true);
     useEffect(() => {
         if (isFirstRender.current) {
@@ -67,7 +58,6 @@ function ProductShowcase() {
         router.replace(newUrl, { scroll: false });
     }, [selectedCategory, searchQuery, router]);
 
-    // Filter products
     const filteredProducts = useMemo(() => {
         let result = productsData;
         if (selectedCategory !== 'Todos') {
@@ -87,7 +77,6 @@ function ProductShowcase() {
         return result;
     }, [selectedCategory, searchQuery]);
 
-    // Category mapping for translation
     const getCategoryTranslation = (cat: string) => {
         const map: Record<string, string> = {
             'Todos': 'all',
@@ -102,34 +91,43 @@ function ProductShowcase() {
         return t(`products.categories.${key}`) || cat;
     };
 
+    const sectionTitle = searchQuery
+        ? t('home.searchTitle', { query: searchQuery })
+        : selectedCategory === 'Todos'
+            ? 'Em destaque'
+            : getCategoryTranslation(selectedCategory);
+
     return (
-        <section id="products-grid" className="pt-4 pb-16 md:pt-8 bg-transparent min-h-[600px]">
+        <section id="products-grid" className="pt-16 md:pt-24 pb-16 md:pb-24 bg-background min-h-[600px]">
             <div className="container mx-auto px-4">
-                {/* Header da Seção */}
-                <div className="text-center mb-10 md:mb-12">
-                    <h2 className="text-[31px] md:text-5xl font-cookie text-lyvest-500 mb-2 md:mb-4 relative inline-block animate-fade-in"
-                        style={{ textShadow: "3px 3px 0px rgba(253, 226, 243, 1)" }}
-                    >
-                        {searchQuery
-                            ? t('home.searchTitle', { query: searchQuery })
-                            : selectedCategory === 'Todos'
-                                ? t('home.weekHighlights')
-                                : getCategoryTranslation(selectedCategory)}
+
+                {/* ─── Header editorial da seção ──────────────────────── */}
+                <div className="text-center mb-12 md:mb-16">
+                    <div className="flex items-center justify-center mb-5">
+                        <span className="h-px w-8 bg-primary/40" aria-hidden="true" />
+                        <span className="mx-4 text-[10px] md:text-[11px] font-medium tracking-[0.3em] uppercase text-primary">
+                            Lookbook
+                        </span>
+                        <span className="h-px w-8 bg-primary/40" aria-hidden="true" />
+                    </div>
+                    <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light text-foreground tracking-tight text-balance">
+                        {sectionTitle}
                     </h2>
-                    {/* Elemento decorativo subtil (opcional) */}
-                    <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#C05060] to-transparent mx-auto mt-2 rounded-full opacity-60"></div>
+                    <p className="mt-4 text-sm md:text-base text-muted-foreground max-w-md mx-auto">
+                        Selecionados pelo nosso time. Conforto e elegância no detalhe.
+                    </p>
                 </div>
 
                 {filteredProducts.length === 0 ? (
-                    <div className="text-center py-20 text-slate-400 animate-fade-in">
-                        <div className="bg-white inline-block p-6 rounded-full mb-4 shadow-sm">
-                            <Smile className="w-12 h-12 text-slate-300" />
+                    <div className="text-center py-20 text-muted-foreground animate-fade-in">
+                        <div className="bg-muted/40 inline-block p-6 rounded-full mb-4">
+                            <Smile className="w-12 h-12 text-muted-foreground/60" />
                         </div>
-                        <p className="text-xl font-medium">{t('home.noResultsTitle')}</p>
+                        <p className="font-serif text-2xl text-foreground">{t('home.noResultsTitle')}</p>
                         <p className="text-sm mt-2">{t('home.noResultsDesc')}</p>
                         <button
                             onClick={() => { setSelectedCategory('Todos'); setSearchQuery(''); }}
-                            className="mt-6 text-lyvest-500 font-bold hover:underline"
+                            className="mt-6 text-primary font-medium uppercase tracking-[0.18em] text-xs hover:underline underline-offset-4"
                         >
                             {t('home.viewAll')}
                         </button>
@@ -150,43 +148,52 @@ function ProductShowcase() {
                             />
                         ))}
                     </div>
-                )
-                }
-            </div >
-        </section >
+                )}
+            </div>
+        </section>
     );
 }
 
-// 3. Main Component: Renders Static Parts
+// 2. Main Component
 export default function HomePageClient() {
-    const { t } = useI18n();
-
     return (
         <>
-            {/* Static Product Grid - Instantly parsed from HTML */}
             <ProductShowcase />
 
-            {/* Testimonials moved here with ssr: false for JS diet */}
+            {/* Testimonials */}
             <div className="cv-auto-sm">
-                <Suspense fallback={<div className="h-64 bg-sky-50/30" />}>
+                <Suspense fallback={<div className="h-64 bg-muted/20" />}>
                     <Testimonials />
                 </Suspense>
             </div>
 
-            {/* Newsletter — cv-auto-sm skips rendering until scrolled into view */}
-            <section className="py-20 bg-[#F5EDE8] cv-auto-sm">
-                <div className="container mx-auto px-4 text-center max-w-2xl">
-                    {/* Newsletter heading */}
-                    <h2 className="text-3xl md:text-4xl font-cookie text-lyvest-500 mb-3"
-                        style={{ textShadow: "2px 2px 0px rgba(253, 226, 243, 1)" }}
-                    >
-                        {t('newsletter.title')}
+            {/* Newsletter editorial com cupom destacado */}
+            <section className="py-20 md:py-28 bg-foreground text-background cv-auto-sm relative overflow-hidden">
+                {/* Acento serif decorativo de fundo */}
+                <span
+                    aria-hidden="true"
+                    className="font-serif italic text-[28rem] leading-none absolute -top-32 -right-20 text-primary/10 select-none pointer-events-none"
+                >
+                    Lyvest
+                </span>
+
+                <div className="container mx-auto px-4 text-center max-w-2xl relative">
+                    <div className="flex items-center justify-center mb-5">
+                        <span className="h-px w-8 bg-primary/60" aria-hidden="true" />
+                        <span className="mx-4 text-[10px] md:text-[11px] font-medium tracking-[0.3em] uppercase text-primary">
+                            Carta Lyvest
+                        </span>
+                        <span className="h-px w-8 bg-primary/60" aria-hidden="true" />
+                    </div>
+
+                    <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-balance">
+                        Receba <span className="italic text-primary">10% off</span> na primeira compra.
                     </h2>
-                    <p className="text-slate-600 mb-8 text-base md:text-lg">
-                        {t('newsletter.subtitle')}
+                    <p className="mt-4 mb-10 text-base md:text-lg text-background/70 max-w-md mx-auto">
+                        Novidades, lançamentos e ofertas exclusivas direto no seu e-mail. Nada de spam.
                     </p>
                     <div className="min-h-[200px]">
-                        <Suspense fallback={<div className="h-12 w-full max-w-md mx-auto bg-slate-200 rounded-full animate-pulse" />}>
+                        <Suspense fallback={<div className="h-12 w-full max-w-md mx-auto bg-background/10 rounded-none animate-pulse" />}>
                             <NewsletterForm />
                         </Suspense>
                     </div>

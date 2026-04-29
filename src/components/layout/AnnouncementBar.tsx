@@ -1,7 +1,7 @@
 import { useI18n } from '../../hooks/useI18n';
 
 /**
- * Barra de anúncio promocional no topo da página
+ * Barra editorial de anúncio promocional no topo
  * Acessível para leitores de tela com role="status"
  */
 const AnnouncementBar: React.FC = () => {
@@ -12,9 +12,9 @@ const AnnouncementBar: React.FC = () => {
             role="status"
             aria-live="polite"
             aria-atomic="true"
-            className="bg-lyvest-500 text-white py-3 text-center shadow-md"
+            className="bg-primary text-primary-foreground py-2.5 text-center"
         >
-            <p className="text-[13px] md:text-lg font-bold tracking-tight md:tracking-normal px-1 md:px-4 whitespace-nowrap overflow-hidden text-ellipsis">
+            <p className="text-[11px] md:text-xs font-medium tracking-[0.2em] uppercase px-4 whitespace-nowrap overflow-hidden text-ellipsis">
                 {t('announcement.freeShipping')}
             </p>
         </div>

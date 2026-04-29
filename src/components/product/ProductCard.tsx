@@ -1,4 +1,4 @@
-﻿import { Heart, Eye, Minus, Plus } from 'lucide-react';
+import { Heart, Eye, Minus, Plus } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
@@ -45,10 +45,10 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
     };
 
     return (
-        <div data-testid="product-card" className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-[box-shadow,transform] duration-300 overflow-hidden relative border border-slate-100 flex flex-col h-full hover:-translate-y-1 min-w-[260px] sm:min-w-0">
+        <div data-testid="product-card" className="group bg-white transition-[box-shadow,transform] duration-300 overflow-hidden relative border border-foreground/8 hover:border-foreground/20 hover:shadow-md flex flex-col h-full min-w-[260px] sm:min-w-0">
             {/* Badge (Mais Vendido / Novo) */}
             {productBadge && (
-                <span className="absolute top-3 left-3 bg-lyvest-500 text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full z-20 shadow-md animate-fade-in tracking-wider">
+                <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[9px] uppercase font-medium px-2.5 py-1 z-20 animate-fade-in tracking-[0.2em]">
                     {productBadge}
                 </span>
             )}
@@ -101,19 +101,17 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                     </div>
                 </div>
 
-                <div className="p-4 flex flex-col flex-1">
-                    <h3 className="font-medium text-[#333333] mb-2 line-clamp-2 text-base group-hover:text-lyvest-500 transition-colors min-h-[3rem]">
+                <div className="p-5 flex flex-col flex-1">
+                    <h3 className="font-serif text-lg leading-tight text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors min-h-[3rem]">
                         {productName}
                     </h3>
 
-                    <div className="mt-auto mb-4 text-center">
-                        <span className="block text-2xl font-bold text-lyvest-500 mb-1">
+                    <div className="mt-auto mb-4">
+                        <span className="block text-xl font-medium text-foreground mb-1">
                             {formatCurrency(product.price)}
                         </span>
-                        <span className="text-xs text-slate-500 flex items-center justify-center gap-1">
-                            <span className="inline-block w-4 h-[1px] bg-slate-300"></span>
+                        <span className="text-[11px] text-muted-foreground tracking-wide">
                             {t('products.installments', { installments: 12, amount: formatCurrency(product.price / 12) })}
-                            <span className="inline-block w-4 h-[1px] bg-slate-300"></span>
                         </span>
                     </div>
 
@@ -139,11 +137,11 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                             </button>
                         </div>
 
-                        {/* Botão Comprar */}
+                        {/* Botão Comprar — sólido editorial */}
                         <button
                             data-testid="add-to-cart-button"
                             onClick={handleAddToCart}
-                            className="flex-1 h-10 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-full hover:brightness-90 transition-all shadow-sm hover:shadow-md active:scale-95 text-sm"
+                            className="flex-1 h-10 bg-primary text-primary-foreground font-medium tracking-[0.15em] uppercase text-[11px] hover:bg-lyvest-600 transition-colors active:scale-[0.98]"
                         >
                             {t('products.buy')}
                         </button>
