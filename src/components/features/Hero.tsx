@@ -9,10 +9,10 @@ function Hero() {
             aria-label="Coleção em destaque"
         >
             <div className="container mx-auto px-4 lg:px-8 pt-6 md:pt-8 lg:pt-10 pb-8 md:pb-10 lg:pb-12">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch lg:h-[460px] xl:h-[500px]">
 
                     {/* ─── Coluna texto editorial ──────────────────────────── */}
-                    <div className="lg:col-span-6 xl:col-span-6 order-2 lg:order-1 text-center lg:text-left">
+                    <div className="lg:col-span-6 xl:col-span-6 order-2 lg:order-1 text-center lg:text-left flex flex-col justify-center">
 
                         {/* Eyebrow */}
                         <div className="flex items-center justify-center lg:justify-start mb-4 md:mb-5 animate-fade-in">
@@ -64,7 +64,7 @@ function Hero() {
 
                     {/* ─── Coluna imagem editorial ─────────────────────────── */}
                     <div className="lg:col-span-6 xl:col-span-6 order-1 lg:order-2 relative">
-                        <div className="relative aspect-[4/5] md:aspect-[1/1] lg:aspect-[4/5] w-full max-h-[440px] lg:max-h-[480px] overflow-hidden bg-muted/40">
+                        <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-auto lg:h-full w-full max-h-[400px] lg:max-h-none overflow-hidden bg-muted/40">
                             <Image
                                 src="/assets/banners/hero-editorial.jpg"
                                 alt="Coleção Lyvest verão 2026"
