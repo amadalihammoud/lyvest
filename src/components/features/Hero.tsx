@@ -12,7 +12,7 @@ function Hero() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
                     {/* ─── Coluna texto editorial ──────────────────────────── */}
-                    <div className="lg:col-span-5 xl:col-span-5 order-2 lg:order-1 text-center lg:text-left">
+                    <div className="lg:col-span-6 xl:col-span-6 order-2 lg:order-1 text-center lg:text-left">
 
                         {/* Eyebrow */}
                         <div className="flex items-center justify-center lg:justify-start mb-4 md:mb-5 animate-fade-in">
@@ -23,7 +23,7 @@ function Hero() {
                         </div>
 
                         {/* Headline serif */}
-                        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-[3.75rem] xl:text-[4.5rem] font-light leading-[1.05] tracking-tight text-foreground text-balance animate-fade-up">
+                        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-[3.5rem] xl:text-[4rem] font-light leading-[1.05] tracking-tight text-foreground text-balance animate-fade-up">
                             O abraço do sol
                             <span className="block italic text-primary mt-1">na sua pele.</span>
                         </h1>
@@ -63,8 +63,8 @@ function Hero() {
                     </div>
 
                     {/* ─── Coluna imagem editorial ─────────────────────────── */}
-                    <div className="lg:col-span-7 xl:col-span-7 order-1 lg:order-2 relative">
-                        <div className="relative aspect-[4/5] md:aspect-[5/6] lg:aspect-[5/6] xl:aspect-[6/7] w-full max-h-[560px] lg:max-h-[600px] overflow-hidden bg-muted/40">
+                    <div className="lg:col-span-6 xl:col-span-6 order-1 lg:order-2 relative">
+                        <div className="relative aspect-[4/5] md:aspect-[1/1] lg:aspect-[4/5] w-full max-h-[440px] lg:max-h-[480px] overflow-hidden bg-muted/40">
                             <Image
                                 src="/assets/banners/hero-editorial.jpg"
                                 alt="Coleção Lyvest verão 2026"
@@ -87,13 +87,6 @@ function Hero() {
                             </div>
                         </div>
 
-                        {/* Acento decorativo serif (desktop) */}
-                        <span
-                            aria-hidden="true"
-                            className="hidden lg:block absolute -top-8 -left-10 font-serif italic text-[8rem] xl:text-[10rem] leading-none text-primary/8 select-none pointer-events-none"
-                        >
-                            Verão
-                        </span>
                     </div>
                 </div>
             </div>
