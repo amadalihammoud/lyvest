@@ -1,6 +1,7 @@
 // src/store/useCartStore.ts
 // Zustand store replacing CartContext — no provider needed
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { CART_CONFIG } from '../config/constants';
 
@@ -18,13 +19,6 @@ const CART_STORAGE_KEY = CART_CONFIG.STORAGE_KEY;
 const CART_MAX_ITEMS = CART_CONFIG.MAX_ITEMS;
 const CART_MAX_QUANTITY = CART_CONFIG.MAX_QUANTITY_PER_ITEM;
 const FREE_SHIPPING_MIN = 199;
-
-// Cupons válidos
-const VALID_COUPONS: Record<string, number> = {
-    'BEMVINDA10': 0.10,
-    'LYVEST2026': 0.15,
-    'PROMO5': 0.05,
-};
 
 function validateCartItem(item: unknown): CartItem | null {
     if (!item || typeof item !== 'object') return null;
@@ -46,28 +40,6 @@ function validateCartItem(item: unknown): CartItem | null {
     };
 }
 
-function loadCartFromStorage(): CartItem[] {
-    if (typeof window === 'undefined') return [];
-    try {
-        const saved = localStorage.getItem(CART_STORAGE_KEY);
-        if (!saved) return [];
-        const parsed = JSON.parse(saved);
-        if (!Array.isArray(parsed)) return [];
-        return parsed.slice(0, CART_MAX_ITEMS).map(validateCartItem).filter((item): item is CartItem => item !== null);
-    } catch {
-        try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* ignore */ }
-        return [];
-    }
-}
-
-function saveCartToStorage(items: CartItem[]) {
-    if (typeof window === 'undefined') return;
-    try {
-        const validItems = items.slice(0, CART_MAX_ITEMS).map(validateCartItem).filter(Boolean);
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(validItems));
-    } catch { /* ignore */ }
-}
-
 interface CartState {
     cartItems: CartItem[];
     couponCode: string | null;
@@ -79,9 +51,8 @@ interface CartState {
     removeFromCart: (id: number | string) => void;
     updateQuantity: (id: number | string, qty: number) => void;
     clearCart: () => void;
-    applyCoupon: (code: string) => { success: boolean; message: string };
+    applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
     removeCoupon: () => void;
-    _hydrate: () => void;
 
     // Computed (as getters via selectors)
     cartTotal: number;
@@ -102,7 +73,7 @@ function computeDerived(items: CartItem[], discount: number) {
     return { cartTotal, cartCount, discountAmount, finalTotal, freeShippingEligible };
 }
 
-export const useCartStore = create<CartState>((set, get) => ({
+export const useCartStore = create<CartState>()(persist((set, get) => ({
     cartItems: [],
     couponCode: null,
     discount: 0,
@@ -115,12 +86,6 @@ export const useCartStore = create<CartState>((set, get) => ({
     finalTotal: 0,
     freeShippingEligible: false,
     freeShippingMinimum: FREE_SHIPPING_MIN,
-
-    _hydrate: () => {
-        const savedCart = loadCartFromStorage();
-        const derived = computeDerived(savedCart, 0);
-        set({ cartItems: savedCart, _isHydrated: true, ...derived });
-    },
 
     addToCart: (product) => {
         const qtyToAdd = product.qty && typeof product.qty === 'number' && product.qty > 0 ? product.qty : 1;
@@ -142,14 +107,12 @@ export const useCartStore = create<CartState>((set, get) => ({
         } else {
             newItems = [...prev, validProduct];
         }
-        saveCartToStorage(newItems);
         set({ cartItems: newItems, ...computeDerived(newItems, state.discount) });
     },
 
     removeFromCart: (id) => {
         const state = get();
         const newItems = state.cartItems.filter((item) => item.id !== id);
-        saveCartToStorage(newItems);
         set({ cartItems: newItems, ...computeDerived(newItems, state.discount) });
     },
 
@@ -164,12 +127,10 @@ export const useCartStore = create<CartState>((set, get) => ({
                 item.id === id ? { ...item, qty: Math.min(Math.floor(qty), CART_MAX_QUANTITY) } : item
             );
         }
-        saveCartToStorage(newItems);
         set({ cartItems: newItems, ...computeDerived(newItems, state.discount) });
     },
 
     clearCart: () => {
-        saveCartToStorage([]);
         set({
             cartItems: [],
             couponCode: null,
@@ -178,22 +139,34 @@ export const useCartStore = create<CartState>((set, get) => ({
         });
     },
 
-    applyCoupon: (code: string) => {
+    applyCoupon: async (code: string) => {
         const normalizedCode = code.toUpperCase().trim();
         if (!normalizedCode) return { success: false, message: 'Digite um código válido.' };
 
-        if (Object.prototype.hasOwnProperty.call(VALID_COUPONS, normalizedCode)) {
-            const discountPercent = VALID_COUPONS[normalizedCode];
+        const cartTotal = get().cartTotal;
+
+        try {
+            const res = await fetch('/api/coupons/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: normalizedCode, cartTotal }),
+            });
+            const data: { valid: boolean; discount: number; message: string } = await res.json();
+
+            if (!data.valid) {
+                return { success: false, message: data.message };
+            }
+
             const state = get();
             set({
                 couponCode: normalizedCode,
-                discount: discountPercent,
-                ...computeDerived(state.cartItems, discountPercent),
+                discount: data.discount,
+                ...computeDerived(state.cartItems, data.discount),
             });
-            return { success: true, message: `Cupom ${normalizedCode} aplicado! (${discountPercent * 100}% OFF)` };
+            return { success: true, message: data.message };
+        } catch {
+            return { success: false, message: 'Erro ao validar cupom. Tente novamente.' };
         }
-
-        return { success: false, message: 'Cupom inválido ou expirado.' };
     },
 
     removeCoupon: () => {
@@ -204,15 +177,47 @@ export const useCartStore = create<CartState>((set, get) => ({
             ...computeDerived(state.cartItems, 0),
         });
     },
+}), {
+    name: CART_STORAGE_KEY,
+    storage: createJSONStorage(() => localStorage),
+    // Defer hydration to the client to avoid SSR mismatch (triggered below).
+    skipHydration: true,
+    // Only persist raw data — derived fields are recomputed on rehydration.
+    partialize: (state) => ({
+        cartItems: state.cartItems,
+        couponCode: state.couponCode,
+        discount: state.discount,
+    }),
+    // Re-validate persisted items and recompute derived values when merging.
+    merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<CartState>;
+        const validItems = Array.isArray(p.cartItems)
+            ? p.cartItems
+                .slice(0, CART_MAX_ITEMS)
+                .map(validateCartItem)
+                .filter((item): item is CartItem => item !== null)
+            : [];
+        const discount = typeof p.discount === 'number' ? p.discount : 0;
+        return {
+            ...current,
+            cartItems: validItems,
+            couponCode: typeof p.couponCode === 'string' ? p.couponCode : null,
+            discount,
+            ...computeDerived(validItems, discount),
+        };
+    },
+    onRehydrateStorage: () => () => {
+        useCartStore.setState({ _isHydrated: true });
+    },
 }));
 
-// Auto-hydrate on client
+// Defer hydration to the client (idle) to avoid SSR mismatch.
 if (typeof window !== 'undefined') {
-    // Use requestIdleCallback or setTimeout to defer hydration
+    const rehydrate = () => { void useCartStore.persist.rehydrate(); };
     if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => useCartStore.getState()._hydrate());
+        (window as any).requestIdleCallback(rehydrate);
     } else {
-        setTimeout(() => useCartStore.getState()._hydrate(), 0);
+        setTimeout(rehydrate, 0);
     }
 }
 
