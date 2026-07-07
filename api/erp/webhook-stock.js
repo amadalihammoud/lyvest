@@ -6,17 +6,17 @@
  * Receives real-time inventory updates from the ERP (Bling/Tiny).
  * Endpoint URL should be registered in the ERP's callback settings.
  */
+import { isAuthorizedInternal } from '../_utils/internalAuth'
+import { logError, logInfo } from '../_utils/logger'
+
 export default async function handler(req, res) {
-    // 1. Security Check: Validate Secret Token from ERP
-    // Bling/Tiny usually send a secret token in headers or query params
+    // 1. Security Check: fail-closed, comparação em tempo constante.
+    // Bling/Tiny enviam um token secreto em header ou query param.
     const incomingToken = req.headers['x-webhook-secret'] || req.query.token;
 
-    if (incomingToken !== process.env.ERP_WEBHOOK_SECRET) {
-        // Allow unauthenticated access ONLY in development/test environment if explicitly allowed
-        if (process.env.NODE_ENV === 'production' || !process.env.ALLOW_UNSAFE_WEBHOOKS) {
-            console.warn('[Stock Webhook] Unauthorized attempt:', req.socket.remoteAddress);
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
+    if (!isAuthorizedInternal(incomingToken, process.env.ERP_WEBHOOK_SECRET)) {
+        logError('erp/webhook-stock: tentativa não autorizada');
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 
     if (req.method !== 'POST') {
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Invalid payload: SKU required' });
         }
 
-        console.log(`[Stock Webhook] Received update for ${payload.sku}: ${payload.new_quantity}`);
+        logInfo(`erp/webhook-stock: update recebido para SKU ${payload.sku}`, payload.new_quantity);
 
         // TODO: Database Update Logic
         // 1. Find product by SKU in your Database (Postgres/Supabase)
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
         });
 
     } catch (error) {
-        console.error('[Stock Webhook] Error processing update:', error);
+        logError('erp/webhook-stock: erro ao processar update', error);
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 }

@@ -7,19 +7,18 @@
  * Usually triggered by a webhook or internal process.
  */
 import { getErpProvider } from '../_services/erp'
+import { isAuthorizedInternal } from '../_utils/internalAuth'
+import { logError } from '../_utils/logger'
 
 /**
  * ERP Sync Endpoint
  * POST /api/erp/sync-order
  */
 export default async function handler(req, res) {
-    // Security Check: Ensure the request comes from an authorized source
+    // Security Check: fail-closed, comparação em tempo constante, sem bypass em dev.
     const authHeader = req.headers.authorization;
-    if (authHeader !== `Bearer ${process.env.INTERNAL_API_KEY}`) {
-        // Allow if in development for testing
-        if (process.env.NODE_ENV === 'production') {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
+    if (!isAuthorizedInternal(authHeader, `Bearer ${process.env.INTERNAL_API_KEY}`)) {
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 
     if (req.method !== 'POST') {
@@ -36,7 +35,7 @@ export default async function handler(req, res) {
         return res.status(200).json(result);
 
     } catch (error) {
-        console.error('ERP Sync Error:', error);
+        logError('erp/sync-order: erro ao sincronizar', error);
         return res.status(500).json({
             error: 'Erro ao sincronizar com ERP',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
