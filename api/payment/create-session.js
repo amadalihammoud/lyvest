@@ -2,13 +2,9 @@
 import { z } from 'zod'
 import allowCors from '../_utils/cors'
 import { getPaymentProvider } from '../_services/payment'
-import { createClient } from '@supabase/supabase-js'
-
-// Initialize Supabase Client for backend validation
-const supabase = createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_ANON_KEY
-)
+import { supabase } from '../_lib/supabase'
+import { logError } from '../_utils/logger'
+import { limitOr429 } from '../_utils/rateLimit'
 
 // Define validation schema - we only trust IDs and Quantities from frontend
 const paymentSchema = z.object({
@@ -23,6 +19,9 @@ async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' })
     }
+
+    // Rate limit (Cofre): protege a criação de sessão de pagamento contra abuso.
+    if (!(await limitOr429(req, res, 'checkout'))) return
 
     try {
         // 1. Validate Input Structure
@@ -45,7 +44,7 @@ async function handler(req, res) {
             .in('id', productIds)
 
         if (dbError || !dbProducts || dbProducts.length === 0) {
-            console.error('Database error or products not found:', dbError)
+            logError('create-session: DB error or products not found', dbError)
             return res.status(500).json({ message: 'Failed to verify product information' })
         }
 
@@ -86,7 +85,7 @@ async function handler(req, res) {
         })
 
     } catch (error) {
-        console.error('Payment Session Error:', error)
+        logError('create-session: unexpected error', error)
         return res.status(500).json({
             message: 'Internal Server Error',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined

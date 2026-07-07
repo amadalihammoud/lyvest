@@ -2,6 +2,7 @@
 import { z } from 'zod'
 import allowCors from '../_utils/cors'
 import { getShippingProvider } from '../_services/shipping'
+import { limitOr429 } from '../_utils/rateLimit'
 
 // Define validation schema for shipping
 const shippingSchema = z.object({
@@ -17,6 +18,9 @@ async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' })
     }
+
+    // Rate limit (Cofre): protege o cálculo de frete contra abuso/scraping.
+    if (!(await limitOr429(req, res, 'shipping'))) return
 
     try {
         // 1. Zod Validation
