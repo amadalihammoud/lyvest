@@ -29,7 +29,7 @@ interface CartContextType {
     discount: number;
     discountAmount: number;
     finalTotal: number;
-    applyCoupon: (code: string) => { success: boolean; message: string };
+    applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
     removeCoupon: () => void;
     // Free shipping
     freeShippingEligible: boolean;
@@ -153,37 +153,37 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         }
     }, [cartItems, isHydrated]);
 
-    // Cupons Mockados (Simulação de Backend)
-    const VALID_COUPONS: Record<string, number> = {
-        'BEMVINDA10': 0.10,   // 10% off
-        'LYVEST2026': 0.15,   // 15% off
-        'PROMO5': 0.05,       // 5% off
-    };
+    // Cupons: fonte única no servidor (src/config/coupons.ts) — nunca no bundle do cliente.
+    // Validação exclusivamente via POST /api/coupons/validate.
 
     // Constante de frete grátis
     const FREE_SHIPPING_MIN = 199;
 
-    const applyCoupon = useCallback((code: string): { success: boolean, message: string } => {
+    const applyCoupon = useCallback(async (code: string): Promise<{ success: boolean, message: string }> => {
         const normalizedCode = code.toUpperCase().trim();
 
         if (!normalizedCode) {
             return { success: false, message: 'Digite um código válido.' };
         }
 
-        if (Object.prototype.hasOwnProperty.call(VALID_COUPONS, normalizedCode)) {
-            // Verificar regras (ex: mínimo de compra) se necessário
-            const discountPercent = VALID_COUPONS[normalizedCode];
+        try {
+            const res = await fetch('/api/coupons/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: normalizedCode }),
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.valid) {
+                return { success: false, message: data?.message || 'Cupom inválido ou expirado.' };
+            }
 
             setCouponCode(normalizedCode);
-            setDiscount(discountPercent);
-
-            return {
-                success: true,
-                message: `Cupom ${normalizedCode} aplicado! (${discountPercent * 100}% OFF)`
-            };
+            setDiscount(data.discount);
+            return { success: true, message: data.message };
+        } catch {
+            return { success: false, message: 'Não foi possível validar o cupom agora. Tente novamente.' };
         }
-
-        return { success: false, message: 'Cupom inválido ou expirado.' };
     }, []);
 
     const removeCoupon = useCallback(() => {

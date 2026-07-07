@@ -1,66 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { validateCoupon } from '@/config/coupons';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 /**
  * POST /api/coupons/validate
  *
- * Valida um cupom de desconto no servidor.
- * Os códigos e percentuais ficam SOMENTE no servidor — nunca expostos no bundle do cliente.
+ * Valida um cupom de desconto no servidor. Os códigos e percentuais ficam SOMENTE no
+ * servidor (src/config/coupons.ts) — nunca expostos no bundle do cliente.
  *
  * Body: { code: string, cartTotal?: number }
  * Response: { valid: boolean; discount: number; message: string }
  */
 
-interface CouponDefinition {
-    discount: number;       // 0.10 = 10%
-    minCartTotal?: number;  // Valor mínimo do carrinho para usar o cupom
-    maxUses?: number;       // Futuro: controle de uso via banco
-}
-
-// Cupons definidos apenas no servidor
-const VALID_COUPONS: Record<string, CouponDefinition> = {
-    BEMVINDA10:  { discount: 0.10 },
-    LYVEST2026:  { discount: 0.15, minCartTotal: 50 },
-    PROMO5:      { discount: 0.05 },
-};
+// Pilar 5: validação de entrada com Zod (nunca apenas typeof).
+const bodySchema = z.object({
+    code: z.string().min(1).max(32),
+    cartTotal: z.number().nonnegative().optional(),
+});
 
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-        const code: string = typeof body.code === 'string' ? body.code.toUpperCase().trim() : '';
-        const cartTotal: number = typeof body.cartTotal === 'number' ? body.cartTotal : 0;
+    // Pilar 4 (Cofre): rate limit em rota transacional; catálogo (Vitrine) fica livre.
+    const ip = getClientIp(request.headers);
+    const rl = await checkRateLimit(ip, 'coupon');
+    if (!rl.success) {
+        return NextResponse.json(
+            { valid: false, discount: 0, message: 'Muitas tentativas. Tente novamente em instantes.' },
+            { status: 429 }
+        );
+    }
 
-        if (!code) {
+    try {
+        const parsed = bodySchema.safeParse(await request.json());
+        if (!parsed.success) {
             return NextResponse.json(
                 { valid: false, discount: 0, message: 'Digite um código válido.' },
                 { status: 400 }
             );
         }
 
-        const coupon = VALID_COUPONS[code];
+        const { code, cartTotal = 0 } = parsed.data;
+        const result = validateCoupon(code, cartTotal);
 
-        if (!coupon) {
-            return NextResponse.json(
-                { valid: false, discount: 0, message: 'Cupom inválido ou expirado.' },
-                { status: 200 }
-            );
-        }
-
-        if (coupon.minCartTotal && cartTotal < coupon.minCartTotal) {
-            return NextResponse.json(
-                {
-                    valid: false,
-                    discount: 0,
-                    message: `Este cupom exige pedido mínimo de R$${coupon.minCartTotal.toFixed(2).replace('.', ',')}.`,
-                },
-                { status: 200 }
-            );
-        }
-
-        return NextResponse.json({
-            valid: true,
-            discount: coupon.discount,
-            message: `Cupom ${code} aplicado! (${coupon.discount * 100}% OFF)`,
-        });
+        // Cupom inexistente/inelegível não é erro de servidor: 200 com valid=false.
+        return NextResponse.json(
+            { valid: result.valid, discount: result.discount, message: result.message },
+            { status: 200 }
+        );
     } catch {
         return NextResponse.json(
             { valid: false, discount: 0, message: 'Erro ao validar cupom.' },

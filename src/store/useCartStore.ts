@@ -19,12 +19,8 @@ const CART_MAX_ITEMS = CART_CONFIG.MAX_ITEMS;
 const CART_MAX_QUANTITY = CART_CONFIG.MAX_QUANTITY_PER_ITEM;
 const FREE_SHIPPING_MIN = 199;
 
-// Cupons válidos
-const VALID_COUPONS: Record<string, number> = {
-    'BEMVINDA10': 0.10,
-    'LYVEST2026': 0.15,
-    'PROMO5': 0.05,
-};
+// Cupons: NÃO ficam no cliente (fonte única = servidor, src/config/coupons.ts).
+// A validação é feita via POST /api/coupons/validate.
 
 function validateCartItem(item: unknown): CartItem | null {
     if (!item || typeof item !== 'object') return null;
@@ -79,7 +75,7 @@ interface CartState {
     removeFromCart: (id: number | string) => void;
     updateQuantity: (id: number | string, qty: number) => void;
     clearCart: () => void;
-    applyCoupon: (code: string) => { success: boolean; message: string };
+    applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
     removeCoupon: () => void;
     _hydrate: () => void;
 
@@ -178,22 +174,32 @@ export const useCartStore = create<CartState>((set, get) => ({
         });
     },
 
-    applyCoupon: (code: string) => {
+    applyCoupon: async (code: string) => {
         const normalizedCode = code.toUpperCase().trim();
         if (!normalizedCode) return { success: false, message: 'Digite um código válido.' };
 
-        if (Object.prototype.hasOwnProperty.call(VALID_COUPONS, normalizedCode)) {
-            const discountPercent = VALID_COUPONS[normalizedCode];
-            const state = get();
+        try {
+            const { cartTotal } = get();
+            const res = await fetch('/api/coupons/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: normalizedCode, cartTotal }),
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.valid) {
+                return { success: false, message: data?.message || 'Cupom inválido ou expirado.' };
+            }
+
             set({
                 couponCode: normalizedCode,
-                discount: discountPercent,
-                ...computeDerived(state.cartItems, discountPercent),
+                discount: data.discount,
+                ...computeDerived(get().cartItems, data.discount),
             });
-            return { success: true, message: `Cupom ${normalizedCode} aplicado! (${discountPercent * 100}% OFF)` };
+            return { success: true, message: data.message };
+        } catch {
+            return { success: false, message: 'Não foi possível validar o cupom agora. Tente novamente.' };
         }
-
-        return { success: false, message: 'Cupom inválido ou expirado.' };
     },
 
     removeCoupon: () => {
