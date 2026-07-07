@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 env:
-  NODE_VERSION: '20.x'
+  NODE_VERSION: '24.x'
 
 jobs:
   lint:
@@ -120,9 +120,12 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
+      # Next.js gera .next/ (dist/ era resquício do Vite)
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: dist/
+          name: nextjs-build
+          path: |
+            .next/
+            !.next/cache/
           retention-days: 7
