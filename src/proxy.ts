@@ -1,0 +1,29 @@
+// Next.js 16: convenção "middleware" foi renomeada para "proxy".
+// Migrado de src/middleware.ts sem mudança de lógica (Clerk + matcher).
+
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+
+const isProtectedRoute = createRouteMatcher([
+    '/dashboard(.*)',
+    '/checkout(.*)',
+    '/api/checkout(.*)'
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+    // Proteger rotas autenticadas
+    if (isProtectedRoute(req)) {
+        await auth.protect();
+    }
+
+    return NextResponse.next();
+});
+
+export const config = {
+    matcher: [
+        // Skip Next.js internals and all static files, unless found in search params
+        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+        // Always run for API routes
+        '/(api|trpc)(.*)',
+    ],
+};
