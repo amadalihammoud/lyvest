@@ -1,6 +1,7 @@
 // src/store/useFavoritesStore.ts
 // Zustand store replacing FavoritesContext — no provider needed
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { FAVORITES_CONFIG } from '../config/constants';
 import { logger } from '../utils/logger';
@@ -18,30 +19,10 @@ function isUuid(id: unknown): boolean {
     return typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 }
 
-function loadFavoritesFromStorage(): (number | string)[] {
-    if (typeof window === 'undefined') return [];
-    try {
-        const saved = localStorage.getItem(FAVORITES_STORAGE_KEY);
-        if (!saved) return [];
-        const parsed = JSON.parse(saved);
-        if (!Array.isArray(parsed)) {
-            try { localStorage.removeItem(FAVORITES_STORAGE_KEY); } catch { /* ignore */ }
-            return [];
-        }
-        const validIds = parsed.filter(isValidId).slice(0, MAX_FAVORITES);
-        return [...new Set(validIds)] as (number | string)[];
-    } catch {
-        try { localStorage.removeItem(FAVORITES_STORAGE_KEY); } catch { /* ignore */ }
-        return [];
-    }
-}
-
-function saveFavoritesToStorage(favorites: (number | string)[]) {
-    if (typeof window === 'undefined') return;
-    try {
-        const validFavorites = favorites.filter(isValidId).slice(0, MAX_FAVORITES);
-        localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(validFavorites));
-    } catch { /* ignore */ }
+function sanitizeFavorites(list: unknown): (number | string)[] {
+    if (!Array.isArray(list)) return [];
+    const validIds = list.filter(isValidId).slice(0, MAX_FAVORITES);
+    return [...new Set(validIds)] as (number | string)[];
 }
 
 async function loadSupabase() {
@@ -60,7 +41,6 @@ interface FavoritesState {
     removeFavorite: (productId: number | string) => void;
     isFavorite: (productId: number | string) => boolean;
     clearFavorites: () => void;
-    _hydrate: () => void;
     _syncWithUser: (user: any) => Promise<void>;
     _setUserId: (id: string | null) => void;
     _addToSupabase: (productId: string, userId: string) => Promise<void>;
@@ -71,7 +51,7 @@ interface FavoritesState {
     maxFavorites: number;
 }
 
-export const useFavoritesStore = create<FavoritesState>((set, get) => ({
+export const useFavoritesStore = create<FavoritesState>()(persist((set, get) => ({
     favorites: [],
     _isHydrated: false,
     _userId: null,
@@ -79,11 +59,6 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
     // Computed defaults
     favoritesCount: 0,
     maxFavorites: MAX_FAVORITES,
-
-    _hydrate: () => {
-        const savedFavorites = loadFavoritesFromStorage();
-        set({ favorites: savedFavorites, _isHydrated: true, favoritesCount: savedFavorites.length });
-    },
 
     _setUserId: (id: string | null) => set({ _userId: id }),
 
@@ -116,7 +91,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
             if (error) throw error;
 
             const remoteIds = remoteFavorites?.map((f: any) => f.product_id) || [];
-            const localIds = loadFavoritesFromStorage();
+            const localIds = get().favorites;
             const newRemoteItems = localIds.filter(id => isUuid(id) && !remoteIds.includes(id as string));
 
             if (newRemoteItems.length > 0) {
@@ -126,8 +101,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
                 logger.info(`Synced ${newRemoteItems.length} favorites to cloud.`);
             }
 
-            const combinedIds = [...new Set([...localIds, ...remoteIds])];
-            saveFavoritesToStorage(combinedIds);
+            const combinedIds = sanitizeFavorites([...localIds, ...remoteIds]);
             set({ favorites: combinedIds, favoritesCount: combinedIds.length });
         } catch (err) { logger.error('Error syncing favorites:', err); }
     },
@@ -147,13 +121,11 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         if (isFav) {
             if (state._userId) state._removeFromSupabase(String(id), state._userId);
             const newFavs = state.favorites.filter((favId) => favId !== id);
-            saveFavoritesToStorage(newFavs);
             set({ favorites: newFavs, favoritesCount: newFavs.length });
         } else {
             if (state.favorites.length >= MAX_FAVORITES) return;
             if (state._userId) state._addToSupabase(String(id), state._userId);
             const newFavs = [...state.favorites, id];
-            saveFavoritesToStorage(newFavs);
             set({ favorites: newFavs, favoritesCount: newFavs.length });
         }
     },
@@ -166,7 +138,6 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
 
         if (state._userId) state._addToSupabase(String(productId), state._userId);
         const newFavs = [...state.favorites, productId];
-        saveFavoritesToStorage(newFavs);
         set({ favorites: newFavs, favoritesCount: newFavs.length });
     },
 
@@ -175,7 +146,6 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         const state = get();
         if (state._userId) state._removeFromSupabase(String(productId), state._userId);
         const newFavs = state.favorites.filter((id) => id !== productId);
-        saveFavoritesToStorage(newFavs);
         set({ favorites: newFavs, favoritesCount: newFavs.length });
     },
 
@@ -184,17 +154,32 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
     },
 
     clearFavorites: () => {
-        saveFavoritesToStorage([]);
         set({ favorites: [], favoritesCount: 0 });
+    },
+}), {
+    name: FAVORITES_STORAGE_KEY,
+    storage: createJSONStorage(() => localStorage),
+    // Defer hydration to the client to avoid SSR mismatch (triggered below).
+    skipHydration: true,
+    // Only persist the raw id list; favoritesCount is derived on rehydration.
+    partialize: (state) => ({ favorites: state.favorites }),
+    merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<FavoritesState>;
+        const favorites = sanitizeFavorites(p.favorites);
+        return { ...current, favorites, favoritesCount: favorites.length };
+    },
+    onRehydrateStorage: () => () => {
+        useFavoritesStore.setState({ _isHydrated: true });
     },
 }));
 
-// Auto-hydrate on client
+// Defer hydration to the client (idle) to avoid SSR mismatch.
 if (typeof window !== 'undefined') {
+    const rehydrate = () => { void useFavoritesStore.persist.rehydrate(); };
     if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => useFavoritesStore.getState()._hydrate());
+        (window as any).requestIdleCallback(rehydrate);
     } else {
-        setTimeout(() => useFavoritesStore.getState()._hydrate(), 0);
+        setTimeout(rehydrate, 0);
     }
 }
 

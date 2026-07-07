@@ -1,3 +1,6 @@
+// Next.js 16: convenção "middleware" foi renomeada para "proxy".
+// Migrado de src/middleware.ts sem mudança de lógica (Clerk + matcher).
+
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 

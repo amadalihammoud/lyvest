@@ -29,6 +29,7 @@ function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }
 
     const [couponInput, setCouponInput] = React.useState('');
     const [couponMessage, setCouponMessage] = React.useState('');
+    const [isApplyingCoupon, setIsApplyingCoupon] = React.useState(false);
 
     // Preencher input se já tiver cupom
     React.useEffect(() => {
@@ -41,9 +42,15 @@ function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }
         }
     }, [couponCode]);
 
-    const handleApplyCoupon = () => {
-        const result = applyCoupon(couponInput);
-        setCouponMessage(result.message);
+    const handleApplyCoupon = async () => {
+        if (isApplyingCoupon) return;
+        setIsApplyingCoupon(true);
+        try {
+            const result = await applyCoupon(couponInput);
+            setCouponMessage(result.message);
+        } finally {
+            setIsApplyingCoupon(false);
+        }
     };
 
     const handleRemoveCoupon = () => {
@@ -128,9 +135,10 @@ function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }
                             ) : (
                                 <button
                                     onClick={handleApplyCoupon}
-                                    className="px-4 py-2 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-colors"
+                                    disabled={isApplyingCoupon || !couponInput.trim()}
+                                    className="px-4 py-2 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Aplicar
+                                    {isApplyingCoupon ? 'Validando...' : 'Aplicar'}
                                 </button>
                             )}
                         </div>
