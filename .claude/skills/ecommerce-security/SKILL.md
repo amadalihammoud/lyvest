@@ -1,13 +1,13 @@
 ---
 name: ecommerce-security
 description: >-
-  Security Gate universal para e-commerce (AppSec / Secure by Design). Use SEMPRE
-  que for criar ou alterar qualquer feature que toque em dinheiro, dados de usuário
-  ou rotas de API — checkout, pagamento, cupom, desconto, frete, pedido, endereço,
-  carrinho, autenticação/login, reset de senha, upload, webhook, rota de API
-  (GET/POST/PUT/DELETE) ou query no banco. Antes de entregar o código, valide a sua
-  própria lógica contra o checklist de aceite desta skill. Escopo estritamente
-  defensivo: fortificação e auditoria dos próprios sistemas, nunca ataque a terceiros.
+  Portão de segurança (AppSec / Secure by Design) para e-commerce: valida cada feature
+  contra 5 pilares defensivos — Zero-Trust de preço/desconto, race conditions, controle
+  de acesso (IDOR/BOLA), anti-bot com preservação de SEO/GEO, e injeção/PII. Use ao criar
+  ou alterar checkout, pagamento, cupom, desconto, frete, pedido, endereço, carrinho,
+  autenticação/login, reset de senha, webhook, upload, rota de API (GET/POST/PUT/DELETE)
+  ou query no banco — validando o código contra o checklist de aceite antes de entregar.
+  Escopo estritamente defensivo (sistemas próprios), nunca ofensivo/ataque a terceiros.
 ---
 
 # 🛡️ Security Gate — E-commerce (Secure by Design)
@@ -99,6 +99,7 @@ e rate limiting. Trate a existência de duas superfícies como um smell a consol
 | [`references/03-controle-de-acesso.md`](references/03-controle-de-acesso.md) | 3 · BOLA/IDOR |
 | [`references/04-anti-bot-seo.md`](references/04-anti-bot-seo.md) | 4 · Anti-bot + SEO |
 | [`references/05-injecao-e-pii.md`](references/05-injecao-e-pii.md) | 5 · Injeção + PII |
+| [`references/evals.md`](references/evals.md) | Triggering + cobertura (regressão) |
 
 **Não duplicar** o que já existe no repo: `SECURITY_CHECKLIST.md` (checklist de deploy),
 `docs/SECURITY_RLS.md` (guia RLS) e `SECURITY.md` (política de divulgação). Esta skill é o
