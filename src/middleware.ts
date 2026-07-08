@@ -1,10 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+// Páginas que exigem login. As rotas de API transacionais se autoprotegem (rate limit +
+// Zod + recálculo server-side + HMAC/internal-auth nos webhooks), então NÃO passam por
+// aqui — o matcher antigo '/api/checkout(.*)' apontava para uma rota inexistente.
 const isProtectedRoute = createRouteMatcher([
     '/dashboard(.*)',
     '/checkout(.*)',
-    '/api/checkout(.*)'
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
