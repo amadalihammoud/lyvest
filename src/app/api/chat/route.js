@@ -3,7 +3,7 @@ import { streamText, tool } from 'ai';
 import { z } from 'zod';
 
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
-import { legalContent } from '@/server/data/legal.js';
+import { legalContent } from '@/server/data/legal';
 import { getProductsForContext } from '@/server/services/products.js';
 
 // Allow streaming responses up to 30 seconds
