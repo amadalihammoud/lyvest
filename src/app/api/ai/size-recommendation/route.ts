@@ -40,6 +40,57 @@ function translateHipType(type: string): string {
     return map[type] || type;
 }
 
+function buildContextPrompt(categoryName: string, m: BodyMeasurements): string {
+    if (categoryName.includes('sutia') || categoryName.includes('top')) {
+        return `CONTEXTO SUTIÃS E TOPS:
+- Sub-Busto (Tórax): ${m.exactUnderBust ? m.exactUnderBust + 'cm' : 'Não informado'}
+- Busto: ${m.exactBust ? m.exactBust + 'cm' : 'Não informado'}
+- Priorize conforto da respiração se medida do tórax for limítrofe.`;
+    }
+    if (categoryName.includes('calcinha') || categoryName.includes('cueca')) {
+        return `CONTEXTO CALCINHAS E CUECAS:
+- Cintura: ${m.exactWaist ? m.exactWaist + 'cm' : 'Não informado'}
+- Quadril: ${m.exactHips ? m.exactHips + 'cm' : 'Não informado'}
+- Coxa: ${m.exactThigh ? m.exactThigh + 'cm' : 'Não informado'}`;
+    }
+    if (categoryName.includes('pijama') || categoryName.includes('camisola') || categoryName.includes('robe')) {
+        return `CONTEXTO PIJAMAS: Foco na FLUIDEZ. Use a maior medida como determinante.`;
+    }
+    if (categoryName.includes('meia')) {
+        return `CONTEXTO MEIAS:
+- Nº Calçado: ${m.shoeSize || 'Não informado'}
+- Panturrilha: ${m.exactCalf ? m.exactCalf + 'cm' : 'Não informado'}`;
+    }
+    return '';
+}
+
+function buildPrompt(
+    m: BodyMeasurements,
+    product: ProductData,
+    categoryName: string,
+    sizeGuide: unknown,
+    contextPrompt: string
+): string {
+    return `Você é o Especialista em Fit e Modelagem da LyVest.
+
+MISSÃO: Garantir conforto absoluto, eliminando erro de compra.
+
+${contextPrompt}
+
+CLIENTE:
+- Altura/Peso: ${m.height}cm / ${m.weight}kg
+- Busto: ${m.exactBust || 'N/A'}, Tórax: ${m.exactUnderBust || 'N/A'}
+- Cintura: ${m.exactWaist || 'N/A'}, Quadril: ${m.exactHips || 'N/A'}
+- Tipo: ${translateBustType(m.bustType)} / ${translateHipType(m.hipType)}
+- Preferência: ${m.fitPreference === 'snug' ? 'justo' : 'confortável'}
+
+PRODUTO: ${product.name} (${categoryName})
+
+TABELA: ${JSON.stringify(sizeGuide, null, 2)}
+
+Retorne APENAS JSON: {"size":"P","confidence":0.92,"reason":"...","alternativeSize":"M"}`;
+}
+
 export async function POST(request: NextRequest) {
     try {
         const apiKey = process.env.OPENAI_API_KEY; // Server-only, NOT NEXT_PUBLIC_
@@ -68,44 +119,8 @@ export async function POST(request: NextRequest) {
 
         const sizeGuide = SIZE_GUIDE[categoryName] || SIZE_GUIDE.calcinhas;
 
-        // Build context prompt based on category
-        let contextPrompt = '';
-        if (categoryName.includes('sutia') || categoryName.includes('top')) {
-            contextPrompt = `CONTEXTO SUTIÃS E TOPS:
-- Sub-Busto (Tórax): ${measurements.exactUnderBust ? measurements.exactUnderBust + 'cm' : 'Não informado'}
-- Busto: ${measurements.exactBust ? measurements.exactBust + 'cm' : 'Não informado'}
-- Priorize conforto da respiração se medida do tórax for limítrofe.`;
-        } else if (categoryName.includes('calcinha') || categoryName.includes('cueca')) {
-            contextPrompt = `CONTEXTO CALCINHAS E CUECAS:
-- Cintura: ${measurements.exactWaist ? measurements.exactWaist + 'cm' : 'Não informado'}
-- Quadril: ${measurements.exactHips ? measurements.exactHips + 'cm' : 'Não informado'}
-- Coxa: ${measurements.exactThigh ? measurements.exactThigh + 'cm' : 'Não informado'}`;
-        } else if (categoryName.includes('pijama') || categoryName.includes('camisola') || categoryName.includes('robe')) {
-            contextPrompt = `CONTEXTO PIJAMAS: Foco na FLUIDEZ. Use a maior medida como determinante.`;
-        } else if (categoryName.includes('meia')) {
-            contextPrompt = `CONTEXTO MEIAS:
-- Nº Calçado: ${measurements.shoeSize || 'Não informado'}
-- Panturrilha: ${measurements.exactCalf ? measurements.exactCalf + 'cm' : 'Não informado'}`;
-        }
-
-        const prompt = `Você é o Especialista em Fit e Modelagem da LyVest.
-
-MISSÃO: Garantir conforto absoluto, eliminando erro de compra.
-
-${contextPrompt}
-
-CLIENTE:
-- Altura/Peso: ${measurements.height}cm / ${measurements.weight}kg
-- Busto: ${measurements.exactBust || 'N/A'}, Tórax: ${measurements.exactUnderBust || 'N/A'}
-- Cintura: ${measurements.exactWaist || 'N/A'}, Quadril: ${measurements.exactHips || 'N/A'}
-- Tipo: ${translateBustType(measurements.bustType)} / ${translateHipType(measurements.hipType)}
-- Preferência: ${measurements.fitPreference === 'snug' ? 'justo' : 'confortável'}
-
-PRODUTO: ${product.name} (${categoryName})
-
-TABELA: ${JSON.stringify(sizeGuide, null, 2)}
-
-Retorne APENAS JSON: {"size":"P","confidence":0.92,"reason":"...","alternativeSize":"M"}`;
+        const contextPrompt = buildContextPrompt(categoryName, measurements);
+        const prompt = buildPrompt(measurements, product, categoryName, sizeGuide, contextPrompt);
 
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',

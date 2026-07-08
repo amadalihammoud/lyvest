@@ -19,14 +19,15 @@ function verifySignature(rawBody: string, signature: string | null, secret: stri
     return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
-export async function POST(request: NextRequest) {
-    const rawBody = await request.text();
-    const secret = process.env.PAYMENT_WEBHOOK_SECRET;
-    const signature =
-        request.headers.get('x-webhook-signature') || request.headers.get('stripe-signature');
-    const isProd = process.env.NODE_ENV === 'production';
+type WebhookEvent = { id?: string; type?: string; data?: { object?: { id?: string } } };
 
-    // Gate: em produção, assinatura é obrigatória e válida.
+// Gate de assinatura: retorna a resposta de erro se inválida, ou null se OK.
+function checkSignatureGate(
+    rawBody: string,
+    signature: string | null,
+    secret: string | undefined,
+    isProd: boolean
+): NextResponse | null {
     if (isProd) {
         if (!secret) {
             logError('webhook: PAYMENT_WEBHOOK_SECRET ausente em produção');
@@ -36,13 +37,40 @@ export async function POST(request: NextRequest) {
             logError('webhook: assinatura inválida');
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
-    } else if (secret && signature) {
-        if (!verifySignature(rawBody, signature, secret)) {
-            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-        }
+        return null;
     }
+    if (secret && signature && !verifySignature(rawBody, signature, secret)) {
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
+    return null;
+}
 
-    let event: { id?: string; type?: string; data?: { object?: { id?: string } } };
+function handleEvent(event: WebhookEvent): void {
+    switch (event.type) {
+        case 'payment_intent.succeeded':
+        case 'order.paid':
+            logInfo('webhook: pagamento capturado', event.data?.object?.id);
+            // TODO(Fase 3): atualizar pedido para 'paid' + disparar ERP sync (atômico/idempotente).
+            break;
+        case 'payment_intent.payment_failed':
+            logInfo('webhook: pagamento falhou', event.data?.object?.id);
+            break;
+        default:
+            logInfo('webhook: tipo de evento não tratado', event.type);
+    }
+}
+
+export async function POST(request: NextRequest) {
+    const rawBody = await request.text();
+    const secret = process.env.PAYMENT_WEBHOOK_SECRET;
+    const signature =
+        request.headers.get('x-webhook-signature') || request.headers.get('stripe-signature');
+    const isProd = process.env.NODE_ENV === 'production';
+
+    const gateError = checkSignatureGate(rawBody, signature, secret, isProd);
+    if (gateError) return gateError;
+
+    let event: WebhookEvent;
     try {
         event = JSON.parse(rawBody || '{}');
     } catch {
@@ -58,21 +86,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ received: true, duplicate: true });
         }
 
-        switch (event.type) {
-            case 'payment_intent.succeeded':
-            case 'order.paid': {
-                logInfo('webhook: pagamento capturado', event.data?.object?.id);
-                // TODO(Fase 3): atualizar pedido para 'paid' + disparar ERP sync (atômico/idempotente).
-                break;
-            }
-            case 'payment_intent.payment_failed': {
-                logInfo('webhook: pagamento falhou', event.data?.object?.id);
-                break;
-            }
-            default:
-                logInfo('webhook: tipo de evento não tratado', event.type);
-        }
-
+        handleEvent(event);
         return NextResponse.json({ received: true });
     } catch (err) {
         logError('webhook: erro ao processar evento', err);
