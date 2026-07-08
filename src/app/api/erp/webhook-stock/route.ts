@@ -10,9 +10,8 @@ import { logError, logInfo } from '@/lib/server/logger';
  * (tempo constante), sem log de IP.
  */
 export async function POST(request: NextRequest) {
-    const url = new URL(request.url);
-    const incomingToken =
-        request.headers.get('x-webhook-secret') || url.searchParams.get('token') || '';
+    // F4 da security-review: token só via header (nunca query-param, que vaza em access logs).
+    const incomingToken = request.headers.get('x-webhook-secret') || '';
 
     if (!isAuthorizedInternal(incomingToken, process.env.ERP_WEBHOOK_SECRET ?? '')) {
         logError('erp/webhook-stock: tentativa não autorizada');

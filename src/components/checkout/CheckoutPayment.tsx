@@ -224,7 +224,7 @@ function SubmitButton({ t, isSubmitting, rateLimitError, handleSubmit }: {
 
 export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProps) {
     const { t, formatCurrency } = useI18n();
-    const { cartItems, finalTotal } = useCart();
+    const { cartItems, finalTotal, couponCode } = useCart();
     const { user } = useUser();
     // Use finalTotal from context if available (it handles discounts), otherwise fallback to prop
     const displayTotal = finalTotal !== undefined ? finalTotal : total;
@@ -338,7 +338,9 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
                     // Adding total for completeness, though service might calc it
                     total: displayTotal,
                     currency: 'BRL',
-                    orderId: `LV-${Date.now()}`
+                    orderId: `LV-${Date.now()}`,
+                    // Zero-Trust: só o CÓDIGO do cupom; o servidor revalida e recalcula o desconto.
+                    coupon: couponCode || undefined,
                 }) as unknown as PaymentSession;
 
                 if (session && session.checkoutUrl) {

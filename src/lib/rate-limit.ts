@@ -30,6 +30,15 @@ const hasRedis = Boolean(
         (process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN)
 );
 
+// F3 da security-review: sem Redis o rate limit é fail-open. Em produção isso é um risco
+// silencioso (checkout/login sem proteção) — avisa alto no boot para não passar batido.
+if (!hasRedis && process.env.NODE_ENV === 'production') {
+    console.error(
+        '[rate-limit] ATENÇÃO: UPSTASH_REDIS_REST_URL/TOKEN ausentes em produção — ' +
+            'rate limiting DESATIVADO (fail-open) em checkout/login/cupom. Configure o Upstash.'
+    );
+}
+
 const limiters = new Map<RateLimitTier, Ratelimit>();
 
 function getLimiter(tier: RateLimitTier): Ratelimit | null {

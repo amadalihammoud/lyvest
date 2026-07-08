@@ -1,6 +1,8 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
+import { logError } from '@/lib/server/logger';
+
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
@@ -19,7 +21,7 @@ export async function GET() {
             }
         });
     } catch (error) {
-        console.error('Error fetching user for header:', error);
+        logError('auth/me: erro ao buscar usuário', error);
         return NextResponse.json({ user: null }, { status: 500 });
     }
 }

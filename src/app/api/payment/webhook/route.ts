@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { markEventProcessed } from '@/lib/server/idempotency';
 import { logError, logInfo } from '@/lib/server/logger';
+import { fulfillOrderPaid } from '@/server/services/orders';
 
 /**
  * POST /api/payment/webhook
@@ -19,7 +20,11 @@ function verifySignature(rawBody: string, signature: string | null, secret: stri
     return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
-type WebhookEvent = { id?: string; type?: string; data?: { object?: { id?: string } } };
+type WebhookEvent = {
+    id?: string;
+    type?: string;
+    data?: { object?: { id?: string; metadata?: { orderNumber?: string } } };
+};
 
 // Gate de assinatura: retorna a resposta de erro se inválida, ou null se OK.
 function checkSignatureGate(
@@ -45,13 +50,17 @@ function checkSignatureGate(
     return null;
 }
 
-function handleEvent(event: WebhookEvent): void {
+async function handleEvent(event: WebhookEvent): Promise<void> {
     switch (event.type) {
         case 'payment_intent.succeeded':
-        case 'order.paid':
+        case 'order.paid': {
             logInfo('webhook: pagamento capturado', event.data?.object?.id);
-            // TODO(Fase 3): atualizar pedido para 'paid' + disparar ERP sync (atômico/idempotente).
+            // Fulfillment atômico e idempotente: decremento de estoque + resgate de cupom
+            // de uso único (RPC mark_order_paid). No-op fail-safe sem service-role.
+            const orderNumber = event.data?.object?.metadata?.orderNumber;
+            await fulfillOrderPaid(orderNumber);
             break;
+        }
         case 'payment_intent.payment_failed':
             logInfo('webhook: pagamento falhou', event.data?.object?.id);
             break;
@@ -86,7 +95,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ received: true, duplicate: true });
         }
 
-        handleEvent(event);
+        await handleEvent(event);
         return NextResponse.json({ received: true });
     } catch (err) {
         logError('webhook: erro ao processar evento', err);
