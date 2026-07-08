@@ -38,33 +38,94 @@ const TunerInput = React.memo(({ label, value, onChange, min, max }: {
     </div>
 ));
 
+// Detecção de categoria por keywords — extraída para manter o componente com baixa complexidade.
+function sizeCatMatches(s: string, keywords: string[]): boolean {
+    return keywords.some((k) => s.includes(k));
+}
+
+function resolveSizeCategory(product: Product): string {
+    const cat = typeof product.category === 'string'
+        ? product.category.toLowerCase()
+        : Array.isArray(product.category)
+            ? product.category[0]?.slug?.toLowerCase()
+            : 'lingerie';
+    const name = product.name?.toLowerCase() || '';
+    const inCat = (kw: string[]) => !!cat && sizeCatMatches(cat, kw);
+
+    if (inCat(['sutia', 'sutiã', 'soutien', 'bra', 'top', 'bralette']) || sizeCatMatches(name, ['sutia', 'sutiã', 'bra'])) return 'bra';
+    if (inCat(['calcinha', 'cueca', 'panty'])) return 'underwear';
+    if (inCat(['meia'])) return 'socks';
+    if (inCat(['pijama', 'camisola', 'robe'])) return 'sleepwear';
+    return 'general';
+}
+
+interface MeasurementTunersProps {
+    shouldShowBustField: boolean;
+    shouldShowUnderbustField: boolean;
+    shouldShowWaistField: boolean;
+    shouldShowHipField: boolean;
+    shouldShowShoulderField: boolean;
+    productGender: string;
+    measurements: BodyMeasurements;
+    onBust: (v: number) => void;
+    onUnderbust: (v: number) => void;
+    onWaist: (v: number) => void;
+    onHips: (v: number) => void;
+    onShoulder: (v: number) => void;
+}
+
+// Extraído para manter SizeCalculator com baixa complexidade (render idêntico).
+function MeasurementTuners(p: MeasurementTunersProps) {
+    return (
+        <>
+            {p.shouldShowBustField && (
+                <TunerInput
+                    label={p.productGender === 'male' ? 'Peito' : 'Tórax (Busto)'}
+                    value={p.measurements.exactBust || 90}
+                    onChange={p.onBust}
+                    min={70} max={130}
+                />
+            )}
+            {p.shouldShowUnderbustField && (
+                <TunerInput
+                    label="Baixo do Busto"
+                    value={p.measurements.exactUnderBust || 75}
+                    onChange={p.onUnderbust}
+                    min={60} max={100}
+                />
+            )}
+            {p.shouldShowWaistField && (
+                <TunerInput
+                    label="Cintura"
+                    value={p.measurements.exactWaist || 70}
+                    onChange={p.onWaist}
+                    min={50} max={110}
+                />
+            )}
+            {p.shouldShowHipField && (
+                <TunerInput
+                    label="Quadril"
+                    value={p.measurements.exactHips || 100}
+                    onChange={p.onHips}
+                    min={80} max={140}
+                />
+            )}
+            {p.shouldShowShoulderField && (
+                <TunerInput
+                    label="Largura dos Ombros"
+                    value={p.measurements.shoulderWidth || 40}
+                    onChange={p.onShoulder}
+                    min={30} max={55}
+                />
+            )}
+        </>
+    );
+}
+
 export default function SizeCalculator({ onCalculate, isLoading, initialMeasurements, product }: SizeCalculatorProps) {
     const productGender = getProductGender(product);
 
-    // Identificar categoria do produto para mostrar campos relevantes
-    const getProductCategory = () => {
-        const cat = typeof product.category === 'string'
-            ? product.category.toLowerCase()
-            : Array.isArray(product.category)
-                ? product.category[0]?.slug?.toLowerCase()
-                : 'lingerie';
-
-        const name = product.name?.toLowerCase() || '';
-
-        // Detectar SUTIÃ com mais variações
-        if (cat?.includes('sutia') || cat?.includes('sutiã') || cat?.includes('soutien') ||
-            cat?.includes('bra') || cat?.includes('top') || cat?.includes('bralette') ||
-            name.includes('sutia') || name.includes('sutiã') || name.includes('bra')) {
-            return 'bra';
-        }
-
-        if (cat?.includes('calcinha') || cat?.includes('cueca') || cat?.includes('panty')) return 'underwear';
-        if (cat?.includes('meia')) return 'socks';
-        if (cat?.includes('pijama') || cat?.includes('camisola') || cat?.includes('robe')) return 'sleepwear';
-        return 'general';
-    };
-
-    const category = getProductCategory();
+    const category = resolveSizeCategory(product);
 
     // Determinar quais campos mostrar baseado na categoria
     const shouldShowBustField = category !== 'underwear'; // NÃO mostrar busto/peito para cuecas/calcinhas
@@ -195,56 +256,20 @@ export default function SizeCalculator({ onCalculate, isLoading, initialMeasurem
                         </h3>
 
 
-                        {/* Busto / Tórax / Peito - Apenas se relevante */}
-                        {shouldShowBustField && (
-                            <TunerInput
-                                label={productGender === 'male' ? 'Peito' : 'Tórax (Busto)'}
-                                value={measurements.exactBust || 90}
-                                onChange={handleBustChange}
-                                min={70} max={130}
-                            />
-                        )}
-
-                        {/* Baixo do Busto - APENAS para sutiãs */}
-                        {shouldShowUnderbustField && (
-                            <TunerInput
-                                label="Baixo do Busto"
-                                value={measurements.exactUnderBust || 75}
-                                onChange={handleUnderbustChange}
-                                min={60} max={100}
-                            />
-                        )}
-
-
-                        {/* Cintura - NÃO mostrar para sutiãs */}
-                        {shouldShowWaistField && (
-                            <TunerInput
-                                label="Cintura"
-                                value={measurements.exactWaist || 70}
-                                onChange={handleWaistChange}
-                                min={50} max={110}
-                            />
-                        )}
-
-                        {/* Quadril - NÃO mostrar para sutiãs */}
-                        {shouldShowHipField && (
-                            <TunerInput
-                                label="Quadril"
-                                value={measurements.exactHips || 100}
-                                onChange={handleHipsChange}
-                                min={80} max={140}
-                            />
-                        )}
-
-                        {/* Largura dos Ombros - APENAS para pijamas */}
-                        {shouldShowShoulderField && (
-                            <TunerInput
-                                label="Largura dos Ombros"
-                                value={measurements.shoulderWidth || 40}
-                                onChange={handleShoulderChange}
-                                min={30} max={55}
-                            />
-                        )}
+                        <MeasurementTuners
+                            shouldShowBustField={shouldShowBustField}
+                            shouldShowUnderbustField={shouldShowUnderbustField}
+                            shouldShowWaistField={shouldShowWaistField}
+                            shouldShowHipField={shouldShowHipField}
+                            shouldShowShoulderField={shouldShowShoulderField}
+                            productGender={productGender}
+                            measurements={measurements}
+                            onBust={handleBustChange}
+                            onUnderbust={handleUnderbustChange}
+                            onWaist={handleWaistChange}
+                            onHips={handleHipsChange}
+                            onShoulder={handleShoulderChange}
+                        />
                     </div>
 
                     {/* Preferência */}
