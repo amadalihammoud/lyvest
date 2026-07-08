@@ -7,6 +7,8 @@
  * 2. Implement the sendOrder method
  */
 
+import { logInfo } from '../../lib/server/logger.js';
+
 // Base Class (Interface)
 class ErpProvider {
     /**
@@ -22,7 +24,7 @@ class ErpProvider {
 // Mock Implementation
 class MockErpProvider extends ErpProvider {
     async sendOrder(orderData) {
-        console.log('[MockERP] Syncing order:', orderData.id);
+        logInfo('MockERP: sincronizando pedido', orderData.id);
 
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 500));

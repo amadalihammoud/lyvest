@@ -1,12 +1,12 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
-import { getProductsForContext } from '../_services/products.js';
+
+import { legalContent } from '@/server/data/legal.js';
+import { getProductsForContext } from '@/server/services/products.js';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
-
-import { legalContent } from '../_data/legal.js';
 
 // Format legal info for prompt
 const policies = `
@@ -46,7 +46,7 @@ export async function POST(req) {
   const systemPrompt = `
   You are Ly, the AI Personal Stylist for Ly Vest, an elegant intimate fashion store.
   Seu nome é "Ly". Você é a IA da Ly Vest. Seu tom é amigável, sofisticado e prestativo.
-  
+
   ### CONTEXTO DA LOJA (POLÍTICAS):
   ${policies}
 
@@ -62,7 +62,7 @@ export async function POST(req) {
   - Para conforto: Indique peças de algodão ou modal.
   - Para ocasiões especiais: Indique peças de renda.
   - Se o cliente não souber o tamanho, pergunte medidas de busto/quadril.
-  
+
   Se o cliente disser "quero comprar" ou "adicione ao carrinho", CHAME A FERRAMENTA \`addToCart\` com o ID do produto.
   `;
 

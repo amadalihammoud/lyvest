@@ -8,6 +8,8 @@
  * 3. Add a case in getShippingProvider()
  */
 
+import { logInfo } from '../../lib/server/logger.js';
+
 // Base Class (Interface)
 class ShippingProvider {
     /**
@@ -25,7 +27,7 @@ class ShippingProvider {
 // Mock Implementation
 class MockShippingProvider extends ShippingProvider {
     async calculate({ zipCode, items }) {
-        console.log(`[MockShipping] Calculating for CEP: ${zipCode}, Items: ${items.length}`);
+        logInfo('MockShipping: calculando frete', `CEP ${zipCode}, ${items.length} itens`);
 
         // Logic currently used in the mock:
         // Free shipping if total > 300

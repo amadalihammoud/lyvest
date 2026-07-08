@@ -21,6 +21,7 @@ export function logError(context, detail) {
 
 export function logInfo(context, detail) {
     if (isDev) {
+        // eslint-disable-next-line no-console
         console.log(`[INFO] ${context}`, detail ?? '');
     }
 }

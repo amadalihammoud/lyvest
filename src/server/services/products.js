@@ -1,5 +1,6 @@
-import { supabase, isSupabaseConfigured } from '../_lib/supabase.js';
-import { mockProducts } from '../_data/mockProducts.js';
+import { logError } from '../../lib/server/logger.js';
+import { mockProducts } from '../data/mockProducts.js';
+import { supabase, isSupabaseConfigured } from '../supabase.js';
 
 /**
  * Busca produtos ativos para contexto do chat
@@ -25,7 +26,7 @@ export async function getProductsForContext(limit = 20) {
             .limit(limit);
 
         if (error) {
-            console.error('Erro ao buscar produtos para chat:', error);
+            logError('products: erro ao buscar produtos para chat', error);
             return [];
         }
 
@@ -41,7 +42,7 @@ export async function getProductsForContext(limit = 20) {
         }));
 
     } catch (e) {
-        console.error('Erro no serviço de produtos (Chat):', e);
+        logError('products: erro no serviço de produtos (chat)', e);
         return [];
     }
 }

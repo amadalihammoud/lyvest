@@ -8,6 +8,8 @@
  * 3. Add a case in getPaymentProvider()
  */
 
+import { logInfo } from '../../lib/server/logger.js';
+
 // Base Class (Interface)
 class PaymentProvider {
     /**
@@ -25,7 +27,7 @@ class PaymentProvider {
 // Mock Implementation for Development/Testing
 class MockPaymentProvider extends PaymentProvider {
     async createSession({ items, currency }) {
-        console.log('[MockPayment] Creating session for', items.length, 'items');
+        logInfo('MockPayment: criando sessão', `${items.length} itens`);
 
         const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const randomId = Math.random().toString(36).substring(7);

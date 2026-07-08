@@ -11,7 +11,7 @@ import { Ratelimit } from '@upstash/ratelimit';
 
 import { redis } from '../services/redis';
 
-export type RateLimitTier = 'auth' | 'checkout' | 'coupon' | 'form';
+export type RateLimitTier = 'auth' | 'checkout' | 'shipping' | 'coupon' | 'form';
 
 type TierConfig = { limit: number; window: `${number} ${'s' | 'm' | 'h'}` };
 
@@ -19,6 +19,7 @@ type TierConfig = { limit: number; window: `${number} ${'s' | 'm' | 'h'}` };
 const TIERS: Record<RateLimitTier, TierConfig> = {
     auth: { limit: 5, window: '5 m' }, // login / reset de senha
     checkout: { limit: 10, window: '1 m' }, // criação de pagamento / checkout
+    shipping: { limit: 30, window: '1 m' }, // cálculo de frete (mais permissivo)
     coupon: { limit: 20, window: '1 m' }, // validação de cupom
     form: { limit: 10, window: '1 m' }, // newsletter / contato
 };
