@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { SIZE_GUIDE } from '@/data/sizeGuide';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 /**
  * Server-side API Route for OpenAI size recommendations.
@@ -99,6 +100,15 @@ Retorne APENAS JSON: {"size":"P","confidence":0.92,"reason":"...","alternativeSi
 }
 
 export async function POST(request: NextRequest) {
+    // Pilar 4: rota de IA é cara (OpenAI) → rate limit para conter abuso de custo/DoS.
+    const rl = await checkRateLimit(getClientIp(request.headers), 'ai');
+    if (!rl.success) {
+        return NextResponse.json(
+            { error: 'Muitas requisições. Tente novamente em instantes.' },
+            { status: 429 }
+        );
+    }
+
     try {
         const apiKey = process.env.OPENAI_API_KEY; // Server-only, NOT NEXT_PUBLIC_
 

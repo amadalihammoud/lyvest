@@ -11,7 +11,7 @@ import { Ratelimit } from '@upstash/ratelimit';
 
 import { redis } from '../services/redis';
 
-export type RateLimitTier = 'auth' | 'checkout' | 'shipping' | 'coupon' | 'form';
+export type RateLimitTier = 'auth' | 'checkout' | 'shipping' | 'coupon' | 'form' | 'ai';
 
 type TierConfig = { limit: number; window: `${number} ${'s' | 'm' | 'h'}` };
 
@@ -22,6 +22,7 @@ const TIERS: Record<RateLimitTier, TierConfig> = {
     shipping: { limit: 30, window: '1 m' }, // cálculo de frete (mais permissivo)
     coupon: { limit: 20, window: '1 m' }, // validação de cupom
     form: { limit: 10, window: '1 m' }, // newsletter / contato
+    ai: { limit: 15, window: '1 m' }, // rotas de IA (OpenAI): caro → restringe abuso de custo
 };
 
 // Só ativa se o Redis estiver realmente configurado (evita quebrar build/dev sem env).
@@ -59,11 +60,18 @@ function getLimiter(tier: RateLimitTier): Ratelimit | null {
 
 /**
  * Extrai o IP do cliente a partir dos headers (Vercel/Next.js).
+ *
+ * Segurança: prioriza x-real-ip, que a Vercel define na borda e o cliente NÃO consegue
+ * forjar. O x-forwarded-for é controlável pelo cliente (a entrada mais à esquerda pode
+ * ser injetada), então usar o XFF permitiria rotacionar IPs falsos e burlar o rate limit.
+ * XFF fica só como fallback fora da Vercel (dev/local).
  */
 export function getClientIp(headers: Headers): string {
+    const realIp = headers.get('x-real-ip');
+    if (realIp) return realIp.trim();
     const xff = headers.get('x-forwarded-for');
     if (xff) return xff.split(',')[0].trim();
-    return headers.get('x-real-ip') || '127.0.0.1';
+    return '127.0.0.1';
 }
 
 export interface RateLimitResult {

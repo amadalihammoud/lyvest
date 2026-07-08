@@ -2,11 +2,22 @@ import { openai } from '@ai-sdk/openai';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
 
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { legalContent } from '@/server/data/legal.js';
 import { getProductsForContext } from '@/server/services/products.js';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
+
+const MAX_MESSAGES = 40;
+const MAX_TOTAL_CHARS = 8000;
+
+function jsonError(message, status) {
+    return new Response(JSON.stringify({ error: message }), {
+        status,
+        headers: { 'Content-Type': 'application/json' },
+    });
+}
 
 // Format legal info for prompt
 const policies = `
@@ -27,7 +38,25 @@ const policies = `
 `;
 
 export async function POST(req) {
+  // Pilar 4: rota de IA cara (OpenAI streaming) → rate limit para conter abuso de custo/DoS.
+  const rl = await checkRateLimit(getClientIp(req.headers), 'ai');
+  if (!rl.success) {
+    return jsonError('Muitas requisições. Tente novamente em instantes.', 429);
+  }
+
   const { messages } = await req.json();
+
+  // Pilar 5: valida/limita a entrada (evita payloads gigantes e exaustão de contexto/custo).
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > MAX_MESSAGES) {
+    return jsonError('Invalid messages', 400);
+  }
+  const totalChars = messages.reduce(
+    (n, m) => n + (typeof m?.content === 'string' ? m.content.length : 0),
+    0
+  );
+  if (totalChars > MAX_TOTAL_CHARS) {
+    return jsonError('Message too long', 400);
+  }
 
   // Buscar produtos do banco (ou mock)
   const products = await getProductsForContext(10);
