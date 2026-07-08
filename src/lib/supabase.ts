@@ -7,6 +7,18 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
 import { logger } from '../utils/logger';
 
+// A instância global do Clerk (setada por @clerk/clerk-js no browser) expõe a sessão e o
+// getToken() usado para autenticar o Supabase via a integração nativa (Third-party Auth).
+declare global {
+    interface Window {
+        Clerk?: {
+            session?: {
+                getToken: (options?: { template?: string }) => Promise<string | null>;
+            } | null;
+        };
+    }
+}
+
 
 // Tipo auxiliar para retorno de produtos com categoria
 export type ProductWithCategory = Database['public']['Tables']['products']['Row'] & {
@@ -35,6 +47,30 @@ const createSupabaseClient = (): SupabaseClient<Database> => {
         );
     }
 
+    // Integração nativa Clerk↔Supabase: injeta o token do Clerk em CADA request para que a
+    // RLS (public.clerk_uid()) resolva o usuário logado. Sem isso, clerk_uid() é null e as
+    // policies bloqueiam tudo (fail-closed) — ou, se a RLS estiver frouxa, a anon key pública
+    // expõe dados de todos. NUNCA usar service-role no client.
+    //
+    // ROLLOUT SEGURO: só ativa quando NEXT_PUBLIC_SUPABASE_CLERK_AUTH === 'true'. Assim o
+    // código pode ir a produção sem mudar comportamento; ligue a flag SÓ DEPOIS de habilitar
+    // o Clerk como Third-party Auth no painel do Supabase (senão o banco rejeita o token → 401).
+    const clerkAuthEnabled = process.env.NEXT_PUBLIC_SUPABASE_CLERK_AUTH === 'true';
+
+    if (clerkAuthEnabled) {
+        return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+            accessToken: async () => {
+                if (typeof window === 'undefined') return null;
+                try {
+                    return (await window.Clerk?.session?.getToken()) ?? null;
+                } catch {
+                    return null;
+                }
+            },
+        });
+    }
+
+    // Comportamento legado (flag off): mantém a config atual até a integração ser habilitada.
     return createClient<Database>(supabaseUrl, supabaseAnonKey, {
         auth: {
             autoRefreshToken: true,
