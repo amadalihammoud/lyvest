@@ -20,9 +20,9 @@ interface User {
         phone?: string;
         cpf?: string;
         birth_date?: string;
-        [key: string]: any;
+        [key: string]: unknown;
     };
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export default function DashboardPageClient() {

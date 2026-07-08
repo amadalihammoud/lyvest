@@ -60,7 +60,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         if (data) {
             product = {
                 ...data,
-                image: data.image_url || (data as any).image || '',
+                image: data.image_url || (data as Record<string, unknown>).image || '',
                 // Ensure category matches Product type which expects object or string
                 category: data.category
             } as unknown as Product;

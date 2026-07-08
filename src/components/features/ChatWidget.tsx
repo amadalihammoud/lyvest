@@ -15,7 +15,7 @@ const ReactMarkdown = dynamic(() => import('react-markdown'), { ssr: false });
 interface ToolInvocation {
     toolName: string;
     toolCallId: string;
-    args: any;
+    args: Record<string, unknown>;
 }
 
 export default function ChatWidget() {
@@ -131,7 +131,7 @@ export default function ChatWidget() {
                                                                 <p className="font-semibold text-slate-700 text-xs mb-2">
                                                                     Sugestão de Compra:
                                                                 </p>
-                                                                <AddToCartButton productId={args.productId} />
+                                                                <AddToCartButton productId={args.productId as string} />
                                                             </div>
                                                         );
                                                     }

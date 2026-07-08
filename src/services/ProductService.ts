@@ -17,7 +17,7 @@ export interface Product {
     active?: boolean;
     stock_quantity?: number;
     sizes?: string[];
-    colors?: any[];
+    colors?: unknown[];
     quantity?: number;
     badge?: string | null;
     rating?: number;
@@ -57,7 +57,7 @@ export const ProductService = {
             if (error) throw error;
 
             // Map DB fields to App fields
-            return (data || []).map((p: any) => ({
+            return (data || []).map((p: Record<string, unknown>) => ({
                 ...p,
                 image: p.image_url || p.image || '', // Fallback
                 id: p.id,
@@ -89,7 +89,7 @@ export const ProductService = {
 
             if (error) throw error;
 
-            const p = data as any;
+            const p = data as Record<string, unknown>;
             return {
                 ...p,
                 image: p.image_url || p.image || '',
@@ -122,7 +122,7 @@ export const ProductService = {
 
             if (error) throw error;
 
-            return (data || []).map((p: any) => ({
+            return (data || []).map((p: Record<string, unknown>) => ({
                 ...p,
                 image: p.image_url || p.image || '',
                 id: p.id,

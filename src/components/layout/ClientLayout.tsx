@@ -73,7 +73,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         if (typeof window !== 'undefined' && shouldLoad) {
             // Sentry
             if ('requestIdleCallback' in window) {
-                (window as any).requestIdleCallback(() => initSentry(), { timeout: 5000 });
+                window.requestIdleCallback(() => initSentry(), { timeout: 5000 });
             } else {
                 setTimeout(() => initSentry(), 1000);
             }

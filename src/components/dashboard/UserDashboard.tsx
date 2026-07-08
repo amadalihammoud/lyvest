@@ -15,9 +15,9 @@ export interface User {
         phone?: string;
         cpf?: string;
         birth_date?: string;
-        [key: string]: any;
+        [key: string]: unknown;
     };
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 // Lazy load das seções para melhorar performance
