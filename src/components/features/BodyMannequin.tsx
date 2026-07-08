@@ -39,7 +39,7 @@ export default function BodyMannequin({
 
     // POSIÇÕES ANATÔMICAS (porcentagens da altura da imagem)
     // MESMAS posições para masculino e feminino (já calibradas!)
-    const anatomyPositions = gender === 'female' ? {
+    const anatomyPositions: Record<string, number> = gender === 'female' ? {
         bust: 25,      // Linha NA ALTURA DOS MAMILOS
         waist: 37,     // Cintura NA ALTURA DO UMBIGO
         hip: 44        // Quadril NA ALTURA DA PELVE
@@ -208,15 +208,15 @@ export default function BodyMannequin({
                         <div className="relative h-full" style={{ width: '400px' }}>
                             {gender === 'female' ? (
                                 <>
-                                    {renderFitLine((anatomyPositions as any).bust, fitResult?.bust, 'Busto')}
-                                    {renderFitLine((anatomyPositions as any).waist, fitResult?.waist, 'Cintura')}
-                                    {renderFitLine((anatomyPositions as any).hip, fitResult?.hips, 'Quadril')}
+                                    {renderFitLine(anatomyPositions.bust, fitResult?.bust, 'Busto')}
+                                    {renderFitLine(anatomyPositions.waist, fitResult?.waist, 'Cintura')}
+                                    {renderFitLine(anatomyPositions.hip, fitResult?.hips, 'Quadril')}
                                 </>
                             ) : (
                                 <>
-                                    {renderFitLine((anatomyPositions as any).chest, fitResult?.bust, 'Peito')}
-                                    {renderFitLine((anatomyPositions as any).waist, fitResult?.waist, 'Cintura')}
-                                    {renderFitLine((anatomyPositions as any).hip, fitResult?.hips, 'Quadril')}
+                                    {renderFitLine(anatomyPositions.chest, fitResult?.bust, 'Peito')}
+                                    {renderFitLine(anatomyPositions.waist, fitResult?.waist, 'Cintura')}
+                                    {renderFitLine(anatomyPositions.hip, fitResult?.hips, 'Quadril')}
                                 </>
                             )}
                         </div>
