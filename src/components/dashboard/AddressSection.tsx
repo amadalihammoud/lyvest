@@ -134,13 +134,16 @@ export default function AddressSection() {
         setIsFormOpen(true);
     };
 
+    const isAddressComplete = () =>
+        Boolean(formData.street && formData.number && formData.city && formData.state && formData.zip_code);
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
         setMessage({ type: '', text: '' });
 
         // Validação básica
-        if (!formData.street || !formData.number || !formData.city || !formData.state || !formData.zip_code) {
+        if (!isAddressComplete()) {
             setMessage({ type: 'error', text: 'Preencha todos os campos obrigatórios' });
             setIsSaving(false);
             return;

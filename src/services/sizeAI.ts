@@ -60,6 +60,26 @@ export async function calculateSize(
     }
 }
 
+// Determina tamanho estimado a partir do score (extraído para reduzir complexidade).
+function determineEstimatedSize(
+    sizeScore: number,
+    fitPreference: 'snug' | 'comfortable'
+): { size: 'PP' | 'P' | 'M' | 'G' | 'GG'; confidence: number; reason: string; alternativeSize?: 'PP' | 'P' | 'M' | 'G' | 'GG' } {
+    if (sizeScore < 18) {
+        return { size: 'PP', confidence: 0.85, reason: 'Baseado em seu peso e altura, o tamanho PP é ideal para você.', alternativeSize: fitPreference === 'comfortable' ? 'P' : undefined };
+    }
+    if (sizeScore < 21) {
+        return { size: 'P', confidence: 0.90, reason: 'Tamanho P proporcionará o ajuste perfeito para suas medidas.', alternativeSize: fitPreference === 'snug' ? 'PP' : 'M' };
+    }
+    if (sizeScore < 24) {
+        return { size: 'M', confidence: 0.92, reason: 'Tamanho M é o mais equilibrado para seu tipo de corpo.', alternativeSize: fitPreference === 'snug' ? 'P' : 'G' };
+    }
+    if (sizeScore < 27) {
+        return { size: 'G', confidence: 0.88, reason: 'Tamanho G oferecerá conforto e bom caimento.', alternativeSize: fitPreference === 'snug' ? 'M' : 'GG' };
+    }
+    return { size: 'GG', confidence: 0.85, reason: 'Tamanho GG é perfeito para valorizar suas curvas com conforto.', alternativeSize: fitPreference === 'snug' ? 'G' : undefined };
+}
+
 /**
  * Algoritmo offline baseado em BMI e tabela de medidas
  */
@@ -92,41 +112,9 @@ function calculateOffline(
     // Score final
     const sizeScore = bmi + bustAdjustment + hipAdjustment + fitAdjustment + ageAdjustment;
 
-    // Determinar tamanho
-    let size: 'PP' | 'P' | 'M' | 'G' | 'GG';
-    let confidence: number;
-    let reason: string;
-    let alternativeSize: 'PP' | 'P' | 'M' | 'G' | 'GG' | undefined;
-
-    if (sizeScore < 18) {
-        size = 'PP';
-        confidence = 0.85;
-        reason = 'Baseado em seu peso e altura, o tamanho PP é ideal para você.';
-        if (fitPreference === 'comfortable') alternativeSize = 'P';
-    } else if (sizeScore < 21) {
-        size = 'P';
-        confidence = 0.90;
-        reason = 'Tamanho P proporcionará o ajuste perfeito para suas medidas.';
-        if (fitPreference === 'snug') alternativeSize = 'PP';
-        else alternativeSize = 'M';
-    } else if (sizeScore < 24) {
-        size = 'M';
-        confidence = 0.92;
-        reason = 'Tamanho M é o mais equilibrado para seu tipo de corpo.';
-        if (fitPreference === 'snug') alternativeSize = 'P';
-        else alternativeSize = 'G';
-    } else if (sizeScore < 27) {
-        size = 'G';
-        confidence = 0.88;
-        reason = 'Tamanho G oferecerá conforto e bom caimento.';
-        if (fitPreference === 'snug') alternativeSize = 'M';
-        else alternativeSize = 'GG';
-    } else {
-        size = 'GG';
-        confidence = 0.85;
-        reason = 'Tamanho GG é perfeito para valorizar suas curvas com conforto.';
-        if (fitPreference === 'snug') alternativeSize = 'G';
-    }
+    // Determinar tamanho (lógica extraída para reduzir complexidade)
+    const sizeInfo = determineEstimatedSize(sizeScore, fitPreference);
+    let confidence = sizeInfo.confidence;
 
     // Ajustar confiança baseado em tipo de corpo
     if (bustType === 'large' || hipType === 'wide') {
@@ -134,12 +122,31 @@ function calculateOffline(
     }
 
     return {
-        size,
+        size: sizeInfo.size,
         confidence: Math.max(0.7, Math.min(0.95, confidence)),
-        reason,
-        alternativeSize,
+        reason: sizeInfo.reason,
+        alternativeSize: sizeInfo.alternativeSize,
         fitMap: generateFitMap(sizeScore, 18, 21, 24, 27) // Passar thresholds
     };
+}
+
+// Mapeia uma medida (cm) para score PP=1..GG=5 (5.5 = acima de GG) via tabela de limites.
+// Extraído para reduzir a complexidade de calculateFromExactMeasurements (render/resultado idêntico).
+function scoreMeasurement(value: number, thresholds: readonly [number, number, number, number, number]): number {
+    if (value <= thresholds[0]) return 1; // PP
+    if (value <= thresholds[1]) return 2; // P
+    if (value <= thresholds[2]) return 3; // M
+    if (value <= thresholds[3]) return 4; // G
+    return value <= thresholds[4] ? 5 : 5.5; // GG ou +
+}
+
+// Arredonda o score final para um tamanho nominal (mesmos limites da lógica original).
+function scoreToNominalSize(finalScore: number): 'PP' | 'P' | 'M' | 'G' | 'GG' {
+    if (finalScore <= 1.5) return 'PP';
+    if (finalScore <= 2.5) return 'P';
+    if (finalScore <= 3.5) return 'M';
+    if (finalScore <= 4.5) return 'G';
+    return 'GG';
 }
 
 /**
@@ -148,33 +155,11 @@ function calculateOffline(
 function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRecommendation {
     const { exactBust, exactHips, exactWaist, fitPreference, age } = measurements;
 
-    // Pontuações: PP=1, P=2, M=3, G=4, GG=5
+    // Pontuações: PP=1, P=2, M=3, G=4, GG=5 (tabela simplificada BR)
     const scores: number[] = [];
-
-    // Tabela simplificada BR
-    if (exactBust && exactBust > 0) {
-        if (exactBust <= 82) scores.push(1); // PP
-        else if (exactBust <= 87) scores.push(2); // P
-        else if (exactBust <= 92) scores.push(3); // M
-        else if (exactBust <= 97) scores.push(4); // G
-        else scores.push(exactBust <= 104 ? 5 : 5.5); // GG ou +
-    }
-
-    if (exactHips && exactHips > 0) {
-        if (exactHips <= 90) scores.push(1); // PP
-        else if (exactHips <= 96) scores.push(2); // P
-        else if (exactHips <= 102) scores.push(3); // M
-        else if (exactHips <= 108) scores.push(4); // G
-        else scores.push(exactHips <= 116 ? 5 : 5.5); // GG
-    }
-
-    if (exactWaist && exactWaist > 0) {
-        if (exactWaist <= 64) scores.push(1); // PP
-        else if (exactWaist <= 70) scores.push(2); // P
-        else if (exactWaist <= 76) scores.push(3); // M
-        else if (exactWaist <= 82) scores.push(4); // G
-        else scores.push(exactWaist <= 90 ? 5 : 5.5); // GG
-    }
+    if (exactBust && exactBust > 0) scores.push(scoreMeasurement(exactBust, [82, 87, 92, 97, 104]));
+    if (exactHips && exactHips > 0) scores.push(scoreMeasurement(exactHips, [90, 96, 102, 108, 116]));
+    if (exactWaist && exactWaist > 0) scores.push(scoreMeasurement(exactWaist, [64, 70, 76, 82, 90]));
 
     // Se não tiver nenhuma medida válida (não deveria acontecer), fallback
     if (scores.length === 0) return calculateOffline({ ...measurements, exactBust: undefined, exactHips: undefined, exactWaist: undefined });
@@ -186,17 +171,11 @@ function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRec
     const ageAdjustment = (age && age > 50) ? 0.1 : 0;
     const finalScore = avgScore + (fitPreference === 'snug' ? -0.2 : 0.2) + ageAdjustment;
 
-    let size: 'PP' | 'P' | 'M' | 'G' | 'GG';
-    // Rounding logic
-    if (finalScore <= 1.5) size = 'PP';
-    else if (finalScore <= 2.5) size = 'P';
-    else if (finalScore <= 3.5) size = 'M';
-    else if (finalScore <= 4.5) size = 'G';
-    else size = 'GG';
+    const size = scoreToNominalSize(finalScore);
 
     // Se temos 2 ou mais medidas exatas, confiança sobe para 98%
-    const validMeasurementsCount = (exactBust ? 1 : 0) + (exactHips ? 1 : 0) + (exactWaist ? 1 : 0);
-    const confidence = validMeasurementsCount >= 2 ? 0.98 : 0.94;
+    // (scores.length é exatamente o nº de medidas válidas — mesmos guards value > 0 acima)
+    const confidence = scores.length >= 2 ? 0.98 : 0.94;
 
     return {
         size,
