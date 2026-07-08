@@ -1,5 +1,4 @@
 import { Lato, Cookie } from 'next/font/google';
-import { Suspense } from 'react';
 
 import type { Metadata, Viewport } from 'next';
 

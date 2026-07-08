@@ -85,7 +85,7 @@ export async function captureError(error: Error, context?: Record<string, any>) 
         Sentry.captureException(error, {
             extra: context,
         });
-    } catch (err) {
+    } catch {
         console.error('Falha ao reportar erro ao Sentry:', error);
     }
 }
@@ -101,7 +101,7 @@ export async function addBreadcrumb(message: string, data?: Record<string, any>)
             data,
             level: 'info',
         });
-    } catch (err) {
+    } catch {
         // Silently fail for breadcrumbs
     }
 }
@@ -116,7 +116,7 @@ export async function setUserContext(user: { id: string; email?: string; usernam
             id: user.id,
             username: user.username,
         });
-    } catch (err) {
+    } catch {
         // Fail silently
     }
 }
@@ -128,7 +128,7 @@ export async function clearUserContext() {
     try {
         const Sentry = await loadSentry();
         Sentry.setUser(null);
-    } catch (err) {
+    } catch {
         // Fail silently
     }
 }
