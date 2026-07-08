@@ -40,13 +40,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // O provider vem de um módulo .js (domínio); tipamos estruturalmente o contrato usado.
-        const provider = getShippingProvider() as unknown as {
-            calculate: (opts: {
-                zipCode: string;
-                items: Array<{ id: unknown; quantity: number; price: number }>;
-            }) => Promise<unknown>;
-        };
+        // Contrato agora tipado (ShippingProvider) — sem cast estrutural.
+        const provider = getShippingProvider();
         const options = await provider.calculate(parsed.data);
         return NextResponse.json(options);
     } catch (error) {

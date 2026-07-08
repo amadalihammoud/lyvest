@@ -120,14 +120,8 @@ export async function POST(request: NextRequest) {
             coupon: appliedCoupon,
         });
 
-        // O provider vem de um módulo .js (domínio); tipamos estruturalmente o contrato usado.
-        const paymentProvider = getPaymentProvider() as unknown as {
-            createSession: (opts: {
-                items: Array<{ id: unknown; name: string; price: number; quantity: number }>;
-                currency: string;
-                metadata?: Record<string, string>;
-            }) => Promise<unknown>;
-        };
+        // Contrato agora tipado (PaymentProvider) — sem cast estrutural.
+        const paymentProvider = getPaymentProvider();
         const session = await paymentProvider.createSession({
             items: verifiedItems,
             currency,

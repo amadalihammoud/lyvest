@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { legalContent } from '@/server/data/legal';
-import { getProductsForContext } from '@/server/services/products.js';
+import { getProductsForContext } from '@/server/services/products';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
