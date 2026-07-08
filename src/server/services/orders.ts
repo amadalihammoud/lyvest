@@ -64,6 +64,42 @@ export async function couponAlreadyRedeemed(
     }
 }
 
+/** Resultado da reserva atômica de cupom. */
+export type ReserveResult = 'reserved' | 'already_used' | 'unavailable';
+
+/**
+ * Reserva um cupom de uso único de forma ATÔMICA: o próprio INSERT em coupon_redemptions
+ * é a porta (a UNIQUE(coupon_code,user_id) garante first-wins). Fecha o double-spend
+ * concorrente que a checagem read-then-act (couponAlreadyRedeemed) não cobria.
+ *
+ * - 'reserved'     => reservou agora (concede o desconto).
+ * - 'already_used' => o usuário já resgatou (violação de UNIQUE) — não conceder.
+ * - 'unavailable'  => sem service-role ou erro de infra (caller decide o fallback).
+ *
+ * Observação: reservar no create-session significa que um carrinho abandonado "queima"
+ * o cupom para aquele usuário. É o trade-off do uso único; uma limpeza de reservas de
+ * pedidos não pagos pode ser adicionada depois (a reserva guarda o order_id).
+ */
+export async function reserveCoupon(
+    userId: string | null,
+    code: string,
+    orderRef: string
+): Promise<ReserveResult> {
+    if (!supabaseAdmin || !userId) return 'unavailable';
+    try {
+        const { error } = await supabaseAdmin
+            .from('coupon_redemptions')
+            .insert({ coupon_code: code, user_id: userId, order_id: orderRef });
+        if (!error) return 'reserved';
+        if (error.code === '23505') return 'already_used'; // unique_violation
+        logError('orders.reserveCoupon: erro no INSERT', error);
+        return 'unavailable';
+    } catch (err) {
+        logError('orders.reserveCoupon: erro inesperado', err);
+        return 'unavailable';
+    }
+}
+
 /**
  * Persiste o pedido 'pending' + itens usando o client service-role.
  * Retorna true se persistiu, false se pulou (sem admin) ou falhou.

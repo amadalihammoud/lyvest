@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { validateCoupon } from '@/config/coupons';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError } from '@/lib/server/logger';
-import { couponAlreadyRedeemed, persistPendingOrder } from '@/server/services/orders';
+import { couponAlreadyRedeemed, persistPendingOrder, reserveCoupon } from '@/server/services/orders';
 import { getPaymentProvider } from '@/server/services/payment';
 import { supabase } from '@/server/supabase';
 
@@ -30,6 +30,35 @@ const paymentSchema = z.object({
     // Zero-Trust: aceitamos só o CÓDIGO do cupom; o desconto é recalculado no servidor.
     coupon: z.string().min(1).max(32).optional(),
 });
+
+// Resolve o desconto do cupom no servidor (Zero-Trust) com reserva atômica de uso único.
+// Extraído para manter POST com baixa complexidade.
+async function resolveDiscount(
+    coupon: string | undefined,
+    subtotal: number,
+    userId: string | null,
+    orderNumber: string
+): Promise<{ discount: number; appliedCoupon: string | null }> {
+    if (!coupon) return { discount: 0, appliedCoupon: null };
+    const code = coupon.toUpperCase().trim();
+    const couponResult = validateCoupon(coupon, subtotal);
+    if (!couponResult.valid) return { discount: 0, appliedCoupon: null };
+
+    let grant = true;
+    // Uso único: reserva ATÔMICA (fecha double-spend concorrente). Sem service-role,
+    // cai para a checagem best-effort.
+    if (couponResult.singleUse && userId) {
+        const reservation = await reserveCoupon(userId, code, orderNumber);
+        if (reservation === 'already_used') {
+            grant = false;
+        } else if (reservation === 'unavailable') {
+            grant = !(await couponAlreadyRedeemed(userId, code));
+        }
+        // 'reserved' => grant permanece true
+    }
+    if (!grant) return { discount: 0, appliedCoupon: null };
+    return { discount: Number((subtotal * couponResult.discount).toFixed(2)), appliedCoupon: code };
+}
 
 export async function POST(request: NextRequest) {
     const rl = await checkRateLimit(getClientIp(request.headers), 'checkout');
@@ -73,25 +102,12 @@ export async function POST(request: NextRequest) {
         // Best-effort: identifica o usuário se logado (não obrigatório).
         const { userId } = await auth();
 
-        // Cupom REVALIDADO no servidor (Zero-Trust): usamos só o código e recalculamos o desconto.
-        let discount = 0;
-        let appliedCoupon: string | null = null;
-        if (coupon) {
-            const couponResult = validateCoupon(coupon, subtotal);
-            // Uso único: se o usuário logado já resgatou este cupom, NÃO concede o desconto.
-            const alreadyUsed =
-                couponResult.valid && couponResult.singleUse
-                    ? await couponAlreadyRedeemed(userId ?? null, coupon.toUpperCase().trim())
-                    : false;
-            if (couponResult.valid && !alreadyUsed) {
-                discount = Number((subtotal * couponResult.discount).toFixed(2));
-                appliedCoupon = coupon.toUpperCase().trim();
-            }
-        }
-        const total = Number((subtotal - discount).toFixed(2));
-
-        // Número de pedido único; usado para o fulfillment idempotente no webhook.
+        // Número de pedido único; usado no fulfillment idempotente e na reserva de cupom.
         const orderNumber = `LV-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+
+        // Cupom REVALIDADO no servidor (Zero-Trust): só o código; desconto recalculado.
+        const { discount, appliedCoupon } = await resolveDiscount(coupon, subtotal, userId ?? null, orderNumber);
+        const total = Number((subtotal - discount).toFixed(2));
 
         // Persiste o pedido 'pending' com itens verificados (fail-safe sem service-role).
         await persistPendingOrder({
