@@ -1,11 +1,14 @@
 /**
  * Sistema de Logger Condicional
- * 
+ *
  * Substitui console.log direto por logger que:
  * - Só funciona em desenvolvimento
  * - Adiciona contexto e timestamp
  * - Pode ser facilmente desabilitado
+ *
+ * Este é o ÚNICO ponto onde `console.*` é permitido: o logger é o boundary de log.
  */
+/* eslint-disable no-console */
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 

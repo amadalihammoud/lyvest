@@ -13,6 +13,8 @@
  * - TTFB (Time to First Byte): resposta do servidor
  */
 
+import { webVitalsLogger } from './logger';
+
 export interface Metric {
     name: string;
     value: number;
@@ -53,18 +55,8 @@ function sendToAnalytics(metric: Metric) {
         });
     }
 
-    // Log para desenvolvimento
-    if (process.env.NODE_ENV === 'development') {
-        const colors = {
-            good: '#0cce6b',
-            'needs-improvement': '#ffa400',
-            poor: '#ff4e42',
-        };
-        console.log(
-            `%c[Web Vital] ${metric.name}: ${metric.value.toFixed(2)} (${metric.rating})`,
-            `color: ${colors[metric.rating] || '#888'}`
-        );
-    }
+    // Log para desenvolvimento (o logger já é gated por ambiente)
+    webVitalsLogger.info(`${metric.name}: ${metric.value.toFixed(2)} (${metric.rating})`);
 
     // Beacon API para envio confiável mesmo ao sair da página
     if (navigator.sendBeacon && process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT) {
@@ -92,9 +84,7 @@ export async function initWebVitals(): Promise<void> {
         onTTFB(sendToAnalytics);
         onINP(sendToAnalytics); // Interaction to Next Paint (substitui FID)
 
-        if (process.env.NODE_ENV === 'development') {
-            console.info('Web Vitals Monitoramento iniciado');
-        }
+        webVitalsLogger.info('Monitoramento iniciado');
     } catch {
         // Biblioteca não instalada - falha silenciosa
         if (process.env.NODE_ENV === 'development') {

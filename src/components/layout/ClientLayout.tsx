@@ -17,6 +17,7 @@ const LazyClerkProviderDeferred = lazy(() => import('@/components/providers/Lazy
 
 import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
 import { useAuthModal } from '@/store/useAuthModal';
+import { logger } from '@/utils/logger';
 import { initSentry } from '@/utils/sentry';
 
 // Routes that require Clerk auth immediately (skip the lazy 7s window).
@@ -82,10 +83,10 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
                 navigator.serviceWorker.register('/sw.js').then(
                     (registration) => {
-                        console.log('Service Worker registration successful with scope: ', registration.scope);
+                        logger.info('Service Worker registrado, escopo:', registration.scope);
                     },
                     (err) => {
-                        console.log('Service Worker registration failed: ', err);
+                        logger.error('Falha ao registrar Service Worker:', err);
                     }
                 );
             }

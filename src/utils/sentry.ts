@@ -1,6 +1,7 @@
 /**
  * Configuração do Sentry para Monitoramento de Erros (Lazy Loaded)
  */
+import { logger } from './logger';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const sentryDSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -23,7 +24,7 @@ async function loadSentry() {
 
 export async function initSentry() {
     if (isDevelopment || !sentryDSN) {
-        console.log('[Sentry] Desabilitado em desenvolvimento');
+        logger.info('[Sentry] Desabilitado em desenvolvimento');
         return;
     }
 
@@ -64,7 +65,7 @@ export async function initSentry() {
             },
         });
 
-        console.log('[Sentry] Inicializado com sucesso (Lazy)');
+        logger.info('[Sentry] Inicializado com sucesso (Lazy)');
     } catch (err) {
         console.error('[Sentry] Falha ao inicializar:', err);
     }

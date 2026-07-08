@@ -8,6 +8,7 @@ import SizeCalculator from './SizeCalculator';
 import { findSimilarModels } from '../../data/sizeGuide';
 import { Product } from '../../services/ProductService';
 import { BodyMeasurements, SizeRecommendation, calculateSize } from '../../services/sizeAI';
+import { analyticsLogger } from '../../utils/logger';
 import { getProductGender } from '../../utils/productUtils';
 
 interface VirtualFittingProps {
@@ -22,8 +23,8 @@ type Step = 'input' | 'recommendation' | 'models';
 const STORAGE_KEY = 'lyvest_user_measurements';
 
 // Simples sistema de analytics (pode ser expandido para GA4/Pixel)
-const trackEvent = (eventName: string, data: any) => {
-    console.log(`📊 [Analytics] ${eventName}:`, data);
+const trackEvent = (eventName: string, data: Record<string, unknown>) => {
+    analyticsLogger.info(`${eventName}:`, data);
     // Aqui seria: window.gtag('event', eventName, data);
 };
 

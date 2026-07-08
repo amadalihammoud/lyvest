@@ -1,5 +1,7 @@
 import { Resend } from 'resend';
 
+import { logger } from '../utils/logger';
+
 const resendApiKey = process.env.RESEND_API_KEY;
 
 if (!resendApiKey) {
@@ -17,7 +19,7 @@ export interface EmailPayload {
 
 export async function sendEmail({ to, subject, html, from = 'Ly Vest <nao-responda@lyvest.com.br>' }: EmailPayload) {
     if (!resendApiKey) {
-        console.log('Would send email (Mock Mode):', { to, subject });
+        logger.info('Would send email (Mock Mode):', { to, subject });
         return { success: true, id: 'mock-id' };
     }
 
