@@ -7,7 +7,7 @@
  * 2. Implement the sendOrder method
  */
 
-import { logInfo } from '../../lib/server/logger.js';
+import { logInfo } from '../../lib/server/logger';
 
 // Base Class (Interface)
 class ErpProvider {

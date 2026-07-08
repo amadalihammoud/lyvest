@@ -1,4 +1,4 @@
-import { logError } from '../../lib/server/logger.js';
+import { logError } from '../../lib/server/logger';
 import { mockProducts } from '../data/mockProducts.js';
 import { supabase, isSupabaseConfigured } from '../supabase.js';
 

@@ -8,7 +8,7 @@
  * 3. Add a case in getPaymentProvider()
  */
 
-import { logInfo } from '../../lib/server/logger.js';
+import { logInfo } from '../../lib/server/logger';
 
 // Base Class (Interface)
 class PaymentProvider {
