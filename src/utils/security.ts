@@ -183,11 +183,20 @@ export function escapeHTML(str: string): string {
  */
 export function isValidOrigin(origin: string, allowedOrigins: string[]): boolean {
     if (!origin) return false;
+    // Extrai o hostname do origin (evita comparar a string crua do origin).
+    let host: string;
+    try {
+        host = new URL(origin).hostname;
+    } catch {
+        return false;
+    }
     return allowedOrigins.some((allowed) => {
         if (allowed === '*') return true;
         if (allowed.startsWith('*.')) {
             const domain = allowed.slice(2);
-            return origin.endsWith(domain);
+            // Subdomínio EXATO com fronteira de ponto — não sufixo. Senão
+            // 'evillyvest.com.br' passaria por '*.lyvest.com.br'.
+            return host === domain || host.endsWith('.' + domain);
         }
         return origin === allowed;
     });
