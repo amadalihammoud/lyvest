@@ -1,8 +1,6 @@
 ﻿// useUser inside MobileMenu is removed to prevent Clerk JS bundle download
 // import { useUser, useClerk } from '@clerk/nextjs';
 import { X, Search, ChevronRight, User } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { mainMenu } from '../../data/siteData';
@@ -27,11 +25,9 @@ interface MobileMenuProps {
 export default function MobileMenu({
     isOpen,
     onClose,
-    onOpenLogin,
     navigateToDashboard,
     user
 }: MobileMenuProps) {
-    const router = useRouter(); // Initialize router
     const { onOpen } = useAuthModal();
 
     const isLoggedIn = !!user;

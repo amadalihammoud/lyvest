@@ -1,5 +1,4 @@
 ﻿import { X } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import { Suspense, lazy } from 'react';
 
 import { useCart } from '../../hooks/useCart';

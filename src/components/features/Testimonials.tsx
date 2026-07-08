@@ -1,19 +1,7 @@
 'use client';
-import { Quote, Star } from 'lucide-react';
 import React from 'react';
 
-import { useI18n } from '../../hooks/useI18n';
-
-interface TestimonialItem {
-    id: number;
-    name: string;
-    role: string;
-    content: string;
-    rating: number;
-}
-
 const Testimonials = () => {
-    const { t } = useI18n();
     const [activeIndex, setActiveIndex] = React.useState(0);
     const scrollRef = React.useRef<HTMLDivElement>(null);
     // Cache offsetWidth to avoid forced reflow on every scroll event.
