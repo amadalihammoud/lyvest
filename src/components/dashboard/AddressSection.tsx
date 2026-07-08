@@ -186,7 +186,9 @@ export default function AddressSection() {
                 result = await supabase
                     .from('addresses')
                     .update(addressData)
+                    // Defesa-em-profundidade: escopa pelo dono (não confiar só na RLS).
                     .eq('id', editingAddress.id)
+                    .eq('user_id', user.id)
                     .select()
                     .single();
             } else {
@@ -223,11 +225,14 @@ export default function AddressSection() {
             return;
         }
 
+        if (!user) return;
         try {
             const { error } = await supabase
                 .from('addresses')
                 .delete()
-                .eq('id', address.id);
+                // Defesa-em-profundidade: só apaga se for do próprio usuário.
+                .eq('id', address.id)
+                .eq('user_id', user.id);
 
             if (error) throw error;
             await loadAddresses();
@@ -252,7 +257,8 @@ export default function AddressSection() {
             await supabase
                 .from('addresses')
                 .update({ is_default: true })
-                .eq('id', address.id);
+                .eq('id', address.id)
+                .eq('user_id', user.id);
 
             await loadAddresses();
             setMessage({ type: 'success', text: 'Endereço padrão atualizado!' });

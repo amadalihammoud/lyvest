@@ -38,9 +38,13 @@ export async function initSentry() {
             replaysSessionSampleRate: 0.1,
             replaysOnErrorSampleRate: 1.0,
             integrations: [
+                // Pilar 5 / LGPD: mascarar TODO texto e inputs no Session Replay. Com
+                // maskAllText:false o replay gravava PII do cliente (nome, endereço, CPF,
+                // campos de checkout) e enviava a um terceiro (Sentry).
                 Sentry.replayIntegration({
-                    maskAllText: false,
-                    blockAllMedia: false,
+                    maskAllText: true,
+                    maskAllInputs: true,
+                    blockAllMedia: true,
                 }),
                 Sentry.browserTracingIntegration(),
                 Sentry.feedbackIntegration({
