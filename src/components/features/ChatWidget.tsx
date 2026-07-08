@@ -1,5 +1,6 @@
 ﻿'use client';
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport, type UIMessage } from 'ai';
 import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from 'react';
@@ -11,44 +12,20 @@ import { useModal } from '../../hooks/useModal';
 // react-markdown (~50 KB) carregado dinamicamente — só necessário quando o chat está aberto
 const ReactMarkdown = dynamic(() => import('react-markdown'), { ssr: false });
 
-// Custom type for simplified ToolInvocation
-interface ToolInvocation {
-    toolName: string;
-    toolCallId: string;
-    args: Record<string, unknown>;
-}
-
-interface ChatMessage {
-    id: string;
-    role: string;
-    content: string;
-    toolInvocations?: ToolInvocation[];
+// Extrai o texto concatenado das partes 'text' de uma UIMessage (v6).
+function messageText(m: UIMessage): string {
+    return (m.parts ?? []).map((p) => (p.type === 'text' ? p.text : '')).join('');
 }
 
 export default function ChatWidget() {
-    // NOTA: este widget usa a API antiga do useChat (api/initialMessages/input/handleSubmit,
-    // mensagens com `content`). O pacote `ai`/@ai-sdk/react instalado é v6, cuja API é diferente
-    // (UIMessage com `parts`, `sendMessage`, `status`). Mantemos um cast TIPADO (sem `any`) para
-    // não quebrar o build; migrar este componente para a API v6 é uma tarefa separada.
-    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat(
-        {
-            api: '/api/chat',
-            initialMessages: [
-                {
-                    id: 'welcome-v3',
-                    role: 'assistant',
-                    content: 'Oi! Sou a Ly, assistente digital da Ly Vest.\n\nComo posso ajudar hoje?'
-                }
-            ]
-        } as unknown as Parameters<typeof useChat>[0]
-    ) as unknown as {
-        messages: ChatMessage[];
-        input: string;
-        handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-        handleSubmit: (e?: FormEvent) => void;
-        isLoading: boolean;
-    };
+    // API v6 do @ai-sdk/react: transporte explícito, mensagens como UIMessage[] (com `parts`),
+    // envio via sendMessage e estado via `status`. O input é gerido localmente.
+    const { messages, sendMessage, status } = useChat({
+        transport: new DefaultChatTransport({ api: '/api/chat' }),
+    });
 
+    const isLoading = status === 'submitted' || status === 'streaming';
+    const [input, setInput] = useState<string>('');
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -62,11 +39,20 @@ export default function ChatWidget() {
 
     const quickReplies: string[] = ["Ajuda com Tamanhos", "Ideias de Presente", "Falar com Humano"];
 
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setInput(e.target.value);
+    };
+
+    const handleSubmit = (e?: FormEvent) => {
+        e?.preventDefault();
+        const text = input.trim();
+        if (!text) return;
+        sendMessage({ text });
+        setInput('');
+    };
+
     const handleQuickReply = (text: string) => {
-        const event = {
-            target: { value: text }
-        } as React.ChangeEvent<HTMLInputElement>;
-        handleInputChange(event);
+        sendMessage({ text });
     };
 
     return (
@@ -120,7 +106,7 @@ export default function ChatWidget() {
                                 </div>
                             )}
 
-                            {messages.map((m: ChatMessage) => (
+                            {messages.map((m: UIMessage) => (
                                 m.role !== 'system' && (
                                     <div
                                         key={m.id}
@@ -139,22 +125,21 @@ export default function ChatWidget() {
                                                     : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-sm max-w-none prose-p:my-1 prose-strong:text-[#7D2121] prose-a:text-[#7D2121] prose-a:font-bold'
                                                     }`}
                                             >
-                                                <ReactMarkdown>{m.content}</ReactMarkdown>
+                                                <ReactMarkdown>{messageText(m)}</ReactMarkdown>
 
-                                                {m.toolInvocations?.map((toolInvocation: ToolInvocation) => {
-                                                    const { toolName, toolCallId, args } = toolInvocation;
-
-                                                    if (toolName === 'addToCart') {
-                                                        return (
-                                                            <div key={toolCallId} className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                                <p className="font-semibold text-slate-700 text-xs mb-2">
-                                                                    Sugestão de Compra:
-                                                                </p>
-                                                                <AddToCartButton productId={args.productId as string} />
-                                                            </div>
-                                                        );
-                                                    }
-                                                    return null;
+                                                {/* Tool parts (v6): a tool addToCart vira uma part 'tool-addToCart' */}
+                                                {(m.parts ?? []).map((part, i) => {
+                                                    if (part.type !== 'tool-addToCart') return null;
+                                                    const productId = (part.input as { productId?: string } | undefined)?.productId;
+                                                    if (!productId) return null;
+                                                    return (
+                                                        <div key={part.toolCallId ?? i} className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                                            <p className="font-semibold text-slate-700 text-xs mb-2">
+                                                                Sugestão de Compra:
+                                                            </p>
+                                                            <AddToCartButton productId={productId} />
+                                                        </div>
+                                                    );
                                                 })}
                                             </div>
                                         </div>
