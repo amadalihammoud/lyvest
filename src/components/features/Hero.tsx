@@ -109,6 +109,7 @@ function Hero() {
                                                             <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
                                                             <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
                                                             <img
+                                                                alt=""
                                                                 {...desktopProps}
                                                                 loading="lazy"
                                                                 decoding="async"

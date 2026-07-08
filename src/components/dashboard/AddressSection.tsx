@@ -394,8 +394,9 @@ export default function AddressSection() {
 
                     {/* Ponto de Referência */}
                     <div>
-                        <label className="text-sm font-bold text-slate-700 mb-2 block">Ponto de Referência</label>
+                        <label htmlFor="reference_point" className="text-sm font-bold text-slate-700 mb-2 block">Ponto de Referência</label>
                         <input
+                            id="reference_point"
                             type="text"
                             value={formData.reference_point || ''}
                             onChange={(e) => handleChange('reference_point', e.target.value)}
