@@ -22,12 +22,12 @@ export interface Metric {
     id: string;
     navigationType?: string;
     rating: 'good' | 'needs-improvement' | 'poor';
-    entries?: any[];
+    entries?: unknown[];
 }
 
 declare global {
     interface Window {
-        gtag?: (command: string, category: string, params?: Record<string, any>) => void;
+        gtag?: (command: string, category: string, params?: Record<string, unknown>) => void;
     }
 }
 
