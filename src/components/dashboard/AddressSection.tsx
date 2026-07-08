@@ -3,9 +3,6 @@ import { MapPin, Plus, Edit2, Trash2, X, CheckCircle, AlertCircle, Star } from '
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { useI18n } from '../../hooks/useI18n';
-
-// import { useAuth } from '../../context/AuthContext';
-
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { UserAddress } from '../../types/dashboard';
 

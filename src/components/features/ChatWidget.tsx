@@ -4,12 +4,12 @@ import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState, useRef, useEffect } from 'react';
 
+import { productsData } from '../../data/products';
 import { useCart } from '../../hooks/useCart';
+import { useModal } from '../../hooks/useModal';
 
 // react-markdown (~50 KB) carregado dinamicamente — só necessário quando o chat está aberto
 const ReactMarkdown = dynamic(() => import('react-markdown'), { ssr: false });
-import { useModal } from '../../hooks/useModal';
-import { productsData } from '../../data/products';
 
 // Custom type for simplified ToolInvocation
 interface ToolInvocation {

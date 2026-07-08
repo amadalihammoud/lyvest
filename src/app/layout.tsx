@@ -1,9 +1,12 @@
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Lato, Cookie } from 'next/font/google';
 
 import type { Metadata, Viewport } from 'next';
 
 import '@/index.css';
 import ClientLayout from '@/components/layout/ClientLayout';
+import HeaderInteractive from '@/components/layout/HeaderInteractive';
 
 export const viewport: Viewport = {
     width: 'device-width',
@@ -79,10 +82,6 @@ export const metadata: Metadata = {
     },
 };
 
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-
-import HeaderInteractive from '@/components/layout/HeaderInteractive';
 export default function RootLayout({
     children,
 }: {

@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 
 import ProductPageClient from '@/components/pages/ProductPageClient';
 import { productsData } from '@/data/products';
+import { supabase } from '@/lib/supabase';
+import { Product } from '@/services/ProductService';
 import { generateSlug } from '@/utils/slug';
 
 export const dynamicParams = true;
@@ -41,10 +43,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         },
     };
 }
-
-
-import { supabase } from '@/lib/supabase';
-import { Product } from '@/services/ProductService';
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;

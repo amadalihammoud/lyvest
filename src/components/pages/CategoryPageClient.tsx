@@ -10,13 +10,13 @@ import { useMemo, useState } from 'react';
 import CategoryToolbar from '@/components/product/CategoryToolbar';
 import ProductCard from '@/components/product/ProductCard';
 import { productsData } from '@/data/products';
-
-const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
 import { useCart } from '@/store/useCartStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';
 import { useModal } from '@/store/useModalStore';
 import { generateSlug } from '@/utils/slug';
+
+const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
 
 interface CategoryPageClientProps {
     slug: string;

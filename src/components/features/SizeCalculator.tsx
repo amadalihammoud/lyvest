@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import BodyMannequin from './BodyMannequin';
 import { Product } from '../../services/ProductService';
 import { BodyMeasurements } from '../../services/sizeAI';
+import { getProductGender } from '../../utils/productUtils';
 
 interface SizeCalculatorProps {
     onCalculate: (measurements: BodyMeasurements) => void;
@@ -36,8 +37,6 @@ const TunerInput = React.memo(({ label, value, onChange, min, max }: {
         />
     </div>
 ));
-
-import { getProductGender } from '../../utils/productUtils';
 
 export default function SizeCalculator({ onCalculate, isLoading, initialMeasurements, product }: SizeCalculatorProps) {
     const productGender = getProductGender(product);

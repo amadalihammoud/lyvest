@@ -9,22 +9,21 @@ import { useState, useEffect, useMemo, ChangeEvent } from 'react';
 import { productsData } from '../../data/products';
 import { mainMenu } from '../../data/siteData';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useShopNavigation } from '../../hooks/useShopNavigation';
 import { useCart } from '../../store/useCartStore';
 import { useFavorites } from '../../store/useFavoritesStore';
 import { useI18n } from '../../store/useI18nStore';
 import { useModal } from '../../store/useModalStore';
+import { useShop } from '../../store/useShopStore';
 import LanguageSelector from '../features/LanguageSelector';
+
+import { useAuthModal } from '@/store/useAuthModal';
+
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
 
 // Clerk deferred to Edge Server Architecture
 // import HeaderAuth from './HeaderAuth';
-
-import { useShop } from '../../store/useShopStore';
-
-import { useAuthModal } from '@/store/useAuthModal';
-
-import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Lightweight XSS check — replaces heavy security.ts import (DOMPurify ~17KB)
 const hasXSS = (v: string) => /<script|javascript:|on\w+=|<iframe/i.test(v);
