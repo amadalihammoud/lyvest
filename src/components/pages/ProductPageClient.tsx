@@ -7,9 +7,9 @@ import { useState } from 'react';
 import VirtualFitting from '@/components/features/VirtualFitting';
 import ProductDetails from '@/components/product/ProductDetails';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import { Product } from '@/services/ProductService';
 import { useCart, CartItem } from '@/store/useCartStore';
 import { useModal } from '@/store/useModalStore';
-import { Product } from '@/services/ProductService';
 import { generateSlug } from '@/utils/slug';
 
 interface ProductPageClientProps {

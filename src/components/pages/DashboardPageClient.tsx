@@ -4,10 +4,10 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 import UserDashboard from '@/components/dashboard/UserDashboard';
+import { mockOrders } from '@/data/mockOrders';
 import { useI18n } from '@/store/useI18nStore';
 // import { useAuth, User } from '@/context/AuthContext'; // Removed
 import { useModal } from '@/store/useModalStore';
-import { mockOrders } from '@/data/mockOrders';
 import { Order } from '@/types/dashboard';
 
 // Define Interface locally or import from a new types file if AuthContext is deleted

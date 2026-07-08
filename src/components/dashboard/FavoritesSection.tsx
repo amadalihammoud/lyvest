@@ -2,10 +2,10 @@ import { Heart, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
 import EmptyState from './EmptyState';
-import { useCart } from '../../store/useCartStore';
-import { useFavorites } from '../../store/useFavoritesStore';
 import { productsData } from '../../data/products';
 import { useI18n } from '../../hooks/useI18n';
+import { useCart } from '../../store/useCartStore';
+import { useFavorites } from '../../store/useFavoritesStore';
 import { generateSlug } from '../../utils/slug';
 
 export default function FavoritesSection() {

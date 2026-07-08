@@ -6,13 +6,13 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect, useMemo, ChangeEvent, Suspense } from 'react';
 
-import { useCart } from '../../store/useCartStore';
-import { useFavorites } from '../../store/useFavoritesStore';
-import { useModal } from '../../store/useModalStore';
 import { productsData } from '../../data/products';
 import { mainMenu } from '../../data/siteData';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useCart } from '../../store/useCartStore';
+import { useFavorites } from '../../store/useFavoritesStore';
 import { useI18n } from '../../store/useI18nStore';
+import { useModal } from '../../store/useModalStore';
 import LanguageSelector from '../features/LanguageSelector';
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });

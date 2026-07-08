@@ -1,7 +1,7 @@
 'use client';
 
-import { ReactNode, Suspense, useEffect, useState, lazy, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { ReactNode, Suspense, useEffect, useState, lazy, useRef } from 'react';
 
 import AppProviders from '@/components/layout/AppProviders';
 

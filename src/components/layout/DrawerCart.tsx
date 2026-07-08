@@ -1,9 +1,9 @@
 import { ShoppingBag, Trash2, X } from 'lucide-react';
 import React from 'react';
 
-import { useCart, CartItem } from '../../store/useCartStore';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useI18n } from '../../hooks/useI18n';
+import { useCart, CartItem } from '../../store/useCartStore';
 
 
 

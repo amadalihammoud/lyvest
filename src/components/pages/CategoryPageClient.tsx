@@ -1,7 +1,6 @@
 
 'use client';
 
-import { productsData } from '@/data/products';
 
 import { Home } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -11,6 +10,7 @@ import { useMemo, useState } from 'react';
 
 import CategoryToolbar from '@/components/product/CategoryToolbar';
 import ProductCard from '@/components/product/ProductCard';
+import { productsData } from '@/data/products';
 
 const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
 import { useCart } from '@/store/useCartStore';

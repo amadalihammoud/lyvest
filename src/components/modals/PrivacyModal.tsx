@@ -1,5 +1,5 @@
-import { legalContent } from '../../data/legalData';
 import DocumentModal from './DocumentModal';
+import { legalContent } from '../../data/legalData';
 
 /**
  * Privacy policy modal — document style

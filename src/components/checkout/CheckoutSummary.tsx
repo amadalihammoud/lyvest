@@ -1,7 +1,7 @@
 import { ShoppingBag } from 'lucide-react';
 
-import { CartItem } from '../../store/useCartStore';
 import { useI18n } from '../../hooks/useI18n';
+import { CartItem } from '../../store/useCartStore';
 
 interface CheckoutSummaryProps {
     cartItems: CartItem[];

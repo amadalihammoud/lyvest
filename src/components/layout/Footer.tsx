@@ -2,8 +2,8 @@
 'use client';
 import Image from 'next/image';
 
-import { useModal } from '../../store/useModalStore';
 import { useI18n } from '../../hooks/useI18n';
+import { useModal } from '../../store/useModalStore';
 
 export default function Footer() {
     const { t } = useI18n();
@@ -110,13 +110,11 @@ export default function Footer() {
                             </a>
                             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
                                 <div className="w-[27px] h-[27px] flex items-center justify-center">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
                                 </div>
                             </a>
                             <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
                                 <div className="w-[27px] h-[27px] flex items-center justify-center">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src="/assets/icons/x-logo.svg" alt="X" className="max-w-full max-h-full object-contain" />
                                 </div>
                             </a>

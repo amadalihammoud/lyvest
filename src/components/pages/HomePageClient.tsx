@@ -9,12 +9,12 @@ import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
 // import Hero from '@/components/features/Hero';
 import ProductCard from '@/components/product/ProductCard';
 // import InfoStrip from '@/components/features/InfoStrip';
+import { productsData } from '@/data/products';
+import { quickFilters } from '@/data/siteData';
 import { useCart } from '@/store/useCartStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';
 import { useModal } from '@/store/useModalStore';
-import { productsData } from '@/data/products';
-import { quickFilters } from '@/data/siteData';
 
 
 // Lazy load below-the-fold components — ssr: false to isolate heavy deps like Zod
