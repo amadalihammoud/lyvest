@@ -40,26 +40,33 @@ function translateHipType(type: string): string {
     return map[type] || type;
 }
 
+function matchesAny(s: string, keywords: string[]): boolean {
+    return keywords.some((k) => s.includes(k));
+}
+function fmtCm(v?: number): string {
+    return v ? v + 'cm' : 'Não informado';
+}
+
 function buildContextPrompt(categoryName: string, m: BodyMeasurements): string {
-    if (categoryName.includes('sutia') || categoryName.includes('top')) {
+    if (matchesAny(categoryName, ['sutia', 'top'])) {
         return `CONTEXTO SUTIÃS E TOPS:
-- Sub-Busto (Tórax): ${m.exactUnderBust ? m.exactUnderBust + 'cm' : 'Não informado'}
-- Busto: ${m.exactBust ? m.exactBust + 'cm' : 'Não informado'}
+- Sub-Busto (Tórax): ${fmtCm(m.exactUnderBust)}
+- Busto: ${fmtCm(m.exactBust)}
 - Priorize conforto da respiração se medida do tórax for limítrofe.`;
     }
-    if (categoryName.includes('calcinha') || categoryName.includes('cueca')) {
+    if (matchesAny(categoryName, ['calcinha', 'cueca'])) {
         return `CONTEXTO CALCINHAS E CUECAS:
-- Cintura: ${m.exactWaist ? m.exactWaist + 'cm' : 'Não informado'}
-- Quadril: ${m.exactHips ? m.exactHips + 'cm' : 'Não informado'}
-- Coxa: ${m.exactThigh ? m.exactThigh + 'cm' : 'Não informado'}`;
+- Cintura: ${fmtCm(m.exactWaist)}
+- Quadril: ${fmtCm(m.exactHips)}
+- Coxa: ${fmtCm(m.exactThigh)}`;
     }
-    if (categoryName.includes('pijama') || categoryName.includes('camisola') || categoryName.includes('robe')) {
+    if (matchesAny(categoryName, ['pijama', 'camisola', 'robe'])) {
         return `CONTEXTO PIJAMAS: Foco na FLUIDEZ. Use a maior medida como determinante.`;
     }
-    if (categoryName.includes('meia')) {
+    if (matchesAny(categoryName, ['meia'])) {
         return `CONTEXTO MEIAS:
 - Nº Calçado: ${m.shoeSize || 'Não informado'}
-- Panturrilha: ${m.exactCalf ? m.exactCalf + 'cm' : 'Não informado'}`;
+- Panturrilha: ${fmtCm(m.exactCalf)}`;
     }
     return '';
 }
