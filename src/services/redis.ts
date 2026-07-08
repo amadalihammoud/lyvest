@@ -25,7 +25,7 @@ export async function safeRedisGet<T>(key: string): Promise<T | null> {
     }
 }
 
-export async function safeRedisSet(key: string, value: any, exSeconds: number = 3600): Promise<void> {
+export async function safeRedisSet(key: string, value: unknown, exSeconds: number = 3600): Promise<void> {
     try {
         if (!redisUrl || !redisToken) return;
         await redis.set(key, value, { ex: exSeconds });

@@ -15,7 +15,7 @@ interface FavoritesContextType {
     clearFavorites: () => void;
     maxFavorites: number;
     // Internal methods for Sync component
-    _syncWithUser?: (user: any) => Promise<void>;
+    _syncWithUser?: (user: { id: string } | null) => Promise<void>;
     _setUserId?: (id: string | null) => void;
     _addToSupabase?: (productId: string, userId: string) => Promise<void>;
     _removeFromSupabase?: (productId: string, userId: string) => Promise<void>;
@@ -178,7 +178,7 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
     };
 
     // Necessário expor funções de sync para o componente filho
-    const syncWithUser = useCallback(async (user: any) => {
+    const syncWithUser = useCallback(async (user: { id: string } | null) => {
         if (!user) return;
 
         try {

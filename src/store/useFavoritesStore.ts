@@ -61,7 +61,7 @@ interface FavoritesState {
     isFavorite: (productId: number | string) => boolean;
     clearFavorites: () => void;
     _hydrate: () => void;
-    _syncWithUser: (user: any) => Promise<void>;
+    _syncWithUser: (user: { id: string } | null) => Promise<void>;
     _setUserId: (id: string | null) => void;
     _addToSupabase: (productId: string, userId: string) => Promise<void>;
     _removeFromSupabase: (productId: string, userId: string) => Promise<void>;
@@ -105,7 +105,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         } catch (err) { logger.error('Error removing favorite from cloud:', err); }
     },
 
-    _syncWithUser: async (user: any) => {
+    _syncWithUser: async (user: { id: string } | null) => {
         if (!user) return;
         try {
             const { supabase, isSupabaseConfigured } = await loadSupabase();
@@ -115,7 +115,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
                 .from('favorites').select('product_id').eq('user_id', user.id);
             if (error) throw error;
 
-            const remoteIds = remoteFavorites?.map((f: any) => f.product_id) || [];
+            const remoteIds = remoteFavorites?.map((f: { product_id: string }) => f.product_id) || [];
             const localIds = loadFavoritesFromStorage();
             const newRemoteItems = localIds.filter(id => isUuid(id) && !remoteIds.includes(id as string));
 
@@ -192,7 +192,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
 // Auto-hydrate on client
 if (typeof window !== 'undefined') {
     if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => useFavoritesStore.getState()._hydrate());
+        window.requestIdleCallback(() => useFavoritesStore.getState()._hydrate());
     } else {
         setTimeout(() => useFavoritesStore.getState()._hydrate(), 0);
     }

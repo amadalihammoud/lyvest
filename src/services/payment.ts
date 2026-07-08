@@ -5,10 +5,21 @@
 import { PAYMENT_CONFIG } from '../config/constants';
 import { paymentLogger } from '../utils/logger';
 
+export interface OrderItem {
+    id: string | number;
+    name?: string;
+    price?: number;
+    qty?: number;
+    quantity?: number;
+    image?: string;
+    category?: string;
+    [key: string]: unknown;
+}
+
 export interface OrderData {
     total: number;
-    items: any[];
-    [key: string]: any;
+    items: OrderItem[];
+    [key: string]: unknown;
 }
 
 export interface PaymentSession {
@@ -109,7 +120,7 @@ export class PaymentService {
      * @param paymentData - Dados do pagamento (token do cartão)
      * @returns Resultado do pagamento
      */
-    async processCardPayment(sessionId: string, paymentData: any): Promise<PaymentResult> {
+    async processCardPayment(sessionId: string, paymentData: Record<string, unknown>): Promise<PaymentResult> {
         // Simulação - será substituído por integração real
         paymentLogger.debug(`Processando pagamento (${this.gateway})`, { sessionId, paymentData });
 

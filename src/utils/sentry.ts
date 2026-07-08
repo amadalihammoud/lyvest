@@ -8,7 +8,7 @@ const sentryDSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const environment = process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT || 'production';
 
 // Placeholder for the Sentry instance
-let SentryInstance: any = null;
+let SentryInstance: typeof import('@sentry/react') | null = null;
 
 /**
  * Carrega o SDK do Sentry de forma assíncrona
@@ -56,7 +56,7 @@ export async function initSentry() {
                 'NetworkError',
                 'Failed to fetch',
             ],
-            beforeSend(event: any) {
+            beforeSend(event) {
                 if (event.user) {
                     delete event.user.email;
                     delete event.user.ip_address;
@@ -74,7 +74,7 @@ export async function initSentry() {
 /**
  * Capturar erro manualmente
  */
-export async function captureError(error: Error, context?: Record<string, any>) {
+export async function captureError(error: Error, context?: Record<string, unknown>) {
     if (isDevelopment) {
         console.error('[Sentry Dev]', error, context);
         return;
@@ -93,7 +93,7 @@ export async function captureError(error: Error, context?: Record<string, any>) 
 /**
  * Adicionar breadcrumb (navegação do usuário)
  */
-export async function addBreadcrumb(message: string, data?: Record<string, any>) {
+export async function addBreadcrumb(message: string, data?: Record<string, unknown>) {
     try {
         const Sentry = await loadSentry();
         Sentry.addBreadcrumb({

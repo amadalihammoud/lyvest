@@ -57,7 +57,7 @@ export class ShippingService {
      * @param items - Itens do carrinho
      * @returns Opções de frete
      */
-    async calculateShipping(cep: string, items: any[]): Promise<ShippingOption[]> {
+    async calculateShipping(cep: string, items: Array<{ price: number; qty: number }>): Promise<ShippingOption[]> {
         shippingLogger.debug('Calculando frete via API...', { cep, items });
 
         try {
@@ -89,7 +89,7 @@ export class ShippingService {
         }
     }
 
-    private _getMockShipping(cep: string, items: any[]): ShippingOption[] {
+    private _getMockShipping(cep: string, items: Array<{ price: number; qty: number }>): ShippingOption[] {
         const total = items.reduce((acc, item) => acc + (item.price * item.qty), 0);
         const isFreeShipping = total >= SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
 

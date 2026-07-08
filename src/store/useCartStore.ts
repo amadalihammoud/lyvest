@@ -216,7 +216,7 @@ export const useCartStore = create<CartState>((set, get) => ({
 if (typeof window !== 'undefined') {
     // Use requestIdleCallback or setTimeout to defer hydration
     if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => useCartStore.getState()._hydrate());
+        window.requestIdleCallback(() => useCartStore.getState()._hydrate());
     } else {
         setTimeout(() => useCartStore.getState()._hydrate(), 0);
     }
