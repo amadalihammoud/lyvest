@@ -86,7 +86,7 @@ interface LazyProviderProps {
     children: ReactNode;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     provider: ComponentType<any>;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export function LazyProvider({ children, provider: Provider, ...props }: LazyProviderProps) {

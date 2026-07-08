@@ -1,14 +1,12 @@
 ﻿// useUser inside MobileMenu is removed to prevent Clerk JS bundle download
 // import { useUser, useClerk } from '@clerk/nextjs';
 import { X, Search, ChevronRight, User } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React from 'react';
 
-import { useShop } from '../../store/useShopStore';
 import { mainMenu } from '../../data/siteData';
 import { useI18n } from '../../hooks/useI18n';
-import { useShopNavigation } from '../../hooks/useShopNavigation';
+import { useShopNavigation, NavMenuItem } from '../../hooks/useShopNavigation';
+import { useShop } from '../../store/useShopStore';
 import LanguageSelector from '../features/LanguageSelector';
 
 
@@ -21,17 +19,15 @@ interface MobileMenuProps {
     onClose: () => void;
     onOpenLogin: () => void;
     navigateToDashboard: () => void;
-    user: any;
+    user: { fullName?: string; imageUrl?: string } | null;
 }
 
 export default function MobileMenu({
     isOpen,
     onClose,
-    onOpenLogin,
     navigateToDashboard,
     user
 }: MobileMenuProps) {
-    const router = useRouter(); // Initialize router
     const { onOpen } = useAuthModal();
 
     const isLoggedIn = !!user;
@@ -43,7 +39,7 @@ export default function MobileMenu({
     const { handleMenuClick: baseHandleMenuClick } = useShopNavigation();
 
     // Wrap handleMenuClick to close menu
-    const handleMenuClick = (item: any) => {
+    const handleMenuClick = (item: NavMenuItem) => {
         baseHandleMenuClick(item);
         onClose();
     };

@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 import { useUser } from '@clerk/nextjs';
 import { CreditCard, QrCode, AlertCircle, Lock } from 'lucide-react';
 import { useState, ChangeEvent, FormEvent } from 'react';
 
-import { useCart } from '../../store/useCartStore';
 import { useI18n } from '../../hooks/useI18n';
 import { paymentService } from '../../services/payment';
+import { useCart } from '../../store/useCartStore';
 import { paymentSchema, validateForm } from '../../utils/schemas';
 import { RateLimiter, detectXSS } from '../../utils/security';
 import { formatCardNumber } from '../../utils/validation';
@@ -38,8 +38,189 @@ interface PaymentSession {
 // Interface for validation errors
 type ValidationErrors = Record<string, string | undefined>;
 
+type TFn = (key: string) => string;
+
 // Rate limiter for checkout (3 attempts per 5 minutes)
 const checkoutLimiter = new RateLimiter('checkout', 3, 300000);
+
+interface CreditCardFormProps {
+    t: TFn;
+    formatCurrency: (value: number) => string;
+    formData: PaymentFormData;
+    errors: ValidationErrors;
+    displayTotal: number;
+    handleSubmit: (e: FormEvent) => void;
+    handleCardNumberChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    handleExpiryChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    handleInputChange: (field: keyof PaymentFormData) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+}
+
+// Formulário de cartão de crédito — extraído para manter CheckoutPayment com baixa complexidade.
+function CreditCardForm({
+    t, formatCurrency, formData, errors, displayTotal,
+    handleSubmit, handleCardNumberChange, handleExpiryChange, handleInputChange,
+}: CreditCardFormProps) {
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100 animate-slide-up">
+            <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-semibold text-slate-500">{t('checkout.payment.acceptedCards') || 'CartÃµes Aceitos'}</span>
+                <div className="flex gap-2">
+                    <div className="w-8 h-5 bg-gradient-to-r from-blue-600 to-blue-800 rounded text-[6px] text-white flex items-center justify-center font-bold">VISA</div>
+                    <div className="w-8 h-5 bg-gradient-to-r from-[#F5E6E8]/300 to-yellow-500 rounded text-[6px] text-white flex items-center justify-center font-bold">MC</div>
+                    <div className="w-8 h-5 bg-gradient-to-r from-green-600 to-teal-600 rounded text-[6px] text-white flex items-center justify-center font-bold">ELO</div>
+                </div>
+            </div>
+
+            {/* Card Number */}
+            <div>
+                <label htmlFor="cardNumber" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                    {t('checkout.payment.cardNumber')}
+                </label>
+                <div className="relative">
+                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input
+                        id="cardNumber"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="cc-number"
+                        placeholder="0000 0000 0000 0000"
+                        value={formatCardNumber(formData.cardNumber)}
+                        onChange={handleCardNumberChange}
+                        maxLength={19}
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl border ${errors.cardNumber ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700`}
+                    />
+                </div>
+                {errors.cardNumber && (
+                    <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.cardNumber)}</p>
+                )}
+            </div>
+
+            {/* Card Name */}
+            <div>
+                <label htmlFor="cardName" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                    {t('checkout.payment.cardName')}
+                </label>
+                <input
+                    id="cardName"
+                    type="text"
+                    autoComplete="cc-name"
+                    placeholder={t('checkout.payment.cardNamePlaceholder') || 'COMO NO CARTÃƒO'}
+                    value={formData.cardName}
+                    onChange={handleInputChange('cardName')}
+                    maxLength={100}
+                    className={`w-full px-4 py-3 rounded-xl border ${errors.cardName ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-medium text-slate-700 uppercase`}
+                />
+                {errors.cardName && (
+                    <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.cardName)}</p>
+                )}
+            </div>
+
+            {/* Expiry + CVV + Installments */}
+            <div className="grid grid-cols-2 sm:grid-cols-12 gap-4">
+                <div className="col-span-1 sm:col-span-3">
+                    <label htmlFor="expiry" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                        {t('checkout.payment.expiry')}
+                    </label>
+                    <input
+                        id="expiry"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="cc-exp"
+                        placeholder="MM/AA"
+                        value={formData.expiry}
+                        onChange={handleExpiryChange}
+                        maxLength={5}
+                        className={`w-full px-4 py-3 rounded-xl border ${errors.expiry ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700 text-center`}
+                    />
+                    {errors.expiry && (
+                        <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.expiry)}</p>
+                    )}
+                </div>
+                <div className="col-span-1 sm:col-span-3">
+                    <label htmlFor="cvv" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                        {t('checkout.payment.cvv')}
+                    </label>
+                    <input
+                        id="cvv"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="cc-csc"
+                        placeholder="123"
+                        value={formData.cvv}
+                        onChange={handleInputChange('cvv')}
+                        maxLength={4}
+                        className={`w-full px-4 py-3 rounded-xl border ${errors.cvv ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700 text-center`}
+                    />
+                    {errors.cvv && (
+                        <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.cvv)}</p>
+                    )}
+                </div>
+                <div className="col-span-2 sm:col-span-6">
+                    <label htmlFor="installments" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                        {t('checkout.payment.installments') || 'Parcelamento'}
+                    </label>
+                    <div className="relative">
+                        <select
+                            id="installments"
+                            value={formData.installments}
+                            onChange={handleInputChange('installments')}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-medium text-slate-700 appearance-none bg-white"
+                        >
+                            {Array.from({ length: 12 }, (_, i) => i + 1)
+                                .filter(qty => displayTotal / qty >= 5) // Minimum installment R$ 5,00
+                                .map(qty => (
+                                    <option key={qty} value={qty}>
+                                        {qty}x de {formatCurrency(displayTotal / qty)} {qty === 1 ? 'Ã  vista' : 'sem juros'}
+                                    </option>
+                                ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    );
+}
+
+// Painel PIX — extraído para reduzir complexidade.
+function PixPanel({ t }: { t: TFn }) {
+    return (
+        <div className="bg-green-50 p-6 rounded-2xl border border-green-100 text-center animate-slide-up">
+            <QrCode className="w-32 h-32 mx-auto text-green-600 mb-4 opacity-80" />
+            <p className="text-sm text-green-800 font-medium mb-2">{t('checkout.payment.pixMessage') || 'O cÃ³digo PIX serÃ¡ gerado na prÃ³xima etapa.'}</p>
+            <p className="text-xs text-green-600">{t('checkout.payment.pixSecure') || 'AprovaÃ§Ã£o imediata e mais seguranÃ§a.'}</p>
+        </div>
+    );
+}
+
+// Botão de confirmar pagamento — extraído para reduzir complexidade.
+function SubmitButton({ t, isSubmitting, rateLimitError, handleSubmit }: {
+    t: TFn;
+    isSubmitting: boolean;
+    rateLimitError: boolean;
+    handleSubmit: (e: FormEvent) => void;
+}) {
+    return (
+        <button
+            onClick={handleSubmit}
+            disabled={isSubmitting || rateLimitError} // Removed unnecessary boolean check
+            className="w-full py-4 bg-lyvest-500 text-white font-bold rounded-xl hover:bg-lyvest-600 transition-all shadow-lg hover:glare-effect flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            {isSubmitting ? (
+                <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    {t('common.processing') || 'Processando...'}
+                </>
+            ) : (
+                <>
+                    <Lock className="w-4 h-4" /> {t('checkout.buttons.confirm')}
+                </>
+            )}
+        </button>
+    );
+}
 
 export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProps) {
     const { t, formatCurrency } = useI18n();
@@ -222,152 +403,27 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
             </div>
 
             {method === 'credit' && (
-                <form onSubmit={handleSubmit} className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100 animate-slide-up">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-semibold text-slate-500">{t('checkout.payment.acceptedCards') || 'CartÃµes Aceitos'}</span>
-                        <div className="flex gap-2">
-                            <div className="w-8 h-5 bg-gradient-to-r from-blue-600 to-blue-800 rounded text-[6px] text-white flex items-center justify-center font-bold">VISA</div>
-                            <div className="w-8 h-5 bg-gradient-to-r from-[#F5E6E8]/300 to-yellow-500 rounded text-[6px] text-white flex items-center justify-center font-bold">MC</div>
-                            <div className="w-8 h-5 bg-gradient-to-r from-green-600 to-teal-600 rounded text-[6px] text-white flex items-center justify-center font-bold">ELO</div>
-                        </div>
-                    </div>
-
-                    {/* Card Number */}
-                    <div>
-                        <label htmlFor="cardNumber" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                            {t('checkout.payment.cardNumber')}
-                        </label>
-                        <div className="relative">
-                            <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                            <input
-                                id="cardNumber"
-                                type="text"
-                                inputMode="numeric"
-                                autoComplete="cc-number"
-                                placeholder="0000 0000 0000 0000"
-                                value={formatCardNumber(formData.cardNumber)}
-                                onChange={handleCardNumberChange}
-                                maxLength={19}
-                                className={`w-full pl-10 pr-4 py-3 rounded-xl border ${errors.cardNumber ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700`}
-                            />
-                        </div>
-                        {errors.cardNumber && (
-                            <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.cardNumber)}</p>
-                        )}
-                    </div>
-
-                    {/* Card Name */}
-                    <div>
-                        <label htmlFor="cardName" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                            {t('checkout.payment.cardName')}
-                        </label>
-                        <input
-                            id="cardName"
-                            type="text"
-                            autoComplete="cc-name"
-                            placeholder={t('checkout.payment.cardNamePlaceholder') || 'COMO NO CARTÃƒO'}
-                            value={formData.cardName}
-                            onChange={handleInputChange('cardName')}
-                            maxLength={100}
-                            className={`w-full px-4 py-3 rounded-xl border ${errors.cardName ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-medium text-slate-700 uppercase`}
-                        />
-                        {errors.cardName && (
-                            <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.cardName)}</p>
-                        )}
-                    </div>
-
-                    {/* Expiry + CVV + Installments */}
-                    <div className="grid grid-cols-2 sm:grid-cols-12 gap-4">
-                        <div className="col-span-1 sm:col-span-3">
-                            <label htmlFor="expiry" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                                {t('checkout.payment.expiry')}
-                            </label>
-                            <input
-                                id="expiry"
-                                type="text"
-                                inputMode="numeric"
-                                autoComplete="cc-exp"
-                                placeholder="MM/AA"
-                                value={formData.expiry}
-                                onChange={handleExpiryChange}
-                                maxLength={5}
-                                className={`w-full px-4 py-3 rounded-xl border ${errors.expiry ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700 text-center`}
-                            />
-                            {errors.expiry && (
-                                <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.expiry)}</p>
-                            )}
-                        </div>
-                        <div className="col-span-1 sm:col-span-3">
-                            <label htmlFor="cvv" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                                {t('checkout.payment.cvv')}
-                            </label>
-                            <input
-                                id="cvv"
-                                type="text"
-                                inputMode="numeric"
-                                autoComplete="cc-csc"
-                                placeholder="123"
-                                value={formData.cvv}
-                                onChange={handleInputChange('cvv')}
-                                maxLength={4}
-                                className={`w-full px-4 py-3 rounded-xl border ${errors.cvv ? 'border-red-400 bg-lyvest-100/30' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-mono text-slate-700 text-center`}
-                            />
-                            {errors.cvv && (
-                                <p className="text-[#F5E6E8]/300 text-xs mt-1">{t(errors.cvv)}</p>
-                            )}
-                        </div>
-                        <div className="col-span-2 sm:col-span-6">
-                            <label htmlFor="installments" className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                                {t('checkout.payment.installments') || 'Parcelamento'}
-                            </label>
-                            <div className="relative">
-                                <select
-                                    id="installments"
-                                    value={formData.installments}
-                                    onChange={handleInputChange('installments')}
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-medium text-slate-700 appearance-none bg-white"
-                                >
-                                    {Array.from({ length: 12 }, (_, i) => i + 1)
-                                        .filter(qty => displayTotal / qty >= 5) // Minimum installment R$ 5,00
-                                        .map(qty => (
-                                            <option key={qty} value={qty}>
-                                                {qty}x de {formatCurrency(displayTotal / qty)} {qty === 1 ? 'Ã  vista' : 'sem juros'}
-                                            </option>
-                                        ))}
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                <CreditCardForm
+                    t={t}
+                    formatCurrency={formatCurrency}
+                    formData={formData}
+                    errors={errors}
+                    displayTotal={displayTotal}
+                    handleSubmit={handleSubmit}
+                    handleCardNumberChange={handleCardNumberChange}
+                    handleExpiryChange={handleExpiryChange}
+                    handleInputChange={handleInputChange}
+                />
             )}
 
-            {method === 'pix' && (
-                <div className="bg-green-50 p-6 rounded-2xl border border-green-100 text-center animate-slide-up">
-                    <QrCode className="w-32 h-32 mx-auto text-green-600 mb-4 opacity-80" />
-                    <p className="text-sm text-green-800 font-medium mb-2">{t('checkout.payment.pixMessage') || 'O cÃ³digo PIX serÃ¡ gerado na prÃ³xima etapa.'}</p>
-                    <p className="text-xs text-green-600">{t('checkout.payment.pixSecure') || 'AprovaÃ§Ã£o imediata e mais seguranÃ§a.'}</p>
-                </div>
-            )}
+            {method === 'pix' && <PixPanel t={t} />}
 
-            <button
-                onClick={handleSubmit}
-                disabled={isSubmitting || rateLimitError} // Removed unnecessary boolean check
-                className="w-full py-4 bg-lyvest-500 text-white font-bold rounded-xl hover:bg-lyvest-600 transition-all shadow-lg hover:glare-effect flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {isSubmitting ? (
-                    <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        {t('common.processing') || 'Processando...'}
-                    </>
-                ) : (
-                    <>
-                        <Lock className="w-4 h-4" /> {t('checkout.buttons.confirm')}
-                    </>
-                )}
-            </button>
+            <SubmitButton
+                t={t}
+                isSubmitting={isSubmitting}
+                rateLimitError={rateLimitError}
+                handleSubmit={handleSubmit}
+            />
 
             <p className="text-center text-xs text-slate-400 flex items-center justify-center gap-1">
                 <Lock className="w-3 h-3" /> {t('checkout.payment.secure') || 'Ambiente 100% Seguro â€¢ Seus dados sÃ£o criptografados'}
@@ -375,11 +431,3 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
         </div>
     );
 }
-
-
-
-
-
-
-
-

@@ -1,7 +1,5 @@
 
 import CategoryPageClient from '@/components/pages/CategoryPageClient';
-import { productsData } from '@/data/products';
-import { generateSlug } from '@/utils/slug';
 
 export const dynamicParams = true; // or false if we want strict paths
 

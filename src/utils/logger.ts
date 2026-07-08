@@ -1,11 +1,14 @@
 /**
  * Sistema de Logger Condicional
- * 
+ *
  * Substitui console.log direto por logger que:
  * - Só funciona em desenvolvimento
  * - Adiciona contexto e timestamp
  * - Pode ser facilmente desabilitado
+ *
+ * Este é o ÚNICO ponto onde `console.*` é permitido: o logger é o boundary de log.
  */
+/* eslint-disable no-console */
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -25,7 +28,7 @@ class Logger {
         this.enabled = options.enabled !== undefined ? options.enabled : isDevelopment;
     }
 
-    private formatMessage(level: LogLevel, ...args: any[]): any[] {
+    private formatMessage(level: LogLevel, ...args: unknown[]): unknown[] {
         if (!this.enabled) return [];
 
         const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
@@ -35,22 +38,22 @@ class Logger {
         return [`${timestamp} ${levelTag}${prefix}`, ...args];
     }
 
-    info(...args: any[]): void {
+    info(...args: unknown[]): void {
         if (!this.enabled) return;
         console.log(...this.formatMessage('info', ...args));
     }
 
-    warn(...args: any[]): void {
+    warn(...args: unknown[]): void {
         if (!this.enabled) return;
         console.warn(...this.formatMessage('warn', ...args));
     }
 
-    error(...args: any[]): void {
+    error(...args: unknown[]): void {
         if (!this.enabled) return;
         console.error(...this.formatMessage('error', ...args));
     }
 
-    debug(...args: any[]): void {
+    debug(...args: unknown[]): void {
         if (!this.enabled) return;
         console.debug(...this.formatMessage('debug', ...args));
     }

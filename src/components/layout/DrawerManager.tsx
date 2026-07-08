@@ -7,6 +7,8 @@ import { useFavorites } from '../../hooks/useFavorites';
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
 
+import type { TrackingResult } from '../../types';
+
 // Lazy load drawers
 // Lazy load drawers
 const DrawerCart = lazy(() => import('./DrawerCart'));
@@ -104,7 +106,7 @@ export default function DrawerManager() {
                             onClose={closeDrawer}
                             trackingCode={trackingCode || ''}
                             setTrackingCode={setTrackingCode}
-                            trackingResult={trackingResult as any}
+                            trackingResult={trackingResult as TrackingResult}
                             setTrackingResult={setTrackingResult}
                         />
                     )}

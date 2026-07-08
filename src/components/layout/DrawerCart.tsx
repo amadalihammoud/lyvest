@@ -1,9 +1,9 @@
 import { ShoppingBag, Trash2, X } from 'lucide-react';
 import React from 'react';
 
-import { useCart, CartItem } from '../../store/useCartStore';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useI18n } from '../../hooks/useI18n';
+import { useCart, CartItem } from '../../store/useCartStore';
 
 
 
@@ -41,8 +41,8 @@ function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }
         }
     }, [couponCode]);
 
-    const handleApplyCoupon = () => {
-        const result = applyCoupon(couponInput);
+    const handleApplyCoupon = async () => {
+        const result = await applyCoupon(couponInput);
         setCouponMessage(result.message);
     };
 

@@ -7,9 +7,9 @@ import { useState } from 'react';
 import VirtualFitting from '@/components/features/VirtualFitting';
 import ProductDetails from '@/components/product/ProductDetails';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import { Product } from '@/services/ProductService';
 import { useCart, CartItem } from '@/store/useCartStore';
 import { useModal } from '@/store/useModalStore';
-import { Product } from '@/services/ProductService';
 import { generateSlug } from '@/utils/slug';
 
 interface ProductPageClientProps {
@@ -17,7 +17,7 @@ interface ProductPageClientProps {
     initialProduct: Product | null;
 }
 
-export default function ProductPageClient({ slug, initialProduct }: ProductPageClientProps) {
+export default function ProductPageClient({ initialProduct }: ProductPageClientProps) {
     const { addToCart } = useCart();
     const { openModal } = useModal();
     const product = initialProduct;
@@ -40,8 +40,8 @@ export default function ProductPageClient({ slug, initialProduct }: ProductPageC
         qty: 1
     });
 
-    const handleAddToCart = (item: any) => {
-        addToCart(item);
+    const handleAddToCart = (item: Product) => {
+        addToCart(item as unknown as Partial<CartItem>);
         openModal('addedToCart', item);
     };
 

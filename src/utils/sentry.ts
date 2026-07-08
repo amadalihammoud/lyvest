@@ -1,13 +1,14 @@
 /**
  * Configuração do Sentry para Monitoramento de Erros (Lazy Loaded)
  */
+import { logger } from './logger';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const sentryDSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const environment = process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT || 'production';
 
 // Placeholder for the Sentry instance
-let SentryInstance: any = null;
+let SentryInstance: typeof import('@sentry/react') | null = null;
 
 /**
  * Carrega o SDK do Sentry de forma assíncrona
@@ -23,7 +24,7 @@ async function loadSentry() {
 
 export async function initSentry() {
     if (isDevelopment || !sentryDSN) {
-        console.log('[Sentry] Desabilitado em desenvolvimento');
+        logger.info('[Sentry] Desabilitado em desenvolvimento');
         return;
     }
 
@@ -55,7 +56,7 @@ export async function initSentry() {
                 'NetworkError',
                 'Failed to fetch',
             ],
-            beforeSend(event: any) {
+            beforeSend(event) {
                 if (event.user) {
                     delete event.user.email;
                     delete event.user.ip_address;
@@ -64,7 +65,7 @@ export async function initSentry() {
             },
         });
 
-        console.log('[Sentry] Inicializado com sucesso (Lazy)');
+        logger.info('[Sentry] Inicializado com sucesso (Lazy)');
     } catch (err) {
         console.error('[Sentry] Falha ao inicializar:', err);
     }
@@ -73,7 +74,7 @@ export async function initSentry() {
 /**
  * Capturar erro manualmente
  */
-export async function captureError(error: Error, context?: Record<string, any>) {
+export async function captureError(error: Error, context?: Record<string, unknown>) {
     if (isDevelopment) {
         console.error('[Sentry Dev]', error, context);
         return;
@@ -84,7 +85,7 @@ export async function captureError(error: Error, context?: Record<string, any>) 
         Sentry.captureException(error, {
             extra: context,
         });
-    } catch (err) {
+    } catch {
         console.error('Falha ao reportar erro ao Sentry:', error);
     }
 }
@@ -92,7 +93,7 @@ export async function captureError(error: Error, context?: Record<string, any>) 
 /**
  * Adicionar breadcrumb (navegação do usuário)
  */
-export async function addBreadcrumb(message: string, data?: Record<string, any>) {
+export async function addBreadcrumb(message: string, data?: Record<string, unknown>) {
     try {
         const Sentry = await loadSentry();
         Sentry.addBreadcrumb({
@@ -100,7 +101,7 @@ export async function addBreadcrumb(message: string, data?: Record<string, any>)
             data,
             level: 'info',
         });
-    } catch (err) {
+    } catch {
         // Silently fail for breadcrumbs
     }
 }
@@ -115,7 +116,7 @@ export async function setUserContext(user: { id: string; email?: string; usernam
             id: user.id,
             username: user.username,
         });
-    } catch (err) {
+    } catch {
         // Fail silently
     }
 }
@@ -127,7 +128,7 @@ export async function clearUserContext() {
     try {
         const Sentry = await loadSentry();
         Sentry.setUser(null);
-    } catch (err) {
+    } catch {
         // Fail silently
     }
 }

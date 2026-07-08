@@ -4,27 +4,26 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect, useMemo, ChangeEvent, Suspense } from 'react';
+import { useState, useEffect, useMemo, ChangeEvent } from 'react';
 
-import { useCart } from '../../store/useCartStore';
-import { useFavorites } from '../../store/useFavoritesStore';
-import { useModal } from '../../store/useModalStore';
 import { productsData } from '../../data/products';
 import { mainMenu } from '../../data/siteData';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useShopNavigation } from '../../hooks/useShopNavigation';
+import { useCart } from '../../store/useCartStore';
+import { useFavorites } from '../../store/useFavoritesStore';
 import { useI18n } from '../../store/useI18nStore';
+import { useModal } from '../../store/useModalStore';
+import { useShop } from '../../store/useShopStore';
 import LanguageSelector from '../features/LanguageSelector';
+
+import { useAuthModal } from '@/store/useAuthModal';
+
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
 
 // Clerk deferred to Edge Server Architecture
 // import HeaderAuth from './HeaderAuth';
-
-import { useShop } from '../../store/useShopStore';
-
-import { useAuthModal } from '@/store/useAuthModal';
-
-import { useShopNavigation } from '../../hooks/useShopNavigation';
 
 // Lightweight XSS check — replaces heavy security.ts import (DOMPurify ~17KB)
 const hasXSS = (v: string) => /<script|javascript:|on\w+=|<iframe/i.test(v);
@@ -33,10 +32,6 @@ export interface SerializedUser {
     id: string;
     fullName: string;
     imageUrl: string;
-}
-
-interface HeaderInteractiveProps {
-    // No props needed, it's a standalone client component that fetches its own user state via API.
 }
 
 interface MenuItem {
@@ -53,7 +48,7 @@ export default function HeaderInteractive() {
     const { t } = useI18n();
     const { cartCount } = useCart();
     const { favorites } = useFavorites();
-    const { openDrawer, closeDrawer, openModal } = useModal();
+    const { openDrawer, closeDrawer } = useModal();
     const { onOpen } = useAuthModal();
 
     const [user, setUser] = useState<SerializedUser | null>(null);
@@ -77,6 +72,7 @@ export default function HeaderInteractive() {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             const q = params.get('q') || params.get('busca') || '';
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrata a busca a partir da URL (client-only)
             if (q) setSearchQuery(q);
         }
     }, []);

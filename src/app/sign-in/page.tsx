@@ -13,6 +13,7 @@ function SignInPageContent() {
     useEffect(() => {
         if (clerk && clerk.loaded) {
             const url = clerk.buildSignInUrl();
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- URL do Clerk só existe no cliente (após load)
             setSignInUrl(url);
         }
     }, [clerk]);

@@ -14,6 +14,20 @@ interface AIRecommendationProps {
     gender?: 'male' | 'female'; // Novo prop
 }
 
+// Normaliza um fit para uma das três categorias visuais (extraído p/ reduzir complexidade do componente).
+function normalizeFit(fit: FitType | undefined): FitType {
+    if (fit === 'tight') return 'tight';
+    if (fit === 'loose') return 'loose';
+    return 'perfect';
+}
+
+// Classe de cor do texto conforme o fit (mesma lógica inline original).
+function fitColorClass(fit: FitType | undefined): string {
+    if (fit === 'tight') return 'text-orange-500';
+    if (fit === 'loose') return 'text-blue-500';
+    return 'text-emerald-600';
+}
+
 export default function AIRecommendation({
     recommendation,
     onAddToCart,
@@ -114,9 +128,9 @@ export default function AIRecommendation({
                             viewMode="result"
                             gender={gender} // Passar gênero
                             fitResult={{
-                                bust: fitMap[viewSize] === 'tight' ? 'tight' : fitMap[viewSize] === 'loose' ? 'loose' : 'perfect',
-                                waist: fitMap[viewSize] as any,
-                                hips: fitMap[viewSize] === 'tight' ? 'tight' : fitMap[viewSize] === 'loose' ? 'loose' : 'perfect'
+                                bust: normalizeFit(fitMap[viewSize]),
+                                waist: normalizeFit(fitMap[viewSize]),
+                                hips: normalizeFit(fitMap[viewSize])
                             }}
                         />
 
@@ -169,19 +183,19 @@ export default function AIRecommendation({
                             <div className="space-y-2 bg-white/50 p-3 rounded-lg border border-slate-100">
                                 <div className="flex items-center justify-between text-xs">
                                     <span className="text-slate-500">Busto</span>
-                                    <span className={`font-bold ${fitMap[viewSize] === 'tight' ? 'text-orange-500' : fitMap[viewSize] === 'loose' ? 'text-blue-500' : 'text-emerald-600'}`}>
+                                    <span className={`font-bold ${fitColorClass(fitMap[viewSize])}`}>
                                         {getFitLabel(fitMap[viewSize])}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between text-xs">
                                     <span className="text-slate-500">Cintura</span>
-                                    <span className={`font-bold ${fitMap[viewSize] === 'tight' ? 'text-orange-500' : fitMap[viewSize] === 'loose' ? 'text-blue-500' : 'text-emerald-600'}`}>
+                                    <span className={`font-bold ${fitColorClass(fitMap[viewSize])}`}>
                                         {getFitLabel(fitMap[viewSize])}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between text-xs">
                                     <span className="text-slate-500">Quadril</span>
-                                    <span className={`font-bold ${fitMap[viewSize] === 'tight' ? 'text-orange-500' : fitMap[viewSize] === 'loose' ? 'text-blue-500' : 'text-emerald-600'}`}>
+                                    <span className={`font-bold ${fitColorClass(fitMap[viewSize])}`}>
                                         {getFitLabel(fitMap[viewSize])}
                                     </span>
                                 </div>

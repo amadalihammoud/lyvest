@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 
 import ProductPageClient from '@/components/pages/ProductPageClient';
 import { productsData } from '@/data/products';
+import { supabase } from '@/lib/supabase';
+import { Product } from '@/services/ProductService';
 import { generateSlug } from '@/utils/slug';
 
 export const dynamicParams = true;
@@ -42,10 +44,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-
-import { supabase } from '@/lib/supabase';
-import { Product } from '@/services/ProductService';
-
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
@@ -53,7 +51,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     let product: Product | null = null;
 
     try {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('products')
             .select('*, category:categories(name, slug)')
             .eq('slug', slug)
@@ -62,7 +60,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         if (data) {
             product = {
                 ...data,
-                image: data.image_url || (data as any).image || '',
+                image: data.image_url || (data as Record<string, unknown>).image || '',
                 // Ensure category matches Product type which expects object or string
                 category: data.category
             } as unknown as Product;

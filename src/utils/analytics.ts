@@ -7,7 +7,7 @@ import { ANALYTICS_CONFIG } from '../config/constants';
 
 declare global {
     interface Window {
-        gtag?: (command: string, eventName: string, params?: Record<string, any>) => void;
+        gtag?: (command: string, eventName: string, params?: Record<string, unknown>) => void;
     }
 }
 
@@ -45,7 +45,7 @@ export interface ProductItem {
     name: string;
     category?: string;
     price: number;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export interface CartItem extends ProductItem {
@@ -54,7 +54,7 @@ export interface CartItem extends ProductItem {
 
 export interface AnalyticsEvent {
     name: string;
-    params: Record<string, any>;
+    params: Record<string, unknown>;
 }
 
 /**
@@ -105,7 +105,7 @@ export class AnalyticsService {
     /**
      * Registra evento
      */
-    track(eventName: string, params: Record<string, any> = {}): void {
+    track(eventName: string, params: Record<string, unknown> = {}): void {
         const event: AnalyticsEvent = {
             name: eventName,
             params: {

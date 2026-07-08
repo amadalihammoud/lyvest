@@ -4,8 +4,6 @@ import DashboardSidebar from './DashboardSidebar';
 import { useI18n } from '../../hooks/useI18n';
 import { Order } from '../../types/dashboard';
 import { getUserAvatar } from '../../utils/userUtils';
-import Breadcrumbs from '../ui/Breadcrumbs';
-// import { User } from '../../context/AuthContext';
 
 export interface User {
     id: string;
@@ -17,41 +15,20 @@ export interface User {
         phone?: string;
         cpf?: string;
         birth_date?: string;
-        [key: string]: any;
+        [key: string]: unknown;
     };
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 // Lazy load das seções para melhorar performance
 const OverviewSection = lazy(() => import('./OverviewSection'));
 const OrdersSection = lazy(() => import('./OrdersSection'));
 const FavoritesSection = lazy(() => import('./FavoritesSection'));
-const ProfileSection = lazy(() => import('./ProfileSection'));
 const AddressSection = lazy(() => import('./AddressSection'));
-const SettingsSection = lazy(() => import('./SettingsSection'));
 const CouponsSection = lazy(() => import('./CouponsSection'));
 
-// Loading skeleton para seções
-const SectionLoader = memo(function SectionLoader() {
-    return (
-        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 animate-pulse">
-            <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-slate-200 rounded-full" />
-                <div className="flex-1">
-                    <div className="h-5 bg-slate-200 rounded w-1/3 mb-2" />
-                    <div className="h-4 bg-slate-100 rounded w-1/2" />
-                </div>
-            </div>
-            <div className="space-y-3">
-                <div className="h-4 bg-slate-100 rounded w-full" />
-                <div className="h-4 bg-slate-100 rounded w-3/4" />
-                <div className="h-4 bg-slate-100 rounded w-1/2" />
-            </div>
-        </div>
-    );
-});
-
-// Componente de header memoizado
+// Perfil/Configurações usam o componente UserProfile do Clerk (substitui as antigas
+// ProfileSection/SettingsSection).
 const UserProfile = lazy(() => import('@clerk/nextjs').then(mod => ({ default: mod.UserProfile })));
 
 // Componente de header memoizado

@@ -19,30 +19,43 @@ const CART_MAX_ITEMS = CART_CONFIG.MAX_ITEMS;
 const CART_MAX_QUANTITY = CART_CONFIG.MAX_QUANTITY_PER_ITEM;
 const FREE_SHIPPING_MIN = 199;
 
-// Cupons válidos
-const VALID_COUPONS: Record<string, number> = {
-    'BEMVINDA10': 0.10,
-    'LYVEST2026': 0.15,
-    'PROMO5': 0.05,
-};
+// Cupons: NÃO ficam no cliente (fonte única = servidor, src/config/coupons.ts).
+// A validação é feita via POST /api/coupons/validate.
+
+// Helpers de validação (mantêm validateCartItem com baixa complexidade)
+function isValidCartId(id: unknown): boolean {
+    if (typeof id === 'number') return id > 0;
+    return typeof id === 'string' && id.length > 0;
+}
+function isValidCartName(v: unknown): boolean {
+    return typeof v === 'string' && v.length > 0 && v.length <= 200;
+}
+function isNumberInRange(v: unknown, min: number, max: number): boolean {
+    return typeof v === 'number' && v >= min && v <= max;
+}
+function isPositiveMax(v: unknown, max: number): boolean {
+    return typeof v === 'number' && v > 0 && v <= max;
+}
+function sanitizeCartStr(v: unknown, max: number): string {
+    return typeof v === 'string' ? v.slice(0, max) : '';
+}
 
 function validateCartItem(item: unknown): CartItem | null {
     if (!item || typeof item !== 'object') return null;
     const i = item as Record<string, unknown>;
 
-    if ((typeof i.id !== 'number' && typeof i.id !== 'string') || !i.id) return null;
-    if (typeof i.id === 'number' && i.id <= 0) return null;
-    if (typeof i.name !== 'string' || i.name.length === 0 || i.name.length > 200) return null;
-    if (typeof i.price !== 'number' || i.price < 0 || i.price > 100000) return null;
-    if (typeof i.qty !== 'number' || i.qty <= 0 || i.qty > CART_MAX_QUANTITY) return null;
+    if (!isValidCartId(i.id)) return null;
+    if (!isValidCartName(i.name)) return null;
+    if (!isNumberInRange(i.price, 0, 100000)) return null;
+    if (!isPositiveMax(i.qty, CART_MAX_QUANTITY)) return null;
 
     return {
         id: typeof i.id === 'number' ? Math.floor(i.id) : String(i.id),
-        name: String(i.name).slice(0, 200).replace(/<[^>]*>/g, ''),
-        price: Math.abs(Number(i.price)),
-        qty: Math.min(Math.floor(i.qty), CART_MAX_QUANTITY),
-        image: typeof i.image === 'string' ? i.image.slice(0, 500) : '',
-        category: typeof i.category === 'string' ? i.category.slice(0, 100) : ''
+        name: sanitizeCartStr(i.name, 200).replace(/<[^>]*>/g, ''),
+        price: Math.abs(i.price as number),
+        qty: Math.min(Math.floor(i.qty as number), CART_MAX_QUANTITY),
+        image: sanitizeCartStr(i.image, 500),
+        category: sanitizeCartStr(i.category, 100)
     };
 }
 
@@ -79,7 +92,7 @@ interface CartState {
     removeFromCart: (id: number | string) => void;
     updateQuantity: (id: number | string, qty: number) => void;
     clearCart: () => void;
-    applyCoupon: (code: string) => { success: boolean; message: string };
+    applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
     removeCoupon: () => void;
     _hydrate: () => void;
 
@@ -178,22 +191,32 @@ export const useCartStore = create<CartState>((set, get) => ({
         });
     },
 
-    applyCoupon: (code: string) => {
+    applyCoupon: async (code: string) => {
         const normalizedCode = code.toUpperCase().trim();
         if (!normalizedCode) return { success: false, message: 'Digite um código válido.' };
 
-        if (Object.prototype.hasOwnProperty.call(VALID_COUPONS, normalizedCode)) {
-            const discountPercent = VALID_COUPONS[normalizedCode];
-            const state = get();
+        try {
+            const { cartTotal } = get();
+            const res = await fetch('/api/coupons/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: normalizedCode, cartTotal }),
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.valid) {
+                return { success: false, message: data?.message || 'Cupom inválido ou expirado.' };
+            }
+
             set({
                 couponCode: normalizedCode,
-                discount: discountPercent,
-                ...computeDerived(state.cartItems, discountPercent),
+                discount: data.discount,
+                ...computeDerived(get().cartItems, data.discount),
             });
-            return { success: true, message: `Cupom ${normalizedCode} aplicado! (${discountPercent * 100}% OFF)` };
+            return { success: true, message: data.message };
+        } catch {
+            return { success: false, message: 'Não foi possível validar o cupom agora. Tente novamente.' };
         }
-
-        return { success: false, message: 'Cupom inválido ou expirado.' };
     },
 
     removeCoupon: () => {
@@ -210,7 +233,7 @@ export const useCartStore = create<CartState>((set, get) => ({
 if (typeof window !== 'undefined') {
     // Use requestIdleCallback or setTimeout to defer hydration
     if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => useCartStore.getState()._hydrate());
+        window.requestIdleCallback(() => useCartStore.getState()._hydrate());
     } else {
         setTimeout(() => useCartStore.getState()._hydrate(), 0);
     }

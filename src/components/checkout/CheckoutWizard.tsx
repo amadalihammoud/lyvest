@@ -16,6 +16,49 @@ interface CheckoutWizardProps {
     onComplete: () => void;
 }
 
+// Indicador de etapas do checkout — extraído para manter CheckoutWizard com baixa complexidade.
+function StepIndicator({ step, t }: { step: number; t: (key: string) => string }) {
+    return (
+        <div className="flex items-center justify-center">
+            {/* Step 1 - Address */}
+            <div className="flex flex-col items-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= 1 ? 'bg-lyvest-500 text-white shadow-lg shadow-[#F5E6E8]' : 'bg-slate-200 text-slate-500'}`}>
+                    {step > 1 ? <CheckCircle className="w-5 h-5" /> : '1'}
+                </div>
+                <span className={`text-xs mt-2 font-medium ${step >= 1 ? 'text-lyvest-600' : 'text-slate-400'}`}>
+                    {t('checkout.steps.address')}
+                </span>
+            </div>
+
+            {/* Line 1-2 */}
+            <div className={`w-16 sm:w-24 h-1 mx-2 rounded-full transition-all ${step >= 2 ? 'bg-lyvest-500' : 'bg-slate-200'}`}></div>
+
+            {/* Step 2 - Payment */}
+            <div className="flex flex-col items-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= 2 ? 'bg-lyvest-500 text-white shadow-lg shadow-[#F5E6E8]' : 'bg-slate-200 text-slate-500'}`}>
+                    {step > 2 ? <CheckCircle className="w-5 h-5" /> : '2'}
+                </div>
+                <span className={`text-xs mt-2 font-medium ${step >= 2 ? 'text-lyvest-600' : 'text-slate-400'}`}>
+                    {t('checkout.steps.payment')}
+                </span>
+            </div>
+
+            {/* Line 2-3 */}
+            <div className={`w-16 sm:w-24 h-1 mx-2 rounded-full transition-all ${step >= 3 ? 'bg-green-500' : 'bg-slate-200'}`}></div>
+
+            {/* Step 3 - Confirmation */}
+            <div className="flex flex-col items-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= 3 ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-slate-200 text-slate-500'}`}>
+                    <CheckCircle className="w-5 h-5" />
+                </div>
+                <span className={`text-xs mt-2 font-medium ${step >= 3 ? 'text-green-600' : 'text-slate-400'}`}>
+                    {t('checkout.steps.confirmation')}
+                </span>
+            </div>
+        </div>
+    );
+}
+
 export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardProps) {
     const { t, isRTL } = useI18n();
     const { cartItems, cartTotal, clearCart } = useCart();
@@ -77,43 +120,7 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
                     </button>
 
                     {/* Step Indicator */}
-                    <div className="flex items-center justify-center">
-                        {/* Step 1 - Address */}
-                        <div className="flex flex-col items-center">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= 1 ? 'bg-lyvest-500 text-white shadow-lg shadow-[#F5E6E8]' : 'bg-slate-200 text-slate-500'}`}>
-                                {step > 1 ? <CheckCircle className="w-5 h-5" /> : '1'}
-                            </div>
-                            <span className={`text-xs mt-2 font-medium ${step >= 1 ? 'text-lyvest-600' : 'text-slate-400'}`}>
-                                {t('checkout.steps.address')}
-                            </span>
-                        </div>
-
-                        {/* Line 1-2 */}
-                        <div className={`w-16 sm:w-24 h-1 mx-2 rounded-full transition-all ${step >= 2 ? 'bg-lyvest-500' : 'bg-slate-200'}`}></div>
-
-                        {/* Step 2 - Payment */}
-                        <div className="flex flex-col items-center">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= 2 ? 'bg-lyvest-500 text-white shadow-lg shadow-[#F5E6E8]' : 'bg-slate-200 text-slate-500'}`}>
-                                {step > 2 ? <CheckCircle className="w-5 h-5" /> : '2'}
-                            </div>
-                            <span className={`text-xs mt-2 font-medium ${step >= 2 ? 'text-lyvest-600' : 'text-slate-400'}`}>
-                                {t('checkout.steps.payment')}
-                            </span>
-                        </div>
-
-                        {/* Line 2-3 */}
-                        <div className={`w-16 sm:w-24 h-1 mx-2 rounded-full transition-all ${step >= 3 ? 'bg-green-500' : 'bg-slate-200'}`}></div>
-
-                        {/* Step 3 - Confirmation */}
-                        <div className="flex flex-col items-center">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= 3 ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-slate-200 text-slate-500'}`}>
-                                <CheckCircle className="w-5 h-5" />
-                            </div>
-                            <span className={`text-xs mt-2 font-medium ${step >= 3 ? 'text-green-600' : 'text-slate-400'}`}>
-                                {t('checkout.steps.confirmation')}
-                            </span>
-                        </div>
-                    </div>
+                    <StepIndicator step={step} t={t} />
                 </div>
             </header>
 

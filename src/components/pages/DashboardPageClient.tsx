@@ -4,10 +4,9 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 import UserDashboard from '@/components/dashboard/UserDashboard';
-import { useI18n } from '@/store/useI18nStore';
+import { mockOrders } from '@/data/mockOrders';
 // import { useAuth, User } from '@/context/AuthContext'; // Removed
 import { useModal } from '@/store/useModalStore';
-import { mockOrders } from '@/data/mockOrders';
 import { Order } from '@/types/dashboard';
 
 // Define Interface locally or import from a new types file if AuthContext is deleted
@@ -21,14 +20,13 @@ interface User {
         phone?: string;
         cpf?: string;
         birth_date?: string;
-        [key: string]: any;
+        [key: string]: unknown;
     };
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export default function DashboardPageClient() {
     const router = useRouter();
-    const { t } = useI18n();
     // const { user, profile, signOut } = useAuth(); // Removed
     const { user, isLoaded } = useUser();
     const { signOut } = useClerk();

@@ -4,7 +4,6 @@ import { useUser } from '@clerk/nextjs';
 import { X, Star, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
-import { useI18n } from '../../hooks/useI18n';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 
 
@@ -20,7 +19,6 @@ interface ReviewModalProps {
 
 export default function ReviewModal({ isOpen, onClose, productName, productId, orderId, productImage }: ReviewModalProps) {
     const { user } = useUser();
-    const { t } = useI18n();
 
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
@@ -69,7 +67,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                 setRating(0);
                 setComment('');
             }, 2000);
-        } catch (err: any) {
+        } catch (err) {
             console.error('Erro ao avaliar:', err);
             setError('Erro ao enviar avaliação. Tente novamente.');
         } finally {
@@ -81,7 +79,6 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in">
             <div
                 className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl relative overflow-hidden animate-scale-in"
-                onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
                 <div className="bg-[#7D2121] px-8 py-6 text-white text-center relative">
@@ -122,7 +119,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
 
                         {/* Star Rating */}
                         <div className="flex flex-col items-center gap-2">
-                            <label className="text-sm font-bold text-slate-400 uppercase tracking-wide">Sua Nota</label>
+                            <span className="text-sm font-bold text-slate-400 uppercase tracking-wide">Sua Nota</span>
                             <div className="flex gap-2">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <button
@@ -153,8 +150,9 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
 
                         {/* Comment */}
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 ml-1">Comentário (opcional)</label>
+                            <label htmlFor="review-comment" className="text-sm font-bold text-slate-700 ml-1">Comentário (opcional)</label>
                             <textarea
+                                id="review-comment"
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
                                 placeholder="Conte mais detalhes sobre o produto, tecido, caimento..."

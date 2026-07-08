@@ -3,18 +3,17 @@
 import { Smile } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
+import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 
 // Hero and InfoStrip moved to page.tsx for LCP optimization
 // import Hero from '@/components/features/Hero';
 import ProductCard from '@/components/product/ProductCard';
 // import InfoStrip from '@/components/features/InfoStrip';
+import { productsData } from '@/data/products';
 import { useCart } from '@/store/useCartStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';
 import { useModal } from '@/store/useModalStore';
-import { productsData } from '@/data/products';
-import { quickFilters } from '@/data/siteData';
 
 
 // Lazy load below-the-fold components — ssr: false to isolate heavy deps like Zod
@@ -32,6 +31,7 @@ function ProductShowcase() {
     // This allows the server to statically generate the default 'Todos' 
     // product grid instantly in the initial HTML.
     useEffect(() => {
+        /* eslint-disable react-hooks/set-state-in-effect -- hidrata categoria/busca a partir da URL (client-only, SSR-safe) */
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             const categoryParam = params.get('categoria');
@@ -39,6 +39,7 @@ function ProductShowcase() {
             if (categoryParam) setSelectedCategory(categoryParam);
             if (searchParam) setSearchQuery(searchParam);
         }
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, []);
 
     const { addToCart } = useCart();

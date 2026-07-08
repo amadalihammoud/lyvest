@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable react-refresh/only-export-components */
 // src/context/I18nContext.tsx
 import { useState, useCallback, useMemo, useEffect, useContext, createContext, ReactNode } from 'react';
 
@@ -52,6 +51,7 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
         } catch {
             // Falha silenciosa
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- flag de hidratação client-only (localStorage indisponível no SSR)
         setIsHydrated(true);
     }, []);
 

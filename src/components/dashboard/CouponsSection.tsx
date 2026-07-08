@@ -1,8 +1,6 @@
-import { Ticket, Copy, CheckCircle, ArrowRight, ExternalLink } from 'lucide-react';
+import { Ticket, Copy, CheckCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-
-import { useI18n } from '../../hooks/useI18n';
 
 
 interface Coupon {
@@ -17,7 +15,6 @@ interface Coupon {
 }
 
 export default function CouponsSection() {
-    const { t } = useI18n();
     const [copiedId, setCopiedId] = useState<string | null>(null);
 
     const coupons: Coupon[] = [

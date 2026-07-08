@@ -28,6 +28,7 @@ export default function DashboardPage() {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- guard de montagem client-only (evita mismatch de hidratação SSR)
         setMounted(true);
     }, []);
 

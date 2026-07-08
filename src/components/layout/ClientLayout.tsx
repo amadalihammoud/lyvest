@@ -1,9 +1,13 @@
 'use client';
 
-import { ReactNode, Suspense, useEffect, useState, lazy, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { ReactNode, Suspense, useEffect, useState, lazy, useRef } from 'react';
 
 import AppProviders from '@/components/layout/AppProviders';
+import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
+import { useAuthModal } from '@/store/useAuthModal';
+import { logger } from '@/utils/logger';
+import { initSentry } from '@/utils/sentry';
 
 // Footer lazy loaded to reduce initial TBT
 const Footer = lazy(() => import('@/components/layout/Footer'));
@@ -14,10 +18,6 @@ const AuthModalDeferred = lazy(() => import('@/components/auth/AuthModal'));
 // Strictly decouple LazyClerkProvider from the module graph until needed
 // This prevents Next.js from sending the 200KB clerk.js chunk in the initial HTML
 const LazyClerkProviderDeferred = lazy(() => import('@/components/providers/LazyClerkProvider').then(mod => ({ default: mod.LazyClerkProvider })));
-
-import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
-import { useAuthModal } from '@/store/useAuthModal';
-import { initSentry } from '@/utils/sentry';
 
 // Routes that require Clerk auth immediately (skip the lazy 7s window).
 // These are protected pages the user navigates to intentionally.
@@ -40,6 +40,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     const isEagerRoute = EAGER_CLERK_ROUTES.some(r => pathname?.startsWith(r));
     const [eagerLoaded, setEagerLoaded] = useState(false);
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- rota "eager" só é conhecida no cliente (pathname)
         if (isEagerRoute) setEagerLoaded(true);
     }, [isEagerRoute]);
 
@@ -73,7 +74,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         if (typeof window !== 'undefined' && shouldLoad) {
             // Sentry
             if ('requestIdleCallback' in window) {
-                (window as any).requestIdleCallback(() => initSentry(), { timeout: 5000 });
+                window.requestIdleCallback(() => initSentry(), { timeout: 5000 });
             } else {
                 setTimeout(() => initSentry(), 1000);
             }
@@ -82,10 +83,10 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
                 navigator.serviceWorker.register('/sw.js').then(
                     (registration) => {
-                        console.log('Service Worker registration successful with scope: ', registration.scope);
+                        logger.info('Service Worker registrado, escopo:', registration.scope);
                     },
                     (err) => {
-                        console.log('Service Worker registration failed: ', err);
+                        logger.error('Falha ao registrar Service Worker:', err);
                     }
                 );
             }

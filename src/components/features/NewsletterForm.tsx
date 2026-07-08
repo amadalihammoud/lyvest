@@ -5,13 +5,13 @@ import React, { useState, useCallback } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useI18n } from '../../hooks/useI18n';
 import { validateForm, newsletterSchema } from '../../utils/schemas';
-import { RateLimiter, createHoneypot, detectXSS } from '../../utils/security';
+import { RateLimiter, detectXSS } from '../../utils/security';
+import Honeypot from '../ui/Honeypot';
 
 // Rate limiter: 3 tentatives per minute
 const newsletterLimiter = new RateLimiter('newsletter', 3, 60000);
 
 // Honeypot anti-spam
-import Honeypot from '../ui/Honeypot';
 const honeypotFieldName = '_gotcha';
 
 function NewsletterForm() {

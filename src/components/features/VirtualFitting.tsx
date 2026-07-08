@@ -8,6 +8,7 @@ import SizeCalculator from './SizeCalculator';
 import { findSimilarModels } from '../../data/sizeGuide';
 import { Product } from '../../services/ProductService';
 import { BodyMeasurements, SizeRecommendation, calculateSize } from '../../services/sizeAI';
+import { analyticsLogger } from '../../utils/logger';
 import { getProductGender } from '../../utils/productUtils';
 
 interface VirtualFittingProps {
@@ -22,8 +23,8 @@ type Step = 'input' | 'recommendation' | 'models';
 const STORAGE_KEY = 'lyvest_user_measurements';
 
 // Simples sistema de analytics (pode ser expandido para GA4/Pixel)
-const trackEvent = (eventName: string, data: any) => {
-    console.log(`📊 [Analytics] ${eventName}:`, data);
+const trackEvent = (eventName: string, data: Record<string, unknown>) => {
+    analyticsLogger.info(`${eventName}:`, data);
     // Aqui seria: window.gtag('event', eventName, data);
 };
 
@@ -119,11 +120,14 @@ export default function VirtualFitting({
     const modalContent = (
         <div
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
-            onClick={onClose}
+            onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+            onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+            role="button"
+            tabIndex={0}
+            aria-label="Fechar"
         >
             <div
                 className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative animate-scale-up"
-                onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
                 <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4">

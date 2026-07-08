@@ -3,9 +3,6 @@ import { MapPin, Plus, Edit2, Trash2, X, CheckCircle, AlertCircle, Star } from '
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { useI18n } from '../../hooks/useI18n';
-
-// import { useAuth } from '../../context/AuthContext';
-
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { UserAddress } from '../../types/dashboard';
 
@@ -137,13 +134,16 @@ export default function AddressSection() {
         setIsFormOpen(true);
     };
 
+    const isAddressComplete = () =>
+        Boolean(formData.street && formData.number && formData.city && formData.state && formData.zip_code);
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
         setMessage({ type: '', text: '' });
 
         // Validação básica
-        if (!formData.street || !formData.number || !formData.city || !formData.state || !formData.zip_code) {
+        if (!isAddressComplete()) {
             setMessage({ type: 'error', text: 'Preencha todos os campos obrigatórios' });
             setIsSaving(false);
             return;
@@ -397,8 +397,9 @@ export default function AddressSection() {
 
                     {/* Ponto de Referência */}
                     <div>
-                        <label className="text-sm font-bold text-slate-700 mb-2 block">Ponto de Referência</label>
+                        <label htmlFor="reference_point" className="text-sm font-bold text-slate-700 mb-2 block">Ponto de Referência</label>
                         <input
+                            id="reference_point"
                             type="text"
                             value={formData.reference_point || ''}
                             onChange={(e) => handleChange('reference_point', e.target.value)}

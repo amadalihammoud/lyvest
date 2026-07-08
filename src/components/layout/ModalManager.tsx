@@ -1,10 +1,11 @@
 ﻿import { X } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import { Suspense, lazy } from 'react';
 
 import { useCart } from '../../hooks/useCart';
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
+import { Product } from '../../services/ProductService';
+import { CartItem } from '../../store/useCartStore';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
 // Lazy load Clerk components to remove ~250KiB from initial bundle
@@ -32,11 +33,7 @@ const AddedToCartModal = lazy(() => import('../modals/AddedToCartModal'));
 // const NewsletterModal = lazy(() => import('../modals/NewsletterModal')); // Missing
 // const SizeGuideModal = lazy(() => import('../modals/SizeGuideModal')); // Missing
 
-interface ModalManagerProps {
-    onLoginSuccess: (user: any) => void;
-}
-
-export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
+export default function ModalManager() {
     const { activeModal, closeModal, modalData } = useModal();
     const { t } = useI18n();
     const { addToCart } = useCart();
@@ -63,9 +60,9 @@ export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
             case 'quickview':
                 return (
                     <ProductQuickView
-                        product={modalData as any}
+                        product={modalData as Product}
                         onClose={closeModal}
-                        onAddToCart={(p) => addToCart(p as any)}
+                        onAddToCart={(p) => addToCart(p as unknown as Partial<CartItem>)}
                     />
                 );
             default:

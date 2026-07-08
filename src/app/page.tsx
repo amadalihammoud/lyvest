@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
 import type { Metadata } from 'next';
 
@@ -18,7 +17,6 @@ export const metadata: Metadata = {
 
 // Lazy load viewport-dependent components
 const HomePageClient = dynamic(() => import('@/components/pages/HomePageClient'), { ssr: true });
-const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: true });
 
 export default async function HomePage() {
     return (

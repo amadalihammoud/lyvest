@@ -1,23 +1,22 @@
 
 'use client';
 
-import { productsData } from '@/data/products';
 
 import { Home } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import CategoryToolbar from '@/components/product/CategoryToolbar';
 import ProductCard from '@/components/product/ProductCard';
-
-const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
+import { productsData } from '@/data/products';
 import { useCart } from '@/store/useCartStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';
 import { useModal } from '@/store/useModalStore';
 import { generateSlug } from '@/utils/slug';
+
+const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
 
 interface CategoryPageClientProps {
     slug: string;
@@ -28,7 +27,6 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
     const { addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
     const { openModal } = useModal();
-    const router = useRouter();
 
     // State for Toolbar & Filters
     const [sortOption, setSortOption] = useState('relevance');
@@ -56,11 +54,11 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
     // Filter Logic
     const { filteredAndSortedProducts, availableColors, availableSizes, priceRange } = useMemo(() => {
         // 1. Base Category Filtering
-        let result = (productsData as any[]).filter(product => generateSlug(product.category) === slug);
+        let result = productsData.filter(product => generateSlug(product.category) === slug);
 
         // Calculate available distinct options and price range based on current category
         const allSizes = new Set<string>();
-        const allColorsMap = new Map<string, any>();
+        const allColorsMap = new Map<string, { name: string; hex: string }>();
         let minPrice = Infinity;
         let maxPrice = -Infinity;
 
@@ -68,7 +66,7 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
             // Sizes
             if (p.sizes) p.sizes.forEach((s: string) => allSizes.add(s));
             // Colors
-            if (p.colors) p.colors.forEach((c: { name: string }) => allColorsMap.set(c.name, c));
+            if (p.colors) p.colors.forEach((c: { name: string; hex: string }) => allColorsMap.set(c.name, c));
             // Prices
             if (p.price < minPrice) minPrice = p.price;
             if (p.price > maxPrice) maxPrice = p.price;
@@ -142,8 +140,8 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
                     setFilters={setFilters}
                     isOpen={isSidebarOpen}
                     onClose={() => setIsSidebarOpen(false)}
-                    availableColors={availableColors as any}
-                    availableSizes={availableSizes as any}
+                    availableColors={availableColors}
+                    availableSizes={availableSizes}
                     priceRange={priceRange.min === Infinity ? { min: 0, max: 1000 } : priceRange}
                     variant="mobile"
                 />
@@ -158,8 +156,8 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
                     setFilters={setFilters}
                     isOpen={isSidebarOpen}
                     onClose={() => setIsSidebarOpen(false)}
-                    availableColors={availableColors as any}
-                    availableSizes={availableSizes as any}
+                    availableColors={availableColors}
+                    availableSizes={availableSizes}
                     priceRange={priceRange.min === Infinity ? { min: 0, max: 1000 } : priceRange}
                 />
 
