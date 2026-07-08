@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { isAuthorizedInternal } from '@/lib/server/internalAuth';
 import { logError, logInfo } from '@/lib/server/logger';
@@ -7,8 +8,13 @@ import { logError, logInfo } from '@/lib/server/logger';
  * POST /api/erp/webhook-stock
  *
  * Recebe atualizações de estoque do ERP (Bling/Tiny). Pilar 3: auth fail-closed
- * (tempo constante), sem log de IP.
+ * (tempo constante), sem log de IP. Pilar 5: entrada validada com Zod.
  */
+const stockSchema = z.object({
+    sku: z.string().min(1).max(64),
+    quantity: z.number().int().optional(),
+});
+
 export async function POST(request: NextRequest) {
     // F4 da security-review: token só via header (nunca query-param, que vaza em access logs).
     const incomingToken = request.headers.get('x-webhook-secret') || '';
@@ -19,10 +25,11 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const payload = await request.json();
-        if (!payload || !payload.sku) {
+        const parsed = stockSchema.safeParse(await request.json());
+        if (!parsed.success) {
             return NextResponse.json({ error: 'Invalid payload: SKU required' }, { status: 400 });
         }
+        const payload = parsed.data;
 
         logInfo('erp/webhook-stock: update recebido para SKU', payload.sku);
         // TODO(Fase 3): atualização/decremento atômico de estoque via RPC decrement_stock.

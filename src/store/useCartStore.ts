@@ -208,10 +208,12 @@ export const useCartStore = create<CartState>((set, get) => ({
                 return { success: false, message: data?.message || 'Cupom inválido ou expirado.' };
             }
 
+            // Defesa: fração de desconto limitada a [0,1] (o servidor recalcula o real no pagamento).
+            const safeDiscount = Math.min(Math.max(Number(data.discount) || 0, 0), 1);
             set({
                 couponCode: normalizedCode,
-                discount: data.discount,
-                ...computeDerived(get().cartItems, data.discount),
+                discount: safeDiscount,
+                ...computeDerived(get().cartItems, safeDiscount),
             });
             return { success: true, message: data.message };
         } catch {

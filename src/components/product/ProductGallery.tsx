@@ -34,7 +34,7 @@ export function ProductGallery({ images, activeImage, setActiveImage, video, pro
                 ))}
                 {video && (
                     <button
-                        onClick={() => window.open(video, '_blank')}
+                        onClick={() => window.open(video, '_blank', 'noopener,noreferrer')}
                         className="w-20 h-20 border-2 border-lyvest-100 bg-lyvest-100/30 rounded-lg flex flex-col items-center justify-center text-lyvest-500 hover:bg-lyvest-100 hover:border-lyvest-200 transition-colors group/video"
                         title={t('products.watchVideo')}
                     >

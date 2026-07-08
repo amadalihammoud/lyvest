@@ -82,7 +82,7 @@ function ProductQuickView({ product, onClose, onAddToCart }: ProductQuickViewPro
                         <div className="relative w-full h-full flex items-center justify-center bg-black/5">
                             <img src={slides[currentSlide].thumb} alt="Video Thumbnail" className="max-h-full max-w-full object-contain opacity-50" />
                             <button
-                                onClick={() => window.open(slides[currentSlide].src, '_blank')}
+                                onClick={() => window.open(slides[currentSlide].src, '_blank', 'noopener,noreferrer')}
                                 className="absolute inset-0 flex items-center justify-center z-10 group/play"
                             >
                                 <div className="w-16 h-16 bg-lyvest-500 rounded-full flex items-center justify-center shadow-lg group-hover/play:scale-110 transition-transform">
