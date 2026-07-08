@@ -138,11 +138,13 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
     // Hidratar do localStorage apenas no cliente
     useEffect(() => {
+        /* eslint-disable react-hooks/set-state-in-effect -- hidratação client-only do carrinho (localStorage indisponível no SSR) */
         const savedCart = loadCartFromStorage();
         if (savedCart.length > 0) {
             setCartItems(savedCart);
         }
         setIsHydrated(true);
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, []);
 
     // Persistir no localStorage quando mudar (apenas após hidratação)

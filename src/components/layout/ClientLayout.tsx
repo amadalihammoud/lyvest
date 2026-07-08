@@ -40,6 +40,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     const isEagerRoute = EAGER_CLERK_ROUTES.some(r => pathname?.startsWith(r));
     const [eagerLoaded, setEagerLoaded] = useState(false);
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- rota "eager" só é conhecida no cliente (pathname)
         if (isEagerRoute) setEagerLoaded(true);
     }, [isEagerRoute]);
 

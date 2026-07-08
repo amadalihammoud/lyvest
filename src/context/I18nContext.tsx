@@ -51,6 +51,7 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
         } catch {
             // Falha silenciosa
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- flag de hidratação client-only (localStorage indisponível no SSR)
         setIsHydrated(true);
     }, []);
 

@@ -31,6 +31,7 @@ function ProductShowcase() {
     // This allows the server to statically generate the default 'Todos' 
     // product grid instantly in the initial HTML.
     useEffect(() => {
+        /* eslint-disable react-hooks/set-state-in-effect -- hidrata categoria/busca a partir da URL (client-only, SSR-safe) */
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             const categoryParam = params.get('categoria');
@@ -38,6 +39,7 @@ function ProductShowcase() {
             if (categoryParam) setSelectedCategory(categoryParam);
             if (searchParam) setSearchQuery(searchParam);
         }
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, []);
 
     const { addToCart } = useCart();

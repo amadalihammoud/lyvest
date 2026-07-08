@@ -72,6 +72,7 @@ export default function HeaderInteractive() {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             const q = params.get('q') || params.get('busca') || '';
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrata a busca a partir da URL (client-only)
             if (q) setSearchQuery(q);
         }
     }, []);
