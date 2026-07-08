@@ -4,7 +4,6 @@
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode, useRef } from 'react';
 
 import { FAVORITES_CONFIG } from '../config/constants';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { logger } from '../utils/logger';
 
 interface FavoritesContextType {

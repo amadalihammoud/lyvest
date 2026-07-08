@@ -6,7 +6,6 @@
  */
 
 import { Product } from './ProductService';
-import { SIZE_GUIDE } from '../data/sizeGuide';
 
 export interface BodyMeasurements {
     height: number; // cm
@@ -311,20 +310,3 @@ function getHipAdjustment(hipType: 'narrow' | 'medium' | 'wide'): number {
     }
 }
 
-function translateBustType(type: string): string {
-    const map: Record<string, string> = {
-        small: 'pequeno',
-        medium: 'médio',
-        large: 'grande',
-    };
-    return map[type] || type;
-}
-
-function translateHipType(type: string): string {
-    const map: Record<string, string> = {
-        narrow: 'estreito',
-        medium: 'médio',
-        wide: 'largo',
-    };
-    return map[type] || type;
-}

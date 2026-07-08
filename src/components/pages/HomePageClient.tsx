@@ -3,14 +3,13 @@
 import { Smile } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useMemo, lazy, Suspense, useRef } from 'react';
+import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 
 // Hero and InfoStrip moved to page.tsx for LCP optimization
 // import Hero from '@/components/features/Hero';
 import ProductCard from '@/components/product/ProductCard';
 // import InfoStrip from '@/components/features/InfoStrip';
 import { productsData } from '@/data/products';
-import { quickFilters } from '@/data/siteData';
 import { useCart } from '@/store/useCartStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';

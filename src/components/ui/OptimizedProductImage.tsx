@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 
 interface OptimizedProductImageProps {
     src: string;
@@ -37,11 +37,6 @@ export default function OptimizedProductImage({
     const placeholderText = fallbackText || alt.split(' ')[0] || 'Produto';
 
     const handleLoad = useCallback(() => {
-        setIsLoading(false);
-    }, []);
-
-    const handleError = useCallback(() => {
-        setHasError(true);
         setIsLoading(false);
     }, []);
 

@@ -1,10 +1,8 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState, ReactNode, lazy, Suspense } from 'react';
 
 // Zustand stores replace Context Providers — no wrappers needed
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
-import { useI18n } from '@/store/useI18nStore';
 import { useModal } from '@/store/useModalStore';
 
 // Lazy load ALL non-critical components to minimize initial JS
@@ -20,14 +18,7 @@ interface AppProvidersProps {
 }
 
 function GlobalLogic({ children }: { children: ReactNode }) {
-    const router = useRouter();
-    const {
-        notification,
-        showNotification,
-        closeModal,
-        openModal
-    } = useModal();
-    const { t } = useI18n();
+    const { notification, openModal } = useModal();
 
     // Delay heavy widgets to reduce TBT
     const [showWidgets, setShowWidgets] = useState(false);

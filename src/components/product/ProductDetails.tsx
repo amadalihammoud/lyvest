@@ -1,18 +1,12 @@
 ﻿import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { ProductActions } from './ProductActions';
 import { ProductGallery } from './ProductGallery';
 import { ProductInfo } from './ProductInfo';
 import { ProductTabs } from './ProductTabs';
-import { productsData } from '../../data/products';
-// Removed static ProductCard import
 import { useI18n } from '../../hooks/useI18n';
 import { Product } from '../../services/ProductService';
-
-// Sub-components
-import { generateSlug } from '../../utils/slug';
 
 
 // Lazy loading "Related Products" to skip loading all ProductCard definitions in the initial bundle
@@ -25,7 +19,6 @@ interface ProductDetailsProps {
 }
 
 function ProductDetails({ product, onAddToCart, onOpenVirtualFitting }: ProductDetailsProps) {
-    const router = useRouter();
     const { t, isRTL, formatCurrency, getProductData } = useI18n();
     const [quantity, setQuantity] = useState(1);
     const [shippingZip, setShippingZip] = useState('');
