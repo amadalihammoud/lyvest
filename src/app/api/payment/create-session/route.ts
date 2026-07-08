@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { validateCoupon } from '@/config/coupons';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError } from '@/lib/server/logger';
-import { persistPendingOrder } from '@/server/services/orders';
+import { couponAlreadyRedeemed, persistPendingOrder } from '@/server/services/orders';
 import { getPaymentProvider } from '@/server/services/payment';
 import { supabase } from '@/server/supabase';
 
@@ -70,20 +70,25 @@ export async function POST(request: NextRequest) {
         // Totais recomputados no servidor (nunca confiar no total do cliente).
         const subtotal = verifiedItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
 
+        // Best-effort: identifica o usuário se logado (não obrigatório).
+        const { userId } = await auth();
+
         // Cupom REVALIDADO no servidor (Zero-Trust): usamos só o código e recalculamos o desconto.
         let discount = 0;
         let appliedCoupon: string | null = null;
         if (coupon) {
             const couponResult = validateCoupon(coupon, subtotal);
-            if (couponResult.valid) {
+            // Uso único: se o usuário logado já resgatou este cupom, NÃO concede o desconto.
+            const alreadyUsed =
+                couponResult.valid && couponResult.singleUse
+                    ? await couponAlreadyRedeemed(userId ?? null, coupon.toUpperCase().trim())
+                    : false;
+            if (couponResult.valid && !alreadyUsed) {
                 discount = Number((subtotal * couponResult.discount).toFixed(2));
                 appliedCoupon = coupon.toUpperCase().trim();
             }
         }
         const total = Number((subtotal - discount).toFixed(2));
-
-        // Best-effort: identifica o usuário se logado (não obrigatório).
-        const { userId } = await auth();
 
         // Número de pedido único; usado para o fulfillment idempotente no webhook.
         const orderNumber = `LV-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;

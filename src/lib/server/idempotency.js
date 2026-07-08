@@ -34,3 +34,20 @@ export async function markEventProcessed(eventId, prefix = 'webhook') {
         return true;
     }
 }
+
+/**
+ * Libera a chave de idempotência de um evento (DEL). Usado quando o processamento
+ * FALHOU depois de marcar o evento como visto, para que o provider possa re-tentar
+ * (senão a re-entrega seria deduplicada e o efeito se perderia).
+ */
+export async function clearEventProcessed(eventId, prefix = 'webhook') {
+    if (!eventId || !REDIS_URL || !REDIS_TOKEN) return;
+    const key = `idem:${prefix}:${encodeURIComponent(eventId)}`;
+    try {
+        await fetch(`${REDIS_URL}/del/${key}`, {
+            headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+        });
+    } catch {
+        // best-effort; se falhar, o TTL eventualmente expira a chave
+    }
+}

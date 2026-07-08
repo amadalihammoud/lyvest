@@ -35,6 +35,10 @@ ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS orders_user_id_fkey;
 ALTER TABLE public.orders ALTER COLUMN user_id TYPE TEXT USING user_id::text;
 ALTER TABLE public.orders ALTER COLUMN user_id DROP NOT NULL;
 
+-- Coluna dedicada para o cupom aplicado (evita sobrecarregar payment_method, que guarda
+-- o método real de pagamento). Usada por mark_order_paid no resgate de uso único.
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS coupon_code TEXT;
+
 -- Recriar policies escopadas por clerk_uid().
 DROP POLICY IF EXISTS "User View Own Orders"   ON public.orders;
 DROP POLICY IF EXISTS "User Insert Own Orders" ON public.orders;
@@ -100,7 +104,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 --   - registra o resgate de cupom de uso único (ON CONFLICT DO NOTHING => a UNIQUE
 --     garante 1 uso por usuário; segunda tentativa não duplica);
 --   - marca o pedido como 'paid' e grava histórico.
--- Retorna o status final: 'paid' | 'already_paid' | 'not_found'.
+-- Retorna o status final: 'paid' | 'already_paid' | 'not_found' | <status atual se não-pending>.
 CREATE OR REPLACE FUNCTION public.mark_order_paid(p_order_number TEXT)
 RETURNS TEXT AS $$
 DECLARE
@@ -118,8 +122,10 @@ BEGIN
     RETURN 'not_found';
   END IF;
 
-  IF v_order.status = 'paid' THEN
-    RETURN 'already_paid';
+  -- Só faz efeito em pedido 'pending'. Já pago => idempotente; qualquer outro status
+  -- (ex.: 'cancelled') NÃO deve decrementar estoque nem resgatar cupom.
+  IF v_order.status <> 'pending' THEN
+    RETURN CASE WHEN v_order.status = 'paid' THEN 'already_paid' ELSE v_order.status END;
   END IF;
 
   -- Decremento atômico por item.
@@ -133,11 +139,9 @@ BEGIN
   END LOOP;
 
   -- Resgate de cupom de uso único (se houver cupom e usuário no pedido).
-  IF v_order.discount IS NOT NULL AND v_order.discount > 0
-     AND v_order.user_id IS NOT NULL
-     AND (v_order.payment_method ->> 'coupon') IS NOT NULL THEN
+  IF v_order.coupon_code IS NOT NULL AND v_order.user_id IS NOT NULL THEN
     INSERT INTO public.coupon_redemptions (coupon_code, user_id, order_id)
-    VALUES (v_order.payment_method ->> 'coupon', v_order.user_id, v_order.id::text)
+    VALUES (v_order.coupon_code, v_order.user_id, v_order.id::text)
     ON CONFLICT (coupon_code, user_id) DO NOTHING;
   END IF;
 

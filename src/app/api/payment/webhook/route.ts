@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import { markEventProcessed } from '@/lib/server/idempotency';
+import { markEventProcessed, clearEventProcessed } from '@/lib/server/idempotency';
 import { logError, logInfo } from '@/lib/server/logger';
 import { fulfillOrderPaid } from '@/server/services/orders';
 
@@ -50,7 +50,9 @@ function checkSignatureGate(
     return null;
 }
 
-async function handleEvent(event: WebhookEvent): Promise<void> {
+// Retorna true se o evento foi processado com sucesso (ou é um no-op seguro); false se
+// houve falha recuperável no fulfillment (o caller deve pedir retry ao provider).
+async function handleEvent(event: WebhookEvent): Promise<boolean> {
     switch (event.type) {
         case 'payment_intent.succeeded':
         case 'order.paid': {
@@ -58,14 +60,18 @@ async function handleEvent(event: WebhookEvent): Promise<void> {
             // Fulfillment atômico e idempotente: decremento de estoque + resgate de cupom
             // de uso único (RPC mark_order_paid). No-op fail-safe sem service-role.
             const orderNumber = event.data?.object?.metadata?.orderNumber;
-            await fulfillOrderPaid(orderNumber);
-            break;
+            if (!orderNumber) return true; // nada a fazer (fluxo sem pedido persistido)
+            const result = await fulfillOrderPaid(orderNumber);
+            // 'skipped' (sem service-role) e 'paid'/'already_paid' = sucesso.
+            // null (falha de RPC/DB) e 'not_found' (corrida: webhook antes do persist) = retry.
+            return result !== null && result !== 'not_found';
         }
         case 'payment_intent.payment_failed':
             logInfo('webhook: pagamento falhou', event.data?.object?.id);
-            break;
+            return true;
         default:
             logInfo('webhook: tipo de evento não tratado', event.type);
+            return true;
     }
 }
 
@@ -86,19 +92,27 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
+    const eventId = event.id || event.data?.object?.id;
     try {
-        // Idempotência: dedupe por ID do evento.
-        const eventId = event.id || event.data?.object?.id;
+        // Idempotência: dedupe por ID do evento (fast-path). O RPC mark_order_paid é o
+        // guard transacional real; este dedupe evita reprocessar entregas duplicadas.
         const isNew = await markEventProcessed(eventId, 'payment');
         if (!isNew) {
             logInfo('webhook: evento duplicado ignorado', eventId);
             return NextResponse.json({ received: true, duplicate: true });
         }
 
-        await handleEvent(event);
+        const ok = await handleEvent(event);
+        if (!ok) {
+            // Falhou o fulfillment: libera o token de idempotência para o provider re-tentar.
+            await clearEventProcessed(eventId, 'payment');
+            return NextResponse.json({ error: 'Fulfillment failed, retry' }, { status: 500 });
+        }
         return NextResponse.json({ received: true });
     } catch (err) {
         logError('webhook: erro ao processar evento', err);
+        // Erro inesperado: também libera o token para permitir retry.
+        await clearEventProcessed(eventId, 'payment');
         return NextResponse.json({ error: 'Webhook processing error' }, { status: 400 });
     }
 }
