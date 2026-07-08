@@ -31,11 +31,7 @@ const AddedToCartModal = lazy(() => import('../modals/AddedToCartModal'));
 // const NewsletterModal = lazy(() => import('../modals/NewsletterModal')); // Missing
 // const SizeGuideModal = lazy(() => import('../modals/SizeGuideModal')); // Missing
 
-interface ModalManagerProps {
-    onLoginSuccess: (user: any) => void;
-}
-
-export default function ModalManager({ onLoginSuccess }: ModalManagerProps) {
+export default function ModalManager() {
     const { activeModal, closeModal, modalData } = useModal();
     const { t } = useI18n();
     const { addToCart } = useCart();

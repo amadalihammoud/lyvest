@@ -1,6 +1,6 @@
 'use client';
 
-import { SignIn, SignUp, useSignIn, useSignUp } from '@clerk/nextjs';
+import { SignIn, SignUp } from '@clerk/nextjs';
 import { m, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -10,9 +10,6 @@ import { useAuthModal } from '@/store/useAuthModal';
 export default function AuthModal() {
     const { isOpen, view, onClose, setView } = useAuthModal();
     const [headerHeight, setHeaderHeight] = useState(0);
-
-    const { isLoaded: isSignInLoaded } = useSignIn();
-    const { isLoaded: isSignUpLoaded } = useSignUp();
 
     const isLogin = view === 'sign-in';
 

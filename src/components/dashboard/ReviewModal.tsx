@@ -4,7 +4,6 @@ import { useUser } from '@clerk/nextjs';
 import { X, Star, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
-import { useI18n } from '../../hooks/useI18n';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 
 
@@ -20,7 +19,6 @@ interface ReviewModalProps {
 
 export default function ReviewModal({ isOpen, onClose, productName, productId, orderId, productImage }: ReviewModalProps) {
     const { user } = useUser();
-    const { t } = useI18n();
 
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);

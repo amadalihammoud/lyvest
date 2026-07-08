@@ -5,7 +5,6 @@
 import { Home } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import CategoryToolbar from '@/components/product/CategoryToolbar';
@@ -28,7 +27,6 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
     const { addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
     const { openModal } = useModal();
-    const router = useRouter();
 
     // State for Toolbar & Filters
     const [sortOption, setSortOption] = useState('relevance');

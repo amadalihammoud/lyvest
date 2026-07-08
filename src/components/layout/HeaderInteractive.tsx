@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect, useMemo, ChangeEvent, Suspense } from 'react';
+import { useState, useEffect, useMemo, ChangeEvent } from 'react';
 
 import { productsData } from '../../data/products';
 import { mainMenu } from '../../data/siteData';
@@ -35,10 +35,6 @@ export interface SerializedUser {
     imageUrl: string;
 }
 
-interface HeaderInteractiveProps {
-    // No props needed, it's a standalone client component that fetches its own user state via API.
-}
-
 interface MenuItem {
     label: string;
     translationKey: string;
@@ -53,7 +49,7 @@ export default function HeaderInteractive() {
     const { t } = useI18n();
     const { cartCount } = useCart();
     const { favorites } = useFavorites();
-    const { openDrawer, closeDrawer, openModal } = useModal();
+    const { openDrawer, closeDrawer } = useModal();
     const { onOpen } = useAuthModal();
 
     const [user, setUser] = useState<SerializedUser | null>(null);

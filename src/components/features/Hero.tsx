@@ -91,7 +91,7 @@ function Hero() {
                                                     };
 
                                                     const {
-                                                        props: { srcSet: mobileSrcSet, ...mobileProps },
+                                                        props: { srcSet: mobileSrcSet },
                                                     } = getImageProps({
                                                         ...common,
                                                         src: mobileImage,

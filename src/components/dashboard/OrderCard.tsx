@@ -1,5 +1,4 @@
 import { Package, MapPin, ChevronDown, ChevronUp, Copy, CreditCard, Truck, CheckCircle, Clock, FileText, Gift, ShoppingBag, Star } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import ReviewModal from './ReviewModal';
@@ -17,7 +16,6 @@ interface OrderCardProps {
 export default function OrderCard({ order, onTrackOrder }: OrderCardProps) {
     const { t, formatCurrency } = useI18n();
     const { addToCart } = useCart();
-    const router = useRouter();
     const [isExpanded, setIsExpanded] = useState(false);
 
     // Review Modal State

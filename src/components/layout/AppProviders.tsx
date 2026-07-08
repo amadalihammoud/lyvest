@@ -35,7 +35,7 @@ function GlobalLogic({ children }: { children: ReactNode }) {
 
             {/* Managers: lazy-loaded — only parsed when modal/drawer opens */}
             <Suspense fallback={null}>
-                <ModalManager onLoginSuccess={() => { }} />
+                <ModalManager />
             </Suspense>
             <Suspense fallback={null}>
                 <DrawerManager />

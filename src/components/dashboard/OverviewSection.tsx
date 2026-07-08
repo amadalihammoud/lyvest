@@ -14,7 +14,7 @@ interface OverviewSectionProps {
     onTrackOrder: (code: string) => void;
 }
 
-function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: OverviewSectionProps) {
+function OverviewSection({ orders = [], setActiveTab, onTrackOrder }: OverviewSectionProps) {
     const { formatCurrency } = useI18n();
 
     // Get the most recent active order (not delivered/cancelled) or just the latest one
@@ -32,10 +32,6 @@ function OverviewSection({ user, orders = [], setActiveTab, onTrackOrder }: Over
         if (s.includes('entregue')) return 'text-emerald-600 bg-emerald-50';
         if (s.includes('cancelado')) return 'text-red-600 bg-red-50';
         return 'text-[#7D2121] bg-rose-50';
-    };
-
-    const getFirstName = (fullName?: string) => {
-        return fullName?.split(' ')[0] || '';
     };
 
     return (

@@ -53,7 +53,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     let product: Product | null = null;
 
     try {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('products')
             .select('*, category:categories(name, slug)')
             .eq('slug', slug)

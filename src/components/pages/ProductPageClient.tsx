@@ -17,7 +17,7 @@ interface ProductPageClientProps {
     initialProduct: Product | null;
 }
 
-export default function ProductPageClient({ slug, initialProduct }: ProductPageClientProps) {
+export default function ProductPageClient({ initialProduct }: ProductPageClientProps) {
     const { addToCart } = useCart();
     const { openModal } = useModal();
     const product = initialProduct;
