@@ -10,7 +10,7 @@ interface ProductActionsProps {
     product: Product;
     quantity: number;
     setQuantity: (fn: (prev: number) => number) => void;
-    onAddToCart: (product: any) => void; // Using any for now to match flexible usage, or Product
+    onAddToCart: (product: Product) => void;
     onOpenVirtualFitting?: () => void;
     shippingZip: string;
     setShippingZip: (zip: string) => void;

@@ -2,7 +2,7 @@
 import { useChat } from '@ai-sdk/react';
 import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from 'react';
 
 import { productsData } from '../../data/products';
 import { useCart } from '../../hooks/useCart';
@@ -18,17 +18,36 @@ interface ToolInvocation {
     args: Record<string, unknown>;
 }
 
+interface ChatMessage {
+    id: string;
+    role: string;
+    content: string;
+    toolInvocations?: ToolInvocation[];
+}
+
 export default function ChatWidget() {
-    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-        api: '/api/chat',
-        initialMessages: [
-            {
-                id: 'welcome-v3',
-                role: 'assistant',
-                content: 'Oi! Sou a Ly, assistente digital da Ly Vest.\n\nComo posso ajudar hoje?'
-            }
-        ]
-    } as any) as any; // Cast to any to avoid generic type complex conflicts for now if strict mode is harsh
+    // NOTA: este widget usa a API antiga do useChat (api/initialMessages/input/handleSubmit,
+    // mensagens com `content`). O pacote `ai`/@ai-sdk/react instalado é v6, cuja API é diferente
+    // (UIMessage com `parts`, `sendMessage`, `status`). Mantemos um cast TIPADO (sem `any`) para
+    // não quebrar o build; migrar este componente para a API v6 é uma tarefa separada.
+    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat(
+        {
+            api: '/api/chat',
+            initialMessages: [
+                {
+                    id: 'welcome-v3',
+                    role: 'assistant',
+                    content: 'Oi! Sou a Ly, assistente digital da Ly Vest.\n\nComo posso ajudar hoje?'
+                }
+            ]
+        } as unknown as Parameters<typeof useChat>[0]
+    ) as unknown as {
+        messages: ChatMessage[];
+        input: string;
+        handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+        handleSubmit: (e?: FormEvent) => void;
+        isLoading: boolean;
+    };
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -101,7 +120,7 @@ export default function ChatWidget() {
                                 </div>
                             )}
 
-                            {messages.map((m: any) => (
+                            {messages.map((m: ChatMessage) => (
                                 m.role !== 'system' && (
                                     <div
                                         key={m.id}
@@ -209,7 +228,7 @@ function AddToCartButton({ productId }: AddToCartButtonProps) {
 
     const handleAdd = () => {
         // Safe check for product ID match (string vs number)
-        const product = productsData.find((p: any) => String(p.id) === String(productId));
+        const product = productsData.find((p) => String(p.id) === String(productId));
 
         if (product) {
             addToCart(product);

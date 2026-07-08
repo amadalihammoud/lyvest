@@ -254,10 +254,10 @@ function generateFitMap(score: number, t1: number, _t2: number, _t3: number, _t4
     return map;
 }
 
-function getNextSize(s: string): any {
-    const sizes = ['PP', 'P', 'M', 'G', 'GG'];
-    const idx = sizes.indexOf(s);
-    return idx < sizes.length - 1 ? sizes[idx + 1] : undefined;
+function getNextSize(s: string): 'PP' | 'P' | 'M' | 'G' | 'GG' | undefined {
+    const sizes = ['PP', 'P', 'M', 'G', 'GG'] as const;
+    const idx = sizes.indexOf(s as typeof sizes[number]);
+    return idx >= 0 && idx < sizes.length - 1 ? sizes[idx + 1] : undefined;
 }
 
 /**

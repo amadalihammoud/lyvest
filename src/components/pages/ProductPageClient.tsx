@@ -40,8 +40,8 @@ export default function ProductPageClient({ initialProduct }: ProductPageClientP
         qty: 1
     });
 
-    const handleAddToCart = (item: any) => {
-        addToCart(item);
+    const handleAddToCart = (item: Product) => {
+        addToCart(item as unknown as Partial<CartItem>);
         openModal('addedToCart', item);
     };
 

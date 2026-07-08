@@ -115,7 +115,7 @@ export default function AIRecommendation({
                             gender={gender} // Passar gênero
                             fitResult={{
                                 bust: fitMap[viewSize] === 'tight' ? 'tight' : fitMap[viewSize] === 'loose' ? 'loose' : 'perfect',
-                                waist: fitMap[viewSize] as any,
+                                waist: fitMap[viewSize] === 'tight' ? 'tight' : fitMap[viewSize] === 'loose' ? 'loose' : 'perfect',
                                 hips: fitMap[viewSize] === 'tight' ? 'tight' : fitMap[viewSize] === 'loose' ? 'loose' : 'perfect'
                             }}
                         />

@@ -9,7 +9,7 @@ export default function Footer() {
     const { t } = useI18n();
     const { openModal } = useModal();
 
-    const setActiveModal = (modalName: string) => openModal(modalName as any);
+    const setActiveModal = (modalName: string) => openModal(modalName);
 
     return (
         <footer id="footer" className="bg-white pt-16 pb-8 border-t border-slate-100" role="contentinfo">

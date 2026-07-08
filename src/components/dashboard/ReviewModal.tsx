@@ -67,7 +67,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                 setRating(0);
                 setComment('');
             }, 2000);
-        } catch (err: any) {
+        } catch (err) {
             console.error('Erro ao avaliar:', err);
             setError('Erro ao enviar avaliação. Tente novamente.');
         } finally {

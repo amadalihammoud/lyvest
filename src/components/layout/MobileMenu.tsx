@@ -5,7 +5,7 @@ import React from 'react';
 
 import { mainMenu } from '../../data/siteData';
 import { useI18n } from '../../hooks/useI18n';
-import { useShopNavigation } from '../../hooks/useShopNavigation';
+import { useShopNavigation, NavMenuItem } from '../../hooks/useShopNavigation';
 import { useShop } from '../../store/useShopStore';
 import LanguageSelector from '../features/LanguageSelector';
 
@@ -19,7 +19,7 @@ interface MobileMenuProps {
     onClose: () => void;
     onOpenLogin: () => void;
     navigateToDashboard: () => void;
-    user: any;
+    user: { fullName?: string; imageUrl?: string } | null;
 }
 
 export default function MobileMenu({
@@ -39,7 +39,7 @@ export default function MobileMenu({
     const { handleMenuClick: baseHandleMenuClick } = useShopNavigation();
 
     // Wrap handleMenuClick to close menu
-    const handleMenuClick = (item: any) => {
+    const handleMenuClick = (item: NavMenuItem) => {
         baseHandleMenuClick(item);
         onClose();
     };

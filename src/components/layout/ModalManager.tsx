@@ -4,6 +4,8 @@ import { Suspense, lazy } from 'react';
 import { useCart } from '../../hooks/useCart';
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
+import { Product } from '../../services/ProductService';
+import { CartItem } from '../../store/useCartStore';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
 // Lazy load Clerk components to remove ~250KiB from initial bundle
@@ -58,9 +60,9 @@ export default function ModalManager() {
             case 'quickview':
                 return (
                     <ProductQuickView
-                        product={modalData as any}
+                        product={modalData as Product}
                         onClose={closeModal}
-                        onAddToCart={(p) => addToCart(p as any)}
+                        onAddToCart={(p) => addToCart(p as unknown as Partial<CartItem>)}
                     />
                 );
             default:
