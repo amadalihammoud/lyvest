@@ -70,5 +70,12 @@ export default tseslint.config(
       '@typescript-eslint/no-empty-object-type': 'warn',
     },
   },
+  {
+    // Arquivos de rota do Next.js App Router exportam metadata/viewport ao lado do
+    // componente (exigência do framework); módulos de context/lib exportam provider+hook.
+    // A regra react-refresh (HMR estilo Vite) não se aplica a esses arquivos.
+    files: ['src/app/**/*.{ts,tsx}', 'src/context/**/*.{ts,tsx}', 'src/lib/**/*.{ts,tsx}'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
   eslintConfigPrettier,
 );

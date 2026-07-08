@@ -114,7 +114,8 @@ export function detectXSS(input: string): boolean {
 
      
     const xssPatterns = [
-        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+        // Detecta a abertura de <script ...> sem quantificadores aninhados (evita ReDoS).
+        /<script[\s/>]/gi,
         /javascript:/gi,
         /on\w+\s*=/gi,
         /<\s*img[^>]+onerror/gi,

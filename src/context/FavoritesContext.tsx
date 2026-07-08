@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 // src/context/FavoritesContext.tsx
 'use client';
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode, useRef } from 'react';

@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable react-refresh/only-export-components */
 // src/context/I18nContext.tsx
 import { useState, useCallback, useMemo, useEffect, useContext, createContext, ReactNode } from 'react';
 

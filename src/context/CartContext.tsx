@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 // src/context/CartContext.tsx
 'use client';
 import React, { createContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
