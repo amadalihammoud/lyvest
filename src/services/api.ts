@@ -13,9 +13,9 @@ interface ApiOptions extends RequestInit {
  */
 export class ApiError extends Error {
     status: number;
-    data: any;
+    data: unknown;
 
-    constructor(message: string, status: number, data: any = {}) {
+    constructor(message: string, status: number, data: unknown = {}) {
         super(message);
         this.name = 'ApiError';
         this.status = status;
@@ -64,7 +64,7 @@ export class ApiClient {
      * @param endpoint - Endpoint da API
      * @param options - Opções do fetch
      */
-    async request<T = any>(endpoint: string, options: ApiOptions = {}): Promise<T | null> {
+    async request<T = unknown>(endpoint: string, options: ApiOptions = {}): Promise<T | null> {
         const url = `${this.baseUrl}${endpoint}`;
 
         const config: ApiOptions = {
@@ -104,7 +104,7 @@ export class ApiClient {
     /**
      * GET request
      */
-    get<T = any>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
+    get<T = unknown>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
         const queryString = new URLSearchParams(params).toString();
         const url = queryString ? `${endpoint}?${queryString}` : endpoint;
         return this.request<T>(url, { method: 'GET' });
@@ -113,7 +113,7 @@ export class ApiClient {
     /**
      * POST request
      */
-    post<T = any>(endpoint: string, data: any): Promise<T | null> {
+    post<T = unknown>(endpoint: string, data: unknown): Promise<T | null> {
         return this.request<T>(endpoint, {
             method: 'POST',
             body: JSON.stringify(data)
@@ -123,7 +123,7 @@ export class ApiClient {
     /**
      * PUT request
      */
-    put<T = any>(endpoint: string, data: any): Promise<T | null> {
+    put<T = unknown>(endpoint: string, data: unknown): Promise<T | null> {
         return this.request<T>(endpoint, {
             method: 'PUT',
             body: JSON.stringify(data)
@@ -133,7 +133,7 @@ export class ApiClient {
     /**
      * DELETE request
      */
-    delete<T = any>(endpoint: string): Promise<T | null> {
+    delete<T = unknown>(endpoint: string): Promise<T | null> {
         return this.request<T>(endpoint, { method: 'DELETE' });
     }
 
