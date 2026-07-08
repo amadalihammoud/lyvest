@@ -108,8 +108,8 @@ function Hero() {
                                                         <picture className="w-full h-full">
                                                             <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
                                                             <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
+                                                            {/* eslint-disable-next-line jsx-a11y/alt-text -- alt vem de desktopProps (getImageProps com common.alt = slide.alt) */}
                                                             <img
-                                                                alt=""
                                                                 {...desktopProps}
                                                                 loading="lazy"
                                                                 decoding="async"
