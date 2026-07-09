@@ -2,12 +2,53 @@
 
 import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import UserDashboard from '@/components/dashboard/UserDashboard';
 import { mockOrders } from '@/data/mockOrders';
 // import { useAuth, User } from '@/context/AuthContext'; // Removed
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useModal } from '@/store/useModalStore';
 import { Order } from '@/types/dashboard';
+import { logger } from '@/utils/logger';
+
+type DbOrderRow = {
+    id: string;
+    created_at: string;
+    status: string;
+    total_amount: number | string;
+    payment_method: string | null;
+    tracking_code: string | null;
+    shipping_address: unknown;
+    items: unknown;
+};
+
+// Mapeia uma linha de `orders` do banco para o tipo Order do dashboard.
+function mapDbOrder(row: DbOrderRow): Order {
+    const rawItems = Array.isArray(row.items) ? row.items : [];
+    const items = rawItems.map((raw) => {
+        const it = (raw ?? {}) as Record<string, unknown>;
+        return {
+            id: (it.id as string | number | undefined),
+            name: typeof it.name === 'string' ? it.name : 'Produto',
+            qty: Number(it.quantity ?? it.qty ?? 1),
+            price: Number(it.price ?? 0),
+            image: typeof it.image === 'string' ? it.image : undefined,
+        };
+    });
+
+    return {
+        id: row.id,
+        date: row.created_at,
+        total: Number(row.total_amount),
+        status: row.status,
+        trackingCode: row.tracking_code ?? undefined,
+        paymentMethod: row.payment_method
+            ? { type: row.payment_method as 'credit' | 'pix' | 'boleto', installments: 1 }
+            : undefined,
+        items,
+    };
+}
 
 // Define Interface locally or import from a new types file if AuthContext is deleted
 interface User {
@@ -32,6 +73,34 @@ export default function DashboardPageClient() {
     const { signOut } = useClerk();
 
     const { openDrawer, setTrackingCode } = useModal();
+
+    // Pedidos reais do banco (RLS escopa por usuário via JWT do Clerk). Fallback para mock
+    // quando o Supabase não está configurado (dev/demo).
+    const [orders, setOrders] = useState<Order[]>(mockOrders as unknown as Order[]);
+
+    useEffect(() => {
+        if (!user || !isSupabaseConfigured()) return;
+        let active = true;
+
+        (async () => {
+            const { data, error } = await supabase
+                .from('orders')
+                .select('id, created_at, status, total_amount, payment_method, tracking_code, shipping_address, items')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (!active) return;
+            if (error) {
+                logger.error('Erro ao carregar pedidos:', error.message);
+                return;
+            }
+            setOrders((data as DbOrderRow[]).map(mapDbOrder));
+        })();
+
+        return () => {
+            active = false;
+        };
+    }, [user]);
 
     const handleTrackOrder = (code: string) => {
         setTrackingCode(code);
@@ -61,10 +130,6 @@ export default function DashboardPageClient() {
             birth_date: (user.unsafeMetadata?.birth_date as string) || ''
         }
     };
-
-    // Cast mockOrders to the expected Order type from types/dashboard
-    // Compatibility is handled by the structure matching sufficient properties
-    const orders = mockOrders as unknown as Order[];
 
     return (
         <UserDashboard

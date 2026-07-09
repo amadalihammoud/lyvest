@@ -50,7 +50,14 @@ function handleEvent(event: WebhookEvent): void {
         case 'payment_intent.succeeded':
         case 'order.paid':
             logInfo('webhook: pagamento capturado', event.data?.object?.id);
-            // TODO(Fase 3): atualizar pedido para 'paid' + disparar ERP sync (atômico/idempotente).
+            // TODO(go-live): marcar o pedido como 'paid' + disparar ERP sync. Requer:
+            //  1. Inverter o fluxo: criar o pedido (RPC create_order, status 'pending') ANTES
+            //     de abrir a sessão de pagamento e enviar o orderId em metadata.orderId, para
+            //     que o gateway o devolva aqui (event.data.object.metadata.orderId).
+            //  2. Um client Supabase com service_role (server-only) — o webhook é
+            //     server-to-server e não tem JWT do usuário para o RLS. Nunca expor a chave.
+            //  3. Update idempotente: só 'pending' → 'paid' (a idempotência de evento já é
+            //     garantida por markEventProcessed acima).
             break;
         case 'payment_intent.payment_failed':
             logInfo('webhook: pagamento falhou', event.data?.object?.id);
