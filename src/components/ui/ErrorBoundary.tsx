@@ -33,6 +33,22 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
         this.setState({ error, errorInfo });
 
+        // ChunkLoadError: cliente com HTML antigo pedindo chunks removidos por um deploy
+        // novo. Um reload único busca o HTML atualizado e resolve sozinho. O guard em
+        // sessionStorage evita loop de reload caso o erro persista.
+        const isChunkError =
+            error.name === 'ChunkLoadError' || /Loading chunk .+ failed/i.test(error.message);
+        if (isChunkError && typeof window !== 'undefined') {
+            try {
+                const key = 'lyvest_chunk_reload';
+                if (!sessionStorage.getItem(key)) {
+                    sessionStorage.setItem(key, '1');
+                    window.location.reload();
+                    return;
+                }
+            } catch { /* sessionStorage indisponível — segue para a tela de erro */ }
+        }
+
         if (process.env.NODE_ENV === 'development') {
             console.error("Uncaught error:", error, errorInfo);
         }
@@ -112,25 +128,29 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
                             </div>
                         </div>
 
-                        <div className="flex-1 flex flex-col min-h-[400px]">
-                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                <span>▼ Detalhes técnicos (dev)</span>
-                            </h3>
+                        {/* Pilar 5: stack trace/componentStack NUNCA em produção (vaza estrutura
+                            interna do app a qualquer visitante). Só em desenvolvimento. */}
+                        {process.env.NODE_ENV === 'development' && (
+                            <div className="flex-1 flex flex-col min-h-[400px]">
+                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <span>▼ Detalhes técnicos (dev)</span>
+                                </h3>
 
-                            <div className="flex-1 bg-slate-50 rounded-xl border border-slate-200 p-6 font-mono text-sm overflow-auto text-red-600 shadow-inner w-full">
-                                {this.state.error ? (
-                                    <pre className="whitespace-pre-wrap break-all leading-relaxed">
-                                        {this.state.error.toString()}
-                                        {'\n'}
-                                        {this.state.errorInfo && this.state.errorInfo.componentStack}
-                                    </pre>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center h-full text-slate-400">
-                                        <p>Nenhum log de erro capturado no momento.</p>
-                                    </div>
-                                )}
+                                <div className="flex-1 bg-slate-50 rounded-xl border border-slate-200 p-6 font-mono text-sm overflow-auto text-red-600 shadow-inner w-full">
+                                    {this.state.error ? (
+                                        <pre className="whitespace-pre-wrap break-all leading-relaxed">
+                                            {this.state.error.toString()}
+                                            {'\n'}
+                                            {this.state.errorInfo && this.state.errorInfo.componentStack}
+                                        </pre>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                                            <p>Nenhum log de erro capturado no momento.</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
                             <p className="text-xs font-mono text-slate-400 bg-slate-50 px-3 py-1 rounded-md">
