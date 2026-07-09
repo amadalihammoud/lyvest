@@ -25,7 +25,10 @@ if ((!REDIS_URL || !REDIS_TOKEN) && process.env.NODE_ENV === 'production') {
     );
 }
 
-export async function markEventProcessed(eventId, prefix = 'webhook') {
+export async function markEventProcessed(
+    eventId: string | undefined | null,
+    prefix = 'webhook'
+): Promise<boolean> {
     if (!eventId) return true;
     if (!REDIS_URL || !REDIS_TOKEN) return true; // dedupe desabilitado sem Redis
 
@@ -36,9 +39,9 @@ export async function markEventProcessed(eventId, prefix = 'webhook') {
         const resp = await fetch(url, {
             headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
         });
-        const data = await resp.json();
+        const data = (await resp.json()) as { result?: string | null };
         // result === "OK" quando criou (novo); null quando já existia (duplicado)
-        return data && data.result === 'OK';
+        return data?.result === 'OK';
     } catch {
         // Em erro de infra, não bloqueia o recebimento (assinatura é o gate real)
         return true;

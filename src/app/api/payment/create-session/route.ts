@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
 
         const { items: frontendItems, currency, couponCode } = parsed.data;
 
-        // Relê os preços reais no banco (fonte da verdade).
-        const productIds = frontendItems.map((i) => i.id);
+        // Relê os preços reais no banco (fonte da verdade). Os ids do produto são UUID (string).
+        const productIds = frontendItems.map((i) => String(i.id));
         const { data: dbProducts, error: dbError } = await supabase
             .from('products')
             .select('id, name, price, promotional_price')

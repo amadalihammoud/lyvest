@@ -17,6 +17,7 @@ export interface Database {
                     name: string
                     description: string | null
                     price: number
+                    promotional_price: number | null
                     image_url: string | null
                     category_id: string | null
                     active: boolean
@@ -30,6 +31,7 @@ export interface Database {
                     name: string
                     description?: string | null
                     price: number
+                    promotional_price?: number | null
                     image_url?: string | null
                     category_id?: string | null
                     active?: boolean
@@ -43,6 +45,7 @@ export interface Database {
                     name?: string
                     description?: string | null
                     price?: number
+                    promotional_price?: number | null
                     image_url?: string | null
                     category_id?: string | null
                     active?: boolean

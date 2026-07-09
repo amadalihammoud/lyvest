@@ -9,7 +9,7 @@
  */
 
 import { SHIPPING_CONFIG } from '../../config/constants';
-import { logInfo } from '../../lib/server/logger.js';
+import { logInfo } from '../../lib/server/logger';
 
 // Base Class (Interface)
 class ShippingProvider {
