@@ -1,12 +1,29 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText, tool } from 'ai';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { logError } from '@/lib/server/logger';
 import { legalContent } from '@/server/data/legal.js';
 import { getProductsForContext } from '@/server/services/products.js';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
+
+// Pilar 5: a mensagem do usuário é validada antes de chegar ao modelo. Limites de tamanho
+// e de contagem barram payloads abusivos (custo/token) e conteúdo malformado.
+const chatBodySchema = z.object({
+    messages: z
+        .array(
+            z.object({
+                role: z.enum(['user', 'assistant', 'system']),
+                content: z.string().max(4000).optional(),
+            }).passthrough()
+        )
+        .min(1)
+        .max(40),
+});
 
 // Format legal info for prompt
 const policies = `
@@ -27,8 +44,28 @@ const policies = `
 `;
 
 export async function POST(req) {
-  const { messages } = await req.json();
+  // Pilar 4 (Cofre): rota com custo por request (OpenAI) — rate limit antes de tudo.
+  const rl = await checkRateLimit(getClientIp(req.headers), 'ai');
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas requisições. Tente novamente em instantes.' },
+      { status: 429 }
+    );
+  }
 
+  // Pilar 5: valida o corpo antes de repassar ao modelo.
+  let messages;
+  try {
+    const parsed = chatBodySchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+    }
+    messages = parsed.data.messages;
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  try {
   // Buscar produtos do banco (ou mock)
   const products = await getProductsForContext(10);
 
@@ -89,4 +126,8 @@ export async function POST(req) {
   });
 
   return result.toDataStreamResponse();
+  } catch (error) {
+    logError('chat: erro ao gerar resposta', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }

@@ -137,6 +137,13 @@ export interface DashboardUser {
 declare global {
     interface Window {
         mockOrders?: import('./dashboard').Order[];
+        // Clerk injeta este global no client após o ClerkProvider montar. Usado para
+        // recuperar o JWT da sessão e repassá-lo ao Supabase (RLS via public.clerk_uid()).
+        Clerk?: {
+            session?: {
+                getToken: (options?: { template?: string }) => Promise<string | null>;
+            } | null;
+        };
     }
 }
 

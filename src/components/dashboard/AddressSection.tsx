@@ -182,11 +182,12 @@ export default function AddressSection() {
 
             let result;
             if (editingAddress && editingAddress.id) {
-                // Atualizar
+                // Atualizar — escopado pelo dono (defesa em profundidade além do RLS).
                 result = await supabase
                     .from('addresses')
                     .update(addressData)
                     .eq('id', editingAddress.id)
+                    .eq('user_id', user.id)
                     .select()
                     .single();
             } else {
@@ -223,11 +224,14 @@ export default function AddressSection() {
             return;
         }
 
+        if (!user) return;
+
         try {
             const { error } = await supabase
                 .from('addresses')
                 .delete()
-                .eq('id', address.id);
+                .eq('id', address.id)
+                .eq('user_id', user.id); // escopado pelo dono (defesa em profundidade além do RLS)
 
             if (error) throw error;
             await loadAddresses();
@@ -248,11 +252,12 @@ export default function AddressSection() {
                 .update({ is_default: false })
                 .eq('user_id', user.id);
 
-            // Marcar o selecionado
+            // Marcar o selecionado (escopado pelo dono)
             await supabase
                 .from('addresses')
                 .update({ is_default: true })
-                .eq('id', address.id);
+                .eq('id', address.id)
+                .eq('user_id', user.id);
 
             await loadAddresses();
             setMessage({ type: 'success', text: 'Endereço padrão atualizado!' });
