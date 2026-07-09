@@ -2,7 +2,7 @@
 // Zustand store replacing CartContext — no provider needed
 import { create } from 'zustand';
 
-import { CART_CONFIG } from '../config/constants';
+import { CART_CONFIG, SHIPPING_CONFIG } from '../config/constants';
 
 // Interface para o item do carrinho
 export interface CartItem {
@@ -17,7 +17,8 @@ export interface CartItem {
 const CART_STORAGE_KEY = CART_CONFIG.STORAGE_KEY;
 const CART_MAX_ITEMS = CART_CONFIG.MAX_ITEMS;
 const CART_MAX_QUANTITY = CART_CONFIG.MAX_QUANTITY_PER_ITEM;
-const FREE_SHIPPING_MIN = 199;
+// Fonte única: src/config/constants.ts (evita divergência com o cálculo de frete).
+const FREE_SHIPPING_MIN = SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
 
 // Cupons: NÃO ficam no cliente (fonte única = servidor, src/config/coupons.ts).
 // A validação é feita via POST /api/coupons/validate.

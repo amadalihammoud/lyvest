@@ -8,6 +8,7 @@
  * 3. Add a case in getShippingProvider()
  */
 
+import { SHIPPING_CONFIG } from '../../config/constants';
 import { logInfo } from '../../lib/server/logger.js';
 
 // Base Class (Interface)
@@ -29,10 +30,9 @@ class MockShippingProvider extends ShippingProvider {
     async calculate({ zipCode, items }) {
         logInfo('MockShipping: calculando frete', `CEP ${zipCode}, ${items.length} itens`);
 
-        // Logic currently used in the mock:
-        // Free shipping if total > 300
+        // Frete grátis a partir do limite único (mesmo valor que o carrinho promete).
         const totalValue = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        const isFreeShipping = totalValue >= 300;
+        const isFreeShipping = totalValue >= SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
 
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 600));
