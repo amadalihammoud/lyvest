@@ -273,7 +273,22 @@ export interface Database {
             [_ in never]: never
         }
         Functions: {
-            [_ in never]: never
+            create_order: {
+                Args: {
+                    p_items: Json
+                    p_coupon_code: string | null
+                    p_discount: number
+                    p_single_use: boolean
+                    p_min_cart_total: number
+                    p_payment_method: string
+                    p_shipping: Json | null
+                }
+                Returns: Json
+            }
+            decrement_stock: {
+                Args: { p_id: string; p_qty: number }
+                Returns: boolean
+            }
         }
         Enums: {
             [_ in never]: never

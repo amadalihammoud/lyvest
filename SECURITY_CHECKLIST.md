@@ -55,9 +55,15 @@ Este documento contém verificações de segurança que devem ser realizadas ant
       **nunca** toquem o React state nem o backend.
 - [ ] CVV nunca é armazenado nem logado (proibido por PCI-DSS).
 - [ ] Valor cobrado é **recomputado no servidor** (preços do banco + cupom revalidado) —
-      já implementado em `POST /api/payment/create-session` (o total do cliente é ignorado).
-- [ ] Cupom de uso único: baixa **atômica** em `coupon_redemptions` no momento da criação do
-      pedido server-side (Pilar 2) — pendente até o fluxo de pedido real existir.
+      já implementado em `POST /api/payment/create-session` e, na persistência do pedido,
+      na RPC `public.create_order` (o total/desconto do cliente é ignorado).
+- [ ] Pedido é persistido de forma **atômica** via `POST /api/orders` → RPC `create_order`
+      (migration `008`): baixa de estoque condicional (`stock >= qty`), cupom de uso único
+      registrado em `coupon_redemptions` (constraint `UNIQUE`) e total recomputado — tudo na
+      mesma transação (Pilares 1 e 2). Aplicar migrations `007` (fix `decrement_stock` UUID)
+      e `008` no Supabase antes do go-live.
+- [ ] Go-live com gateway real: chamar `POST /api/orders` na **confirmação** do pagamento
+      (webhook `payment_intent.succeeded`), não antes de pagar.
 - [ ] Webhook de pagamento com verificação de assinatura HMAC ativa (`PAYMENT_WEBHOOK_SECRET`).
 
 ### 7. Dependências
