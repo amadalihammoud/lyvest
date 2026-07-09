@@ -4,7 +4,7 @@ import { useUser } from '@clerk/nextjs';
 import { X, Star, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
-import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { isSupabaseConfigured } from '../../lib/supabase';
 
 
 
@@ -42,19 +42,25 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
 
         try {
             if (isSupabaseConfigured() && user) {
-                const { error: insertError } = await supabase
-                    .from('reviews')
-                    .insert({
-                        user_id: user.id,
-                        order_id: String(orderId),
-                        product_name: productName,
-                        product_id: typeof productId === 'string' && productId.includes('-') ? productId : null, // Só salva se for UUID válido
+                // Envia para a rota server-side, que verifica a compra e grava para moderação.
+                // O user_id NÃO é enviado pelo cliente — o servidor o obtém do token do Clerk.
+                const isUuid = typeof productId === 'string' && productId.includes('-');
+                const res = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        productId: isUuid ? productId : undefined,
+                        productName,
+                        orderId: String(orderId),
                         rating,
                         comment,
-                        approved: true // Auto-aprovar por enquanto
-                    });
+                    }),
+                });
 
-                if (insertError) throw insertError;
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data?.message || 'Erro ao enviar avaliação.');
+                }
             } else {
                 // Mock simulation
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -98,7 +104,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                             <CheckCircle className="w-10 h-10" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-800 mb-2">Avaliação Enviada!</h3>
-                        <p className="text-slate-500">Obrigado por compartilhar sua opinião.</p>
+                        <p className="text-slate-500">Obrigado! Sua avaliação será publicada após moderação.</p>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="p-8 space-y-6">

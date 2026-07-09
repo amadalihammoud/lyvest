@@ -8,9 +8,13 @@ Este documento contém verificações de segurança que devem ser realizadas ant
 
 ### 1. Variáveis de Ambiente
 - [ ] Nenhuma chave de API exposta no código-fonte
-- [ ] `VITE_SUPABASE_URL` configurado
-- [ ] `VITE_SUPABASE_ANON_KEY` configurado
-- [ ] `OPENAI_API_KEY` configurado apenas no servidor (não expor no cliente)
+- [ ] `NEXT_PUBLIC_SUPABASE_URL` configurado
+- [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY` configurado
+- [ ] `CLERK_SECRET_KEY` configurado apenas no servidor
+- [ ] `OPENAI_API_KEY` configurado apenas no servidor (nunca com prefixo `NEXT_PUBLIC_`)
+- [ ] `UPSTASH_REDIS_REST_URL`/`TOKEN` configurados (sem eles, rate limit e idempotência
+      ficam DESATIVADOS — o app agora loga `[SECURITY]` em produção quando faltam)
+- [ ] Nenhum segredo com prefixo `NEXT_PUBLIC_` (só o que é público de fato)
 - [ ] Verificar que `.env.local` está no `.gitignore`
 
 ### 2. Headers de Segurança
@@ -21,12 +25,12 @@ Este documento contém verificações de segurança que devem ser realizadas ant
 - [ ] `Referrer-Policy: strict-origin-when-cross-origin`
 - [ ] `Permissions-Policy` restritivo
 
-### 3. Autenticação
-- [ ] Senhas com requisitos mínimos (8+ caracteres)
-- [ ] Rate limiting em tentativas de login
-- [ ] Tokens de sessão com expiração adequada
-- [ ] Logout limpa todos os tokens
-- [ ] OAuth2 com PKCE habilitado
+### 3. Autenticação (Clerk)
+- [ ] Autenticação gerenciada pelo Clerk (o app não guarda senhas)
+- [ ] `CLERK_SECRET_KEY` apenas no servidor; `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` no cliente
+- [ ] Rotas protegidas no `middleware.ts` (dashboard, checkout)
+- [ ] JWT do Clerk propagado ao Supabase (Third-Party Auth) para o RLS funcionar
+- [ ] Rate limiting nas rotas do Cofre (checkout, cupom, IA, formulários)
 
 ### 4. Inputs e Formulários
 - [ ] Validação client-side e server-side
@@ -36,13 +40,27 @@ Este documento contém verificações de segurança que devem ser realizadas ant
 - [ ] CSRF tokens em formulários críticos
 
 ### 5. APIs e Dados
-- [ ] Row Level Security (RLS) habilitado no Supabase
+- [ ] Row Level Security (RLS) habilitado no Supabase (migration `006_clerk_rls_consolidation.sql`)
+- [ ] Clerk registrado como **Third-Party Auth** no Supabase (senão o RLS nega tudo — ver docs/SECURITY_RLS.md)
+- [ ] Teste de isolamento com **dois usuários** (A não vê/altera dados de B) executado e aprovado
 - [ ] Endpoints sensíveis autenticados
-- [ ] Rate limiting em APIs
+- [ ] Rate limiting em APIs (tiers em `src/lib/rate-limit.ts`, incluindo `ai`)
 - [ ] Nenhum dado sensível em logs
 - [ ] Dados de pagamento não armazenados localmente
 
-### 6. Dependências
+### 6. Pagamento (PCI-DSS) — portão de go-live
+- [ ] **Não coletar PAN/CVV em campos próprios.** Antes de ligar cobrança real, substituir os
+      campos de cartão do checkout pelos *hosted fields*/SDK do gateway (Stripe Elements,
+      Mercado Pago SDK ou checkout hospedado), de modo que o número do cartão e o CVV
+      **nunca** toquem o React state nem o backend.
+- [ ] CVV nunca é armazenado nem logado (proibido por PCI-DSS).
+- [ ] Valor cobrado é **recomputado no servidor** (preços do banco + cupom revalidado) —
+      já implementado em `POST /api/payment/create-session` (o total do cliente é ignorado).
+- [ ] Cupom de uso único: baixa **atômica** em `coupon_redemptions` no momento da criação do
+      pedido server-side (Pilar 2) — pendente até o fluxo de pedido real existir.
+- [ ] Webhook de pagamento com verificação de assinatura HMAC ativa (`PAYMENT_WEBHOOK_SECRET`).
+
+### 7. Dependências
 - [ ] `npm audit` sem vulnerabilidades críticas
 - [ ] Dependências atualizadas
 - [ ] Verificar licenças das dependências
@@ -101,14 +119,17 @@ curl -s https://lyvest.com.br | grep "Content-Security-Policy"
 
 ## 🔐 Supabase RLS Policies
 
-Verificar que as seguintes políticas estão ativas:
+Fonte da verdade: `supabase/migrations/006_clerk_rls_consolidation.sql`. Escopo por
+`public.clerk_uid()` (JWT do Clerk), não `auth.uid()`. Verificar que estão ativas:
 
 | Tabela | Policy | Descrição |
 |--------|--------|-----------|
-| `users` | `select` | Usuário pode ver apenas seus dados |
-| `orders` | `select` | Usuário pode ver apenas seus pedidos |
-| `addresses` | `all` | CRUD apenas para próprio usuário |
-| `products` | `select` | Público para leitura |
+| `profiles` | `select/insert/update own` | Usuário gerencia apenas o próprio perfil |
+| `orders` | `select/insert own` | Usuário vê apenas os próprios pedidos |
+| `addresses` | `select/all own` | CRUD apenas para o próprio usuário |
+| `favorites` | `select/all own` | CRUD apenas para o próprio usuário |
+| `reviews` | `select approved/insert own` | Lê aprovadas; escreve só as próprias |
+| `products`, `categories` | `select` | Público para leitura (catálogo) |
 
 ---
 
@@ -129,5 +150,5 @@ Verificar que as seguintes políticas estão ativas:
 
 ---
 
-*Última revisão: 01/02/2026*
-*Próxima revisão: 01/03/2026*
+*Última revisão: 09/07/2026*
+*Próxima revisão: 09/08/2026*

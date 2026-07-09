@@ -26,10 +26,14 @@ class PaymentProvider {
 
 // Mock Implementation for Development/Testing
 class MockPaymentProvider extends PaymentProvider {
-    async createSession({ items, currency }) {
+    async createSession({ items, currency, amount }) {
         logInfo('MockPayment: criando sessão', `${items.length} itens`);
 
-        const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        // Usa o valor autoritativo calculado no servidor (com desconto já aplicado) quando
+        // presente; só cai no somatório dos itens como último recurso.
+        const totalAmount = typeof amount === 'number'
+            ? amount
+            : items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const randomId = Math.random().toString(36).substring(7);
 
         // Simulate network delay

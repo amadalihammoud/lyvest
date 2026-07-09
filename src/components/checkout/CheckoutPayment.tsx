@@ -224,7 +224,7 @@ function SubmitButton({ t, isSubmitting, rateLimitError, handleSubmit }: {
 
 export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProps) {
     const { t, formatCurrency } = useI18n();
-    const { cartItems, finalTotal } = useCart();
+    const { cartItems, finalTotal, couponCode } = useCart();
     const { user } = useUser();
     // Use finalTotal from context if available (it handles discounts), otherwise fallback to prop
     const displayTotal = finalTotal !== undefined ? finalTotal : total;
@@ -333,9 +333,10 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
                     items: cartItems.map(item => ({
                         id: item.id,
                         quantity: item.qty,
-                        price: item.price // Ensuring price is passed if needed
                     })),
-                    // Adding total for completeness, though service might calc it
+                    // Envia apenas o CÓDIGO do cupom; o servidor revalida e recomputa o total.
+                    // O `total` do cliente é meramente informativo (o backend o ignora).
+                    couponCode: couponCode || undefined,
                     total: displayTotal,
                     currency: 'BRL',
                     orderId: `LV-${Date.now()}`
