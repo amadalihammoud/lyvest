@@ -1,65 +1,59 @@
 import { X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
+import { CategorySlug, SizeChartRow, formatRange, getSizeChart } from '../../data/sizeChart';
+
 interface SizeGuideModalProps {
     isOpen: boolean;
     onClose: () => void;
-    category?: string;
+    /** Categoria em qualquer formato ("Sutiãs", slug, objeto do Supabase) — normalizada internamente. */
+    category?: unknown;
+}
+
+const GUIDE_TITLES: Record<CategorySlug, string> = {
+    sutia: 'Guia de Tamanhos - Sutiãs',
+    calcinha: 'Guia de Tamanhos - Calcinhas',
+    cueca: 'Guia de Tamanhos - Cuecas',
+    conjunto: 'Guia de Tamanhos - Conjuntos',
+    bodysuit: 'Guia de Tamanhos - Bodysuits',
+    pijama: 'Guia de Tamanhos - Pijamas',
+    meia: 'Guia de Tamanhos - Meias e Sapatilhas',
+    lingerie: 'Guia de Tamanhos - Lingerie',
+};
+
+// Colunas exibidas por medida disponível (ordem fixa de exibição)
+const COLUMN_DEFS: { key: keyof SizeChartRow; label: string }[] = [
+    { key: 'bust', label: 'Busto (cm)' },
+    { key: 'underbust', label: 'Baixo Busto (cm)' },
+    { key: 'waist', label: 'Cintura (cm)' },
+    { key: 'hip', label: 'Quadril (cm)' },
+    { key: 'shoulders', label: 'Ombros (cm)' },
+    { key: 'shoeBR', label: 'Calçado (BR)' },
+    { key: 'footCm', label: 'Comprimento do Pé (cm)' },
+    { key: 'braNumber', label: 'Numeração' },
+];
+
+// Monta título/colunas/linhas a partir da fonte única de medidas (sizeChart.ts)
+function buildGuide(category: unknown): { title: string; columns: string[]; rows: string[][] } {
+    const { slug, rows } = getSizeChart(category);
+    const activeCols = COLUMN_DEFS.filter((col) => rows.some((row) => row[col.key] !== undefined));
+    return {
+        title: GUIDE_TITLES[slug],
+        columns: ['Tamanho', ...activeCols.map((c) => c.label)],
+        rows: rows.map((row) => [
+            row.size,
+            ...activeCols.map((col) => {
+                const value = row[col.key];
+                return typeof value === 'string' ? value : formatRange(value as { min: number; max: number } | undefined);
+            }),
+        ]),
+    };
 }
 
 export default function SizeGuideModal({ isOpen, onClose, category = 'lingerie' }: SizeGuideModalProps) {
     if (!isOpen) return null;
 
-    // Tabelas de medidas por categoria
-    const sizeGuides = {
-        lingerie: {
-            title: 'Guia de Tamanhos - Lingerie',
-            columns: ['Tamanho', 'Busto (cm)', 'Cintura (cm)', 'Quadril (cm)'],
-            rows: [
-                ['PP', '78-82', '58-62', '84-88'],
-                ['P', '83-87', '63-67', '89-93'],
-                ['M', '88-92', '68-72', '94-98'],
-                ['G', '93-97', '73-77', '99-103'],
-                ['GG', '98-102', '78-82', '104-108'],
-                ['XG', '103-107', '83-87', '109-113']
-            ]
-        },
-        sutia: {
-            title: 'Guia de Tamanhos - Sutiãs',
-            columns: ['Tamanho', 'Busto (cm)', 'Baixo Busto (cm)', 'Numeração'],
-            rows: [
-                ['PP', '78-82', '63-67', '38-40'],
-                ['P', '83-87', '68-72', '40-42'],
-                ['M', '88-92', '73-77', '42-44'],
-                ['G', '93-97', '78-82', '44-46'],
-                ['GG', '98-102', '83-87', '46-48']
-            ]
-        },
-        pijamas: {
-            title: 'Guia de Tamanhos - Pijamas',
-            columns: ['Tamanho', 'Busto/Tórax (cm)', 'Cintura (cm)', 'Quadril (cm)', 'Ombros (cm)'],
-            rows: [
-                ['PP', '78-82', '58-62', '84-88', '35-37'],
-                ['P', '83-87', '63-67', '89-93', '38-40'],
-                ['M', '88-92', '68-72', '94-98', '41-43'],
-                ['G', '93-97', '73-77', '99-103', '44-46'],
-                ['GG', '98-102', '78-82', '104-108', '47-49']
-            ]
-        },
-        meias: {
-            title: 'Guia de Tamanhos - Meias e Sapatilhas',
-            columns: ['Tamanho', 'Calçado (BR)', 'Comprimento do Pé (cm)'],
-            rows: [
-                ['PP', '33-35', '21-22'],
-                ['P', '36-38', '23-24'],
-                ['M', '39-40', '25-26'],
-                ['G', '41-42', '27-28'],
-                ['GG', '43-44', '29-30']
-            ]
-        }
-    };
-
-    const currentGuide = sizeGuides[category as keyof typeof sizeGuides] || sizeGuides.lingerie;
+    const currentGuide = buildGuide(category);
 
     const modalContent = (
         <div

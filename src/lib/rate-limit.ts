@@ -11,7 +11,7 @@ import { Ratelimit } from '@upstash/ratelimit';
 
 import { redis } from '../services/redis';
 
-export type RateLimitTier = 'auth' | 'checkout' | 'shipping' | 'coupon' | 'form';
+export type RateLimitTier = 'auth' | 'checkout' | 'shipping' | 'coupon' | 'form' | 'ai';
 
 type TierConfig = { limit: number; window: `${number} ${'s' | 'm' | 'h'}` };
 
@@ -22,6 +22,7 @@ const TIERS: Record<RateLimitTier, TierConfig> = {
     shipping: { limit: 30, window: '1 m' }, // cálculo de frete (mais permissivo)
     coupon: { limit: 20, window: '1 m' }, // validação de cupom
     form: { limit: 10, window: '1 m' }, // newsletter / contato
+    ai: { limit: 10, window: '1 m' }, // rotas que consomem LLM pago (custo por chamada)
 };
 
 // Só ativa se o Redis estiver realmente configurado (evita quebrar build/dev sem env).

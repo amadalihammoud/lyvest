@@ -6,6 +6,7 @@
  */
 
 import { Product } from './ProductService';
+import { CategorySlug, SIZE_CHARTS, normalizeCategorySlug, upperBounds } from '../data/sizeChart';
 
 export interface BodyMeasurements {
     height: number; // cm
@@ -43,8 +44,10 @@ export async function calculateSize(
     measurements: BodyMeasurements,
     product: Product
 ): Promise<SizeRecommendation> {
+    const categorySlug = normalizeCategorySlug(product.category);
+
     // Sempre tentar algoritmo offline primeiro (mais rápido)
-    const offlineRecommendation = calculateOffline(measurements);
+    const offlineRecommendation = calculateOffline(measurements, categorySlug);
 
     // Tentar refinar com IA via API Route segura (chave fica no servidor)
     try {
@@ -84,13 +87,14 @@ function determineEstimatedSize(
  * Algoritmo offline baseado em BMI e tabela de medidas
  */
 function calculateOffline(
-    measurements: BodyMeasurements
+    measurements: BodyMeasurements,
+    categorySlug: CategorySlug = 'lingerie'
 ): SizeRecommendation {
-    const { exactBust, exactHips, exactWaist } = measurements;
+    const { exactBust, exactHips, exactWaist, exactUnderBust } = measurements;
 
     // SE tiver medidas exatas, usar lógica de fita métrica (Mais preciso)
-    if (exactBust || exactHips || exactWaist) {
-        return calculateFromExactMeasurements(measurements);
+    if (exactBust || exactHips || exactWaist || exactUnderBust) {
+        return calculateFromExactMeasurements(measurements, categorySlug);
     }
 
     // SENÃO usar lógica estimativa (Peso/Altura)
@@ -130,14 +134,13 @@ function calculateOffline(
     };
 }
 
-// Mapeia uma medida (cm) para score PP=1..GG=5 (5.5 = acima de GG) via tabela de limites.
-// Extraído para reduzir a complexidade de calculateFromExactMeasurements (render/resultado idêntico).
-function scoreMeasurement(value: number, thresholds: readonly [number, number, number, number, number]): number {
-    if (value <= thresholds[0]) return 1; // PP
-    if (value <= thresholds[1]) return 2; // P
-    if (value <= thresholds[2]) return 3; // M
-    if (value <= thresholds[3]) return 4; // G
-    return value <= thresholds[4] ? 5 : 5.5; // GG ou +
+// Mapeia uma medida (cm) para score PP=1..GG=5 (5.5 = acima de GG) via limites
+// superiores de cada tamanho, derivados da tabela canônica (sizeChart.ts).
+function scoreMeasurement(value: number, bounds: number[]): number {
+    for (let i = 0; i < bounds.length; i++) {
+        if (value <= bounds[i]) return i + 1;
+    }
+    return bounds.length + 0.5; // acima do maior tamanho
 }
 
 // Arredonda o score final para um tamanho nominal (mesmos limites da lógica original).
@@ -150,19 +153,30 @@ function scoreToNominalSize(finalScore: number): 'PP' | 'P' | 'M' | 'G' | 'GG' {
 }
 
 /**
- * Lógica para cálculo via Fita Métrica (CM exatos)
+ * Lógica para cálculo via Fita Métrica (CM exatos).
+ * Usa APENAS as medidas que a tabela da categoria realmente define — ex.: sutiã pontua
+ * por busto + sob-busto (a taça é a diferença entre eles); calcinha/cueca por cintura + quadril.
  */
-function calculateFromExactMeasurements(measurements: BodyMeasurements): SizeRecommendation {
-    const { exactBust, exactHips, exactWaist, fitPreference, age } = measurements;
+function calculateFromExactMeasurements(
+    measurements: BodyMeasurements,
+    categorySlug: CategorySlug
+): SizeRecommendation {
+    const { exactBust, exactHips, exactWaist, exactUnderBust, fitPreference, age } = measurements;
+    const chart = SIZE_CHARTS[categorySlug];
 
-    // Pontuações: PP=1, P=2, M=3, G=4, GG=5 (tabela simplificada BR)
+    // Pontuações: PP=1..GG=5, com limites derivados da tabela canônica da categoria
     const scores: number[] = [];
-    if (exactBust && exactBust > 0) scores.push(scoreMeasurement(exactBust, [82, 87, 92, 97, 104]));
-    if (exactHips && exactHips > 0) scores.push(scoreMeasurement(exactHips, [90, 96, 102, 108, 116]));
-    if (exactWaist && exactWaist > 0) scores.push(scoreMeasurement(exactWaist, [64, 70, 76, 82, 90]));
+    const scoreIf = (value: number | undefined, key: 'bust' | 'underbust' | 'waist' | 'hip') => {
+        const bounds = upperBounds(chart, key);
+        if (value && value > 0 && bounds) scores.push(scoreMeasurement(value, bounds));
+    };
+    scoreIf(exactBust, 'bust');
+    scoreIf(exactUnderBust, 'underbust');
+    scoreIf(exactWaist, 'waist');
+    scoreIf(exactHips, 'hip');
 
     // Se não tiver nenhuma medida válida (não deveria acontecer), fallback
-    if (scores.length === 0) return calculateOffline({ ...measurements, exactBust: undefined, exactHips: undefined, exactWaist: undefined });
+    if (scores.length === 0) return calculateOffline({ ...measurements, exactBust: undefined, exactHips: undefined, exactWaist: undefined, exactUnderBust: undefined }, categorySlug);
 
     const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
 
@@ -252,9 +266,11 @@ async function getAIRecommendation(
         body: JSON.stringify({
             measurements,
             product: {
+                // Só id/nome/categoria: o servidor decide a tabela de medidas
+                // (ficha do produto no Supabase ou tabela canônica da categoria).
+                id: product.id,
                 name: product.name,
                 category: product.category,
-                description: product.description || '',
             },
         }),
     });

@@ -89,7 +89,7 @@ export function ProductActions({
             <SizeGuideModal
                 isOpen={isGuideOpen}
                 onClose={() => setIsGuideOpen(false)}
-                category={typeof product.category === 'string' ? product.category.toLowerCase() : 'lingerie'}
+                category={product.category}
             />
 
             {/* Shipping Calculator */}

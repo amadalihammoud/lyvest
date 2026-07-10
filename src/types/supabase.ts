@@ -112,6 +112,60 @@ export interface Database {
                 }
                 Relationships: []
             },
+            size_charts: {
+                Row: {
+                    id: string
+                    created_at: string
+                    updated_at: string
+                    product_id: string
+                    size: 'PP' | 'P' | 'M' | 'G' | 'GG'
+                    bust_min: number | null
+                    bust_max: number | null
+                    underbust_min: number | null
+                    underbust_max: number | null
+                    waist_min: number | null
+                    waist_max: number | null
+                    hip_min: number | null
+                    hip_max: number | null
+                    bra_number: string | null
+                    source: 'manual' | 'fornecedor' | 'erp'
+                }
+                Insert: {
+                    id?: string
+                    created_at?: string
+                    updated_at?: string
+                    product_id: string
+                    size: 'PP' | 'P' | 'M' | 'G' | 'GG'
+                    bust_min?: number | null
+                    bust_max?: number | null
+                    underbust_min?: number | null
+                    underbust_max?: number | null
+                    waist_min?: number | null
+                    waist_max?: number | null
+                    hip_min?: number | null
+                    hip_max?: number | null
+                    bra_number?: string | null
+                    source?: 'manual' | 'fornecedor' | 'erp'
+                }
+                Update: {
+                    id?: string
+                    created_at?: string
+                    updated_at?: string
+                    product_id?: string
+                    size?: 'PP' | 'P' | 'M' | 'G' | 'GG'
+                    bust_min?: number | null
+                    bust_max?: number | null
+                    underbust_min?: number | null
+                    underbust_max?: number | null
+                    waist_min?: number | null
+                    waist_max?: number | null
+                    hip_min?: number | null
+                    hip_max?: number | null
+                    bra_number?: string | null
+                    source?: 'manual' | 'fornecedor' | 'erp'
+                }
+                Relationships: []
+            },
             financial_configs: {
                 Row: {
                     id: string

@@ -1,15 +1,9 @@
 /*
- * Guia de Tamanhos e Tabelas de Referência
- * 
- * Define as medidas padrão para cada tamanho e categoria de produto
+ * Modelos de referência para comparação visual (galeria "corpos parecidos com o seu").
+ *
+ * NOTA: a tabela de medidas (antes SIZE_GUIDE aqui) foi unificada em
+ * src/data/sizeChart.ts — fonte única para guia visual, algoritmo e IA.
  */
-
-export interface SizeGuideItem {
-    bust: string;
-    hip: string;
-    waist?: string;
-    weight: string;
-}
 
 export interface ReferenceModel {
     id: number;
@@ -27,38 +21,6 @@ export interface ReferenceModel {
         fit: 'snug' | 'comfortable';
     }[];
 }
-
-// Tabela de medidas por categoria
-export const SIZE_GUIDE: Record<string, Record<string, SizeGuideItem>> = {
-    calcinhas: {
-        PP: { bust: '80-85cm', hip: '85-90cm', waist: '60-65cm', weight: '45-52kg' },
-        P: { bust: '86-91cm', hip: '91-96cm', waist: '66-71cm', weight: '53-60kg' },
-        M: { bust: '92-97cm', hip: '97-102cm', waist: '72-77cm', weight: '61-68kg' },
-        G: { bust: '98-103cm', hip: '103-108cm', waist: '78-83cm', weight: '69-76kg' },
-        GG: { bust: '104+cm', hip: '109+cm', waist: '84+cm', weight: '77+kg' },
-    },
-    sutias: {
-        PP: { bust: '80-85cm', hip: '85-90cm', weight: '45-52kg' },
-        P: { bust: '86-91cm', hip: '91-96cm', weight: '53-60kg' },
-        M: { bust: '92-97cm', hip: '97-102cm', weight: '61-68kg' },
-        G: { bust: '98-103cm', hip: '103-108cm', weight: '69-76kg' },
-        GG: { bust: '104+cm', hip: '109+cm', weight: '77+kg' },
-    },
-    conjuntos: {
-        PP: { bust: '80-85cm', hip: '85-90cm', waist: '60-65cm', weight: '45-52kg' },
-        P: { bust: '86-91cm', hip: '91-96cm', waist: '66-71cm', weight: '53-60kg' },
-        M: { bust: '92-97cm', hip: '97-102cm', waist: '72-77cm', weight: '61-68kg' },
-        G: { bust: '98-103cm', hip: '103-108cm', waist: '78-83cm', weight: '69-76kg' },
-        GG: { bust: '104+cm', hip: '109+cm', waist: '84+cm', weight: '77+kg' },
-    },
-    bodysuits: {
-        PP: { bust: '80-85cm', hip: '85-90cm', waist: '60-65cm', weight: '45-52kg' },
-        P: { bust: '86-91cm', hip: '91-96cm', waist: '66-71cm', weight: '53-60kg' },
-        M: { bust: '92-97cm', hip: '97-102cm', waist: '72-77cm', weight: '61-68kg' },
-        G: { bust: '98-103cm', hip: '103-108cm', waist: '78-83cm', weight: '69-76kg' },
-        GG: { bust: '104+cm', hip: '109+cm', waist: '84+cm', weight: '77+kg' },
-    },
-};
 
 // Modelos de referência para comparação visual
 export const REFERENCE_MODELS: ReferenceModel[] = [

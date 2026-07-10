@@ -2,6 +2,7 @@ import { Ruler, Weight } from 'lucide-react';
 import React, { useState } from 'react';
 
 import BodyMannequin from './BodyMannequin';
+import { normalizeCategorySlug } from '../../data/sizeChart';
 import { Product } from '../../services/ProductService';
 import { BodyMeasurements } from '../../services/sizeAI';
 import { getProductGender } from '../../utils/productUtils';
@@ -38,25 +39,12 @@ const TunerInput = React.memo(({ label, value, onChange, min, max }: {
     </div>
 ));
 
-// Detecção de categoria por keywords — extraída para manter o componente com baixa complexidade.
-function sizeCatMatches(s: string, keywords: string[]): boolean {
-    return keywords.some((k) => s.includes(k));
-}
-
-function resolveSizeCategory(product: Product): string {
-    const cat = typeof product.category === 'string'
-        ? product.category.toLowerCase()
-        : Array.isArray(product.category)
-            ? product.category[0]?.slug?.toLowerCase()
-            : 'lingerie';
-    const name = product.name?.toLowerCase() || '';
-    const inCat = (kw: string[]) => !!cat && sizeCatMatches(cat, kw);
-
-    if (inCat(['sutia', 'sutiã', 'soutien', 'bra', 'top', 'bralette']) || sizeCatMatches(name, ['sutia', 'sutiã', 'bra'])) return 'bra';
-    if (inCat(['calcinha', 'cueca', 'panty'])) return 'underwear';
-    if (inCat(['meia'])) return 'socks';
-    if (inCat(['pijama', 'camisola', 'robe'])) return 'sleepwear';
-    return 'general';
+// Slug canônico da categoria: tenta a categoria e, se cair no genérico, o nome do
+// produto (ex.: produto "Sutiã Renda" em categoria "Novidades" ainda vira 'sutia').
+function resolveSizeSlug(product: Product) {
+    const byCategory = normalizeCategorySlug(product.category);
+    if (byCategory !== 'lingerie') return byCategory;
+    return normalizeCategorySlug(product.name);
 }
 
 interface MeasurementTunersProps {
@@ -125,14 +113,14 @@ function MeasurementTuners(p: MeasurementTunersProps) {
 export default function SizeCalculator({ onCalculate, isLoading, initialMeasurements, product }: SizeCalculatorProps) {
     const productGender = getProductGender(product);
 
-    const category = resolveSizeCategory(product);
+    const slug = resolveSizeSlug(product);
 
     // Determinar quais campos mostrar baseado na categoria
-    const shouldShowBustField = category !== 'underwear'; // NÃO mostrar busto/peito para cuecas/calcinhas
-    const shouldShowUnderbustField = category === 'bra'; // Mostrar APENAS para sutiãs
-    const shouldShowWaistField = category !== 'bra'; // NÃO mostrar cintura para sutiãs
-    const shouldShowHipField = category !== 'bra'; // NÃO mostrar quadril para sutiãs
-    const shouldShowShoulderField = category === 'sleepwear'; // Mostrar APENAS para pijamas
+    const shouldShowBustField = slug !== 'calcinha' && slug !== 'cueca'; // NÃO mostrar busto/peito para cuecas/calcinhas
+    const shouldShowUnderbustField = slug === 'sutia'; // Mostrar APENAS para sutiãs
+    const shouldShowWaistField = slug !== 'sutia'; // NÃO mostrar cintura para sutiãs
+    const shouldShowHipField = slug !== 'sutia'; // NÃO mostrar quadril para sutiãs
+    const shouldShowShoulderField = slug === 'pijama'; // Mostrar APENAS para pijamas
 
     const [measurements, setMeasurements] = useState<BodyMeasurements>(initialMeasurements || {
         height: 165,
