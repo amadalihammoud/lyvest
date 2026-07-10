@@ -34,20 +34,8 @@ CREATE OR REPLACE FUNCTION public.clerk_uid() RETURNS TEXT AS $$
 $$ LANGUAGE sql STABLE;
 
 -- =====================================================================
--- 1. Garantir tipos TEXT nas colunas user_id (Clerk sub) e sem FK para auth.users
--- =====================================================================
-ALTER TABLE public.addresses  DROP CONSTRAINT IF EXISTS addresses_user_id_fkey;
-ALTER TABLE public.favorites  DROP CONSTRAINT IF EXISTS favorites_user_id_fkey;
-ALTER TABLE public.orders     DROP CONSTRAINT IF EXISTS orders_user_id_fkey;
-ALTER TABLE public.reviews    DROP CONSTRAINT IF EXISTS reviews_user_id_fkey;
-
-ALTER TABLE public.addresses  ALTER COLUMN user_id TYPE TEXT USING user_id::text;
-ALTER TABLE public.favorites  ALTER COLUMN user_id TYPE TEXT USING user_id::text;
-ALTER TABLE public.orders     ALTER COLUMN user_id TYPE TEXT USING user_id::text;
-ALTER TABLE public.reviews    ALTER COLUMN user_id TYPE TEXT USING user_id::text;
-
--- =====================================================================
--- 2. Remover policies legadas (auth.uid()) e quaisquer variações antigas
+-- 2. Remover policies legadas — ANTES dos ALTERs de tipo: Postgres bloqueia
+--    ALTER COLUMN TYPE em coluna referenciada por policy (erro 0A000)
 -- =====================================================================
 DO $$
 DECLARE
@@ -62,6 +50,19 @@ BEGIN
     EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', pol.policyname, pol.tablename);
   END LOOP;
 END $$;
+
+-- =====================================================================
+-- 1. Garantir tipos TEXT nas colunas user_id (Clerk sub) e sem FK para auth.users
+-- =====================================================================
+ALTER TABLE public.addresses  DROP CONSTRAINT IF EXISTS addresses_user_id_fkey;
+ALTER TABLE public.favorites  DROP CONSTRAINT IF EXISTS favorites_user_id_fkey;
+ALTER TABLE public.orders     DROP CONSTRAINT IF EXISTS orders_user_id_fkey;
+ALTER TABLE public.reviews    DROP CONSTRAINT IF EXISTS reviews_user_id_fkey;
+
+ALTER TABLE public.addresses  ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+ALTER TABLE public.favorites  ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+ALTER TABLE public.orders     ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+ALTER TABLE public.reviews    ALTER COLUMN user_id TYPE TEXT USING user_id::text;
 
 -- =====================================================================
 -- 3. Garantir RLS habilitado nas tabelas de usuário

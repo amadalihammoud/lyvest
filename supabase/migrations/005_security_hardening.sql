@@ -82,6 +82,12 @@ DROP POLICY IF EXISTS "Users can insert own addresses" ON public.addresses;
 DROP POLICY IF EXISTS "Users can update own addresses" ON public.addresses;
 DROP POLICY IF EXISTS "Users can delete own addresses" ON public.addresses;
 
+-- Postgres bloqueia ALTER COLUMN TYPE em coluna referenciada por policy (0A000):
+-- as policies "novas" também precisam cair ANTES do ALTER (podem existir se o banco
+-- nasceu do SUPABASE_SETUP.sql, que já as cria).
+DROP POLICY IF EXISTS "User View Own Addresses"   ON public.addresses;
+DROP POLICY IF EXISTS "User Manage Own Addresses" ON public.addresses;
+
 -- Remover FK para auth.users e migrar tipo do user_id para TEXT (Clerk sub).
 ALTER TABLE public.addresses DROP CONSTRAINT IF EXISTS addresses_user_id_fkey;
 ALTER TABLE public.addresses ALTER COLUMN user_id TYPE TEXT USING user_id::text;
