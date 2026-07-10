@@ -8,8 +8,9 @@
  * 3. Adicione um case em getShippingProvider()
  */
 
-import { SHIPPING_CONFIG } from '../../config/constants';
 import { logInfo } from '../../lib/server/logger';
+
+import { getFreeShippingThreshold } from '../financialConfig';
 
 export interface ShippingItem {
     id: string | number;
@@ -47,9 +48,11 @@ class MockShippingProvider extends ShippingProvider {
     async calculate({ zipCode, items }: CalculateParams): Promise<ShippingQuote[]> {
         logInfo('MockShipping: calculando frete', `CEP ${zipCode}, ${items.length} itens`);
 
-        // Frete grátis a partir do limite único (mesmo valor que o carrinho promete).
+        // Frete grátis a partir do limite único, lido do banco (financial_configs) com
+        // fallback para a constante — mesmo valor que o carrinho promete ao cliente.
+        const freeShippingThreshold = await getFreeShippingThreshold();
         const totalValue = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-        const isFreeShipping = totalValue >= SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
+        const isFreeShipping = totalValue >= freeShippingThreshold;
 
         // Simula latência de rede
         await new Promise((resolve) => setTimeout(resolve, 600));

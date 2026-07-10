@@ -95,6 +95,7 @@ interface CartState {
     clearCart: () => void;
     applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
     removeCoupon: () => void;
+    setFreeShippingMinimum: (value: number) => void;
     _hydrate: () => void;
 
     // Computed (as getters via selectors)
@@ -107,12 +108,12 @@ interface CartState {
 }
 
 // Helper to recompute derived state
-function computeDerived(items: CartItem[], discount: number) {
+function computeDerived(items: CartItem[], discount: number, freeShippingMin: number = FREE_SHIPPING_MIN) {
     const cartTotal = items.reduce((acc, item) => acc + item.price * item.qty, 0);
     const cartCount = items.reduce((acc, item) => acc + item.qty, 0);
     const discountAmount = cartTotal * discount;
     const finalTotal = Math.max(0, cartTotal - discountAmount);
-    const freeShippingEligible = cartTotal >= FREE_SHIPPING_MIN;
+    const freeShippingEligible = cartTotal >= freeShippingMin;
     return { cartTotal, cartCount, discountAmount, finalTotal, freeShippingEligible };
 }
 
@@ -132,7 +133,7 @@ export const useCartStore = create<CartState>((set, get) => ({
 
     _hydrate: () => {
         const savedCart = loadCartFromStorage();
-        const derived = computeDerived(savedCart, 0);
+        const derived = computeDerived(savedCart, 0, get().freeShippingMinimum);
         set({ cartItems: savedCart, _isHydrated: true, ...derived });
     },
 
@@ -157,14 +158,14 @@ export const useCartStore = create<CartState>((set, get) => ({
             newItems = [...prev, validProduct];
         }
         saveCartToStorage(newItems);
-        set({ cartItems: newItems, ...computeDerived(newItems, state.discount) });
+        set({ cartItems: newItems, ...computeDerived(newItems, state.discount, state.freeShippingMinimum) });
     },
 
     removeFromCart: (id) => {
         const state = get();
         const newItems = state.cartItems.filter((item) => item.id !== id);
         saveCartToStorage(newItems);
-        set({ cartItems: newItems, ...computeDerived(newItems, state.discount) });
+        set({ cartItems: newItems, ...computeDerived(newItems, state.discount, state.freeShippingMinimum) });
     },
 
     updateQuantity: (id, qty) => {
@@ -179,7 +180,7 @@ export const useCartStore = create<CartState>((set, get) => ({
             );
         }
         saveCartToStorage(newItems);
-        set({ cartItems: newItems, ...computeDerived(newItems, state.discount) });
+        set({ cartItems: newItems, ...computeDerived(newItems, state.discount, state.freeShippingMinimum) });
     },
 
     clearCart: () => {
@@ -188,7 +189,7 @@ export const useCartStore = create<CartState>((set, get) => ({
             cartItems: [],
             couponCode: null,
             discount: 0,
-            ...computeDerived([], 0),
+            ...computeDerived([], 0, get().freeShippingMinimum),
         });
     },
 
@@ -212,7 +213,7 @@ export const useCartStore = create<CartState>((set, get) => ({
             set({
                 couponCode: normalizedCode,
                 discount: data.discount,
-                ...computeDerived(get().cartItems, data.discount),
+                ...computeDerived(get().cartItems, data.discount, get().freeShippingMinimum),
             });
             return { success: true, message: data.message };
         } catch {
@@ -220,23 +221,46 @@ export const useCartStore = create<CartState>((set, get) => ({
         }
     },
 
+    setFreeShippingMinimum: (value) => {
+        if (!Number.isFinite(value) || value <= 0) return;
+        const state = get();
+        set({
+            freeShippingMinimum: value,
+            ...computeDerived(state.cartItems, state.discount, value),
+        });
+    },
+
     removeCoupon: () => {
         const state = get();
         set({
             couponCode: null,
             discount: 0,
-            ...computeDerived(state.cartItems, 0),
+            ...computeDerived(state.cartItems, 0, state.freeShippingMinimum),
         });
     },
 }));
+
+// Sincroniza o mínimo de frete grátis com a fonte da verdade (banco, via API).
+// Falha em silêncio: o fallback local (constants) continua valendo.
+function syncFreeShippingMinimum(): void {
+    fetch('/api/config/shipping')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: { freeShippingThreshold?: unknown } | null) => {
+            const v = Number(d?.freeShippingThreshold);
+            if (Number.isFinite(v) && v > 0) {
+                useCartStore.getState().setFreeShippingMinimum(v);
+            }
+        })
+        .catch(() => { /* mantém fallback local */ });
+}
 
 // Auto-hydrate on client
 if (typeof window !== 'undefined') {
     // Use requestIdleCallback or setTimeout to defer hydration
     if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(() => useCartStore.getState()._hydrate());
+        window.requestIdleCallback(() => { useCartStore.getState()._hydrate(); syncFreeShippingMinimum(); });
     } else {
-        setTimeout(() => useCartStore.getState()._hydrate(), 0);
+        setTimeout(() => { useCartStore.getState()._hydrate(); syncFreeShippingMinimum(); }, 0);
     }
 }
 
