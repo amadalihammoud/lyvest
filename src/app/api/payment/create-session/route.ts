@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { validateCoupon } from '@/config/coupons';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError } from '@/lib/server/logger';
-import { getPaymentProvider } from '@/server/services/payment';
+import { getPaymentProvider } from '@/server/providers/payment';
 import { supabase } from '@/server/supabase';
 
 /**

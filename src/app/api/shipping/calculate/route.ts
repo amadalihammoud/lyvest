@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError } from '@/lib/server/logger';
-import { getShippingProvider } from '@/server/services/shipping';
+import { getShippingProvider } from '@/server/providers/shipping';
 
 /**
  * POST /api/shipping/calculate
