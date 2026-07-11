@@ -108,8 +108,11 @@ class AsaasPaymentProvider extends PaymentProvider {
             externalReference: orderId, // volta no webhook (payment.externalReference)
             notificationEnabled: false,
         };
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-        if (appUrl) {
+        // URL de retorno: derivada do request (preview/prod na Vercel mudam de host);
+        // env como fallback. O Asaas rejeita callback http/localhost — nesse caso omitimos
+        // o callback em vez de derrubar a cobrança inteira.
+        const appUrl = metadata?.appUrl || process.env.NEXT_PUBLIC_APP_URL;
+        if (appUrl && appUrl.startsWith('https://')) {
             body.callback = {
                 successUrl: `${appUrl}/checkout?status=success${orderId ? `&order=${orderId}` : ''}`,
                 autoRedirect: true,
@@ -133,7 +136,15 @@ class AsaasPaymentProvider extends PaymentProvider {
         } | null;
 
         if (!res.ok || !data?.id || !data?.url) {
-            logError('asaas: falha ao criar link de pagamento', { status: res.status, errors: data?.errors });
+            // Erros de validação do gateway (código+descrição) não contêm dados do cliente —
+            // entram no rótulo para serem visíveis também em produção (o logger suprime detail).
+            const gatewayErrors = (data?.errors ?? [])
+                .map((e) => `${e.code ?? '?'}: ${e.description ?? ''}`)
+                .join('; ')
+                .slice(0, 300);
+            logError(
+                `asaas: falha ao criar link de pagamento (HTTP ${res.status})${gatewayErrors ? ` — ${gatewayErrors}` : ''}`
+            );
             throw new Error('Falha ao criar a cobrança no Asaas.');
         }
 

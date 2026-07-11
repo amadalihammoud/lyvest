@@ -141,6 +141,8 @@ export async function POST(request: NextRequest) {
                 userId: userId || 'guest',
                 coupon: appliedCoupon || '',
                 orderId: orderId || '',
+                // Origem real do request (preview da Vercel muda de host por branch/deploy).
+                appUrl: request.headers.get('origin') ?? new URL(request.url).origin,
             },
         });
 
