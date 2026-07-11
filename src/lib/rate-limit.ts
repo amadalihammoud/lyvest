@@ -99,11 +99,24 @@ export async function checkRateLimit(
     if (!limiter) {
         return { success: true, limit: 0, remaining: 0, reset: 0 };
     }
-    const res = await limiter.limit(identifier);
-    return {
-        success: res.success,
-        limit: res.limit,
-        remaining: res.remaining,
-        reset: res.reset,
-    };
+    try {
+        const res = await limiter.limit(identifier);
+        return {
+            success: res.success,
+            limit: res.limit,
+            remaining: res.remaining,
+            reset: res.reset,
+        };
+    } catch (error) {
+        // Fail-open barulhento também em ERRO DE INFRA (host do Redis morto, DNS, rede,
+        // credencial inválida): o rate limit é proteção acessória e NUNCA pode derrubar
+        // rotas transacionais — melhor ficar sem limite (com grito no log) do que sem
+        // checkout. Caso real: banco Upstash deletado/expirado derrubava create-session
+        // com ENOTFOUND antes deste guard.
+        console.error(
+            '[SECURITY] Rate limit indisponível (fail-open): ' +
+                (error instanceof Error ? error.message : String(error))
+        );
+        return { success: true, limit: 0, remaining: 0, reset: 0 };
+    }
 }
