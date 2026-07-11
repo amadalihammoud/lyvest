@@ -1,6 +1,6 @@
 // Cache version — increment on breaking cache changes. O bump invalida os caches antigos
 // no 'activate' (deleta tudo que não casa com os nomes atuais).
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `lyvest-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `lyvest-runtime-${CACHE_VERSION}`;
 
@@ -96,28 +96,30 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // ── Network-first for navigational pages (HTML) ─────────────────────────────
-    // NUNCA servir HTML do cache com a rede disponível: o HTML referencia chunks com
-    // hash de build. Servir HTML antigo após um deploy faz o cliente pedir chunks que
-    // não existem mais → ChunkLoadError ("Loading chunk N failed"). O cache é usado
-    // apenas como fallback offline.
-    if (
-        url.pathname.startsWith('/categoria/') ||
-        url.pathname.startsWith('/produto/') ||
-        url.pathname === '/'
-    ) {
-        event.respondWith(
-            fetch(event.request).then(networkResponse => {
-                if (networkResponse.status === 200 && networkResponse.type === 'basic') {
-                    caches.open(RUNTIME_CACHE).then(cache => {
-                        cache.put(event.request, networkResponse.clone());
-                    });
+    // ── Navegações (HTML) — TODAS as páginas ────────────────────────────────────
+    // 1) NUNCA servir HTML do cache com a rede disponível (HTML velho referencia
+    //    chunks de build antigos → ChunkLoadError).
+    // 2) Redirects (ex.: /checkout → sign-in do Clerk via middleware) precisam de
+    //    tratamento: usar a resposta `redirected` num request de navegação faz o
+    //    fetch REJEITAR, e o catch mostrava offline.html — o cliente via
+    //    "Sem conexão com a internet" quando na verdade era um redirect de login.
+    //    Agora o redirect vira uma navegação real para a URL final.
+    // 3) offline.html SÓ em queda de rede de verdade (fetch rejeitou).
+    if (event.request.mode === 'navigate') {
+        event.respondWith((async () => {
+            try {
+                const fresh = await fetch(event.request);
+                if (fresh.redirected) return Response.redirect(fresh.url, 302);
+                if (fresh.status === 200 && fresh.type === 'basic') {
+                    const copy = fresh.clone();
+                    caches.open(RUNTIME_CACHE).then(cache => cache.put(event.request, copy));
                 }
-                return networkResponse;
-            }).catch(() =>
-                caches.match(event.request).then(cached => cached || caches.match('/offline.html'))
-            )
-        );
+                return fresh;
+            } catch {
+                const cached = await caches.match(event.request);
+                return cached || caches.match('/offline.html');
+            }
+        })());
         return;
     }
 
@@ -133,10 +135,6 @@ self.addEventListener('fetch', event => {
                 }
                 return response;
             })
-            .catch(() => {
-                return caches.match(event.request).then(response => {
-                    return response || caches.match('/offline.html');
-                });
-            })
+            .catch(() => caches.match(event.request))
     );
 });
