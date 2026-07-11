@@ -25,6 +25,8 @@ type PaymentFormData = {
 interface CheckoutPaymentProps {
     onSubmit: (data: { method: 'credit' | 'pix'; lastFour?: string }) => void;
     total: number;
+    /** Endereço de entrega coletado no passo anterior (enviado ao servidor no fluxo hospedado). */
+    shipping?: Record<string, unknown>;
 }
 
 // Interface for payment session response
@@ -222,7 +224,10 @@ function SubmitButton({ t, isSubmitting, rateLimitError, handleSubmit }: {
     );
 }
 
-export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProps) {
+export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutPaymentProps) {
+    // Checkout hospedado (Asaas): cartão/Pix/boleto acontecem na página do gateway —
+    // nenhum dado de cartão é coletado neste formulário (PCI fora do escopo do app).
+    const isHostedCheckout = process.env.NEXT_PUBLIC_PAYMENT_PROVIDER === 'asaas';
     const { t, formatCurrency } = useI18n();
     const { cartItems, finalTotal, couponCode } = useCart();
     const { user } = useUser();
@@ -295,25 +300,28 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
         setIsSubmitting(true);
         setErrors({});
 
-        // If PIX, no card validation needed
-        if (method === 'pix') {
+        // Fluxo legado (mock): PIX resolve direto no wizard, sem gateway.
+        if (method === 'pix' && !isHostedCheckout) {
             checkoutLimiter.attempt();
             onSubmit({ method: 'pix' });
             return;
         }
 
-        // Validate card data
-        const validation = validateForm(paymentSchema, {
-            cardNumber: formData.cardNumber,
-            cardName: formData.cardName,
-            expiry: formData.expiry,
-            cvv: formData.cvv
-        });
+        // Validação de cartão: apenas no fluxo legado (no hospedado o cartão é
+        // digitado na página segura do gateway, nunca aqui).
+        if (!isHostedCheckout) {
+            const validation = validateForm(paymentSchema, {
+                cardNumber: formData.cardNumber,
+                cardName: formData.cardName,
+                expiry: formData.expiry,
+                cvv: formData.cvv
+            });
 
-        if (!validation.success) {
-            setErrors(validation.errors as ValidationErrors);
-            setIsSubmitting(false);
-            return;
+            if (!validation.success) {
+                setErrors(validation.errors as ValidationErrors);
+                setIsSubmitting(false);
+                return;
+            }
         }
 
         // Register attempt
@@ -321,13 +329,13 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
 
         // Process payment
         try {
-            if (method === 'credit') {
+            if (method === 'credit' || isHostedCheckout) {
                 // Call Payment Service
                 // Cast the response to PaymentSession
                 const session = await paymentService.createPaymentSession({
                     customer: {
-                        firstName: formData.cardName.split(' ')[0],
-                        lastName: formData.cardName.split(' ').slice(1).join(' '),
+                        firstName: (formData.cardName || user?.fullName || 'Cliente').split(' ')[0],
+                        lastName: (formData.cardName || user?.fullName || '').split(' ').slice(1).join(' '),
                         email: user?.primaryEmailAddress?.emailAddress || 'checkout@lyvest.com.br',
                     },
                     items: cartItems.map(item => ({
@@ -337,6 +345,8 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
                     // Envia apenas o CÓDIGO do cupom; o servidor revalida e recomputa o total.
                     // O `total` do cliente é meramente informativo (o backend o ignora).
                     couponCode: couponCode || undefined,
+                    paymentMethod: method,
+                    shipping,
                     total: displayTotal,
                     currency: 'BRL',
                     orderId: `LV-${Date.now()}`
@@ -403,7 +413,7 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
                 </button>
             </div>
 
-            {method === 'credit' && (
+            {method === 'credit' && !isHostedCheckout && (
                 <CreditCardForm
                     t={t}
                     formatCurrency={formatCurrency}
@@ -418,6 +428,16 @@ export default function CheckoutPayment({ onSubmit, total }: CheckoutPaymentProp
             )}
 
             {method === 'pix' && <PixPanel t={t} />}
+
+            {method === 'credit' && isHostedCheckout && (
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm text-slate-600 flex items-start gap-3">
+                    <Lock className="w-5 h-5 text-lyvest-500 mt-0.5" />
+                    <div>
+                        <p className="font-bold text-slate-700 mb-1">Pagamento no ambiente seguro do Asaas</p>
+                        <p>Você será redirecionado para concluir com cartão (até 6x), Pix ou boleto. Nenhum dado do seu cartão passa pela LyVest.</p>
+                    </div>
+                </div>
+            )}
 
             <SubmitButton
                 t={t}

@@ -169,7 +169,7 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
                                         {orderError}
                                     </div>
                                 )}
-                                <CheckoutPayment onSubmit={handlePaymentSubmit} total={cartTotal} />
+                                <CheckoutPayment onSubmit={handlePaymentSubmit} total={cartTotal} shipping={addressData ? { ...addressData } : undefined} />
                             </>
                         )}
                     </div>

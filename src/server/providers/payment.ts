@@ -8,7 +8,7 @@
  * 3. Adicione um case em getPaymentProvider()
  */
 
-import { logInfo } from '../../lib/server/logger';
+import { logError, logInfo } from '../../lib/server/logger';
 
 export interface PaymentItem {
     id: string | number;
@@ -39,7 +39,7 @@ export interface PaymentSession {
 }
 
 // Classe base (interface)
-abstract class PaymentProvider {
+export abstract class PaymentProvider {
     abstract createSession(params: CreateSessionParams): Promise<PaymentSession>;
 }
 
@@ -73,6 +73,82 @@ class MockPaymentProvider extends PaymentProvider {
     }
 }
 
+// Implementação Asaas — checkout HOSPEDADO via Link de Pagamentos.
+// PCI: nenhum dado de cartão passa pelo LyVest; o cliente paga (Pix, cartão até 6x
+// ou boleto) na página do Asaas. Sandbox/produção definidos por ASAAS_BASE_URL.
+class AsaasPaymentProvider extends PaymentProvider {
+    private readonly baseUrl =
+        process.env.ASAAS_BASE_URL || 'https://api-sandbox.asaas.com/v3';
+
+    async createSession({ items, currency, amount, metadata }: CreateSessionParams): Promise<PaymentSession> {
+        const apiKey = process.env.ASAAS_API_KEY;
+        if (!apiKey) {
+            throw new Error('ASAAS_API_KEY ausente — configure o ambiente antes de usar o provider asaas.');
+        }
+
+        const totalAmount =
+            typeof amount === 'number'
+                ? amount
+                : items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const orderId = metadata?.orderId || undefined;
+        const summary = items
+            .slice(0, 5)
+            .map((i) => `${i.quantity}x ${i.name ?? i.id}`)
+            .join(', ')
+            .slice(0, 255);
+
+        const body: Record<string, unknown> = {
+            name: orderId ? `Pedido LyVest ${String(orderId).slice(0, 8).toUpperCase()}` : 'Pedido LyVest',
+            description: summary || undefined,
+            value: Math.round(totalAmount * 100) / 100,
+            billingType: 'UNDEFINED', // pagador escolhe: Pix, cartão ou boleto
+            chargeType: 'DETACHED',
+            dueDateLimitDays: 3,
+            maxInstallmentCount: 6, // política da loja: até 6x
+            externalReference: orderId, // volta no webhook (payment.externalReference)
+            notificationEnabled: false,
+        };
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+        if (appUrl) {
+            body.callback = {
+                successUrl: `${appUrl}/checkout?status=success${orderId ? `&order=${orderId}` : ''}`,
+                autoRedirect: true,
+            };
+        }
+
+        const res = await fetch(`${this.baseUrl}/paymentLinks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                access_token: apiKey,
+                'User-Agent': 'lyvest-ecommerce',
+            },
+            body: JSON.stringify(body),
+        });
+
+        const data = (await res.json().catch(() => null)) as {
+            id?: string;
+            url?: string;
+            errors?: Array<{ code?: string; description?: string }>;
+        } | null;
+
+        if (!res.ok || !data?.id || !data?.url) {
+            logError('asaas: falha ao criar link de pagamento', { status: res.status, errors: data?.errors });
+            throw new Error('Falha ao criar a cobrança no Asaas.');
+        }
+
+        logInfo('asaas: link de pagamento criado', data.id);
+        return {
+            sessionId: data.id,
+            provider: 'asaas',
+            status: 'pending',
+            amount: totalAmount,
+            currency,
+            checkoutUrl: data.url,
+        };
+    }
+}
+
 // Implementação Mercado Pago (placeholder)
 class MercadoPagoProvider extends PaymentProvider {
     async createSession(_params: CreateSessionParams): Promise<PaymentSession> {
@@ -88,6 +164,8 @@ export function getPaymentProvider(): PaymentProvider {
     const provider = process.env.PAYMENT_PROVIDER || 'mock';
 
     switch (provider.toLowerCase()) {
+        case 'asaas':
+            return new AsaasPaymentProvider();
         case 'mercadopago':
             return new MercadoPagoProvider();
         case 'stripe':

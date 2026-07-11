@@ -88,6 +88,7 @@ export interface Database {
                     total_amount: number
                     payment_method: string
                     tracking_code: string | null
+                    payment_ref: string | null
                     shipping_address: Json
                     items: Json
                 }
@@ -99,6 +100,7 @@ export interface Database {
                     total_amount: number
                     payment_method: string
                     tracking_code?: string | null
+                    payment_ref?: string | null
                     shipping_address: Json
                     items: Json
                 }
@@ -110,6 +112,7 @@ export interface Database {
                     total_amount?: number
                     payment_method?: string
                     tracking_code?: string | null
+                    payment_ref?: string | null
                     shipping_address?: Json
                     items?: Json
                 }

@@ -4,10 +4,10 @@ import { z } from 'zod';
 
 import type { Json } from '@/types/supabase';
 
-import { VALID_COUPONS } from '@/config/coupons';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError } from '@/lib/server/logger';
 import { createServerSupabaseClient } from '@/lib/server/supabaseServer';
+import { couponRuleFor, messageForRpcError } from '@/server/orders';
 
 /**
  * POST /api/orders
@@ -38,45 +38,6 @@ const bodySchema = z.object({
     paymentMethod: z.enum(['credit', 'pix']).optional(),
     shipping: z.record(z.string(), z.unknown()).optional(),
 });
-
-// Resolve as regras do cupom a partir da fonte única (servidor). O desconto/mínimo são
-// REVALIDADOS contra o subtotal real dentro da RPC — aqui só extraímos os metadados.
-function couponRuleFor(couponCode?: string): {
-    code: string | null;
-    discount: number;
-    singleUse: boolean;
-    minCartTotal: number;
-} {
-    const normalized = couponCode?.toUpperCase().trim();
-    const coupon = normalized ? VALID_COUPONS[normalized] : undefined;
-    if (!coupon || !normalized) {
-        return { code: null, discount: 0, singleUse: false, minCartTotal: 0 };
-    }
-    return {
-        code: normalized,
-        discount: coupon.discount,
-        singleUse: coupon.singleUse ?? false,
-        minCartTotal: coupon.minCartTotal ?? 0,
-    };
-}
-
-// Mapeia exceções conhecidas da RPC para mensagens seguras (sem vazar internals).
-function messageForRpcError(raw: string): { status: number; message: string } {
-    if (raw.includes('INSUFFICIENT_STOCK')) {
-        return { status: 409, message: 'Um dos itens ficou sem estoque. Revise seu carrinho.' };
-    }
-    if (raw.includes('PRODUCT_NOT_FOUND')) {
-        return { status: 400, message: 'Produto indisponível no carrinho.' };
-    }
-    if (raw.includes('AUTH_REQUIRED')) {
-        return { status: 401, message: 'Sessão expirada. Entre novamente.' };
-    }
-    // Violação da UNIQUE de coupon_redemptions (cupom de uso único já resgatado).
-    if (raw.includes('duplicate key') || raw.includes('coupon_redemptions')) {
-        return { status: 409, message: 'Este cupom já foi utilizado.' };
-    }
-    return { status: 500, message: 'Não foi possível concluir o pedido.' };
-}
 
 export async function POST(request: NextRequest) {
     const rl = await checkRateLimit(getClientIp(request.headers), 'checkout');
