@@ -119,21 +119,39 @@ class AsaasPaymentProvider extends PaymentProvider {
             };
         }
 
-        const res = await fetch(`${this.baseUrl}/paymentLinks`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                access_token: apiKey,
-                'User-Agent': 'lyvest-ecommerce',
-            },
-            body: JSON.stringify(body),
-        });
-
-        const data = (await res.json().catch(() => null)) as {
+        type AsaasLinkResponse = {
             id?: string;
             url?: string;
             errors?: Array<{ code?: string; description?: string }>;
         } | null;
+        const postLink = async (payload: Record<string, unknown>) => {
+            const response = await fetch(`${this.baseUrl}/paymentLinks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    access_token: apiKey,
+                    'User-Agent': 'lyvest-ecommerce',
+                },
+                body: JSON.stringify(payload),
+            });
+            const parsed = (await response.json().catch(() => null)) as AsaasLinkResponse;
+            return { response, parsed };
+        };
+
+        let { response: res, parsed: data } = await postLink(body);
+
+        // O Asaas só aceita callback quando a conta tem um site cadastrado
+        // (Minha Conta > Informações). Sem isso, retorna 400 invalid_object.
+        // O redirect de retorno é acessório: recriamos o link sem callback
+        // em vez de perder a venda.
+        if (!res.ok && body.callback) {
+            const desc = (data?.errors ?? []).map((e) => e.description ?? '').join(' ');
+            if (/dom[ií]nio|callback/i.test(desc)) {
+                logError('asaas: callback rejeitado (conta sem domínio cadastrado) — recriando link sem redirect de retorno');
+                delete body.callback;
+                ({ response: res, parsed: data } = await postLink(body));
+            }
+        }
 
         if (!res.ok || !data?.id || !data?.url) {
             // Erros de validação do gateway (código+descrição) não contêm dados do cliente —
