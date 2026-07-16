@@ -1,10 +1,13 @@
 import crypto from 'node:crypto';
 
+import { and, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { orders } from '@/db/schema';
 import { markEventProcessed } from '@/lib/server/idempotency';
 import { logError, logInfo } from '@/lib/server/logger';
-import { createAdminSupabaseClient } from '@/lib/server/supabaseAdmin';
+import { db } from '@/server/dbClient';
+import { incrementStockDb } from '@/server/orderDb';
 
 /**
  * POST /api/payment/webhook
@@ -18,6 +21,9 @@ import { createAdminSupabaseClient } from '@/lib/server/supabaseAdmin';
  * localizado por payment.externalReference (= orders.id) ou payment.paymentLink
  * (= orders.payment_ref). Retorna erro 4xx/5xx quando não conseguir processar,
  * para o gateway reenviar o evento.
+ *
+ * Banco: Neon via Drizzle (server-only). Não há mais admin client — o servidor
+ * é o único ator com acesso ao banco.
  */
 function timingSafeEq(a: string, b: string): boolean {
     const ba = Buffer.from(a);
@@ -89,34 +95,77 @@ function checkAuthGate(
 
 /** Update idempotente: pending -> processing (pago). Lança erro para o gateway reenviar. */
 async function markOrderPaid(payment: AsaasPayment): Promise<void> {
-    const admin = createAdminSupabaseClient();
-    if (!admin) {
-        logError('webhook: SUPABASE_SECRET_KEY ausente — impossível marcar pedido como pago');
-        throw new Error('admin client not configured');
-    }
-
-    let query = admin.from('orders').update({ status: 'processing' }).eq('status', 'pending');
+    let refCondition;
     if (payment.externalReference) {
-        query = query.eq('id', payment.externalReference);
+        refCondition = eq(orders.id, payment.externalReference);
     } else if (payment.paymentLink) {
-        query = query.eq('payment_ref', payment.paymentLink);
+        refCondition = eq(orders.paymentRef, payment.paymentLink);
     } else {
         logInfo('webhook: pagamento sem referência de pedido (ignorado)', payment.id);
         return;
     }
 
-    const { data, error } = await query.select('id');
-    if (error) {
-        logError('webhook: falha ao atualizar pedido', error);
-        throw error;
-    }
-    if (data && data.length > 0) {
-        logInfo('webhook: pedido marcado como pago (processing)', { orderId: data[0].id, payment: payment.id });
+    const updated = await db
+        .update(orders)
+        .set({ status: 'processing' })
+        .where(and(eq(orders.status, 'pending'), refCondition))
+        .returning({ id: orders.id });
+
+    if (updated.length > 0) {
+        logInfo('webhook: pedido marcado como pago (processing)', { orderId: updated[0].id, payment: payment.id });
         // TODO(follow-up): disparar sync com o ERP (Bling) aqui, com retry fora do ciclo
         // do webhook (fila/job) para não segurar a resposta ao gateway.
     } else {
         // Idempotência: pedido já processado (ou referência desconhecida) — não é erro.
         logInfo('webhook: nenhum pedido pending correspondente', { payment: payment.id });
+    }
+}
+
+async function markOrderRefunded(payment: AsaasPayment): Promise<void> {
+    let refCondition;
+    if (payment.externalReference) {
+        refCondition = eq(orders.id, payment.externalReference);
+    } else if (payment.paymentLink) {
+        refCondition = eq(orders.paymentRef, payment.paymentLink);
+    } else {
+        logInfo('webhook: reembolso sem referência de pedido (ignorado)', payment.id);
+        return;
+    }
+
+    const found = await db
+        .select({ id: orders.id, status: orders.status, items: orders.items })
+        .from(orders)
+        .where(refCondition)
+        .limit(1);
+
+    if (found.length === 0) {
+        logInfo('webhook: nenhum pedido correspondente para reembolso', { payment: payment.id });
+        return;
+    }
+
+    const order = found[0];
+    if (order.status === 'cancelled') {
+        logInfo('webhook: pedido de reembolso já está cancelado', { orderId: order.id });
+        return;
+    }
+
+    // Atualizar status do pedido para cancelado (idempotente: só sai de não-cancelado).
+    await db.update(orders).set({ status: 'cancelled' }).where(eq(orders.id, order.id));
+
+    logInfo('webhook: pedido marcado como cancelado (reembolsado)', { orderId: order.id });
+
+    // Restaurar estoque dos produtos (atômico via função SQL increment_stock).
+    const items = order.items as Array<{ id: string; quantity: number }> | null;
+    if (items && Array.isArray(items)) {
+        for (const item of items) {
+            if (!item.id || !item.quantity) continue;
+            const ok = await incrementStockDb(item.id, item.quantity);
+            if (ok) {
+                logInfo('webhook: estoque restaurado via increment_stock', { productId: item.id, qty: item.quantity });
+            } else {
+                logError('webhook: falha ao restaurar estoque', { productId: item.id, qty: item.quantity });
+            }
+        }
     }
 }
 
@@ -130,7 +179,7 @@ async function handleEvent(event: WebhookEvent): Promise<void> {
                 return;
             case 'PAYMENT_REFUNDED':
             case 'PAYMENT_CHARGEBACK_REQUESTED':
-                logInfo('webhook: estorno/chargeback recebido — tratar manualmente', event.payment?.id);
+                await markOrderRefunded(event.payment ?? {});
                 return;
             default:
                 logInfo('webhook: evento Asaas não tratado', event.event);

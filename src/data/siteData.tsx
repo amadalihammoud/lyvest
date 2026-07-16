@@ -5,6 +5,7 @@ import {
     Layers,
     Footprints,
     Gift,
+    Moon,
 } from 'lucide-react';
 import { ReactElement } from 'react';
 
@@ -45,6 +46,7 @@ export const quickFilters: QuickFilter[] = [
     { name: "Sutiãs", translationKey: 'products.categories.bras', icon: <Heart className="w-5 h-5" />, color: "bg-purple-100 text-purple-600" },
     { name: "Cuecas", translationKey: 'products.categories.boxers', icon: <Layers className="w-5 h-5" />, color: "bg-blue-100 text-blue-600" },
     { name: "Meias", translationKey: 'products.categories.socks', icon: <Footprints className="w-5 h-5" />, color: "bg-teal-100 text-teal-600" },
+    { name: "Pijamas", translationKey: 'products.categories.pajamas', fullCategory: "Pijamas", icon: <Moon className="w-5 h-5" />, color: "bg-purple-100 text-purple-600" },
     { name: "Kits", translationKey: 'products.categories.kits', icon: <Gift className="w-5 h-5" />, color: "bg-orange-100 text-orange-600" },
 ];
 
@@ -78,6 +80,7 @@ export const mainMenu: MenuItem[] = [
     { label: "Calcinhas", translationKey: 'products.categories.panties', action: "filter", category: "Calcinhas" },
     { label: "Sutiãs", translationKey: 'products.categories.bras', action: "filter", category: "Sutiãs" },
     { label: "Cuecas", translationKey: 'products.categories.boxers', action: "filter", category: "Cuecas" },
+    { label: "Pijamas", translationKey: 'products.categories.pajamas', action: "filter", category: "Pijamas" },
     { label: "Meias", translationKey: 'products.categories.socks', action: "filter", category: "Meias" },
     { label: "Kits", translationKey: 'products.categories.kits', action: "filter", category: "Kits" }
 ];

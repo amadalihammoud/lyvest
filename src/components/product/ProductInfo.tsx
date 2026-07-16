@@ -1,5 +1,5 @@
-
 import { Product } from '../../services/ProductService'; // Correct import
+import { getInstallments } from '../../utils/installments';
 
 interface ProductInfoProps {
     product: Product;
@@ -9,6 +9,7 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({ product, productName, formatCurrency, t }: ProductInfoProps) {
+    const installments = getInstallments(product.price);
     return (
         <div>
             <h1 className="text-3xl lg:text-4xl text-lyvest-600 font-normal mb-2 leading-tight">
@@ -28,7 +29,7 @@ export function ProductInfo({ product, productName, formatCurrency, t }: Product
                     <span className="text-4xl font-bold text-slate-900">{formatCurrency(product.price)}</span>
                 </div>
                 <p className="text-lyvest-600 text-sm font-medium">
-                    {t('products.installments', { installments: 3, amount: formatCurrency(product.price / 3) })}
+                    {t('products.installments', { installments: installments.count, amount: formatCurrency(installments.value) })}
                 </p>
             </div>
         </div>

@@ -9,6 +9,7 @@ import { useCart } from '../../store/useCartStore';
 import { paymentSchema, validateForm } from '../../utils/schemas';
 import { RateLimiter, detectXSS } from '../../utils/security';
 import { formatCardNumber } from '../../utils/validation';
+import { getInstallments } from '../../utils/installments';
 
 // import { useAuth } from '../../context/AuthContext'; // Removed
 
@@ -169,10 +170,10 @@ function CreditCardForm({
                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all font-medium text-slate-700 appearance-none bg-white"
                         >
                             {Array.from({ length: 12 }, (_, i) => i + 1)
-                                .filter(qty => displayTotal / qty >= 5) // Minimum installment R$ 5,00
+                                .filter(qty => qty === 1 || displayTotal / qty >= 20) // Mínimo R$ 20 por parcela, exceto 1x
                                 .map(qty => (
                                     <option key={qty} value={qty}>
-                                        {qty}x de {formatCurrency(displayTotal / qty)} {qty === 1 ? 'Ã  vista' : 'sem juros'}
+                                        {qty}x de {formatCurrency(displayTotal / qty)} {qty === 1 ? 'à vista' : 'sem juros'}
                                     </option>
                                 ))}
                         </select>

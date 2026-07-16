@@ -1,7 +1,10 @@
 -- Seed de produtos (paridade com o catálogo mock exibido hoje na loja)
 INSERT INTO public.categories (name, slug, description) VALUES
 ('Sutiãs', 'sutias', 'Sutiãs com e sem bojo, renda e básicos'),
-('Cuecas', 'cuecas', 'Cuecas femininas modal e algodão')
+('Cuecas', 'cuecas', 'Cuecas masculinas e unissex'),
+('Calcinhas', 'calcinhas', 'Calcinhas de algodão, renda e sem costura'),
+('Meias', 'meias', 'Meias invisíveis, sapatilhas e esportivas'),
+('Pijamas', 'pijamas', 'Pijamas e roupões confortáveis')
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO public.products (name, slug, description, price, image_url, category_id, stock, active, highlight)
@@ -11,7 +14,7 @@ SELECT v.name, v.slug, v.description, v.price, v.image_url,
 FROM (VALUES
 ('Kit 3 Calcinhas Algodão Soft','kit-3-calcinhas-algodao-soft','Conforto absoluto para o dia a dia. Tecido respirável e toque macio.',49.90,'/products/kit-calcinhas.jpg','Calcinhas',50,true),
 ('Sutiã Renda Comfort Sem Bojo','sutia-renda-comfort-sem-bojo','Beleza e conforto juntos. Sutiã em renda floral sem aro e sem bojo.',59.90,'/products/sutia-renda.jpg','Sutiãs',50,true),
-('Cueca Boxer Feminina Modal','cueca-boxer-feminina-modal','Toque gelado e modelagem que não marca. Ideal para usar com calças justas.',29.90,'/products/cueca-boxer.jpg','Cuecas',50,false),
+('Cueca Boxer Feminina Modal','cueca-boxer-feminina-modal','Toque gelado e modelagem que não marca. Ideal para usar com calças justas.',29.90,'/products/cueca-boxer.jpg','Calcinhas',50,false),
 ('Kit 5 Pares de Meias Invisíveis','kit-5-pares-meias-invisiveis','Meias que não aparecem no tênis e não escorregam do calcanhar.',35.00,'/products/meias-invisiveis.jpg','Meias',50,false),
 ('Sutiã Push-Up Básico','sutia-push-up-basico','Levanta e valoriza o colo com bojo estruturado.',69.90,'/products/sutia-pushup.jpg','Sutiãs',50,true),
 ('Calcinha Fio Dental Renda','calcinha-fio-dental-renda','Renda delicada com acabamento premium.',19.90,'/products/calcinha-fio.jpg','Calcinhas',50,false),

@@ -3,13 +3,16 @@
  * em memória e fallback para as constantes locais.
  *
  * Regra: o banco manda; a constante SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD vira
- * apenas fallback para dev sem Supabase e para falhas transitórias de leitura.
+ * apenas fallback para dev sem banco e para falhas transitórias de leitura.
  */
 
+import { eq } from 'drizzle-orm';
+
 import { SHIPPING_CONFIG } from '../config/constants';
+import { financialConfigs } from '../db/schema';
 import { logError } from '../lib/server/logger';
 
-import { supabase, isSupabaseConfigured } from './supabase';
+import { db, isDbConfigured } from './dbClient';
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 
@@ -19,25 +22,20 @@ let cachedThreshold: { value: number; at: number } | null = null;
 export async function getFreeShippingThreshold(): Promise<number> {
     const fallback = SHIPPING_CONFIG.FREE_SHIPPING_THRESHOLD;
 
-    if (!isSupabaseConfigured()) return fallback;
+    if (!isDbConfigured()) return fallback;
 
     if (cachedThreshold && Date.now() - cachedThreshold.at < CACHE_TTL_MS) {
         return cachedThreshold.value;
     }
 
     try {
-        const { data, error } = await supabase
-            .from('financial_configs')
-            .select('rule_value')
-            .eq('rule_key', 'free_shipping_threshold')
-            .maybeSingle();
+        const rows = await db
+            .select({ ruleValue: financialConfigs.ruleValue })
+            .from(financialConfigs)
+            .where(eq(financialConfigs.ruleKey, 'free_shipping_threshold'))
+            .limit(1);
 
-        if (error) {
-            logError('financialConfig: erro ao ler free_shipping_threshold', error);
-            return cachedThreshold?.value ?? fallback;
-        }
-
-        const value = Number(data?.rule_value);
+        const value = Number(rows[0]?.ruleValue);
         if (!Number.isFinite(value) || value <= 0) {
             return cachedThreshold?.value ?? fallback;
         }

@@ -12,6 +12,7 @@ export interface CartItem {
     qty: number;
     image: string;
     category: string;
+    size?: string;
 }
 
 const CART_STORAGE_KEY = CART_CONFIG.STORAGE_KEY;
@@ -56,7 +57,8 @@ function validateCartItem(item: unknown): CartItem | null {
         price: Math.abs(i.price as number),
         qty: Math.min(Math.floor(i.qty as number), CART_MAX_QUANTITY),
         image: sanitizeCartStr(i.image, 500),
-        category: sanitizeCartStr(i.category, 100)
+        category: sanitizeCartStr(i.category, 100),
+        size: i.size ? sanitizeCartStr(i.size, 10) : undefined
     };
 }
 
@@ -146,14 +148,22 @@ export const useCartStore = create<CartState>((set, get) => ({
         const prev = state.cartItems;
         if (prev.length >= CART_MAX_ITEMS) return;
 
-        const existing = prev.find((item) => item.id === validProduct.id);
+        // Create a unique cart item ID combining product ID and size
+        const cartItemId = `${validProduct.id}${validProduct.size ? '-' + validProduct.size : ''}`;
+
+        const existing = prev.find((item) => {
+            const itemId = `${item.id}${item.size ? '-' + item.size : ''}`;
+            return itemId === cartItemId;
+        });
+        
         let newItems: CartItem[];
         if (existing) {
-            newItems = prev.map((item) =>
-                item.id === validProduct.id
+            newItems = prev.map((item) => {
+                const itemId = `${item.id}${item.size ? '-' + item.size : ''}`;
+                return itemId === cartItemId
                     ? { ...item, qty: Math.min(item.qty + validProduct.qty, CART_MAX_QUANTITY) }
-                    : item
-            );
+                    : item;
+            });
         } else {
             newItems = [...prev, validProduct];
         }
@@ -163,7 +173,10 @@ export const useCartStore = create<CartState>((set, get) => ({
 
     removeFromCart: (id) => {
         const state = get();
-        const newItems = state.cartItems.filter((item) => item.id !== id);
+        const newItems = state.cartItems.filter((item) => {
+            const itemId = `${item.id}${item.size ? '-' + item.size : ''}`;
+            return itemId !== String(id) && String(item.id) !== String(id);
+        });
         saveCartToStorage(newItems);
         set({ cartItems: newItems, ...computeDerived(newItems, state.discount, state.freeShippingMinimum) });
     },
@@ -173,11 +186,15 @@ export const useCartStore = create<CartState>((set, get) => ({
         const state = get();
         let newItems: CartItem[];
         if (qty <= 0) {
-            newItems = state.cartItems.filter((item) => item.id !== id);
+            newItems = state.cartItems.filter((item) => {
+                const itemId = `${item.id}${item.size ? '-' + item.size : ''}`;
+                return itemId !== String(id) && String(item.id) !== String(id);
+            });
         } else {
-            newItems = state.cartItems.map((item) =>
-                item.id === id ? { ...item, qty: Math.min(Math.floor(qty), CART_MAX_QUANTITY) } : item
-            );
+            newItems = state.cartItems.map((item) => {
+                const itemId = `${item.id}${item.size ? '-' + item.size : ''}`;
+                return (itemId === String(id) || String(item.id) === String(id)) ? { ...item, qty: Math.min(Math.floor(qty), CART_MAX_QUANTITY) } : item
+            });
         }
         saveCartToStorage(newItems);
         set({ cartItems: newItems, ...computeDerived(newItems, state.discount, state.freeShippingMinimum) });

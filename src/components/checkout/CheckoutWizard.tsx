@@ -2,13 +2,12 @@
 import { useUser } from '@clerk/nextjs';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import CheckoutAddress, { AddressFormData } from './CheckoutAddress';
 import CheckoutSummary from './CheckoutSummary';
 import { useCart } from '../../hooks/useCart';
 import { useI18n } from '../../hooks/useI18n';
-import { isSupabaseConfigured } from '../../lib/supabase';
 import { logger } from '../../utils/logger';
 
 const CheckoutPayment = dynamic(() => import('./CheckoutPayment'), { ssr: false });
@@ -71,6 +70,19 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
     const [orderNumber, setOrderNumber] = useState<string | null>(null);
     const [orderError, setOrderError] = useState<string | null>(null);
 
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const status = params.get('status');
+            const orderId = params.get('order');
+            if (status === 'success') {
+                setOrderNumber(orderId ? orderId.slice(0, 8).toUpperCase() : 'SUCESSO');
+                clearCart();
+                setStep(3);
+            }
+        }
+    }, [clearCart]);
+
     const handleAddressSubmit = (data: AddressFormData) => {
         setAddressData(data);
         setStep(2);
@@ -91,7 +103,7 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
         setOrderError(null);
         const method = (data as { method?: 'credit' | 'pix' })?.method;
 
-        if (user && isSupabaseConfigured()) {
+        if (user) {
             try {
                 const res = await fetch('/api/orders', {
                     method: 'POST',

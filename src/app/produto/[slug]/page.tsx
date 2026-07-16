@@ -3,7 +3,10 @@ import type { Metadata } from 'next';
 
 import ProductPageClient from '@/components/pages/ProductPageClient';
 import { productsData } from '@/data/products';
-import { supabase } from '@/lib/supabase';
+import { eq } from 'drizzle-orm';
+
+import { categories, products } from '@/db/schema';
+import { db, isDbConfigured } from '@/server/dbClient';
 import { Product } from '@/services/ProductService';
 import { generateSlug } from '@/utils/slug';
 
@@ -47,26 +50,50 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
-    // 1. Try to find by slug in Supabase
+    // 1. Try to find by slug no banco (server component → Drizzle direto, sem rota)
     let product: Product | null = null;
 
-    try {
-        const { data } = await supabase
-            .from('products')
-            .select('*, category:categories(name, slug)')
-            .eq('slug', slug)
-            .single();
+    if (isDbConfigured()) {
+        try {
+            const rows = await db
+                .select({
+                    id: products.id,
+                    name: products.name,
+                    description: products.description,
+                    price: products.price,
+                    promotionalPrice: products.promotionalPrice,
+                    imageUrl: products.imageUrl,
+                    active: products.active,
+                    stock: products.stock,
+                    sizes: products.sizes,
+                    categoryName: categories.name,
+                    categorySlug: categories.slug,
+                })
+                .from(products)
+                .leftJoin(categories, eq(products.categoryId, categories.id))
+                .where(eq(products.slug, slug))
+                .limit(1);
 
-        if (data) {
-            product = {
-                ...data,
-                image: data.image_url || (data as Record<string, unknown>).image || '',
-                // Ensure category matches Product type which expects object or string
-                category: data.category
-            } as unknown as Product;
+            const row = rows[0];
+            if (row) {
+                product = {
+                    id: row.id,
+                    name: row.name,
+                    description: row.description ?? '',
+                    price: Number(row.promotionalPrice ?? row.price),
+                    oldPrice: row.promotionalPrice ? Number(row.price) : undefined,
+                    image: row.imageUrl || '',
+                    active: row.active ?? true,
+                    stock_quantity: row.stock ?? 0,
+                    sizes: row.sizes ?? undefined,
+                    category: row.categoryName
+                        ? { name: row.categoryName, slug: row.categorySlug ?? '' }
+                        : undefined,
+                } as Product;
+            }
+        } catch (err) {
+            console.error('Error fetching product from database:', err);
         }
-    } catch (err) {
-        console.error('Error fetching product from Supabase:', err);
     }
 
     // 2. Fallback: Try to find by name (slugified) in mockData

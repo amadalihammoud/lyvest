@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import UserDashboard from '@/components/dashboard/UserDashboard';
 import { mockOrders } from '@/data/mockOrders';
 // import { useAuth, User } from '@/context/AuthContext'; // Removed
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useModal } from '@/store/useModalStore';
 import { Order } from '@/types/dashboard';
 import { logger } from '@/utils/logger';
@@ -74,27 +73,28 @@ export default function DashboardPageClient() {
 
     const { openDrawer, setTrackingCode } = useModal();
 
-    // Pedidos reais do banco (RLS escopa por usuário via JWT do Clerk). Fallback para mock
-    // quando o Supabase não está configurado (dev/demo).
+    // Pedidos reais via /api/my-orders (escopo por usuário aplicado no servidor).
+    // Fallback para mock enquanto carrega ou em erro (dev/demo).
     const [orders, setOrders] = useState<Order[]>(mockOrders as unknown as Order[]);
 
     useEffect(() => {
-        if (!user || !isSupabaseConfigured()) return;
+        if (!user) return;
         let active = true;
 
         (async () => {
-            const { data, error } = await supabase
-                .from('orders')
-                .select('id, created_at, status, total_amount, payment_method, tracking_code, shipping_address, items')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if (!active) return;
-            if (error) {
-                logger.error('Erro ao carregar pedidos:', error.message);
-                return;
+            try {
+                const res = await fetch('/api/my-orders');
+                if (!active) return;
+                if (!res.ok) {
+                    logger.error('Erro ao carregar pedidos:', String(res.status));
+                    return;
+                }
+                const body = (await res.json()) as { orders?: DbOrderRow[] };
+                if (!active) return;
+                setOrders((body.orders ?? []).map(mapDbOrder));
+            } catch (err) {
+                if (active) logger.error('Erro ao carregar pedidos:', err);
             }
-            setOrders((data as DbOrderRow[]).map(mapDbOrder));
         })();
 
         return () => {

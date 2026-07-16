@@ -1,5 +1,7 @@
 // src/store/useFavoritesStore.ts
-// Zustand store replacing FavoritesContext — no provider needed
+// Zustand store replacing FavoritesContext — no provider needed.
+// Persistência remota via /api/favorites (o browser nunca fala com o banco;
+// a rota valida o usuário via Clerk no servidor).
 import { create } from 'zustand';
 
 import { FAVORITES_CONFIG } from '../config/constants';
@@ -44,11 +46,6 @@ function saveFavoritesToStorage(favorites: (number | string)[]) {
     } catch { /* ignore */ }
 }
 
-async function loadSupabase() {
-    const mod = await import('../lib/supabase');
-    return mod;
-}
-
 interface FavoritesState {
     favorites: (number | string)[];
     _isHydrated: boolean;
@@ -63,8 +60,8 @@ interface FavoritesState {
     _hydrate: () => void;
     _syncWithUser: (user: { id: string } | null) => Promise<void>;
     _setUserId: (id: string | null) => void;
-    _addToSupabase: (productId: string, userId: string) => Promise<void>;
-    _removeFromSupabase: (productId: string, userId: string) => Promise<void>;
+    _addToCloud: (productId: string) => Promise<void>;
+    _removeFromCloud: (productId: string) => Promise<void>;
 
     // Computed
     favoritesCount: number;
@@ -87,48 +84,49 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
 
     _setUserId: (id: string | null) => set({ _userId: id }),
 
-    _addToSupabase: async (productId: string, userId: string) => {
-        if (!userId || !isUuid(productId)) return;
+    _addToCloud: async (productId: string) => {
+        if (!isUuid(productId)) return;
         try {
-            const { supabase, isSupabaseConfigured } = await loadSupabase();
-            if (!isSupabaseConfigured()) return;
-            await supabase.from('favorites').insert({ user_id: userId, product_id: productId });
+            await fetch('/api/favorites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId }),
+            });
         } catch (err) { logger.error('Error adding favorite to cloud:', err); }
     },
 
-    _removeFromSupabase: async (productId: string, userId: string) => {
-        if (!userId || !isUuid(productId)) return;
+    _removeFromCloud: async (productId: string) => {
+        if (!isUuid(productId)) return;
         try {
-            const { supabase, isSupabaseConfigured } = await loadSupabase();
-            if (!isSupabaseConfigured()) return;
-            await supabase.from('favorites').delete().eq('user_id', userId).eq('product_id', productId);
+            await fetch('/api/favorites', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId }),
+            });
         } catch (err) { logger.error('Error removing favorite from cloud:', err); }
     },
 
     _syncWithUser: async (user: { id: string } | null) => {
         if (!user) return;
         try {
-            const { supabase, isSupabaseConfigured } = await loadSupabase();
-            if (!isSupabaseConfigured()) return;
-
-            const { data: remoteFavorites, error } = await supabase
-                .from('favorites').select('product_id').eq('user_id', user.id);
-            if (error) throw error;
-
-            const remoteIds = remoteFavorites?.map((f: { product_id: string }) => f.product_id) || [];
             const localIds = loadFavoritesFromStorage();
-            const newRemoteItems = localIds.filter(id => isUuid(id) && !remoteIds.includes(id as string));
+            const merge = localIds.filter(isUuid) as string[];
 
-            if (newRemoteItems.length > 0) {
-                await supabase.from('favorites').insert(
-                    newRemoteItems.map(id => ({ user_id: user.id, product_id: id as string }))
-                );
-                logger.info(`Synced ${newRemoteItems.length} favorites to cloud.`);
-            }
+            // Uma chamada só: mescla os locais e devolve a lista consolidada do servidor.
+            const res = await fetch('/api/favorites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ merge }),
+            });
+            if (!res.ok) throw new Error(`favorites sync failed: ${res.status}`);
 
+            const body = (await res.json()) as { favorites?: string[] };
+            const remoteIds = body.favorites ?? [];
             const combinedIds = [...new Set([...localIds, ...remoteIds])];
+
             saveFavoritesToStorage(combinedIds);
             set({ favorites: combinedIds, favoritesCount: combinedIds.length });
+            if (merge.length > 0) logger.info(`Synced ${merge.length} favorites to cloud.`);
         } catch (err) { logger.error('Error syncing favorites:', err); }
     },
 
@@ -145,13 +143,13 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         const isFav = state.favorites.includes(id);
 
         if (isFav) {
-            if (state._userId) state._removeFromSupabase(String(id), state._userId);
+            if (state._userId) state._removeFromCloud(String(id));
             const newFavs = state.favorites.filter((favId) => favId !== id);
             saveFavoritesToStorage(newFavs);
             set({ favorites: newFavs, favoritesCount: newFavs.length });
         } else {
             if (state.favorites.length >= MAX_FAVORITES) return;
-            if (state._userId) state._addToSupabase(String(id), state._userId);
+            if (state._userId) state._addToCloud(String(id));
             const newFavs = [...state.favorites, id];
             saveFavoritesToStorage(newFavs);
             set({ favorites: newFavs, favoritesCount: newFavs.length });
@@ -164,7 +162,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         if (state.favorites.includes(productId)) return;
         if (state.favorites.length >= MAX_FAVORITES) return;
 
-        if (state._userId) state._addToSupabase(String(productId), state._userId);
+        if (state._userId) state._addToCloud(String(productId));
         const newFavs = [...state.favorites, productId];
         saveFavoritesToStorage(newFavs);
         set({ favorites: newFavs, favoritesCount: newFavs.length });
@@ -173,7 +171,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
     removeFavorite: (productId) => {
         if (!isValidId(productId)) return;
         const state = get();
-        if (state._userId) state._removeFromSupabase(String(productId), state._userId);
+        if (state._userId) state._removeFromCloud(String(productId));
         const newFavs = state.favorites.filter((id) => id !== productId);
         saveFavoritesToStorage(newFavs);
         set({ favorites: newFavs, favoritesCount: newFavs.length });

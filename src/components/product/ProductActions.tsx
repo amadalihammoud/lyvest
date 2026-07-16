@@ -5,6 +5,7 @@ import { useState } from 'react';
 import SizeGuideModal from './SizeGuideModal';
 // Use Product from services/ProductService instead of local definition
 import { Product } from '../../services/ProductService';
+import { toast } from 'react-hot-toast';
 
 interface ProductActionsProps {
     product: Product;
@@ -31,15 +32,48 @@ export function ProductActions({
 }: ProductActionsProps) {
 
     const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
     const handleQuantityChange = (delta: number) => {
         setQuantity(prev => Math.max(1, prev + delta));
     };
 
+    const handleAddToCartClick = () => {
+        if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+            alert('Por favor, selecione um tamanho antes de comprar.');
+            return;
+        }
+        onAddToCart({ ...product, quantity, sizes: selectedSize ? [selectedSize] : undefined } as unknown as Product); // Pass selectedSize
+    };
+
     return (
         <>
+            {/* Seletor de Tamanho */}
+            {product.sizes && product.sizes.length > 0 && (
+                <div className="mt-4 mb-2">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-bold text-slate-700">Tamanho: {selectedSize || ''}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {product.sizes.map((size) => (
+                            <button
+                                key={size}
+                                onClick={() => setSelectedSize(size)}
+                                className={`h-10 min-w-[3rem] px-3 border rounded-md font-medium text-sm transition-colors ${
+                                    selectedSize === size
+                                        ? 'border-lyvest-600 bg-lyvest-600 text-white'
+                                        : 'border-slate-300 text-slate-700 hover:border-lyvest-500'
+                                }`}
+                            >
+                                {size}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Buy Actions */}
-            <div className="flex flex-row gap-4 mt-2">
+            <div className="flex flex-row gap-4 mt-4">
                 {/* Quantity */}
                 <div className="flex items-center bg-slate-100 rounded-md h-12">
                     <button aria-label="Diminuir quantidade" onClick={() => handleQuantityChange(-1)} className="px-4 h-full text-slate-500 hover:text-lyvest-600 transition-colors" type="button">
@@ -54,8 +88,8 @@ export function ProductActions({
                 {/* Buy Button */}
                 <button
                     data-testid="add-to-cart-button"
-                    onClick={() => onAddToCart({ ...product, quantity })}
-                    className="px-8 bg-lyvest-600 text-white font-bold h-12 rounded-md hover:bg-lyvest-700 transition-colors shadow-md text-base uppercase tracking-wide"
+                    onClick={handleAddToCartClick}
+                    className="px-8 bg-lyvest-600 text-white font-bold h-12 rounded-md hover:bg-lyvest-700 transition-colors shadow-md text-base uppercase tracking-wide flex-1"
                 >
                     {t('products.buy')}
                 </button>

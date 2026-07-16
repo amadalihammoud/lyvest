@@ -45,3 +45,7 @@ diagnostic.js
 
 # Build artifacts
 *.tsbuildinfo
+
+# Claude Neon migration - transient
+.vercel/
+*.log

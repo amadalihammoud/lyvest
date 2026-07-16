@@ -1,18 +1,20 @@
 import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { orders as ordersTable, reviews } from '@/db/schema';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError } from '@/lib/server/logger';
-import { createServerSupabaseClient } from '@/lib/server/supabaseServer';
+import { db } from '@/server/dbClient';
 
 /**
  * POST /api/reviews
  *
- * Cria uma avaliação de produto. Substitui o insert direto do cliente (que era
- * auto-aprovado e sem verificação de compra) por um fluxo server-side:
+ * Cria uma avaliação de produto. Fluxo server-side (Neon/Drizzle):
  *
  *  - Pilar 3: exige usuário logado (auth no servidor); o user_id vem do token, não do body.
+ *    Sem RLS: o escopo por usuário é o WHERE user_id = <Clerk id> aplicado AQUI.
  *  - Verificação de compra: só permite avaliar produto que o usuário realmente comprou
  *    (existe um pedido dele contendo o produto).
  *  - Moderação: grava com approved=false (nunca auto-aprova) — evita review injection.
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     try {
         // Pilar 3: identidade vem do servidor, nunca do corpo da requisição.
-        const { userId, getToken } = await auth();
+        const { userId } = await auth();
         if (!userId) {
             return NextResponse.json({ message: 'Não autorizado' }, { status: 401 });
         }
@@ -66,22 +68,20 @@ export async function POST(request: NextRequest) {
         }
         const { productId, productName, orderId, rating, comment } = parsed.data;
 
-        const token = await getToken();
-        const supabase = createServerSupabaseClient(token);
-
-        // Verificação de compra: busca os pedidos do usuário (RLS já escopa por user_id)
+        // Verificação de compra: busca os pedidos do usuário (escopo aplicado no WHERE)
         // e confere que algum deles contém o produto avaliado.
-        const { data: orders, error: ordersError } = await supabase
-            .from('orders')
-            .select('id, items')
-            .eq('user_id', userId);
-
-        if (ordersError) {
+        let userOrders: OrderRow[];
+        try {
+            userOrders = await db
+                .select({ id: ordersTable.id, items: ordersTable.items })
+                .from(ordersTable)
+                .where(eq(ordersTable.userId, userId));
+        } catch (ordersError) {
             logError('reviews: erro ao verificar pedidos', ordersError);
             return NextResponse.json({ message: 'Não foi possível validar a compra' }, { status: 500 });
         }
 
-        if (!orders || !purchasedProduct(orders as OrderRow[], productId, productName)) {
+        if (!purchasedProduct(userOrders, productId, productName)) {
             return NextResponse.json(
                 { message: 'Só é possível avaliar produtos que você comprou.' },
                 { status: 403 }
@@ -89,17 +89,17 @@ export async function POST(request: NextRequest) {
         }
 
         // Grava para moderação (approved=false). user_id vem do token (não do cliente).
-        const { error: insertError } = await supabase.from('reviews').insert({
-            user_id: userId,
-            order_id: orderId,
-            product_id: productId ?? null,
-            product_name: productName,
-            rating,
-            comment,
-            approved: false,
-        });
-
-        if (insertError) {
+        try {
+            await db.insert(reviews).values({
+                userId,
+                orderId,
+                productId: productId ?? null,
+                productName,
+                rating,
+                comment,
+                approved: false,
+            });
+        } catch (insertError) {
             logError('reviews: erro ao inserir avaliação', insertError);
             return NextResponse.json({ message: 'Erro ao enviar avaliação' }, { status: 500 });
         }

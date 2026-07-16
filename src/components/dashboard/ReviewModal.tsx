@@ -4,7 +4,6 @@ import { useUser } from '@clerk/nextjs';
 import { X, Star, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
-import { isSupabaseConfigured } from '../../lib/supabase';
 
 
 
@@ -41,7 +40,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
         setIsSubmitting(true);
 
         try {
-            if (isSupabaseConfigured() && user) {
+            if (user) {
                 // Envia para a rota server-side, que verifica a compra e grava para moderação.
                 // O user_id NÃO é enviado pelo cliente — o servidor o obtém do token do Clerk.
                 const isUuid = typeof productId === 'string' && productId.includes('-');
