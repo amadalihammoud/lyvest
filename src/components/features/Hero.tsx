@@ -120,23 +120,10 @@ function Hero() {
                                                 })()
                                             )}
                                         </div>
-                                        {/* Gradient & Text CTA Overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/10 to-transparent flex flex-col justify-center px-6 sm:px-12 md:px-20 lg:px-24 text-left z-10 select-none">
-                                            <span className="text-lyvest-300 text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-widest mb-1 sm:mb-2 block">
-                                                {slide.id === 1 ? "Novidades" : "Essenciais"}
-                                            </span>
-                                            <h2 className="text-lg sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-4 max-w-[200px] sm:max-w-md md:max-w-xl leading-tight">
-                                                {slide.id === 1 ? "Coleção de Verão" : "Sem Costura"}
-                                            </h2>
-                                            <p className="text-[10px] sm:text-sm md:text-base text-slate-200 mb-3 sm:mb-6 max-w-[250px] sm:max-w-xs md:max-w-md hidden xs:block">
-                                                {slide.id === 1 ? "Sinta a leveza e a sensualidade das nossas novas peças." : "Conforto absoluto e caimento perfeito sob qualquer look."}
-                                            </p>
-                                            <div>
-                                                <span className="inline-flex items-center justify-center px-4 py-2 sm:px-6 sm:py-3 bg-white text-lyvest-600 hover:bg-lyvest-50 text-xs sm:text-sm font-bold rounded-full transition-all duration-300 shadow-md group-hover/slide:shadow-lg transform group-hover/slide:-translate-y-0.5">
-                                                    {slide.id === 1 ? "Comprar Agora" : "Ver Coleção"}
-                                                </span>
-                                            </div>
-                                        </div>
+                                        {/* Sem overlay de texto: a copy (título/subtítulo/CTA) já vem
+                                            desenhada na própria arte do banner. Overlay HTML duplicava o
+                                            texto e ficava sobreposto — ver HANDOFF_NEON.md. O slide inteiro
+                                            é o link; o zoom no hover sinaliza a interatividade. */}
                                     </Link>
                                 );
                             })}
