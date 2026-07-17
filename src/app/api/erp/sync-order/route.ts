@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { isAuthorizedInternal } from '@/lib/server/internalAuth';
 import { logError } from '@/lib/server/logger';
-import { getErpProvider } from '@/server/services/erp';
+import { getErpProvider } from '@/server/providers/erp';
 
 /**
  * POST /api/erp/sync-order

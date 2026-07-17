@@ -39,8 +39,11 @@ export async function initSentry() {
             replaysOnErrorSampleRate: 1.0,
             integrations: [
                 Sentry.replayIntegration({
-                    maskAllText: false,
-                    blockAllMedia: false,
+                    // PII: a loja coleta endereço, nome e (no checkout) dados de cartão.
+                    // Mascarar todo texto e mídia evita que o Session Replay capture esses
+                    // dados na tela do usuário.
+                    maskAllText: true,
+                    blockAllMedia: true,
                 }),
                 Sentry.browserTracingIntegration(),
                 Sentry.feedbackIntegration({

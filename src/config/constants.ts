@@ -64,9 +64,14 @@ export const SEARCH_CONFIG = {
 
 /**
  * Configurações de Frete
+ *
+ * FONTE ÚNICA DA VERDADE do limite de frete grátis. Antes o valor estava triplicado e
+ * divergente (150 aqui, 199 no carrinho, 300 no mock de frete) — o cliente via a promessa
+ * de frete grátis a R$199 mas o cálculo só zerava a R$300. Agora carrinho e cálculo de
+ * frete importam DESTA constante. (Valor alinhado ao seed financial_configs = 199,90.)
  */
 export const SHIPPING_CONFIG = {
-    FREE_SHIPPING_THRESHOLD: 150,
+    FREE_SHIPPING_THRESHOLD: 199,
     DEFAULT_SHIPPING_COST: 15.90
 } as const;
 

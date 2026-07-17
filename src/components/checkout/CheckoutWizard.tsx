@@ -1,12 +1,14 @@
 'use client';
+import { useUser } from '@clerk/nextjs';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import CheckoutAddress, { AddressFormData } from './CheckoutAddress';
 import CheckoutSummary from './CheckoutSummary';
 import { useCart } from '../../hooks/useCart';
 import { useI18n } from '../../hooks/useI18n';
+import { logger } from '../../utils/logger';
 
 const CheckoutPayment = dynamic(() => import('./CheckoutPayment'), { ssr: false });
 const OrderConfirmation = dynamic(() => import('./OrderConfirmation'), { ssr: false });
@@ -61,13 +63,25 @@ function StepIndicator({ step, t }: { step: number; t: (key: string) => string }
 
 export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardProps) {
     const { t, isRTL } = useI18n();
-    const { cartItems, cartTotal, clearCart } = useCart();
+    const { cartItems, cartTotal, couponCode, clearCart } = useCart();
+    const { user } = useUser();
     const [step, setStep] = useState(1); // 1: Address, 2: Payment, 3: Success
     const [addressData, setAddressData] = useState<AddressFormData | undefined>(undefined);
     const [orderNumber, setOrderNumber] = useState<string | null>(null);
+    const [orderError, setOrderError] = useState<string | null>(null);
 
-    // Using a ref or simplified handler since we don't really process address yet
-    // In a real app we'd save this to context or state management
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const status = params.get('status');
+            const orderId = params.get('order');
+            if (status === 'success') {
+                setOrderNumber(orderId ? orderId.slice(0, 8).toUpperCase() : 'SUCESSO');
+                clearCart();
+                setStep(3);
+            }
+        }
+    }, [clearCart]);
 
     const handleAddressSubmit = (data: AddressFormData) => {
         setAddressData(data);
@@ -75,18 +89,49 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handlePaymentSubmit = (_data: unknown) => {
-        // data would be { method: 'credit' | 'pix', lastFour?: string }
-        // We don't store payment details here for security, just success status
-        const newOrderNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-        setOrderNumber(newOrderNumber);
+    const advanceToSuccess = (orderId: string) => {
+        setOrderNumber(orderId);
+        clearCart();
+        setStep(3);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
-        // Simular processamento
-        setTimeout(() => {
-            clearCart();
-            setStep(3);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 1500);
+    // Persiste o pedido no servidor (baixa de estoque + total autoritativo) para usuário
+    // logado com Supabase configurado. Se a persistência falhar (ex.: sem estoque), NÃO
+    // fingimos sucesso — o cliente volta a ver o erro. Convidado/mock mantém o fluxo simulado.
+    const handlePaymentSubmit = async (data: unknown) => {
+        setOrderError(null);
+        const method = (data as { method?: 'credit' | 'pix' })?.method;
+
+        if (user) {
+            try {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: cartItems.map((i) => ({ id: String(i.id), quantity: i.qty })),
+                        couponCode: couponCode || undefined,
+                        paymentMethod: method,
+                        shipping: addressData ? { ...addressData } : undefined,
+                    }),
+                });
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    setOrderError(payload?.message || 'Não foi possível concluir o pedido.');
+                    return;
+                }
+                const orderId = String(payload?.data?.orderId ?? '').slice(0, 8).toUpperCase();
+                advanceToSuccess(orderId || Math.floor(Math.random() * 1000000).toString().padStart(6, '0'));
+                return;
+            } catch (err) {
+                logger.error('Falha ao persistir pedido:', err);
+                setOrderError('Falha de conexão ao finalizar o pedido. Tente novamente.');
+                return;
+            }
+        }
+
+        // Convidado / ambiente sem Supabase: fluxo simulado (sem persistência).
+        advanceToSuccess(Math.floor(Math.random() * 1000000).toString().padStart(6, '0'));
     };
 
     if (cartItems.length === 0 && step !== 3) {
@@ -129,7 +174,16 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
                     {/* Main Form */}
                     <div className="lg:col-span-7 bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col order-2 lg:order-1">
                         {step === 1 && <CheckoutAddress onSubmit={handleAddressSubmit} initialData={addressData} />}
-                        {step === 2 && <CheckoutPayment onSubmit={handlePaymentSubmit} total={cartTotal} />}
+                        {step === 2 && (
+                            <>
+                                {orderError && (
+                                    <div className="mb-4 py-3 px-4 rounded-xl bg-red-50 text-red-600 text-sm font-medium border border-red-100">
+                                        {orderError}
+                                    </div>
+                                )}
+                                <CheckoutPayment onSubmit={handlePaymentSubmit} total={cartTotal} shipping={addressData ? { ...addressData } : undefined} />
+                            </>
+                        )}
                     </div>
 
                     {/* Summary Sidebar */}

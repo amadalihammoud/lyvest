@@ -5,8 +5,6 @@ import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
 import { useCart } from '../../store/useCartStore';
 
-const FREE_SHIPPING_THRESHOLD = 350;
-
 interface ModalData {
     image: string;
     name: string;
@@ -21,14 +19,14 @@ interface ModalData {
 export default function AddedToCartModal(): React.ReactElement | null {
     const { closeModal, modalData } = useModal();
     const { formatCurrency } = useI18n();
-    const { cartTotal, cartCount } = useCart();
+    const { cartTotal, cartCount, freeShippingMinimum } = useCart();
     const router = useRouter();
 
     if (!modalData) return null;
 
     const typedModalData = modalData as ModalData;
-    const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - cartTotal);
-    const progress = Math.min(100, (cartTotal / FREE_SHIPPING_THRESHOLD) * 100);
+    const remainingForFreeShipping = Math.max(0, freeShippingMinimum - cartTotal);
+    const progress = Math.min(100, (cartTotal / freeShippingMinimum) * 100);
 
     const handleCheckout = (): void => {
         closeModal();

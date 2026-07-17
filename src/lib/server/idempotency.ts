@@ -15,7 +15,20 @@ const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_
 
 const TTL_SECONDS = 60 * 60 * 24 * 7; // 7 dias
 
-export async function markEventProcessed(eventId, prefix = 'webhook') {
+// Fail-open barulhento: sem Redis em produção a deduplicação de webhook fica DESATIVADA,
+// permitindo que um evento repetido seja processado mais de uma vez. Gritamos no log para
+// que a má-configuração seja percebida (a assinatura continua sendo o gate de autenticidade).
+if ((!REDIS_URL || !REDIS_TOKEN) && process.env.NODE_ENV === 'production') {
+    console.error(
+        '[SECURITY] Idempotência de webhook DESATIVADA em produção: Upstash Redis ausente. ' +
+            'Eventos repetidos podem ser processados em duplicidade.'
+    );
+}
+
+export async function markEventProcessed(
+    eventId: string | undefined | null,
+    prefix = 'webhook'
+): Promise<boolean> {
     if (!eventId) return true;
     if (!REDIS_URL || !REDIS_TOKEN) return true; // dedupe desabilitado sem Redis
 
@@ -26,9 +39,9 @@ export async function markEventProcessed(eventId, prefix = 'webhook') {
         const resp = await fetch(url, {
             headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
         });
-        const data = await resp.json();
+        const data = (await resp.json()) as { result?: string | null };
         // result === "OK" quando criou (novo); null quando já existia (duplicado)
-        return data && data.result === 'OK';
+        return data?.result === 'OK';
     } catch {
         // Em erro de infra, não bloqueia o recebimento (assinatura é o gate real)
         return true;

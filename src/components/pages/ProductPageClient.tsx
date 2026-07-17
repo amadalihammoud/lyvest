@@ -31,18 +31,20 @@ export default function ProductPageClient({ initialProduct }: ProductPageClientP
         return p.category?.name || 'Departamento';
     };
 
-    const mapProductToCartItem = (p: Product): Partial<CartItem> => ({
+    const mapProductToCartItem = (p: Product & { size?: string, sizes?: string[] }): Partial<CartItem> => ({
         id: p.id,
         name: p.name,
         price: p.price,
         image: Array.isArray(p.image) ? p.image[0] : p.image,
         category: getCategoryName(p),
-        qty: 1
+        qty: p.quantity || 1,
+        size: p.size || (p.sizes && p.sizes.length > 0 ? p.sizes[0] : undefined)
     });
 
-    const handleAddToCart = (item: Product) => {
-        addToCart(item as unknown as Partial<CartItem>);
-        openModal('addedToCart', item);
+    const handleAddToCart = (item: Product & { size?: string, sizes?: string[] }) => {
+        const cartItem = mapProductToCartItem(item);
+        addToCart(cartItem);
+        openModal('addedToCart', { ...item, size: cartItem.size } as Product);
     };
 
     const handleSizeSelected = () => {

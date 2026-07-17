@@ -3,8 +3,47 @@ import { MapPin, Plus, Edit2, Trash2, X, CheckCircle, AlertCircle, Star } from '
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { useI18n } from '../../hooks/useI18n';
-import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { UserAddress } from '../../types/dashboard';
+
+/** Linha devolvida por /api/addresses (Drizzle → camelCase). */
+interface ApiAddress {
+    id: string;
+    recipient: string;
+    zipCode: string;
+    state: string;
+    city: string;
+    neighborhood: string;
+    street: string;
+    number: string;
+    complement: string | null;
+    isDefault: boolean | null;
+}
+
+const fromApi = (a: ApiAddress): UserAddress => ({
+    id: a.id,
+    recipient: a.recipient,
+    zip_code: a.zipCode,
+    state: a.state,
+    city: a.city,
+    neighborhood: a.neighborhood,
+    street: a.street,
+    number: a.number,
+    complement: a.complement ?? '',
+    reference_point: '',
+    is_default: Boolean(a.isDefault),
+});
+
+const toApi = (a: UserAddress) => ({
+    recipient: a.recipient || 'Endereço',
+    zipCode: (a.zip_code || '').replace(/\D/g, ''),
+    state: a.state,
+    city: a.city,
+    neighborhood: a.neighborhood,
+    street: a.street,
+    number: a.number,
+    complement: a.complement || null,
+    isDefault: Boolean(a.is_default),
+});
 
 // Endereço vazio para formulário
 const emptyAddress: UserAddress = {
@@ -39,38 +78,14 @@ export default function AddressSection() {
             return;
         }
 
-        if (!isSupabaseConfigured()) {
-            // Mock data para desenvolvimento
-            setAddresses([{
-                id: 'mock-1',
-                recipient: 'Casa',
-                street: 'Av. Presidente Wilson',
-                number: '132',
-                complement: 'Bloco 3 Apto 5',
-                neighborhood: 'José Menino',
-                city: 'Santos',
-                state: 'SP',
-                zip_code: '11065-201',
-                is_default: true
-            }]);
-            setIsLoading(false);
-            return;
-        }
-
         try {
-            const { data, error } = await supabase
-                .from('addresses')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('is_default', { ascending: false })
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                // Se tabela não existe ou outro erro, mostrar lista vazia
-                console.warn('Aviso ao carregar endereços:', error.message);
+            const res = await fetch('/api/addresses');
+            if (!res.ok) {
+                console.warn('Aviso ao carregar endereços:', res.status);
                 setAddresses([]);
             } else {
-                setAddresses(data || []);
+                const body = (await res.json()) as { addresses?: ApiAddress[] };
+                setAddresses((body.addresses ?? []).map(fromApi));
             }
         } catch (err) {
             console.warn('Erro ao carregar endereços:', err);
@@ -149,56 +164,23 @@ export default function AddressSection() {
             return;
         }
 
-        if (!isSupabaseConfigured()) {
-            // Mock para desenvolvimento
-            await new Promise(r => setTimeout(r, 1000));
-            setMessage({ type: 'success', text: 'Endereço salvo (modo demo)!' });
-            setTimeout(() => {
-                setIsFormOpen(false);
-                setMessage({ type: '', text: '' });
-            }, 1500);
-            setIsSaving(false);
-            return;
-        }
-
         try {
             if (!user) throw new Error('Usuário não autenticado');
 
-            // Se marcar como padrão, desmarcar outros
-            if (formData.is_default) {
-                await supabase
-                    .from('addresses')
-                    .update({ is_default: false })
-                    .eq('user_id', user.id);
+            // A rota /api/addresses cuida do escopo por usuário e do default único.
+            const isEdit = Boolean(editingAddress && editingAddress.id);
+            const res = await fetch('/api/addresses', {
+                method: isEdit ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(
+                    isEdit ? { id: editingAddress!.id, ...toApi(formData) } : toApi(formData)
+                ),
+            });
+
+            if (!res.ok) {
+                const body = (await res.json().catch(() => null)) as { message?: string } | null;
+                throw new Error(body?.message || 'Erro ao salvar endereço');
             }
-
-            const addressData = {
-                ...formData,
-                user_id: user.id,
-                zip_code: formData.zip_code.replace(/\D/g, ''),
-            };
-            // remove id from insert data if present (although formData has it optional)
-            if (!editingAddress) delete addressData.id;
-
-            let result;
-            if (editingAddress && editingAddress.id) {
-                // Atualizar
-                result = await supabase
-                    .from('addresses')
-                    .update(addressData)
-                    .eq('id', editingAddress.id)
-                    .select()
-                    .single();
-            } else {
-                // Inserir
-                result = await supabase
-                    .from('addresses')
-                    .insert(addressData)
-                    .select()
-                    .single();
-            }
-
-            if (result.error) throw result.error;
 
             setMessage({ type: 'success', text: editingAddress ? 'Endereço atualizado!' : 'Endereço adicionado!' });
             await loadAddresses();
@@ -218,18 +200,15 @@ export default function AddressSection() {
         if (!confirm('Tem certeza que deseja excluir este endereço?')) return;
         if (!address.id) return;
 
-        if (!isSupabaseConfigured()) {
-            setAddresses(addresses.filter(a => a.id !== address.id));
-            return;
-        }
+        if (!user) return;
 
         try {
-            const { error } = await supabase
-                .from('addresses')
-                .delete()
-                .eq('id', address.id);
-
-            if (error) throw error;
+            const res = await fetch('/api/addresses', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: address.id }),
+            });
+            if (!res.ok) throw new Error('delete failed');
             await loadAddresses();
             setMessage({ type: 'success', text: 'Endereço excluído!' });
             setTimeout(() => setMessage({ type: '', text: '' }), 2000);
@@ -239,20 +218,16 @@ export default function AddressSection() {
     };
 
     const handleSetDefault = async (address: UserAddress) => {
-        if (!isSupabaseConfigured() || address.is_default || !user || !address.id) return;
+        if (address.is_default || !user || !address.id) return;
 
         try {
-            // Desmarcar todos
-            await supabase
-                .from('addresses')
-                .update({ is_default: false })
-                .eq('user_id', user.id);
-
-            // Marcar o selecionado
-            await supabase
-                .from('addresses')
-                .update({ is_default: true })
-                .eq('id', address.id);
+            // PUT com isDefault=true — a rota desmarca o default anterior atomicamente.
+            const res = await fetch('/api/addresses', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: address.id, ...toApi({ ...address, is_default: true }) }),
+            });
+            if (!res.ok) throw new Error('set default failed');
 
             await loadAddresses();
             setMessage({ type: 'success', text: 'Endereço padrão atualizado!' });

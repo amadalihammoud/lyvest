@@ -1,10 +1,14 @@
-/* Vercel security headers */
+# Security headers
+#
+# FONTE ÚNICA DA VERDADE dos headers de segurança: vercel.json (este projeto roda na Vercel,
+# que NÃO lê este arquivo — ele é uma convenção Netlify). A Content-Security-Policy vive
+# apenas em vercel.json para evitar duas políticas divergentes (a versão antiga aqui permitia
+# cdn.jsdelivr.net e não cobria o Clerk, quebrando/enfraquecendo a proteção). Mantidos abaixo
+# só headers estáticos e consistentes, como fallback caso o site seja servido por uma
+# plataforma que leia _headers.
 
-/* Content Security Policy */
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.clerk.com https://*.supabase.co https://*.vercel-insights.com;
-
-/* Other security headers */
-X-Content-Type-Options: nosniff
-X-Frame-Options: SAMEORIGIN
-Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: geolocation=(), microphone=(), camera=()
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()

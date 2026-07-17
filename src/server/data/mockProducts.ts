@@ -1,4 +1,15 @@
-export const mockProducts = [
+/** Produto do catálogo mock (fallback quando o Supabase não está configurado). */
+export interface MockProduct {
+    id: number;
+    name: string;
+    category: string;
+    price: number;
+    image: string;
+    description: string;
+    specs: Record<string, string>;
+}
+
+export const mockProducts: MockProduct[] = [
     {
         id: 1,
         name: "Kit 3 Calcinhas Algodão Soft",

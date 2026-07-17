@@ -1,70 +1,71 @@
-# Guia de Segurança RLS - Supabase
+# Guia de Segurança RLS — Supabase + Clerk
 
-Este guia explica como configurar Row Level Security (RLS) para proteger os dados do Ly Vest no Supabase.
+Este guia explica como o Row Level Security (RLS) protege os dados de usuário do Ly Vest.
+**A stack de auth é Clerk** (não o Supabase Auth nativo). Isso muda tudo em relação aos
+exemplos genéricos com `auth.uid()` — leia com atenção.
 
-## O que é RLS?
-RLS (Row Level Security) garante que cada usuário só acesse seus próprios dados, mesmo que alguém descubra sua chave `anon`.
+## Como funciona (o elo que faz o RLS valer)
 
-## Configuração Básica
+1. O **Clerk** é a fonte de verdade da sessão. Ele emite um JWT cujo claim `sub` é o id do
+   usuário (TEXT, ex.: `user_2abc...`).
+2. O client do Supabase no browser (`src/lib/supabase.ts`) repassa esse JWT **em toda
+   requisição**, via a opção `accessToken` (que lê `window.Clerk.session.getToken()`).
+3. No Postgres, a função `public.clerk_uid()` lê o `sub` do JWT. As policies fazem
+   `USING (public.clerk_uid() = user_id)`, isolando cada linha pelo dono.
 
-### 1. Habilitar RLS em todas as tabelas
-```sql
--- Execute no SQL Editor do Supabase
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
-ALTER TABLE addresses ENABLE ROW LEVEL SECURITY;
-```
+Se qualquer elo faltar, `clerk_uid()` retorna `NULL` e o RLS **nega tudo** (ou, se alguém
+afrouxar as policies para "funcionar", **expõe tudo** pela anon key pública). Por isso os
+dois passos abaixo não são opcionais.
 
-### 2. Políticas de Exemplo
+## Passo 1 — Infra (uma vez, no painel do Supabase)
 
-#### Tabela: orders (Pedidos)
-```sql
--- Usuário só vê seus próprios pedidos
-CREATE POLICY "Users can view own orders"
-ON orders FOR SELECT
-USING (auth.uid() = user_id);
+Registre o Clerk como **Third-Party Auth provider**:
 
--- Usuário pode criar pedidos para si mesmo
-CREATE POLICY "Users can create own orders"
-ON orders FOR INSERT
-WITH CHECK (auth.uid() = user_id);
-```
+- Supabase Dashboard → **Authentication → Sign In / Providers → Third Party Auth → Clerk**.
+- Informe o domínio do Clerk do projeto (ex.: `https://clerk.lyvest.com.br` ou o domínio
+  `*.clerk.accounts.dev` em dev).
 
-#### Tabela: cart_items (Carrinho)
-```sql
--- Usuário gerencia apenas seu próprio carrinho
-CREATE POLICY "Users manage own cart"
-ON cart_items FOR ALL
-USING (auth.uid() = user_id);
-```
+Sem isso, o Supabase não confia no JWT do Clerk e `clerk_uid()` fica sempre `NULL`.
 
-#### Tabela: favorites (Favoritos)
-```sql
--- Usuário gerencia apenas seus favoritos
-CREATE POLICY "Users manage own favorites"
-ON favorites FOR ALL
-USING (auth.uid() = user_id);
-```
+> Referência: https://supabase.com/docs/guides/auth/third-party/clerk
 
-#### Tabela: products (Produtos - Leitura Pública)
-```sql
--- Todos podem ver produtos (não precisa de auth)
-CREATE POLICY "Anyone can view products"
-ON products FOR SELECT
-USING (true);
+## Passo 2 — Aplicar o RLS canônico
 
--- Apenas admins podem modificar (via service_role)
--- Não criar política de INSERT/UPDATE para anon key
-```
+Execute **`supabase/migrations/006_clerk_rls_consolidation.sql`** no SQL Editor do Supabase.
+Ele é a **fonte única da verdade** do RLS: remove as policies legadas com `auth.uid()`
+(migrations 001/004), garante `user_id` como TEXT e recria as policies escopadas por
+`public.clerk_uid()`.
 
-## Verificação
-Para testar se as políticas estão funcionando:
-1. Faça login como usuário A
-2. Tente acessar dados do usuário B
-3. Deve retornar array vazio, não erro
+> As migrations 001 e 004 usam `auth.uid()` (UUID) e estão **superadas** pela 006.
+> Não as reaplique por cima da 006.
+
+## Tabelas e regras
+
+| Tabela | Leitura | Escrita |
+|---|---|---|
+| `products`, `categories` | Pública (catálogo/Vitrine) | Só via `service_role` (backoffice) |
+| `profiles` | Próprio | Próprio |
+| `orders` | Próprio | Próprio (a criação real deve ser **server-side**) |
+| `addresses` | Próprio | Próprio |
+| `favorites` | Próprio | Próprio |
+| `reviews` | Aprovadas (pública) + próprias | Próprio (com verificação de compra server-side) |
+
+## Verificação (obrigatória após aplicar)
+
+1. Faça login como **usuário A** e crie um endereço.
+2. Faça login como **usuário B**; tente ler/alterar/excluir o endereço de A pelo `id`.
+3. **Esperado:** B não enxerga nem altera nada de A — retorno vazio, nunca erro 500.
+
+Se B conseguir ver/alterar dados de A, o RLS não está ativo ou o provider do Clerk não foi
+registrado (Passo 1). Pare o deploy até corrigir.
+
+## Regra de ouro
+
+- **Nunca** use a `service_role` key no client nem para leituras escopadas por usuário — ela
+  ignora o RLS. Ela só entra em rotas server-side de backoffice/admin.
+- Defesa em profundidade: mesmo com RLS, escopos de escrita no código devem incluir
+  `.eq('user_id', user.id)` (ver `AddressSection.tsx`).
 
 ## Referências
-- [Supabase RLS Docs](https://supabase.com/docs/guides/auth/row-level-security)
-- [Supabase Auth Helpers](https://supabase.com/docs/guides/auth/auth-helpers/nextjs)
+- [Supabase RLS](https://supabase.com/docs/guides/auth/row-level-security)
+- [Supabase + Clerk (Third-Party Auth)](https://supabase.com/docs/guides/auth/third-party/clerk)

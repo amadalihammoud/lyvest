@@ -45,3 +45,16 @@ diagnostic.js
 
 # Build artifacts
 *.tsbuildinfo
+
+# Claude Neon migration - transient
+.vercel/
+*.log
+
+# Claude Neon migration - scripts/handoff/assets binarios
+*.bat
+.claude/worktrees/
+HANDOFF_NEON.md
+Ly_Vest_*.pdf
+Ly_Vest_Papel_Timbrado.docx
+UX-UI-Report-LyVest-2026.docx
+Ly_Vest_Assinatura_Email.html

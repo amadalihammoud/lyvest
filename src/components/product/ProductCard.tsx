@@ -1,9 +1,11 @@
-﻿import { Heart, Eye, Minus, Plus } from 'lucide-react';
+import { Heart, Eye, Minus, Plus } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
 import { useI18n } from '../../hooks/useI18n';
 import { Product } from '../../services/ProductService';
+import { getInstallments } from '../../utils/installments';
+import { useCartStore } from '../../store/useCartStore';
 import { generateSlug } from '../../utils/slug';
 import OptimizedProductImage from '../ui/OptimizedProductImage';
 
@@ -112,7 +114,10 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                         </span>
                         <span className="text-xs text-slate-500 flex items-center justify-center gap-1">
                             <span className="inline-block w-4 h-[1px] bg-slate-300"></span>
-                            {t('products.installments', { installments: 12, amount: formatCurrency(product.price / 12) })}
+                            {t('products.installments', { 
+                                installments: getInstallments(product.price).count, 
+                                amount: formatCurrency(getInstallments(product.price).value) 
+                            })}
                             <span className="inline-block w-4 h-[1px] bg-slate-300"></span>
                         </span>
                     </div>

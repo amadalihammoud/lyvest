@@ -83,16 +83,19 @@ function DrawerCart({ isOpen, onClose, cartItems, onRemoveFromCart, onCheckout }
                         </div>
                     ) : (
                         cartItems.map(item => (
-                            <div key={item.id} className="flex gap-4 items-center animate-fade-in mb-4">
+                            <div key={`${item.id}${item.size ? '-' + item.size : ''}`} className="flex gap-4 items-center animate-fade-in mb-4">
                                 <img src={item.image} srcSet={`${item.image}?w=200 200w, ${item.image}?w=400 400w`} alt={(getProductData(item.id, 'name') as string) || item.name} className="w-20 h-20 rounded-xl object-cover bg-slate-50 border border-slate-100" />
                                 <div className="flex-1">
                                     <h4 className="font-bold text-slate-800 text-sm line-clamp-2">{(getProductData(item.id, 'name') as string) || item.name}</h4>
-                                    <p className="text-xs text-lyvest-500 font-medium mb-1">{String(getProductData(item.id, 'category') || item.category)}</p>
+                                    <p className="text-xs text-lyvest-500 font-medium mb-1">
+                                        {String(getProductData(item.id, 'category') || item.category)}
+                                        {item.size ? ` | Tam: ${item.size}` : ''}
+                                    </p>
                                     <div className="flex items-center justify-between mt-2">
                                         <span className="text-sm font-semibold text-lyvest-500">
                                             {item.qty}x {formatCurrency(item.price)}
                                         </span>
-                                        <button onClick={() => onRemoveFromCart(item.id)} className="text-red-400 hover:text-red-600 p-1" aria-label={t('cart.remove')}>
+                                        <button onClick={() => onRemoveFromCart(`${item.id}${item.size ? '-' + item.size : ''}`)} className="text-red-400 hover:text-red-600 p-1" aria-label={t('cart.remove')}>
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>

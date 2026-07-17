@@ -1,34 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { SIZE_GUIDE } from '@/data/sizeGuide';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { logError } from '@/lib/server/logger';
 
 /**
  * Server-side API Route for OpenAI size recommendations.
  * This keeps the OpenAI API key secure (never sent to the browser).
+ *
+ * Pilar 4: rate limit (tier 'ai') — a rota chama a OpenAI e tem custo por request;
+ * sem limite, vira um vetor de esgotamento de orçamento (financial DoS).
+ * Pilar 5: validação de entrada com Zod (limites numéricos sãos evitam prompts absurdos).
  */
 
-interface BodyMeasurements {
-    height: number;
-    weight: number;
-    age?: number;
-    bustType: 'small' | 'medium' | 'large';
-    hipType: 'narrow' | 'medium' | 'wide';
-    fitPreference: 'snug' | 'comfortable';
-    exactBust?: number;
-    exactUnderBust?: number;
-    exactWaist?: number;
-    exactHips?: number;
-    exactThigh?: number;
-    exactCalf?: number;
-    shoeSize?: number;
-    shoulderWidth?: number;
-}
+// Faixas plausíveis para medidas corporais (cm/kg) — barram valores absurdos/abusivos.
+const cm = z.number().finite().min(0).max(300);
+const measurementsSchema = z.object({
+    height: z.number().finite().min(50).max(260),
+    weight: z.number().finite().min(20).max(400),
+    age: z.number().int().min(0).max(120).optional(),
+    bustType: z.enum(['small', 'medium', 'large']),
+    hipType: z.enum(['narrow', 'medium', 'wide']),
+    fitPreference: z.enum(['snug', 'comfortable']),
+    exactBust: cm.optional(),
+    exactUnderBust: cm.optional(),
+    exactWaist: cm.optional(),
+    exactHips: cm.optional(),
+    exactThigh: cm.optional(),
+    exactCalf: cm.optional(),
+    shoeSize: z.number().finite().min(10).max(60).optional(),
+    shoulderWidth: cm.optional(),
+});
 
-interface ProductData {
-    name: string;
-    category: string;
-    description?: string;
-}
+const productSchema = z.object({
+    name: z.string().min(1).max(200),
+    category: z.string().min(1).max(100),
+    description: z.string().max(2000).optional(),
+});
+
+const bodySchema = z.object({
+    measurements: measurementsSchema,
+    product: productSchema,
+});
+
+type BodyMeasurements = z.infer<typeof measurementsSchema>;
+type ProductData = z.infer<typeof productSchema>;
 
 function translateBustType(type: string): string {
     const map: Record<string, string> = { small: 'pequeno', medium: 'médio', large: 'grande' };
@@ -99,30 +116,31 @@ Retorne APENAS JSON: {"size":"P","confidence":0.92,"reason":"...","alternativeSi
 }
 
 export async function POST(request: NextRequest) {
+    // Pilar 4 (Cofre): rota com custo por request — rate limit antes de qualquer trabalho.
+    const rl = await checkRateLimit(getClientIp(request.headers), 'ai');
+    if (!rl.success) {
+        return NextResponse.json(
+            { error: 'Muitas requisições. Tente novamente em instantes.' },
+            { status: 429 }
+        );
+    }
+
     try {
         const apiKey = process.env.OPENAI_API_KEY; // Server-only, NOT NEXT_PUBLIC_
 
         if (!apiKey) {
-            return NextResponse.json(
-                { error: 'AI service not configured' },
-                { status: 503 }
-            );
+            return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
         }
 
-        const body = await request.json();
-        const measurements: BodyMeasurements = body.measurements;
-        const product: ProductData = body.product;
-
-        if (!measurements || !product) {
-            return NextResponse.json(
-                { error: 'Missing measurements or product data' },
-                { status: 400 }
-            );
+        // Pilar 5: validação de entrada com Zod (nunca confiar no corpo cru).
+        const parsed = bodySchema.safeParse(await request.json());
+        if (!parsed.success) {
+            return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
         }
+        const measurements: BodyMeasurements = parsed.data.measurements;
+        const product: ProductData = parsed.data.product;
 
-        const categoryName = typeof product.category === 'string'
-            ? product.category.toLowerCase()
-            : 'lingerie';
+        const categoryName = product.category.toLowerCase();
 
         const sizeGuide = SIZE_GUIDE[categoryName] || SIZE_GUIDE.calcinhas;
 
@@ -155,12 +173,15 @@ export async function POST(request: NextRequest) {
         }
 
         const data = await response.json();
-        const content = data.choices[0].message.content;
+        const content = data?.choices?.[0]?.message?.content;
+        if (typeof content !== 'string') {
+            return NextResponse.json({ error: 'AI service error' }, { status: 502 });
+        }
         const recommendation = JSON.parse(content);
 
         return NextResponse.json(recommendation);
     } catch (error) {
-        console.error('Size AI API error:', error);
+        logError('size-recommendation: erro inesperado', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
