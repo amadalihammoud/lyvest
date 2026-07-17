@@ -90,7 +90,7 @@ async function main() {
     }
 
     const sql = neon(process.env.DATABASE_URL);
-    const files = ['db/neon/0001_init.sql', 'db/neon/0002_seed.sql'];
+    const files = ['db/neon/0001_init.sql', 'db/neon/0002_seed.sql', 'db/neon/0003_bling.sql'];
 
     for (const file of files) {
         const text = readFileSync(join(root, file), 'utf8');
