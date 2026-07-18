@@ -19,7 +19,8 @@ import { db } from '../dbClient';
 
 const BLING_API = 'https://api.bling.com.br/Api/v3';
 const TOKEN_URL = 'https://api.bling.com.br/Api/v3/oauth/token';
-export const AUTHORIZE_URL = 'https://api.bling.com.br/Api/v3/oauth/authorize';
+// Atenção: o authorize fica no domínio do APP (bling.com.br), não no da API.
+export const AUTHORIZE_URL = 'https://www.bling.com.br/Api/v3/oauth/authorize';
 
 function basicAuthHeader(): string {
     const id = process.env.BLING_CLIENT_ID ?? '';
@@ -43,7 +44,7 @@ async function requestToken(body: Record<string, string>): Promise<TokenResponse
         headers: {
             Authorization: basicAuthHeader(),
             'Content-Type': 'application/x-www-form-urlencoded',
-            Accept: 'application/json',
+            Accept: '1.0', // exigido pela doc do token endpoint do Bling v3
         },
         body: new URLSearchParams(body).toString(),
         cache: 'no-store',
