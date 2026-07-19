@@ -11,6 +11,7 @@ export const categories = pgTable('categories', {
     name: text('name').notNull(),
     slug: text('slug').notNull().unique(),
     description: text('description'),
+    blingId: bigint('bling_id', { mode: 'number' }), // correlação Bling (migração 0003)
 });
 
 export const profiles = pgTable('profiles', {
@@ -41,6 +42,7 @@ export const products = pgTable('products', {
     stock: integer('stock').default(0),
     highlight: boolean('highlight').default(false),
     sizes: text('sizes').array().default(['P', 'M', 'G', 'GG']),
+    blingId: bigint('bling_id', { mode: 'number' }), // correlação Bling (migração 0003)
 }, (t) => [index('idx_products_category').on(t.categoryId)]);
 
 export const orders = pgTable('orders', {
@@ -103,6 +105,16 @@ export const reviews = pgTable('reviews', {
     comment: text('comment'),
     approved: boolean('approved').default(true),
 }, (t) => [index('idx_reviews_product').on(t.productId)]);
+
+// Tokens OAuth do Bling — linha única (id=1). O refresh_token é rotativo,
+// por isso persiste no banco e nunca em env var. Server-only.
+export const blingTokens = pgTable('bling_tokens', {
+    id: integer('id').primaryKey().default(1),
+    accessToken: text('access_token').notNull(),
+    refreshToken: text('refresh_token').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const couponRedemptions = pgTable('coupon_redemptions', {
     id: bigint('id', { mode: 'number' }).generatedAlwaysAsIdentity().primaryKey(),
