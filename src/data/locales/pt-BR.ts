@@ -169,7 +169,7 @@ export const ptBR = {
         namePlaceholder: 'Seu nome',
         placeholder: 'Seu e-mail',
         button: 'Cadastre-se',
-        consent: 'Aceito receber novidades e ofertas. Li e concordo com a Política de Privacidade.',
+        consent: 'Aceito receber ofertas e os termos de privacidade.',
         success: 'Inscrição confirmada!',
         successMessage: 'Você receberá nossas novidades em breve.',
     },
