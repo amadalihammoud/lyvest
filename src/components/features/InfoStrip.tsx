@@ -30,7 +30,7 @@ export default function InfoStrip() {
                         const Icon = item.icon;
                         return (
                             <div key={index} className="flex items-center gap-2 shrink-0 snap-center">
-                                <Icon className="w-4 h-4 text-slate-700 shrink-0" strokeWidth={1.75} />
+                                <Icon className="w-4 h-4 text-[#7D2121] shrink-0" strokeWidth={1.75} />
                                 <span className="text-xs font-medium text-slate-800 whitespace-nowrap">
                                     {item.text}
                                 </span>
@@ -45,7 +45,7 @@ export default function InfoStrip() {
                         const Icon = item.icon;
                         return (
                             <div key={index} className="flex items-center gap-2.5">
-                                <Icon className="w-4 h-4 text-slate-700 shrink-0" strokeWidth={1.75} />
+                                <Icon className="w-4 h-4 text-[#7D2121] shrink-0" strokeWidth={1.75} />
                                 <span className="text-xs lg:text-[13px] font-medium text-slate-800 whitespace-nowrap">
                                     {item.text}
                                 </span>
