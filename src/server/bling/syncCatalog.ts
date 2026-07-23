@@ -81,6 +81,15 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
 
     const catIdMap = new Map<number, string>(); // blingId -> uuid local
 
+    // Nomes do Bling por id, pra poder desambiguar slugs repetidos (ex.: "Cueca"
+    // existe em Masculino E em Menino) usando o nome do pai, sem depender da
+    // ordem de paginação da API.
+    const nomeById = new Map<number, string>();
+    for (const bc of blingCats) {
+        const nome = (bc.descricao ?? '').trim();
+        if (nome) nomeById.set(bc.id, nome);
+    }
+
     for (const bc of blingCats) {
         const nome = (bc.descricao ?? '').trim();
         if (!nome) continue;
@@ -94,18 +103,28 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
             continue;
         }
 
-        // adota categoria existente do seed com mesmo slug
+        // adota categoria existente do seed com mesmo slug — SÓ se ela ainda não
+        // pertence a outra categoria real do Bling (bling_id nulo). Se já tiver
+        // bling_id, é uma colisão de nome legítima (ex.: "Cueca" em Masculino E
+        // Menino) e precisa virar uma linha própria, senão os produtos das duas
+        // categorias se misturam.
         const bySlug = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
-        if (bySlug[0]) {
+        if (bySlug[0] && bySlug[0].blingId == null) {
             await db.update(categories).set({ blingId: bc.id, name: nome }).where(eq(categories.id, bySlug[0].id));
             catIdMap.set(bc.id, bySlug[0].id);
             report.categorias.atualizadas++;
             continue;
         }
 
+        let finalSlug = slug;
+        if (bySlug[0]) {
+            const paiNome = bc.categoriaPai?.id ? nomeById.get(bc.categoriaPai.id) : undefined;
+            finalSlug = paiNome ? `${slugify(paiNome)}-${slug}` : `${slug}-${bc.id}`;
+        }
+
         const [created] = await db
             .insert(categories)
-            .values({ name: nome, slug, blingId: bc.id })
+            .values({ name: nome, slug: finalSlug, blingId: bc.id })
             .returning({ id: categories.id });
         catIdMap.set(bc.id, created.id);
         report.categorias.criadas++;
