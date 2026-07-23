@@ -133,11 +133,11 @@ function ProductShowcase() {
                 </div>
 
                 {filteredProducts.length === 0 ? (
-                    <div className="text-center py-20 text-slate-400 animate-fade-in">
+                    <div className="text-center py-20 text-slate-600 animate-fade-in">
                         <div className="bg-white inline-block p-6 rounded-full mb-4 shadow-sm">
-                            <Smile className="w-12 h-12 text-slate-300" />
+                            <Smile className="w-12 h-12 text-slate-400" />
                         </div>
-                        <p className="text-xl font-medium">{t('home.noResultsTitle')}</p>
+                        <p className="text-xl font-medium text-slate-700">{t('home.noResultsTitle')}</p>
                         <p className="text-sm mt-2">{t('home.noResultsDesc')}</p>
                         <button
                             onClick={() => { setSelectedCategory('Todos'); setSearchQuery(''); }}
