@@ -20,7 +20,11 @@ export async function getProductsForContext(limit = 20): Promise<ChatProduct[]> 
         id: p.id,
         name: p.name,
         price: p.price,
-        category: typeof p.category === 'string' ? p.category : p.category?.name ?? 'Geral',
+        category: typeof p.category === 'string'
+            ? p.category
+            : Array.isArray(p.category)
+                ? p.category[0]?.name ?? 'Geral'
+                : p.category?.name ?? 'Geral',
         description: p.description,
         image: p.image,
         specs: p.specs as Record<string, string> | undefined,
