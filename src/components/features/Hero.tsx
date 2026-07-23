@@ -34,20 +34,20 @@ function Hero() {
             </div>
 
             <div
-                className="container mx-auto px-2 sm:px-4 pt-2 pb-6 lg:pt-4 lg:pb-20 hero-mobile-compact"
+                className="pb-6 lg:pb-20 hero-mobile-compact"
                 suppressHydrationWarning
             >
                 <div className="flex justify-center items-center w-full">
-                    <div className="w-[97%] sm:w-full max-w-[1400px] relative group">
+                    <div className="w-full relative group">
 
-                        {/* 
-                           CSS Scroll Snap Carousel 
+                        {/*
+                           CSS Scroll Snap Carousel — full-bleed, sem cantos arredondados
                            - Zero JS on load for LCP
                            - Native swiping experience
                            - Snap points for perfect alignment
                         */}
                         <div
-                            className="flex overflow-x-auto scrollbar-hide w-full rounded-xl sm:rounded-3xl aspect-[4/3] sm:aspect-[1024/329] relative bg-white/5"
+                            className="flex overflow-x-auto scrollbar-hide w-full aspect-[4/3] sm:aspect-[1024/329] relative bg-white/5"
                         >
                             {slides.map((slide, index) => {
                                 const mobileImage = slide.mobileImage;

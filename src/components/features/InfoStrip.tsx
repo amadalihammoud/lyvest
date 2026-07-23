@@ -35,7 +35,7 @@ const allItems = [
 
 export default function InfoStrip() {
     return (
-        <section className="bg-transparent -mt-4 md:-mt-12 md:pb-6 relative z-20">
+        <section className="bg-transparent relative z-20">
             {/* --- MOBILE VERSION: single simple line, brand colors --- */}
             <div className="md:hidden bg-lyvest-500 py-2 text-center">
                 <p className="text-white text-xs font-bold uppercase tracking-wide">
@@ -43,9 +43,9 @@ export default function InfoStrip() {
                 </p>
             </div>
 
-            {/* --- DESKTOP VERSION: 5 items on a white card, contrast against the solid brand banner --- */}
-            <div className="hidden md:block container mx-auto px-4">
-                <div className="bg-white rounded-2xl shadow-sm px-6 py-5 grid grid-cols-5 gap-4">
+            {/* --- DESKTOP VERSION: 5 items on a full-bleed white strip, contrast against the solid brand banner --- */}
+            <div className="hidden md:block bg-white">
+                <div className="container mx-auto px-4 py-5 grid grid-cols-5 gap-4">
                     {allItems.map((item, index) => {
                         const Icon = item.icon;
                         return (
