@@ -11,8 +11,11 @@ export function logError(context: string, detail?: unknown): void {
     if (isDev) {
         console.error(`[ERR] ${context}`, detail ?? '');
     } else {
-        // Produção: só o rótulo do erro, sem detalhe sensível.
-        console.error(`[ERR] ${context}`);
+        // Produção: rótulo + mensagem do erro (sem stack, sem payload de request/PII).
+        // Mensagens de erro de driver/DB (ex.: "column x does not exist") não são
+        // sensíveis e são essenciais pra diagnosticar falhas silenciosas em prod.
+        const msg = detail instanceof Error ? detail.message : undefined;
+        console.error(`[ERR] ${context}${msg ? ` :: ${msg}` : ''}`);
     }
 }
 
