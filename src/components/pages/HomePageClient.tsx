@@ -198,7 +198,7 @@ export function NewsletterSection() {
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
                     {/* Header / Titles — Centered on mobile (matching reference image), Left aligned on desktop (continuous strip) */}
                     <div className="text-center lg:text-left flex-shrink-0">
-                        <h2 className="text-xl sm:text-2xl lg:text-2xl font-black uppercase tracking-wider text-white">
+                        <h2 className="text-sm xs:text-base sm:text-xl lg:text-2xl font-black uppercase tracking-tight sm:tracking-wider text-white whitespace-nowrap">
                             {t('newsletter.title')}
                         </h2>
                         <p className="text-white/90 text-sm sm:text-base mt-1 lg:mt-0.5">
