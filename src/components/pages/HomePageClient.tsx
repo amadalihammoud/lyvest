@@ -187,21 +187,25 @@ export default function HomePageClient() {
             </div>
 
             {/* Newsletter — cv-auto-sm skips rendering until scrolled into view */}
-            <section className="py-20 bg-[#F5EDE8] cv-auto-sm">
-                <div className="container mx-auto px-4 text-center max-w-2xl">
-                    {/* Newsletter heading */}
-                    <h2 className="text-3xl md:text-4xl font-cookie text-lyvest-500 mb-3"
-                        style={{ textShadow: "2px 2px 0px rgba(253, 226, 243, 1)" }}
-                    >
-                        {t('newsletter.title')}
-                    </h2>
-                    <p className="text-slate-600 mb-8 text-base md:text-lg">
-                        {t('newsletter.subtitle')}
-                    </p>
-                    <div className="min-h-[200px]">
-                        <Suspense fallback={<div className="h-12 w-full max-w-md mx-auto bg-slate-200 rounded-full animate-pulse" />}>
-                            <NewsletterForm />
-                        </Suspense>
+            <section className="bg-lyvest-500 cv-auto-sm">
+                <div className="container mx-auto px-4 py-8 md:py-10">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                        {/* Left: heading + subtitle */}
+                        <div className="text-center md:text-left flex-shrink-0">
+                            <h2 className="text-xl md:text-2xl font-extrabold uppercase tracking-wide text-white">
+                                {t('newsletter.title')}
+                            </h2>
+                            <p className="text-white/80 text-sm md:text-base">
+                                {t('newsletter.subtitle')}
+                            </p>
+                        </div>
+
+                        {/* Right: form */}
+                        <div className="w-full md:max-w-xl">
+                            <Suspense fallback={<div className="h-12 w-full bg-white/20 rounded-full animate-pulse" />}>
+                                <NewsletterForm />
+                            </Suspense>
+                        </div>
                     </div>
                 </div>
             </section>

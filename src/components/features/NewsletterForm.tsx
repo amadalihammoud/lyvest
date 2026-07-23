@@ -1,4 +1,4 @@
-﻿// src/components/features/NewsletterForm.tsx
+// src/components/features/NewsletterForm.tsx
 import { Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 
@@ -16,6 +16,7 @@ const honeypotFieldName = '_gotcha';
 
 function NewsletterForm() {
     const { t } = useI18n();
+    const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [consent, setConsent] = useState<boolean>(false);
     const [honeypotValue, setHoneypotValue] = useState<string>('');
@@ -63,7 +64,7 @@ function NewsletterForm() {
         }
 
         // Validate form
-        const result = validateForm(newsletterSchema, { email, consent });
+        const result = validateForm(newsletterSchema, { name, email, consent });
 
         if (!result.success && result.errors) {
             setErrors(result.errors);
@@ -77,27 +78,28 @@ function NewsletterForm() {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         setStatus('success');
+        setName('');
         setEmail('');
         setConsent(false);
 
         // Reset after 5 seconds
         setTimeout(() => setStatus('idle'), 5000);
-    }, [email, consent, honeypotValue, t]);
+    }, [name, email, consent, honeypotValue, t]);
 
     if (status === 'success') {
         return (
-            <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
-                <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-                <div>
-                    <p className="font-bold text-green-700">{t('newsletter.success')}</p>
-                    <p className="text-sm text-green-600">{t('newsletter.successMessage')}</p>
+            <div className="flex items-center gap-3 p-4 bg-white/95 rounded-xl">
+                <CheckCircle className="w-6 h-6 text-lyvest-500 flex-shrink-0" />
+                <div className="text-left">
+                    <p className="font-bold text-lyvest-500">{t('newsletter.success')}</p>
+                    <p className="text-sm text-lyvest-siena">{t('newsletter.successMessage')}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <form onSubmit={handleSubmit} className="w-full" noValidate>
             {/* Honeypot - invisible field for bots */}
             <Honeypot
                 fieldName={honeypotFieldName}
@@ -105,49 +107,72 @@ function NewsletterForm() {
                 onChange={(e) => setHoneypotValue(e.target.value)}
             />
 
-            {/* Email Field */}
-            <div>
-                <div className="relative">
+            {/* Name + Email + Submit — inline row on desktop, stacked on mobile */}
+            <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value.slice(0, 100))}
+                    placeholder={t('newsletter.namePlaceholder')}
+                    className="w-full sm:w-48 px-5 py-3 rounded-full border-0 text-lyvest-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-lyvest-terracota transition-all"
+                    disabled={status === 'loading'}
+                />
+
+                <div className="relative flex-1">
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value.slice(0, 100))}
                         placeholder={t('newsletter.placeholder')}
-                        className={`w-full px-4 py-3 rounded-xl border ${errors.email
-                            ? 'border-red-300 focus:ring-red-200'
-                            : 'border-slate-200 focus:ring-[#F5E6E8]'
-                            } focus:outline-none focus:ring-2 transition-all`}
+                        className={`w-full px-5 py-3 rounded-full border-0 text-lyvest-black placeholder:text-slate-400 focus:outline-none focus:ring-2 ${errors.email ? 'ring-2 ring-red-300' : 'focus:ring-lyvest-terracota'
+                            } transition-all`}
                         disabled={status === 'loading'}
                         aria-invalid={!!errors.email}
                         aria-describedby={errors.email ? 'email-error' : undefined}
                     />
                     {status === 'loading' && (
-                        <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#C05060] animate-spin" />
+                        <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-lyvest-500 animate-spin" />
                     )}
                 </div>
-                {errors.email && (
-                    <p id="email-error" className="mt-1 text-sm text-[#F5E6E8]/300 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {t(errors.email)}
-                    </p>
-                )}
+
+                <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="flex items-center justify-center gap-2 px-8 py-3 bg-lyvest-cream text-lyvest-500 font-bold uppercase tracking-wide text-sm rounded-full hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                    {status === 'loading' ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                        <>
+                            <Send className="w-4 h-4 hidden sm:inline" />
+                            {t('newsletter.button')}
+                        </>
+                    )}
+                </button>
             </div>
 
+            {errors.email && (
+                <p id="email-error" className="mt-2 text-sm text-lyvest-mist flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {t(errors.email)}
+                </p>
+            )}
+
             {/* Consent Checkbox */}
-            <label className="flex items-start gap-3 cursor-pointer group">
+            <label className="mt-3 flex items-start gap-2 cursor-pointer group">
                 <input
                     type="checkbox"
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
-                    className="mt-0.5 w-5 h-5 rounded border-slate-300 text-lyvest-500 focus:ring-[#F5E6E8]"
+                    className="mt-0.5 w-4 h-4 rounded border-white/40 text-lyvest-terracota focus:ring-lyvest-terracota"
                     disabled={status === 'loading'}
                 />
-                <span className={`text-sm ${errors.consent ? 'text-[#F5E6E8]/300' : 'text-slate-600'} group-hover:text-slate-800`}>
+                <span className="text-xs text-white/80 group-hover:text-white">
                     {t('newsletter.consent')}
                 </span>
             </label>
             {errors.consent && (
-                <p className="text-sm text-[#F5E6E8]/300 flex items-center gap-1 -mt-2">
+                <p className="mt-1 text-sm text-lyvest-mist flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {t(errors.consent)}
                 </p>
@@ -155,40 +180,13 @@ function NewsletterForm() {
 
             {/* Rate Limit Error */}
             {rateLimitError && errors.form && (
-                <p className="text-sm text-[#F5E6E8]/300 flex items-center gap-1">
+                <p className="mt-2 text-sm text-lyvest-mist flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.form}
                 </p>
             )}
-
-            {/* Submit Button */}
-            <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-full hover:brightness-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {status === 'loading' ? (
-                    <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        {t('common.processing')}
-                    </>
-                ) : (
-                    <>
-                        <Send className="w-5 h-5" />
-                        {t('newsletter.button')}
-                    </>
-                )}
-            </button>
         </form>
     );
 }
 
 export default React.memo(NewsletterForm);
-
-
-
-
-
-
-
-

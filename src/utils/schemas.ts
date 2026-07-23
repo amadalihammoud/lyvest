@@ -18,6 +18,7 @@ export const addressSchema = z.object({
 
 // Schema de newsletter
 export const newsletterSchema = z.object({
+    name: z.string().max(100).optional(),
     email: z.string().email('errors.emailInvalid'),
     consent: z.literal(true, { errorMap: () => ({ message: 'errors.consentRequired' }) }),
 });
