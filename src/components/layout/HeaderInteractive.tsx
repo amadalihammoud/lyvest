@@ -1,5 +1,5 @@
 ﻿'use client';
-import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 'lucide-react';
+import { Menu, Search, PackageSearch, Heart, ShoppingBag, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -341,9 +341,6 @@ export default function HeaderInteractive() {
                                             aria-current={selectedCategory === item.category ? 'page' : undefined}
                                         >
                                             {t(item.translationKey) || item.label}
-                                            {item.subcategories && item.subcategories.length > 0 && (
-                                                <ChevronDown className="w-3.5 h-3.5 text-white group-hover:text-[#EAD9D1] transition-colors" />
-                                            )}
                                         </button>
                                         {/* Active/Hover Line */}
                                         <span className={`absolute bottom-0 left-0 h-0.5 bg-[#EAD9D1] transition-all duration-300 ${selectedCategory === item.category ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
