@@ -120,9 +120,20 @@ const nextConfig = {
                 'core-js/features/string/trim-start': false,
                 'core-js/actual/string/trim-start': false,
             };
+            // Next.js's own client bootstrap unconditionally requires its internal
+            // polyfill-module.js (trimStart/trimEnd, Symbol#description, Array.flat/
+            // flatMap, Promise#finally, Object.fromEntries, Array#at, Object.hasOwn,
+            // URL.canParse) as a defensive side-effect import, regardless of our
+            // browserslist target. Every shim inside is guarded by `"x" in Y || (...)`
+            // feature detection and nothing in our own src/ calls any of these APIs
+            // directly, so it is safe to noop: on our target browsers (Chrome/Edge/
+            // Firefox >= 95, Safari/iOS >= 15.4) every guard already evaluates true
+            // and the shim never runs — this just removes the ~12 KiB of dead code
+            // Lighthouse flags as "Legacy JavaScript".
             config.resolve.alias = {
                 ...config.resolve.alias,
                 ...NOOP_POLYFILLS,
+                'next/dist/build/polyfills/polyfill-module': false,
             };
         }
         return config;
