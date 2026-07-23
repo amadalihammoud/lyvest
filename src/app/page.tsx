@@ -22,8 +22,8 @@ const NewsletterSection = dynamic(() => import('@/components/pages/HomePageClien
 export default async function HomePage() {
     return (
         <main className="min-h-screen">
-            {/* Critical Path: Loaded Immediately - Restoring Brand Gradient */}
-            <div className="bg-gradient-to-b from-lyvest-500 via-[#A0303C] to-white">
+            {/* Critical Path: Loaded Immediately - faixa solida na cor da marca, de ponta a ponta */}
+            <div className="bg-lyvest-500">
                 <Hero />
                 <InfoStrip />
             </div>
