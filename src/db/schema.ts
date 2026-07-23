@@ -3,6 +3,7 @@
 import {
     pgTable, uuid, text, timestamp, decimal, integer, boolean,
     jsonb, date, bigint, uniqueIndex, index,
+    type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 
 export const categories = pgTable('categories', {
@@ -12,6 +13,7 @@ export const categories = pgTable('categories', {
     slug: text('slug').notNull().unique(),
     description: text('description'),
     blingId: bigint('bling_id', { mode: 'number' }), // correlação Bling (migração 0003)
+    parentId: uuid('parent_id').references((): AnyPgColumn => categories.id), // hierarquia Bling (migração 0005)
 });
 
 export const profiles = pgTable('profiles', {

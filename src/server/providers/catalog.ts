@@ -5,7 +5,7 @@
 //
 // Objetivo desta migração: nenhuma tela da vitrine deve mais importar
 // `productsData` diretamente — tudo passa por aqui.
-import { and, eq, ilike, or } from 'drizzle-orm';
+import { and, eq, ilike, inArray, or } from 'drizzle-orm';
 
 import { categories, products, reviews } from '../../db/schema';
 import { logError } from '../../lib/server/logger';
@@ -18,6 +18,38 @@ export interface CatalogCategory {
     id: string;
     name: string;
     slug: string;
+    parentId: string | null;
+}
+
+export interface CategoryTreeNode extends CatalogCategory {
+    children: CategoryTreeNode[];
+}
+
+/** Monta a árvore (só topo → filhos, espelha a hierarquia de 2 níveis do Bling). */
+export function buildCategoryTree(flat: CatalogCategory[]): CategoryTreeNode[] {
+    const byId = new Map<string, CategoryTreeNode>(flat.map((c) => [c.id, { ...c, children: [] }]));
+    const roots: CategoryTreeNode[] = [];
+    for (const node of byId.values()) {
+        if (node.parentId && byId.has(node.parentId)) {
+            byId.get(node.parentId)!.children.push(node);
+        } else {
+            roots.push(node);
+        }
+    }
+    return roots;
+}
+
+/** Retorna o próprio id + todos os ids descendentes (usado para agregar produtos de uma categoria-pai). */
+function collectDescendantIds(rootId: string, flat: CatalogCategory[]): string[] {
+    const ids = [rootId];
+    let frontier = [rootId];
+    while (frontier.length > 0) {
+        const children = flat.filter((c) => c.parentId && frontier.includes(c.parentId)).map((c) => c.id);
+        if (children.length === 0) break;
+        ids.push(...children);
+        frontier = children;
+    }
+    return ids;
 }
 
 export interface GetProductsOptions {
@@ -61,20 +93,20 @@ function filterMockProducts(opts: GetProductsOptions): Product[] {
     return result.map(mockToProduct);
 }
 
-/** Lista categorias. Sem banco configurado, deriva do mock (uma por nome distinto). */
+/** Lista categorias (flat). Sem banco configurado, deriva do mock (uma por nome distinto, sem hierarquia). */
 export async function getCategories(): Promise<CatalogCategory[]> {
     if (!isDbConfigured()) {
         const seen = new Map<string, CatalogCategory>();
         for (const p of productsData) {
             const slug = generateSlug(p.category);
-            if (!seen.has(slug)) seen.set(slug, { id: slug, name: p.category, slug });
+            if (!seen.has(slug)) seen.set(slug, { id: slug, name: p.category, slug, parentId: null });
         }
         return Array.from(seen.values());
     }
 
     try {
         const rows = await db
-            .select({ id: categories.id, name: categories.name, slug: categories.slug })
+            .select({ id: categories.id, name: categories.name, slug: categories.slug, parentId: categories.parentId })
             .from(categories)
             .orderBy(categories.name);
         return rows;
@@ -82,6 +114,12 @@ export async function getCategories(): Promise<CatalogCategory[]> {
         logError('catalog: erro ao listar categorias', e);
         return [];
     }
+}
+
+/** Árvore de categorias (topo → filhos) pronta pro menu/mega-menu. */
+export async function getCategoryTree(): Promise<CategoryTreeNode[]> {
+    const flat = await getCategories();
+    return buildCategoryTree(flat);
 }
 
 /** Lista produtos ativos, com filtro opcional por categoria (slug) e busca por texto. */
@@ -92,7 +130,18 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
 
     try {
         const whereClauses = [eq(products.active, true)];
-        if (opts.categorySlug) whereClauses.push(eq(categories.slug, opts.categorySlug));
+        if (opts.categorySlug) {
+            // Categoria-pai deve agregar produtos das subcategorias (ex.: "Feminino" mostra
+            // produtos cadastrados em "Sutiã", "Calcinha" etc, que são filhas dela no Bling).
+            const flatCats = await getCategories();
+            const target = flatCats.find((c) => c.slug === opts.categorySlug);
+            if (target) {
+                const ids = collectDescendantIds(target.id, flatCats);
+                whereClauses.push(inArray(products.categoryId, ids));
+            } else {
+                whereClauses.push(eq(categories.slug, opts.categorySlug));
+            }
+        }
         if (opts.search) {
             const q = `%${opts.search}%`;
             const searchClause = or(ilike(products.name, q), ilike(products.description, q));

@@ -1,5 +1,5 @@
 ﻿'use client';
-import { Menu, Search, PackageSearch, Heart, ShoppingBag, X } from 'lucide-react';
+import { Menu, Search, PackageSearch, Heart, ShoppingBag, ChevronDown, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -33,15 +33,6 @@ export interface SerializedUser {
     id: string;
     fullName: string;
     imageUrl: string;
-}
-
-interface MenuItem {
-    label: string;
-    translationKey: string;
-    action: string;
-    category?: string;
-    categorySlug?: string;
-    subcategories?: MenuItem[];
 }
 
 export default function HeaderInteractive() {
@@ -340,10 +331,31 @@ export default function HeaderInteractive() {
                                                 ${selectedCategory === item.category ? 'text-[#EAD9D1]' : ''}`}
                                             aria-current={selectedCategory === item.category ? 'page' : undefined}
                                         >
-                                            {t(item.translationKey) || item.label}
+                                            {item.label}
+                                            {item.children.length > 0 && (
+                                                <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" />
+                                            )}
                                         </button>
                                         {/* Active/Hover Line */}
                                         <span className={`absolute bottom-0 left-0 h-0.5 bg-[#EAD9D1] transition-all duration-300 ${selectedCategory === item.category ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+
+                                        {/* Mega-menu: subcategorias, aparece no hover do item pai */}
+                                        {item.children.length > 0 && (
+                                            <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50">
+                                                <ul className="bg-white text-slate-700 rounded-xl shadow-xl border border-slate-100 py-2 min-w-[200px] max-h-[70vh] overflow-y-auto">
+                                                    {item.children.map((child) => (
+                                                        <li key={child.categorySlug}>
+                                                            <button
+                                                                onClick={() => handleMenuClick(child)}
+                                                                className="w-full text-left px-4 py-2 text-xs font-semibold uppercase tracking-wide hover:bg-lyvest-50 hover:text-lyvest-600 transition-colors normal-case"
+                                                            >
+                                                                {child.label}
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </li>
                                 ))}
                             </ul>

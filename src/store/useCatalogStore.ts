@@ -13,6 +13,7 @@ export interface CatalogCategory {
     id: string;
     name: string;
     slug: string;
+    parentId: string | null;
 }
 
 interface CatalogState {

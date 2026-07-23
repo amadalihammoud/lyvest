@@ -111,6 +111,18 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
         report.categorias.criadas++;
     }
 
+    // ---------- 1b. Hierarquia (parent_id) ----------
+    // Segunda passada: só agora catIdMap está completo (todo blingId -> uuid local),
+    // então dá pra resolver categoriaPai.id -> uuid mesmo se o pai vier depois do filho
+    // na listagem da API do Bling.
+    for (const bc of blingCats) {
+        const localId = catIdMap.get(bc.id);
+        if (!localId) continue;
+        const parentBlingId = bc.categoriaPai?.id;
+        const parentLocalId = parentBlingId ? catIdMap.get(parentBlingId) ?? null : null;
+        await db.update(categories).set({ parentId: parentLocalId }).where(eq(categories.id, localId));
+    }
+
     // ---------- 2. Produtos ----------
     const blingProds = await fetchAllPages<BlingProduto>('/produtos?criterio=2'); // 2 = ativos
     logInfo('bling/sync: produtos ativos no Bling', blingProds.length);
