@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import ProductCard from '@/components/product/ProductCard';
-import { productsData } from '@/data/products';
 import { Product } from '@/services/ProductService';
+import { useCatalog } from '@/store/useCatalogStore';
 import { generateSlug } from '@/utils/slug';
 
 interface RelatedProductsProps {
@@ -16,6 +16,7 @@ interface RelatedProductsProps {
 
 export default function RelatedProducts({ productId, onAddToCart, t }: RelatedProductsProps) {
     const router = useRouter();
+    const { products: catalogProducts } = useCatalog();
 
     return (
         <div className="mt-24 mb-12 border-t border-slate-100 pt-12">
@@ -23,7 +24,7 @@ export default function RelatedProducts({ productId, onAddToCart, t }: RelatedPr
 
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {productsData
+                    {catalogProducts
                         .filter(p => p.id !== productId)
                         .slice(0, 4)
                         .map((relatedProduct) => (

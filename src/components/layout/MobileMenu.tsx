@@ -3,8 +3,8 @@
 import { X, Search, ChevronRight, User } from 'lucide-react';
 import React from 'react';
 
-import { mainMenu } from '../../data/siteData';
 import { useI18n } from '../../hooks/useI18n';
+import { useMainMenu } from '../../hooks/useMainMenu';
 import { useShopNavigation, NavMenuItem } from '../../hooks/useShopNavigation';
 import { useShop } from '../../store/useShopStore';
 import LanguageSelector from '../features/LanguageSelector';
@@ -45,6 +45,7 @@ export default function MobileMenu({
     };
 
     const { t } = useI18n();
+    const menuItems = useMainMenu();
 
     const [headerHeight, setHeaderHeight] = React.useState(0);
 
@@ -130,7 +131,7 @@ export default function MobileMenu({
                 </div>
                 {/* Navigation */}
                 <nav className="space-y-0.5 text-base font-medium text-slate-600 flex-1 w-full mt-3 pl-6" role="navigation" aria-label="Mobile menu navigation">
-                    {mainMenu.map((item, index) => (
+                    {menuItems.map((item, index) => (
                         <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-start hover:text-lyvest-500 py-4 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
                             <span className="text-left font-medium text-[16px] leading-none whitespace-nowrap flex-1">{t(item.translationKey) || item.label}</span>
                             <ChevronRight className={`w-3.5 h-3.5 text-slate-300 group-hover:text-lyvest-500 transition-transform flex-shrink-0 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />

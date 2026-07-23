@@ -3,9 +3,9 @@ import type { Metadata } from 'next';
 
 import ProductPageClient from '@/components/pages/ProductPageClient';
 import { productsData } from '@/data/products';
-import { eq } from 'drizzle-orm';
+import { and, avg, count, eq } from 'drizzle-orm';
 
-import { categories, products } from '@/db/schema';
+import { categories, products, reviews } from '@/db/schema';
 import { db, isDbConfigured } from '@/server/dbClient';
 import { Product } from '@/services/ProductService';
 import { generateSlug } from '@/utils/slug';
@@ -66,6 +66,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                     active: products.active,
                     stock: products.stock,
                     sizes: products.sizes,
+                    ean: products.ean,
+                    badge: products.badge,
+                    colors: products.colors,
+                    images: products.images,
+                    specs: products.specs,
                     categoryName: categories.name,
                     categorySlug: categories.slug,
                 })
@@ -76,6 +81,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
             const row = rows[0];
             if (row) {
+                // Rating agregado a partir das reviews aprovadas
+                const ratingRows = await db
+                    .select({ avgRating: avg(reviews.rating), reviewCount: count(reviews.id) })
+                    .from(reviews)
+                    .where(and(eq(reviews.productId, row.id), eq(reviews.approved, true)));
+                const ratingRow = ratingRows[0];
+
                 product = {
                     id: row.id,
                     name: row.name,
@@ -86,6 +98,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                     active: row.active ?? true,
                     stock_quantity: row.stock ?? 0,
                     sizes: row.sizes ?? undefined,
+                    ean: row.ean ?? undefined,
+                    badge: row.badge ?? undefined,
+                    colors: (row.colors as unknown[]) ?? [],
+                    specs: (row.specs as Record<string, string>) ?? undefined,
+                    rating: ratingRow?.avgRating ? Number(ratingRow.avgRating) : undefined,
+                    reviews: ratingRow?.reviewCount ?? undefined,
                     category: row.categoryName
                         ? { name: row.categoryName, slug: row.categorySlug ?? '' }
                         : undefined,

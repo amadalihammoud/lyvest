@@ -2,9 +2,9 @@ import { CheckCircle2, Info, ShoppingBag, Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import BodyMannequin from './BodyMannequin';
-import { productsData } from '../../data/products';
 import { Product } from '../../services/ProductService';
 import { SizeRecommendation, FitType } from '../../services/sizeAI';
+import { useCatalog } from '../../store/useCatalogStore';
 
 interface AIRecommendationProps {
     recommendation: SizeRecommendation;
@@ -36,6 +36,7 @@ export default function AIRecommendation({
     gender = 'female' // Default
 }: AIRecommendationProps) {
     const { size, reason, fitMap } = recommendation;
+    const { products: catalogProducts } = useCatalog();
     const [addedCrossSell, setAddedCrossSell] = useState(false);
 
     // Estado para o tamanho visualizado (permite ao usuário explorar outros tamanhos)
@@ -50,7 +51,7 @@ export default function AIRecommendation({
 
     // Lógica de cross-sell dinâmica
     const getCrossSellProduct = () => {
-        if (!product) return productsData.find(p => p.id !== 1); // Fallback
+        if (!product) return catalogProducts[0]; // Fallback
 
         const category = typeof product.category === 'string'
             ? product.category.toLowerCase()
@@ -72,9 +73,13 @@ export default function AIRecommendation({
             else targetCategory = 'kits';
         }
 
-        // Tentar encontrar produto na base mockada
-        const recommendation = productsData.find(p => {
-            const cat = typeof p.category === 'string' ? p.category.toLowerCase() : '';
+        // Tentar encontrar produto no catálogo real
+        const recommendation = catalogProducts.find(p => {
+            const cat = typeof p.category === 'string'
+                ? p.category.toLowerCase()
+                : Array.isArray(p.category)
+                    ? (p.category[0]?.name ?? '').toLowerCase()
+                    : (p.category?.name ?? '').toLowerCase();
             return cat.includes(targetCategory.toLowerCase());
         });
 
@@ -88,7 +93,7 @@ export default function AIRecommendation({
             };
         }
 
-        return productsData[0];
+        return catalogProducts[0];
     };
 
     const crossSell = getCrossSellProduct();

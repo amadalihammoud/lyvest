@@ -9,12 +9,21 @@ import { useMemo, useState } from 'react';
 
 import CategoryToolbar from '@/components/product/CategoryToolbar';
 import ProductCard from '@/components/product/ProductCard';
-import { productsData } from '@/data/products';
+import { useCatalog } from '@/store/useCatalogStore';
 import { useCart } from '@/store/useCartStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';
 import { useModal } from '@/store/useModalStore';
 import { generateSlug } from '@/utils/slug';
+
+// Slug da categoria de um produto do catálogo real (Neon) ou do mock —
+// prefere o slug já vindo do banco, cai para gerar a partir do nome.
+function getProductCategorySlug(p: { category?: { name: string; slug?: string } | { name: string; slug?: string }[] | string }) {
+    if (!p.category) return '';
+    if (typeof p.category === 'string') return generateSlug(p.category);
+    const cat = Array.isArray(p.category) ? p.category[0] : p.category;
+    return cat?.slug || generateSlug(cat?.name ?? '');
+}
 
 const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar'), { ssr: false });
 
@@ -27,6 +36,7 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
     const { addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
     const { openModal } = useModal();
+    const { products: catalogProducts } = useCatalog();
 
     // State for Toolbar & Filters
     const [sortOption, setSortOption] = useState('relevance');
@@ -45,16 +55,19 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
 
     // Encontrar a categoria baseada no slug
     const categoryName = useMemo(() => {
-        const product = productsData.find(p => generateSlug(p.category) === slug);
-        return product ? product.category : null;
-    }, [slug]);
+        const product = catalogProducts.find(p => getProductCategorySlug(p) === slug);
+        if (!product?.category) return null;
+        return typeof product.category === 'string'
+            ? product.category
+            : Array.isArray(product.category) ? product.category[0]?.name : product.category.name;
+    }, [slug, catalogProducts]);
 
     const displayTitle = categoryName || (slug ? slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ') : '');
 
     // Filter Logic
     const { filteredAndSortedProducts, availableColors, availableSizes, priceRange } = useMemo(() => {
         // 1. Base Category Filtering
-        let result = productsData.filter(product => generateSlug(product.category) === slug);
+        let result = catalogProducts.filter(product => getProductCategorySlug(product) === slug);
 
         // Calculate available distinct options and price range based on current category
         const allSizes = new Set<string>();
@@ -66,7 +79,8 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
             // Sizes
             if (p.sizes) p.sizes.forEach((s: string) => allSizes.add(s));
             // Colors
-            if (p.colors) p.colors.forEach((c: { name: string; hex: string }) => allColorsMap.set(c.name, c));
+            const colors = p.colors as { name: string; hex: string }[] | undefined;
+            if (colors) colors.forEach((c) => allColorsMap.set(c.name, c));
             // Prices
             if (p.price < minPrice) minPrice = p.price;
             if (p.price > maxPrice) maxPrice = p.price;
@@ -83,7 +97,10 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
         }
 
         if (filters.colors.length > 0) {
-            result = result.filter(p => p.colors && p.colors.some((c: { name: string }) => filters.colors.includes(c.name)));
+            result = result.filter(p => {
+                const colors = p.colors as { name: string }[] | undefined;
+                return colors && colors.some((c) => filters.colors.includes(c.name));
+            });
         }
 
         // 3. Apply Sorting
@@ -102,10 +119,10 @@ export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
             availableSizes: Array.from(allSizes).sort(),
             priceRange: { min: Math.floor(minPrice === Infinity ? 0 : minPrice), max: Math.ceil(maxPrice === -Infinity ? 1000 : maxPrice) }
         };
-    }, [slug, sortOption, filters]);
+    }, [slug, sortOption, filters, catalogProducts]);
 
     // Check if category exists (conceptually)
-    const hasCategoryProducts = productsData.some(p => generateSlug(p.category) === slug);
+    const hasCategoryProducts = catalogProducts.some(p => getProductCategorySlug(p) === slug);
 
     if (!hasCategoryProducts) {
         return (

@@ -43,6 +43,11 @@ export const products = pgTable('products', {
     highlight: boolean('highlight').default(false),
     sizes: text('sizes').array().default(['P', 'M', 'G', 'GG']),
     blingId: bigint('bling_id', { mode: 'number' }), // correlação Bling (migração 0003)
+    ean: text('ean'), // migração 0004
+    badge: text('badge'), // ex.: "Mais Vendido", "Novo" — migração 0004
+    colors: jsonb('colors').notNull().default([]), // [{name, hex}] — migração 0004
+    images: text('images').array().notNull().default([]), // galeria adicional — migração 0004
+    specs: jsonb('specs').notNull().default({}), // ficha técnica livre — migração 0004
 }, (t) => [index('idx_products_category').on(t.categoryId)]);
 
 export const orders = pgTable('orders', {
