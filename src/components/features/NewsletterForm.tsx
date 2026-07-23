@@ -1,5 +1,5 @@
 // src/components/features/NewsletterForm.tsx
-import { Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { User, Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 
 import { useDebounce } from '../../hooks/useDebounce';
@@ -88,18 +88,18 @@ function NewsletterForm() {
 
     if (status === 'success') {
         return (
-            <div className="flex items-center gap-3 p-4 bg-white/95 rounded-xl">
+            <div className="flex items-center justify-center gap-3 p-4 bg-white/95 rounded-full text-center max-w-md mx-auto shadow-md">
                 <CheckCircle className="w-6 h-6 text-lyvest-500 flex-shrink-0" />
                 <div className="text-left">
                     <p className="font-bold text-lyvest-500">{t('newsletter.success')}</p>
-                    <p className="text-sm text-lyvest-siena">{t('newsletter.successMessage')}</p>
+                    <p className="text-xs text-slate-600">{t('newsletter.successMessage')}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <form onSubmit={handleSubmit} className="w-full" noValidate>
+        <form onSubmit={handleSubmit} className="w-full flex flex-col items-center lg:items-end" noValidate>
             {/* Honeypot - invisible field for bots */}
             <Honeypot
                 fieldName={honeypotFieldName}
@@ -107,25 +107,32 @@ function NewsletterForm() {
                 onChange={(e) => setHoneypotValue(e.target.value)}
             />
 
-            {/* Name + Email + Submit — inline row on desktop, stacked on mobile */}
-            <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value.slice(0, 100))}
-                    placeholder={t('newsletter.namePlaceholder')}
-                    className="w-full sm:w-48 px-5 py-3 rounded-full border-0 text-lyvest-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-lyvest-terracota transition-all"
-                    disabled={status === 'loading'}
-                />
+            {/* Name + Email + Submit — inline row on desktop (lg), stacked column on mobile */}
+            <div className="flex flex-col lg:flex-row gap-3 lg:gap-3 w-full max-w-md lg:max-w-none items-center">
+                {/* Input 1: Nome com Ícone de Usuário */}
+                <div className="relative w-full lg:w-48 xl:w-56">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value.slice(0, 100))}
+                        placeholder={t('newsletter.namePlaceholder')}
+                        className="w-full pl-12 pr-5 py-3.5 rounded-full border-0 text-lyvest-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-lyvest-terracota transition-all shadow-sm text-sm"
+                        disabled={status === 'loading'}
+                    />
+                </div>
 
-                <div className="relative flex-1">
+                {/* Input 2: Email com Ícone de Envelope */}
+                <div className="relative w-full lg:w-64 xl:w-72">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value.slice(0, 100))}
                         placeholder={t('newsletter.placeholder')}
-                        className={`w-full px-5 py-3 rounded-full border-0 text-lyvest-black placeholder:text-slate-400 focus:outline-none focus:ring-2 ${errors.email ? 'ring-2 ring-red-300' : 'focus:ring-lyvest-terracota'
-                            } transition-all`}
+                        className={`w-full pl-12 pr-5 py-3.5 rounded-full border-0 text-lyvest-black placeholder:text-slate-400 focus:outline-none focus:ring-2 text-sm ${
+                            errors.email ? 'ring-2 ring-red-300' : 'focus:ring-lyvest-terracota'
+                        } transition-all shadow-sm`}
                         disabled={status === 'loading'}
                         aria-invalid={!!errors.email}
                         aria-describedby={errors.email ? 'email-error' : undefined}
@@ -135,44 +142,43 @@ function NewsletterForm() {
                     )}
                 </div>
 
+                {/* Botão de envio — Creme com texto Carmim negrito */}
                 <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="flex items-center justify-center gap-2 px-8 py-3 bg-lyvest-cream text-lyvest-500 font-bold uppercase tracking-wide text-sm rounded-full hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="w-full lg:w-auto px-8 py-3.5 bg-[#F5EDE8] hover:bg-white text-[#7D2121] font-bold uppercase tracking-wider text-sm sm:text-base rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap shadow-sm hover:shadow-md"
                 >
                     {status === 'loading' ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                     ) : (
-                        <>
-                            <Send className="w-4 h-4 hidden sm:inline" />
-                            {t('newsletter.button')}
-                        </>
+                        t('newsletter.button')
                     )}
                 </button>
             </div>
 
             {errors.email && (
-                <p id="email-error" className="mt-2 text-sm text-lyvest-mist flex items-center gap-1">
+                <p id="email-error" className="mt-2 text-xs sm:text-sm text-lyvest-mist flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {t(errors.email)}
                 </p>
             )}
 
-            {/* Consent Checkbox */}
-            <label className="mt-3 flex items-start gap-2 cursor-pointer group">
+            {/* Checkbox de Consentimento */}
+            <label className="mt-4 lg:mt-2.5 flex items-center justify-center lg:justify-start gap-2.5 cursor-pointer group w-full max-w-md lg:max-w-none">
                 <input
                     type="checkbox"
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-white/40 text-lyvest-terracota focus:ring-lyvest-terracota"
+                    className="w-4 h-4 rounded border-white/60 bg-transparent text-lyvest-500 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#7D2121]"
                     disabled={status === 'loading'}
                 />
-                <span className="text-xs text-white/80 group-hover:text-white">
+                <span className="text-xs sm:text-sm text-white/90 group-hover:text-white transition-colors select-none text-center lg:text-left">
                     {t('newsletter.consent')}
                 </span>
             </label>
+
             {errors.consent && (
-                <p className="mt-1 text-sm text-lyvest-mist flex items-center gap-1">
+                <p className="mt-1 text-xs sm:text-sm text-lyvest-mist flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {t(errors.consent)}
                 </p>
@@ -180,7 +186,7 @@ function NewsletterForm() {
 
             {/* Rate Limit Error */}
             {rateLimitError && errors.form && (
-                <p className="mt-2 text-sm text-lyvest-mist flex items-center gap-1">
+                <p className="mt-2 text-xs sm:text-sm text-lyvest-mist flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.form}
                 </p>

@@ -193,22 +193,22 @@ export function NewsletterSection() {
     const { t } = useI18n();
 
     return (
-        <section className="bg-lyvest-500 cv-auto-sm">
-            <div className="container mx-auto px-4 py-8 md:py-10">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                    {/* Left: heading + subtitle */}
-                    <div className="text-center md:text-left flex-shrink-0">
-                        <h2 className="text-xl md:text-2xl font-extrabold uppercase tracking-wide text-white">
+        <section className="bg-lyvest-500 cv-auto-sm w-full py-8 lg:py-10">
+            <div className="container mx-auto px-4 max-w-7xl">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
+                    {/* Header / Titles — Centered on mobile (matching reference image), Left aligned on desktop (continuous strip) */}
+                    <div className="text-center lg:text-left flex-shrink-0">
+                        <h2 className="text-xl sm:text-2xl lg:text-2xl font-black uppercase tracking-wider text-white">
                             {t('newsletter.title')}
                         </h2>
-                        <p className="text-white/80 text-sm md:text-base">
+                        <p className="text-white/90 text-sm sm:text-base mt-1 lg:mt-0.5">
                             {t('newsletter.subtitle')}
                         </p>
                     </div>
 
-                    {/* Right: form */}
-                    <div className="w-full md:max-w-xl">
-                        <Suspense fallback={<div className="h-12 w-full bg-white/20 rounded-full animate-pulse" />}>
+                    {/* Form Component */}
+                    <div className="w-full lg:w-auto flex-1 flex justify-center lg:justify-end">
+                        <Suspense fallback={<div className="h-12 w-full max-w-md bg-white/20 rounded-full animate-pulse" />}>
                             <NewsletterForm />
                         </Suspense>
                     </div>
