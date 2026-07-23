@@ -34,7 +34,7 @@ function Hero() {
             </div>
 
             <div
-                className="pb-6 lg:pb-20 hero-mobile-compact"
+                className="pb-3 md:pb-0 hero-mobile-compact"
                 suppressHydrationWarning
             >
                 <div className="flex justify-center items-center w-full">
