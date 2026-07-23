@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 
 // Lazy load viewport-dependent components
 const HomePageClient = dynamic(() => import('@/components/pages/HomePageClient'), { ssr: true });
+const NewsletterSection = dynamic(() => import('@/components/pages/HomePageClient').then(m => m.NewsletterSection), { ssr: true });
 
 export default async function HomePage() {
     return (
@@ -31,6 +32,9 @@ export default async function HomePage() {
             <div className="container mx-auto px-4 pb-8 lg:pb-12 pt-2 lg:pt-4 cv-auto">
                 <HomePageClient />
             </div>
+
+            {/* Newsletter rendered outside the centered container so the band goes edge to edge */}
+            <NewsletterSection />
         </main>
     );
 }
