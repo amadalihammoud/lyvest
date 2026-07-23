@@ -172,8 +172,6 @@ function ProductShowcase() {
 
 // 3. Main Component: Renders Static Parts
 export default function HomePageClient() {
-    const { t } = useI18n();
-
     return (
         <>
             {/* Static Product Grid - Instantly parsed from HTML */}
@@ -185,30 +183,37 @@ export default function HomePageClient() {
                     <Testimonials />
                 </Suspense>
             </div>
+        </>
+    );
+}
 
-            {/* Newsletter — cv-auto-sm skips rendering until scrolled into view */}
-            <section className="bg-lyvest-500 cv-auto-sm">
-                <div className="container mx-auto px-4 py-8 md:py-10">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                        {/* Left: heading + subtitle */}
-                        <div className="text-center md:text-left flex-shrink-0">
-                            <h2 className="text-xl md:text-2xl font-extrabold uppercase tracking-wide text-white">
-                                {t('newsletter.title')}
-                            </h2>
-                            <p className="text-white/80 text-sm md:text-base">
-                                {t('newsletter.subtitle')}
-                            </p>
-                        </div>
+// 4. Newsletter — rendered as a full-bleed section outside the page's centered
+// container (see src/app/page.tsx), so the brand-colored band spans edge to edge.
+export function NewsletterSection() {
+    const { t } = useI18n();
 
-                        {/* Right: form */}
-                        <div className="w-full md:max-w-xl">
-                            <Suspense fallback={<div className="h-12 w-full bg-white/20 rounded-full animate-pulse" />}>
-                                <NewsletterForm />
-                            </Suspense>
-                        </div>
+    return (
+        <section className="bg-lyvest-500 cv-auto-sm">
+            <div className="container mx-auto px-4 py-8 md:py-10">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    {/* Left: heading + subtitle */}
+                    <div className="text-center md:text-left flex-shrink-0">
+                        <h2 className="text-xl md:text-2xl font-extrabold uppercase tracking-wide text-white">
+                            {t('newsletter.title')}
+                        </h2>
+                        <p className="text-white/80 text-sm md:text-base">
+                            {t('newsletter.subtitle')}
+                        </p>
+                    </div>
+
+                    {/* Right: form */}
+                    <div className="w-full md:max-w-xl">
+                        <Suspense fallback={<div className="h-12 w-full bg-white/20 rounded-full animate-pulse" />}>
+                            <NewsletterForm />
+                        </Suspense>
                     </div>
                 </div>
-            </section>
-        </>
+            </div>
+        </section>
     );
 }
