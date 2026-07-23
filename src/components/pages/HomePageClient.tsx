@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 // import Hero from '@/components/features/Hero';
 import ProductCard from '@/components/product/ProductCard';
 // import InfoStrip from '@/components/features/InfoStrip';
-import { productsData } from '@/data/products';
+import { useCatalog } from '@/store/useCatalogStore';
 import { useCart } from '@/store/useCartStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';
@@ -46,6 +46,7 @@ function ProductShowcase() {
     const { favorites, toggleFavorite } = useFavorites();
     const { openModal } = useModal();
     const { t } = useI18n();
+    const { products: catalogProducts } = useCatalog();
 
     // Update URL when category/search changes (avoid loop by not depending on searchParams)
     const isFirstRender = useRef(true);
@@ -68,25 +69,35 @@ function ProductShowcase() {
         router.replace(newUrl, { scroll: false });
     }, [selectedCategory, searchQuery, router]);
 
+    // Nome da categoria, independente do formato (string | {name,slug} | array) —
+    // productos vindos do catálogo real (Neon) usam objeto, o mock usa string.
+    const getProductCategoryName = (p: { category?: { name: string } | { name: string }[] | string }) => {
+        if (!p.category) return '';
+        if (typeof p.category === 'string') return p.category;
+        if (Array.isArray(p.category)) return p.category[0]?.name ?? '';
+        return p.category.name;
+    };
+
     // Filter products
     const filteredProducts = useMemo(() => {
-        let result = productsData;
+        let result = catalogProducts;
         if (selectedCategory !== 'Todos') {
             result = result.filter((p) => {
-                if (selectedCategory === 'Marcadores') return p.category === 'Marcadores de Livro';
-                if (selectedCategory === 'Casa') return p.category === 'Artigos para Casa';
-                return p.category === selectedCategory;
+                const catName = getProductCategoryName(p);
+                if (selectedCategory === 'Marcadores') return catName === 'Marcadores de Livro';
+                if (selectedCategory === 'Casa') return catName === 'Artigos para Casa';
+                return catName === selectedCategory;
             });
         }
         if (searchQuery.trim() !== '') {
             result = result.filter(
                 (p) =>
                     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    p.description.toLowerCase().includes(searchQuery.toLowerCase())
+                    (p.description ?? '').toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
         return result;
-    }, [selectedCategory, searchQuery]);
+    }, [selectedCategory, searchQuery, catalogProducts]);
 
     // Category mapping for translation
     const getCategoryTranslation = (cat: string) => {
@@ -144,8 +155,9 @@ function ProductShowcase() {
                                 isFavorite={favorites.includes(product.id)}
                                 onToggleFavorite={(e: React.MouseEvent) => toggleFavorite(e, product.id)}
                                 onAddToCart={(qty: number) => {
-                                    addToCart({ ...product, qty: qty || 1 });
-                                    openModal('addedToCart', { ...product, qty: qty || 1 });
+                                    const cartProduct = { ...product, category: getProductCategoryName(product), qty: qty || 1 };
+                                    addToCart(cartProduct);
+                                    openModal('addedToCart', cartProduct);
                                 }}
                                 onQuickView={() => openModal('quickview', product)}
                             />

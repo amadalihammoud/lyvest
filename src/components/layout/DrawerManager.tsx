@@ -1,11 +1,11 @@
 ﻿import { useRouter } from 'next/navigation';
 import React, { Suspense, lazy } from 'react';
 
-import { productsData } from '../../data/products';
 import { useCart } from '../../hooks/useCart';
 import { useFavorites } from '../../hooks/useFavorites';
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../hooks/useModal';
+import { useCatalog } from '../../store/useCatalogStore';
 
 import type { TrackingResult } from '../../types';
 
@@ -28,6 +28,7 @@ export default function DrawerManager() {
     const { cartItems, removeFromCart, addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
     const { isRTL } = useI18n();
+    const { products: catalogProducts } = useCatalog();
     const router = useRouter();
 
     const handleCheckout = () => {
@@ -84,7 +85,7 @@ export default function DrawerManager() {
                         <DrawerFavorites
                             isOpen={true}
                             onClose={closeDrawer}
-                            favoriteProducts={productsData.filter((p) => favorites.includes(p.id))}
+                            favoriteProducts={catalogProducts.filter((p) => favorites.includes(p.id))}
                             onAddToCart={(p) => addToCart({
                                 id: p.id,
                                 name: p.name,

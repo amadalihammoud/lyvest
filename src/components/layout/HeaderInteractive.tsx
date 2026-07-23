@@ -6,15 +6,16 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect, useMemo, ChangeEvent } from 'react';
 
-import { productsData } from '../../data/products';
-import { mainMenu } from '../../data/siteData';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useMainMenu } from '../../hooks/useMainMenu';
 import { useShopNavigation } from '../../hooks/useShopNavigation';
 import { useCart } from '../../store/useCartStore';
+import { useCatalog } from '../../store/useCatalogStore';
 import { useFavorites } from '../../store/useFavoritesStore';
 import { useI18n } from '../../store/useI18nStore';
 import { useModal } from '../../store/useModalStore';
 import { useShop } from '../../store/useShopStore';
+import { generateSlug } from '../../utils/slug';
 import LanguageSelector from '../features/LanguageSelector';
 
 import { useAuthModal } from '@/store/useAuthModal';
@@ -32,14 +33,6 @@ export interface SerializedUser {
     id: string;
     fullName: string;
     imageUrl: string;
-}
-
-interface MenuItem {
-    label: string;
-    translationKey: string;
-    action: string;
-    category?: string;
-    subcategories?: MenuItem[];
 }
 
 export default function HeaderInteractive() {
@@ -78,6 +71,7 @@ export default function HeaderInteractive() {
     }, []);
 
     const { handleMenuClick } = useShopNavigation();
+    const { products: catalogProducts } = useCatalog();
 
     // Internal state for mobile menu
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -85,24 +79,17 @@ export default function HeaderInteractive() {
     // Internal navigation function
     const navigateToDashboard = () => router.push('/dashboard');
 
-    const menuItems = mainMenu as MenuItem[];
-
-    interface MockProduct {
-        id: number;
-        name: string;
-        category: string;
-        price: number;
-        image: string;
-    }
-    const safeProducts = productsData as MockProduct[];
+    // Menu principal: "Início" fixo + uma entrada por categoria vinda do banco
+    // (sincronizada do Bling). Compartilhado com o MobileMenu via useMainMenu().
+    const menuItems = useMainMenu();
 
     // Memoize autocomplete filter — avoids 3 redundant .filter() calls per render
     const filteredAutocomplete = useMemo(() => {
         if (searchQuery.length <= 2) return [];
-        return safeProducts.filter(
+        return catalogProducts.filter(
             (p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [searchQuery, safeProducts]);
+    }, [searchQuery, catalogProducts]);
 
     // Debounce da busca APENAS para navegação/URL
     const debouncedSearch = useDebounce(searchQuery, 500);
@@ -203,7 +190,7 @@ export default function HeaderInteractive() {
                                     .map((product) => (
                                         <Link
                                             key={product.id}
-                                            href={`/produto/${product.name.toLowerCase().replace(/ /g, '-')}`}
+                                            href={`/produto/${generateSlug(product.name)}`}
                                             onClick={() => setSearchQuery('')}
                                             className="flex items-center gap-4 p-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
                                         >
@@ -218,7 +205,13 @@ export default function HeaderInteractive() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-bold text-slate-800 text-sm truncate">{product.name}</p>
-                                                <p className="text-xs text-slate-500 truncate">{product.category}</p>
+                                                <p className="text-xs text-slate-500 truncate">
+                                                    {typeof product.category === 'string'
+                                                        ? product.category
+                                                        : Array.isArray(product.category)
+                                                            ? product.category[0]?.name
+                                                            : product.category?.name}
+                                                </p>
                                             </div>
                                             <div className="text-right">
                                                 <span className="font-bold text-lyvest-500 text-sm">
@@ -338,13 +331,31 @@ export default function HeaderInteractive() {
                                                 ${selectedCategory === item.category ? 'text-[#EAD9D1]' : ''}`}
                                             aria-current={selectedCategory === item.category ? 'page' : undefined}
                                         >
-                                            {t(item.translationKey) || item.label}
-                                            {item.subcategories && item.subcategories.length > 0 && (
-                                                <ChevronDown className="w-3.5 h-3.5 text-white group-hover:text-[#EAD9D1] transition-colors" />
+                                            {item.label}
+                                            {item.children.length > 0 && (
+                                                <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" />
                                             )}
                                         </button>
                                         {/* Active/Hover Line */}
                                         <span className={`absolute bottom-0 left-0 h-0.5 bg-[#EAD9D1] transition-all duration-300 ${selectedCategory === item.category ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+
+                                        {/* Mega-menu: subcategorias, aparece no hover do item pai */}
+                                        {item.children.length > 0 && (
+                                            <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50">
+                                                <ul className="bg-white text-slate-700 rounded-xl shadow-xl border border-slate-100 py-2 min-w-[200px] max-h-[70vh] overflow-y-auto">
+                                                    {item.children.map((child) => (
+                                                        <li key={child.categorySlug}>
+                                                            <button
+                                                                onClick={() => handleMenuClick(child)}
+                                                                className="w-full text-left px-4 py-2 text-xs font-semibold uppercase tracking-wide hover:bg-lyvest-50 hover:text-lyvest-600 transition-colors normal-case"
+                                                            >
+                                                                {child.label}
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </li>
                                 ))}
                             </ul>

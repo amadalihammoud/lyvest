@@ -7,6 +7,7 @@ import { generateSlug } from '../utils/slug';
 export interface NavMenuItem {
     action?: string;
     category?: string;
+    categorySlug?: string;
     label?: string;
     modal?: string;
 }
@@ -23,7 +24,9 @@ export const useShopNavigation = () => {
             router.push('/');
         } else if (item.action === 'filter') {
             setSelectedCategory(item.category || item.label || '');
-            const slug = generateSlug(item.category || item.label || '');
+            // Prefere o slug real da categoria (vindo do banco) — só re-deriva
+            // do nome/label como fallback para itens que ainda não tenham slug.
+            const slug = item.categorySlug || generateSlug(item.category || item.label || '');
             router.push(`/categoria/${slug}`);
         } else if (item.action === 'modal') {
             if (item.modal) openModal(item.modal);

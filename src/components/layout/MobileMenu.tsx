@@ -1,10 +1,10 @@
 ﻿// useUser inside MobileMenu is removed to prevent Clerk JS bundle download
 // import { useUser, useClerk } from '@clerk/nextjs';
-import { X, Search, ChevronRight, User } from 'lucide-react';
+import { X, Search, ChevronRight, ChevronDown, User } from 'lucide-react';
 import React from 'react';
 
-import { mainMenu } from '../../data/siteData';
 import { useI18n } from '../../hooks/useI18n';
+import { useMainMenu } from '../../hooks/useMainMenu';
 import { useShopNavigation, NavMenuItem } from '../../hooks/useShopNavigation';
 import { useShop } from '../../store/useShopStore';
 import LanguageSelector from '../features/LanguageSelector';
@@ -45,6 +45,10 @@ export default function MobileMenu({
     };
 
     const { t } = useI18n();
+    const menuItems = useMainMenu();
+
+    // Índice do item pai atualmente expandido (accordion — só um aberto por vez).
+    const [expandedIndex, setExpandedIndex] = React.useState<number | null>(null);
 
     const [headerHeight, setHeaderHeight] = React.useState(0);
 
@@ -130,12 +134,50 @@ export default function MobileMenu({
                 </div>
                 {/* Navigation */}
                 <nav className="space-y-0.5 text-base font-medium text-slate-600 flex-1 w-full mt-3 pl-6" role="navigation" aria-label="Mobile menu navigation">
-                    {mainMenu.map((item, index) => (
-                        <button key={index} onClick={() => handleMenuClick(item)} className="flex w-full items-center justify-start hover:text-lyvest-500 py-4 border-b border-slate-50 last:border-0 text-left transition-colors touch-target group">
-                            <span className="text-left font-medium text-[16px] leading-none whitespace-nowrap flex-1">{t(item.translationKey) || item.label}</span>
-                            <ChevronRight className={`w-3.5 h-3.5 text-slate-300 group-hover:text-lyvest-500 transition-transform flex-shrink-0 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
-                        </button>
-                    ))}
+                    {menuItems.map((item, index) => {
+                        const hasChildren = item.children.length > 0;
+                        const isExpanded = expandedIndex === index;
+                        return (
+                            <div key={index} className="border-b border-slate-50 last:border-0">
+                                <button
+                                    onClick={() => {
+                                        if (hasChildren) {
+                                            setExpandedIndex(isExpanded ? null : index);
+                                        } else {
+                                            handleMenuClick(item);
+                                        }
+                                    }}
+                                    className="flex w-full items-center justify-start hover:text-lyvest-500 py-4 text-left transition-colors touch-target group"
+                                >
+                                    <span className="text-left font-medium text-[16px] leading-none whitespace-nowrap flex-1">{item.label}</span>
+                                    {hasChildren ? (
+                                        <ChevronDown className={`w-3.5 h-3.5 text-slate-300 group-hover:text-lyvest-500 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
+                                    ) : (
+                                        <ChevronRight className={`w-3.5 h-3.5 text-slate-300 group-hover:text-lyvest-500 transition-transform flex-shrink-0 ${t('direction') === 'rtl' ? 'rotate-180' : ''}`} />
+                                    )}
+                                </button>
+                                {hasChildren && isExpanded && (
+                                    <div className="pb-2 pl-3 space-y-0.5">
+                                        <button
+                                            onClick={() => handleMenuClick(item)}
+                                            className="flex w-full items-center text-left py-2.5 text-sm font-semibold text-lyvest-500 hover:underline"
+                                        >
+                                            {t('common.viewAll') || 'Ver tudo'} — {item.label}
+                                        </button>
+                                        {item.children.map((child) => (
+                                            <button
+                                                key={child.categorySlug}
+                                                onClick={() => handleMenuClick(child)}
+                                                className="flex w-full items-center text-left py-2.5 text-sm text-slate-600 hover:text-lyvest-500 transition-colors"
+                                            >
+                                                {child.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </nav>
             </div>
         </div>

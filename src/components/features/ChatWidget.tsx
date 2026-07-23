@@ -4,9 +4,9 @@ import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from 'react';
 
-import { productsData } from '../../data/products';
 import { useCart } from '../../hooks/useCart';
 import { useModal } from '../../hooks/useModal';
+import { useCatalog } from '../../store/useCatalogStore';
 
 // react-markdown (~50 KB) carregado dinamicamente — só necessário quando o chat está aberto
 const ReactMarkdown = dynamic(() => import('react-markdown'), { ssr: false });
@@ -224,14 +224,20 @@ interface AddToCartButtonProps {
 function AddToCartButton({ productId }: AddToCartButtonProps) {
     const { addToCart } = useCart();
     const { openDrawer } = useModal();
+    const { products: catalogProducts } = useCatalog();
     const [added, setAdded] = useState<boolean>(false);
 
     const handleAdd = () => {
         // Safe check for product ID match (string vs number)
-        const product = productsData.find((p) => String(p.id) === String(productId));
+        const product = catalogProducts.find((p) => String(p.id) === String(productId));
 
         if (product) {
-            addToCart(product);
+            const categoryName = typeof product.category === 'string'
+                ? product.category
+                : Array.isArray(product.category)
+                    ? product.category[0]?.name ?? 'Geral'
+                    : product.category?.name ?? 'Geral';
+            addToCart({ ...product, category: categoryName });
             setAdded(true);
             setTimeout(() => {
                 openDrawer('cart');

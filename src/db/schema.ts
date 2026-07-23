@@ -3,6 +3,7 @@
 import {
     pgTable, uuid, text, timestamp, decimal, integer, boolean,
     jsonb, date, bigint, uniqueIndex, index,
+    type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 
 export const categories = pgTable('categories', {
@@ -12,6 +13,7 @@ export const categories = pgTable('categories', {
     slug: text('slug').notNull().unique(),
     description: text('description'),
     blingId: bigint('bling_id', { mode: 'number' }), // correlação Bling (migração 0003)
+    parentId: uuid('parent_id').references((): AnyPgColumn => categories.id), // hierarquia Bling (migração 0005)
 });
 
 export const profiles = pgTable('profiles', {
@@ -43,6 +45,11 @@ export const products = pgTable('products', {
     highlight: boolean('highlight').default(false),
     sizes: text('sizes').array().default(['P', 'M', 'G', 'GG']),
     blingId: bigint('bling_id', { mode: 'number' }), // correlação Bling (migração 0003)
+    ean: text('ean'), // migração 0004
+    badge: text('badge'), // ex.: "Mais Vendido", "Novo" — migração 0004
+    colors: jsonb('colors').notNull().default([]), // [{name, hex}] — migração 0004
+    images: text('images').array().notNull().default([]), // galeria adicional — migração 0004
+    specs: jsonb('specs').notNull().default({}), // ficha técnica livre — migração 0004
 }, (t) => [index('idx_products_category').on(t.categoryId)]);
 
 export const orders = pgTable('orders', {
