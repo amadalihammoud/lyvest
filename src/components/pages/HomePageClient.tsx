@@ -155,8 +155,9 @@ function ProductShowcase() {
                                 isFavorite={favorites.includes(product.id)}
                                 onToggleFavorite={(e: React.MouseEvent) => toggleFavorite(e, product.id)}
                                 onAddToCart={(qty: number) => {
-                                    addToCart({ ...product, qty: qty || 1 });
-                                    openModal('addedToCart', { ...product, qty: qty || 1 });
+                                    const cartProduct = { ...product, category: getProductCategoryName(product), qty: qty || 1 };
+                                    addToCart(cartProduct);
+                                    openModal('addedToCart', cartProduct);
                                 }}
                                 onQuickView={() => openModal('quickview', product)}
                             />

@@ -232,7 +232,12 @@ function AddToCartButton({ productId }: AddToCartButtonProps) {
         const product = catalogProducts.find((p) => String(p.id) === String(productId));
 
         if (product) {
-            addToCart(product);
+            const categoryName = typeof product.category === 'string'
+                ? product.category
+                : Array.isArray(product.category)
+                    ? product.category[0]?.name ?? 'Geral'
+                    : product.category?.name ?? 'Geral';
+            addToCart({ ...product, category: categoryName });
             setAdded(true);
             setTimeout(() => {
                 openDrawer('cart');
