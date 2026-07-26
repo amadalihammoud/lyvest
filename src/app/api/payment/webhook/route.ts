@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { orders } from '@/db/schema';
-import { markEventProcessed } from '@/lib/server/idempotency';
+import { markEventProcessed, releaseEventMark } from '@/lib/server/idempotency';
 import { logError, logInfo } from '@/lib/server/logger';
 import { db } from '@/server/dbClient';
 import { incrementStockDb } from '@/server/orderDb';
@@ -215,18 +215,23 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
-    try {
-        // Idempotência: dedupe por ID do evento.
-        const eventId = event.id || event.payment?.id || event.data?.object?.id;
-        const isNew = await markEventProcessed(eventId, 'payment');
-        if (!isNew) {
-            logInfo('webhook: evento duplicado ignorado', eventId);
-            return NextResponse.json({ received: true, duplicate: true });
-        }
+    // Idempotência: o SET NX RESERVA o evento (protege contra entregas
+    // simultâneas). A reserva só vira definitiva se handleEvent concluir — em
+    // caso de falha ela é liberada, para que o reenvio do gateway reprocesse.
+    // Sem isso, uma falha transitória do banco deixa o pedido pago em 'pending'
+    // permanentemente: o reenvio cairia no ramo "duplicado" e devolveria 200.
+    const eventId = event.id || event.payment?.id || event.data?.object?.id;
+    const isNew = await markEventProcessed(eventId, 'payment');
+    if (!isNew) {
+        logInfo('webhook: evento duplicado ignorado', eventId);
+        return NextResponse.json({ received: true, duplicate: true });
+    }
 
+    try {
         await handleEvent(event);
         return NextResponse.json({ received: true });
     } catch (err) {
+        await releaseEventMark(eventId, 'payment');
         logError('webhook: erro ao processar evento', err);
         return NextResponse.json({ error: 'Webhook processing error' }, { status: 400 });
     }

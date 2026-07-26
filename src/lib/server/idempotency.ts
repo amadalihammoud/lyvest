@@ -25,6 +25,10 @@ if ((!REDIS_URL || !REDIS_TOKEN) && process.env.NODE_ENV === 'production') {
     );
 }
 
+function keyFor(eventId: string, prefix: string): string {
+    return `idem:${prefix}:${encodeURIComponent(eventId)}`;
+}
+
 export async function markEventProcessed(
     eventId: string | undefined | null,
     prefix = 'webhook'
@@ -32,7 +36,7 @@ export async function markEventProcessed(
     if (!eventId) return true;
     if (!REDIS_URL || !REDIS_TOKEN) return true; // dedupe desabilitado sem Redis
 
-    const key = `idem:${prefix}:${encodeURIComponent(eventId)}`;
+    const key = keyFor(eventId, prefix);
     try {
         // SET key "1" NX EX <ttl> — cria só se não existir
         const url = `${REDIS_URL}/set/${key}/1?nx=true&ex=${TTL_SECONDS}`;
@@ -45,5 +49,34 @@ export async function markEventProcessed(
     } catch {
         // Em erro de infra, não bloqueia o recebimento (assinatura é o gate real)
         return true;
+    }
+}
+
+/**
+ * Libera a reserva feita por markEventProcessed.
+ *
+ * O SET NX é uma RESERVA, não um registro de "processado com sucesso". Se o
+ * processamento falhar depois da reserva, a chave precisa ser apagada — senão o
+ * reenvio do gateway cai no ramo "duplicado", devolve 200 e o efeito colateral
+ * (ex.: marcar o pedido como pago) nunca acontece: o cliente paga e o pedido
+ * fica preso em 'pending' para sempre.
+ *
+ * Best-effort: se o DEL falhar, o pior caso é o evento não ser reprocessado —
+ * exatamente o comportamento anterior, nunca pior que ele.
+ */
+export async function releaseEventMark(
+    eventId: string | undefined | null,
+    prefix = 'webhook'
+): Promise<void> {
+    if (!eventId) return;
+    if (!REDIS_URL || !REDIS_TOKEN) return;
+
+    const key = keyFor(eventId, prefix);
+    try {
+        await fetch(`${REDIS_URL}/del/${key}`, {
+            headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+        });
+    } catch {
+        // silencioso por design — ver docstring
     }
 }
