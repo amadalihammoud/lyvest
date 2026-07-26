@@ -1,10 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+// Exige sessão. Para /admin isto é apenas a primeira camada: a checagem de
+// papel fica em requireAdmin() (src/lib/server/adminAuth.ts), chamada no topo
+// de cada page.tsx do painel — o middleware não distingue cliente de admin.
 const isProtectedRoute = createRouteMatcher([
     '/dashboard(.*)',
     '/checkout(.*)',
-    '/api/checkout(.*)'
+    '/api/checkout(.*)',
+    '/admin(.*)'
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

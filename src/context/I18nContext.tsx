@@ -124,23 +124,20 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
         return typeof value === 'string' ? value : key;
     }, [currentTranslations]);
 
-    // Formatar moeda - BRL para pt-BR, USD convertido para outros
-    // Taxa de conversão: 6 BRL = 1 USD
+    // A loja cobra SEMPRE em BRL (o Asaas emite a cobrança em reais), então o
+    // preço exibido tem que ser em reais em todos os idiomas. Varia apenas a
+    // localização dos separadores: "R$ 149,90" em pt-BR, "R$ 149.90" em en-US.
+    //
+    // Havia aqui uma conversão para USD com câmbio fixo (6 BRL = 1 USD) chumbado
+    // no código. Como formatCurrency alimenta o resumo do checkout e as opções
+    // de parcelamento, o cliente que trocasse de idioma via "$24.98" e era
+    // cobrado R$149,90. Multi-moeda de verdade exige cotação e cobrança na
+    // moeda exibida — não é um detalhe de formatação.
     const formatCurrency = useCallback((value: number) => {
-        if (locale === 'pt-BR') {
-            // Locale brasileiro: mostra em Reais
-            return new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-            }).format(value);
-        } else {
-            // Outros locales: converte para USD (6 BRL = 1 USD)
-            const usdValue = value / 6;
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-            }).format(usdValue);
-        }
+        return new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: 'BRL',
+        }).format(value);
     }, [locale]);
 
     // Formatar data no locale atual

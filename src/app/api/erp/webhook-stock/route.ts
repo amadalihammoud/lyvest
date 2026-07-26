@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { products } from '@/db/schema';
+import { isErpStockAuthoritative } from '@/lib/server/erpFlags';
 import { isAuthorizedInternal } from '@/lib/server/internalAuth';
 import { logError, logInfo } from '@/lib/server/logger';
 import { db } from '@/server/dbClient';
@@ -39,6 +40,17 @@ export async function POST(request: NextRequest) {
                 { error: 'Invalid payload: blingId/idProduto e saldo são obrigatórios' },
                 { status: 400 }
             );
+        }
+
+        // Enquanto o pedido pago não for sincronizado com o Bling, o saldo de lá
+        // ignora as vendas do site — gravá-lo aqui apagaria as baixas do checkout.
+        // Ver src/lib/server/erpFlags.ts. Responde 200 para o Bling não reenviar.
+        if (!isErpStockAuthoritative()) {
+            logInfo('erp/webhook-stock: ignorado (ERP_STOCK_AUTHORITATIVE desligado)', {
+                blingId,
+                saldo,
+            });
+            return NextResponse.json({ success: true, skipped: 'erp-stock-not-authoritative' });
         }
 
         const updated = await db

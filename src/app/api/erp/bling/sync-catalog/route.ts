@@ -16,7 +16,11 @@ export const maxDuration = 300; // catálogos grandes: até 5 min
  */
 export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization') ?? '';
-    if (!isAuthorizedInternal(authHeader, `Bearer ${process.env.INTERNAL_API_KEY}`)) {
+    // A env é lida ANTES de compor o valor esperado: interpolar direto no
+    // template literal transforma a ausência da variável na string "Bearer
+    // undefined", que é truthy — e anula o fail-closed de isAuthorizedInternal.
+    const internalKey = process.env.INTERNAL_API_KEY;
+    if (!internalKey || !isAuthorizedInternal(authHeader, `Bearer ${internalKey}`)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     if (!isBlingConfigured()) {

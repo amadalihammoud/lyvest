@@ -12,7 +12,10 @@ import { getErpProvider } from '@/server/providers/erp';
  */
 export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization') ?? '';
-    if (!isAuthorizedInternal(authHeader, `Bearer ${process.env.INTERNAL_API_KEY}`)) {
+    // Ver comentário em bling/sync-catalog: a env precisa ser lida antes de
+    // compor o valor esperado, senão "Bearer undefined" vira segredo válido.
+    const internalKey = process.env.INTERNAL_API_KEY;
+    if (!internalKey || !isAuthorizedInternal(authHeader, `Bearer ${internalKey}`)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

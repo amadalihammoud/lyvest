@@ -192,6 +192,24 @@ class MercadoPagoProvider extends PaymentProvider {
 export function getPaymentProvider(): PaymentProvider {
     const provider = process.env.PAYMENT_PROVIDER || 'mock';
 
+    // Fail-closed: o MockPaymentProvider devolve uma checkoutUrl que aponta para
+    // a própria loja com status=success, ou seja, confirma o pedido SEM cobrar.
+    // Se PAYMENT_PROVIDER sumir ou vier grafado errado num deploy, é melhor o
+    // checkout falhar visivelmente do que fechar venda fantasma.
+    //
+    // O discriminador é VERCEL_ENV, não NODE_ENV: em preview deployment da Vercel
+    // NODE_ENV também vale 'production' (é um build de produção do Next), e usar
+    // mock em preview é legítimo — o que não pode é mock cobrando cliente real.
+    const isRealMoney = process.env.VERCEL_ENV
+        ? process.env.VERCEL_ENV === 'production'
+        : process.env.NODE_ENV === 'production';
+
+    if (isRealMoney && provider.toLowerCase() === 'mock') {
+        throw new Error(
+            'PAYMENT_PROVIDER não configurado em produção: o provider mock confirma pedidos sem cobrar.'
+        );
+    }
+
     switch (provider.toLowerCase()) {
         case 'asaas':
             return new AsaasPaymentProvider();

@@ -9,7 +9,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const pathname = usePathname();
     const { isLoaded, userId } = useAuth();
 
-    // Basic admin check (em um cenário real, você verificaria role no JWT/Supabase)
+    // Apenas UX: evita piscar o chrome do painel para quem não está logado.
+    // NÃO é gate de segurança — a autorização real é server-side, em
+    // requireAdmin() (src/lib/server/adminAuth.ts), chamada em cada page.tsx.
     if (isLoaded && !userId) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
