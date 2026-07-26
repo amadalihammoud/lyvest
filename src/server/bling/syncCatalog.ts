@@ -13,6 +13,7 @@
 import { eq } from 'drizzle-orm';
 
 import { categories, products } from '../../db/schema';
+import { isErpStockAuthoritative } from '../../lib/server/erpFlags';
 import { logInfo } from '../../lib/server/logger';
 import { db } from '../dbClient';
 
@@ -146,6 +147,11 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
     const blingProds = await fetchAllPages<BlingProduto>('/produtos?criterio=2'); // 2 = ativos
     logInfo('bling/sync: produtos ativos no Bling', blingProds.length);
 
+    const stockIsAuthoritative = isErpStockAuthoritative();
+    if (!stockIsAuthoritative) {
+        logInfo('bling/sync: saldo do Bling NÃO sobrescreve o estoque local (ERP_STOCK_AUTHORITATIVE desligado)');
+    }
+
     for (const bp of blingProds) {
         const nome = (bp.nome ?? '').trim();
         if (!nome) continue;
@@ -161,27 +167,35 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
             description: bp.descricaoCurta ?? undefined,
             price,
             promotionalPrice: promo,
-            stock,
             active: bp.situacao !== 'I',
             ...(image ? { imageUrl: image } : {}),
             ...(categoryId ? { categoryId } : {}),
         };
 
+        // O saldo do Bling só sobrescreve o saldo local quando o ERP é a fonte
+        // da verdade — hoje ele não é, porque as vendas do site não chegam lá.
+        // Ver src/lib/server/erpFlags.ts. Em produtos NOVOS o saldo do Bling é
+        // sempre usado: não há venda local para preservar.
+        const updateValues = stockIsAuthoritative ? { ...values, stock } : values;
+
         const byBling = await db.select().from(products).where(eq(products.blingId, bp.id)).limit(1);
         if (byBling[0]) {
-            await db.update(products).set(values).where(eq(products.id, byBling[0].id));
+            await db.update(products).set(updateValues).where(eq(products.id, byBling[0].id));
             report.produtos.atualizados++;
             continue;
         }
 
         const bySlug = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
         if (bySlug[0]) {
-            await db.update(products).set({ ...values, blingId: bp.id }).where(eq(products.id, bySlug[0].id));
+            await db
+                .update(products)
+                .set({ ...updateValues, blingId: bp.id })
+                .where(eq(products.id, bySlug[0].id));
             report.produtos.adotadosPorSlug++;
             continue;
         }
 
-        await db.insert(products).values({ ...values, slug, blingId: bp.id });
+        await db.insert(products).values({ ...values, stock, slug, blingId: bp.id });
         report.produtos.criados++;
     }
 
