@@ -30,8 +30,11 @@ export default defineConfig({
 
     /* Configurações compartilhadas para todos os projetos */
     use: {
-        /* URL base para usar em ações como `await page.goto('/')` */
-        baseURL: 'http://localhost:5173',
+        /* URL base para usar em ações como `await page.goto('/')`.
+           3000 é a porta do `next dev`. A 5173 aqui era resíduo da era Vite:
+           o webServer subia o Next na 3000 e o Playwright esperava na 5173 até
+           estourar o timeout de 120s — o job de E2E do CI nunca teve chance. */
+        baseURL: 'http://localhost:3000',
 
         /* Coletar trace apenas on retry */
         trace: 'on-first-retry',
@@ -68,10 +71,10 @@ export default defineConfig({
         // },
     ],
 
-    /* Servidor de desenvolvimento */
+    /* Servidor de desenvolvimento — mesma porta do baseURL acima (next dev = 3000) */
     webServer: {
         command: 'npm run dev',
-        url: 'http://localhost:5173',
+        url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000,
     },
