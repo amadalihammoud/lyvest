@@ -1,11 +1,14 @@
 import { count, ne, sum } from 'drizzle-orm';
 
 import { orders, products } from '@/db/schema';
+import { requireAdmin } from '@/lib/server/adminAuth';
 import { db, isDbConfigured } from '@/server/dbClient';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+    await requireAdmin();
+
     if (!isDbConfigured()) {
         return (
             <div className="bg-red-50 text-red-600 p-4 rounded-md">
