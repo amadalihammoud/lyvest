@@ -34,6 +34,15 @@ export function messageForRpcError(raw: string): { status: number; message: stri
     if (raw.includes('PRODUCT_NOT_FOUND')) {
         return { status: 400, message: 'Produto indisponível no carrinho.' };
     }
+    // Migração 0006: produto com grade exige a variante escolhida. Sem este
+    // mapeamento, um carrinho antigo (sem variantId) devolveria 500 genérico em
+    // vez de dizer ao cliente o que fazer.
+    if (raw.includes('VARIANT_REQUIRED')) {
+        return { status: 400, message: 'Escolha o tamanho antes de finalizar a compra.' };
+    }
+    if (raw.includes('VARIANT_NOT_FOUND')) {
+        return { status: 400, message: 'A opção escolhida não está mais disponível. Revise seu carrinho.' };
+    }
     if (raw.includes('AUTH_REQUIRED')) {
         return { status: 401, message: 'Sessão expirada. Entre novamente.' };
     }

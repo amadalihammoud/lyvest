@@ -7,7 +7,7 @@ import { orders } from '@/db/schema';
 import { markEventProcessed, releaseEventMark } from '@/lib/server/idempotency';
 import { logError, logInfo } from '@/lib/server/logger';
 import { db } from '@/server/dbClient';
-import { incrementStockDb } from '@/server/orderDb';
+import { incrementStockDb, incrementVariantStockDb } from '@/server/orderDb';
 
 /**
  * POST /api/payment/webhook
@@ -154,16 +154,33 @@ async function markOrderRefunded(payment: AsaasPayment): Promise<void> {
 
     logInfo('webhook: pedido marcado como cancelado (reembolsado)', { orderId: order.id });
 
-    // Restaurar estoque dos produtos (atômico via função SQL increment_stock).
-    const items = order.items as Array<{ id: string; quantity: number }> | null;
+    // Restaurar estoque (atômico via função SQL). Quando o item tem variante, o
+    // saldo autoritativo é o da VARIANTE — products.stock é espelho derivado por
+    // trigger (migração 0006), então devolver ao produto seria sobrescrito e o
+    // estorno viraria um no-op silencioso.
+    const items = order.items as Array<{
+        id: string;
+        variantId?: string | null;
+        quantity: number;
+    }> | null;
     if (items && Array.isArray(items)) {
         for (const item of items) {
             if (!item.id || !item.quantity) continue;
-            const ok = await incrementStockDb(item.id, item.quantity);
+            const ok = item.variantId
+                ? await incrementVariantStockDb(item.variantId, item.quantity)
+                : await incrementStockDb(item.id, item.quantity);
             if (ok) {
-                logInfo('webhook: estoque restaurado via increment_stock', { productId: item.id, qty: item.quantity });
+                logInfo('webhook: estoque restaurado', {
+                    productId: item.id,
+                    variantId: item.variantId ?? null,
+                    qty: item.quantity,
+                });
             } else {
-                logError('webhook: falha ao restaurar estoque', { productId: item.id, qty: item.quantity });
+                logError('webhook: falha ao restaurar estoque', {
+                    productId: item.id,
+                    variantId: item.variantId ?? null,
+                    qty: item.quantity,
+                });
             }
         }
     }

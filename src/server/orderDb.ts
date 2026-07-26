@@ -9,7 +9,9 @@ import { sql } from './dbClient';
 
 export interface CreateOrderParams {
     userId: string | null;              // Clerk id; null para convidado
-    items: Array<{ id: string; quantity: number; size?: string }>;
+    // `variantId` é obrigatório quando o produto tem variante ativa (migração 0006);
+    // `size` é legado e ignorado pela função SQL — tamanho vem da linha da variante.
+    items: Array<{ id: string; quantity: number; variantId?: string | null; size?: string }>;
     couponCode: string | null;
     discount: number;                   // fração 0..1 já validada no servidor
     singleUse: boolean;
@@ -56,6 +58,25 @@ export async function incrementStockDb(productId: string, qty: number): Promise<
         return Boolean(rows[0]?.ok);
     } catch (e) {
         logError('orderDb: increment_stock falhou', e);
+        return false;
+    }
+}
+
+/**
+ * Reposição atômica no saldo da VARIANTE (migração 0006).
+ *
+ * Obrigatório no estorno de item que tenha `variantId` no snapshot do pedido:
+ * quando o produto tem variantes, `products.stock` é apenas um espelho derivado,
+ * mantido por trigger a partir da soma das variantes. Devolver saldo ao produto
+ * nesse caso seria sobrescrito pelo trigger na escrita seguinte — o estorno
+ * viraria um no-op silencioso e a peça nunca voltaria à venda.
+ */
+export async function incrementVariantStockDb(variantId: string, qty: number): Promise<boolean> {
+    try {
+        const rows = await sql`SELECT increment_variant_stock(${variantId}::uuid, ${qty}) AS ok`;
+        return Boolean(rows[0]?.ok);
+    } catch (e) {
+        logError('orderDb: increment_variant_stock falhou', e);
         return false;
     }
 }

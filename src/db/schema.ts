@@ -123,6 +123,31 @@ export const blingTokens = pgTable('bling_tokens', {
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Grade vendável (migração 0006). Quando um produto tem variante ativa, o estoque
+// autoritativo é o da variante e products.stock vira espelho derivado, mantido por
+// trigger no banco. Produto sem variante continua funcionando pelo caminho antigo.
+//
+// ATENÇÃO: os índices únicos parciais (bling_id, sku) e o índice de combinação por
+// COALESCE(size,'')/COALESCE(color,'') vivem apenas no SQL — o Drizzle não expressa
+// índice sobre expressão. Um `drizzle-kit push` NÃO os recria. O DDL de
+// db/neon/0006_product_variants.sql continua sendo a fonte da verdade.
+export const productVariants = pgTable('product_variants', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    productId: uuid('product_id')
+        .notNull()
+        .references(() => products.id, { onDelete: 'cascade' }),
+    size: text('size'), // NULL = produto sem grade de tamanho
+    color: text('color'), // NULL = produto sem variação de cor
+    sku: text('sku'),
+    ean: text('ean'),
+    blingId: bigint('bling_id', { mode: 'number' }), // id da variação no Bling
+    stock: integer('stock').notNull().default(0),
+    price: decimal('price', { precision: 10, scale: 2 }), // NULL = herda de products.price
+    promotionalPrice: decimal('promotional_price', { precision: 10, scale: 2 }),
+    active: boolean('active').notNull().default(true),
+}, (t) => [index('idx_product_variants_product').on(t.productId)]);
+
 export const couponRedemptions = pgTable('coupon_redemptions', {
     id: bigint('id', { mode: 'number' }).generatedAlwaysAsIdentity().primaryKey(),
     couponCode: text('coupon_code').notNull(),
