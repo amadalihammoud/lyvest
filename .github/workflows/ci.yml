@@ -70,6 +70,11 @@ jobs:
   test-e2e:
     name: 🎭 E2E Tests
     runs-on: ubuntu-latest
+    # tests/e2e esta vazio: sem esta guarda o job falha ("no tests found") e,
+    # como o deploy agora depende da conclusao do CI, produção nunca sairia.
+    # Um job pulado nao reprova o workflow. Escreveu o primeiro .spec.ts, ele
+    # volta a rodar sozinho — nao ha flag para lembrar de religar.
+    if: hashFiles('tests/e2e/**/*.spec.ts') != ''
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -120,9 +125,6 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-          retention-days: 7
+      # (removido) Upload de artefato apontava para dist/, saida da era Vite que
+      # o Next nunca produz, e nenhum job consumia. O deploy roda seu proprio
+      # `vercel build`.

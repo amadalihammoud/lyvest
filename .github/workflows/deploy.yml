@@ -1,7 +1,15 @@
 name: Deploy to Vercel
 
+# GATE DE PRODUÇÃO
+# Antes, este workflow disparava em `push: branches: [main]` sem `needs` e sem
+# nenhuma dependência do CI: qualquer merge — inclusive os feitos pelos scripts
+# .bat com `--no-verify`, sem PR — ia direto para produção sem passar por lint,
+# typecheck, teste ou build. Agora produção só sai depois do CI Pipeline fechar
+# verde NO MESMO COMMIT.
 on:
-  push:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -13,9 +21,19 @@ jobs:
   deploy:
     name: 🚀 Deploy Production
     runs-on: ubuntu-latest
+    # workflow_dispatch continua sendo a válvula de escape manual (deploy de
+    # emergência). O caminho automático exige conclusão 'success' do CI.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Em workflow_run o checkout padrão aponta para o head do branch, não
+          # para o commit que o CI validou. Sem fixar o SHA, um push que chegasse
+          # durante o CI faria o deploy publicar código que ninguém testou.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
