@@ -90,7 +90,34 @@ async function main() {
     }
 
     const sql = neon(process.env.DATABASE_URL);
-    const files = ['db/neon/0001_init.sql', 'db/neon/0002_seed.sql', 'db/neon/0003_bling.sql', 'db/neon/0004_catalog_extend.sql', 'db/neon/0005_category_hierarchy.sql', 'db/neon/0006_product_variants.sql'];
+    // O SEED NÃO ENTRA POR PADRÃO.
+    //
+    // 0002_seed.sql insere o catálogo de exemplo (8 produtos, 5 categorias). Ele
+    // usa ON CONFLICT DO NOTHING, o que o torna idempotente — mas idempotente
+    // não é o mesmo que inofensivo: num banco onde os produtos foram removidos
+    // de propósito, reinserir É o dano. Foi exatamente o que aconteceu ao rodar
+    // este script para aplicar a 0006 — a loja voltou a exibir 8 produtos
+    // fictícios, compráveis, em produção.
+    //
+    // Migração e povoamento são operações diferentes e não devem compartilhar o
+    // caminho padrão. Para semear de propósito (banco novo, ambiente de teste):
+    //   SEED=1 node scripts/apply-neon.mjs
+    const comSeed = process.env.SEED === '1';
+
+    const files = [
+        'db/neon/0001_init.sql',
+        ...(comSeed ? ['db/neon/0002_seed.sql'] : []),
+        'db/neon/0003_bling.sql',
+        'db/neon/0004_catalog_extend.sql',
+        'db/neon/0005_category_hierarchy.sql',
+        'db/neon/0006_product_variants.sql',
+    ];
+
+    console.log(
+        comSeed
+            ? '⚠️  SEED=1 — o catálogo de exemplo SERÁ inserido.'
+            : 'ℹ️  Seed desativado (use SEED=1 para inserir o catálogo de exemplo).'
+    );
 
     for (const file of files) {
         const text = readFileSync(join(root, file), 'utf8');

@@ -201,7 +201,18 @@ BEGIN
         END IF;
 
         -- Produto (fonte da verdade do preço-base e do nome).
-        SELECT COALESCE(promotional_price, price), name
+        --
+        -- CUIDADO COM O ZERO: `COALESCE(promotional_price, price)` — como estava
+        -- antes — só desvia quando a promoção é NULL. Uma promoção gravada como
+        -- 0.00, plausível vindo de ERP, era adotada e o item saía a R$0. Como o
+        -- total desta função SOBRESCREVE o cálculo da aplicação, aqui é onde o
+        -- erro efetivamente cobraria zero do cliente.
+        -- Promoção só vale quando é maior que zero.
+        SELECT CASE
+                   WHEN promotional_price IS NOT NULL AND promotional_price > 0
+                   THEN promotional_price
+                   ELSE price
+               END, name
           INTO v_prod_price, v_name
           FROM products
          WHERE id = v_pid AND active = true;
@@ -222,7 +233,13 @@ BEGIN
             -- Preço da variante tem precedência; cai no do produto quando nulo.
             -- O WHERE amarra a variante ao produto: impede montar um item com a
             -- variante barata de um produto e o id de outro.
-            SELECT COALESCE(promotional_price, price, v_prod_price), size, color, sku
+            SELECT CASE
+                       WHEN promotional_price IS NOT NULL AND promotional_price > 0
+                       THEN promotional_price
+                       WHEN price IS NOT NULL AND price > 0
+                       THEN price
+                       ELSE v_prod_price
+                   END, size, color, sku
               INTO v_price, v_size, v_color, v_sku
               FROM product_variants
              WHERE id = v_vid AND product_id = v_pid AND active = true;
