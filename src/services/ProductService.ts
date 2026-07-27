@@ -55,6 +55,15 @@ export interface Product {
      * próprio e o `variantId` exigido pelo checkout.
      */
     variants?: ProductVariant[];
+    /**
+     * true = o produto tem grade, mesmo que `variants` nao esteja carregado.
+     *
+     * A vitrine (getProducts) nao carrega as variantes — seria uma query por
+     * produto por pageview. Mas PRECISA saber que existem: adicionar ao
+     * carrinho direto da grade produziria um item sem variantId, e a falha so
+     * apareceria no ultimo passo do checkout, como erro opaco.
+     */
+    hasVariants?: boolean;
     colors?: unknown[];
     quantity?: number;
     badge?: string | null;

@@ -166,6 +166,15 @@ export const useCartStore = create<CartState>((set, get) => ({
         const validProduct = validateCartItem({ ...product, qty: qtyToAdd });
         if (!validProduct) return;
 
+        // Rede de segurança: produto com grade SEM variante escolhida não entra.
+        //
+        // A UI já evita isso (a vitrine leva à PDP em vez de adicionar direto),
+        // mas há várias portas para o carrinho — card, quickview, favoritos,
+        // relacionados — e basta uma esquecer para o cliente montar um carrinho
+        // que só falha no último passo do checkout, com erro de banco opaco.
+        // Falhar aqui mantém o problema perto de onde ele nasce.
+        if ((product as { hasVariants?: boolean }).hasVariants && !validProduct.variantId) return;
+
         const state = get();
         const prev = state.cartItems;
         if (prev.length >= CART_MAX_ITEMS) return;

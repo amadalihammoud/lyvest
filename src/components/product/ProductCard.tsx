@@ -143,14 +143,32 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
                             </button>
                         </div>
 
-                        {/* Botão Comprar */}
-                        <button
-                            data-testid="add-to-cart-button"
-                            onClick={handleAddToCart}
-                            className="flex-1 h-10 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-full hover:brightness-90 transition-all shadow-sm hover:shadow-md active:scale-95 text-sm"
-                        >
-                            {t('products.buy')}
-                        </button>
+                        {/*
+                          * Botão Comprar.
+                          *
+                          * Produto com grade NÃO é adicionado daqui: a vitrine não
+                          * carrega as variantes, então o item iria ao carrinho sem
+                          * variantId e o pedido só falharia no último passo do
+                          * checkout, com erro opaco. O card inteiro já é um Link
+                          * para a PDP — aqui basta não interceptar o clique.
+                          */}
+                        {product.hasVariants ? (
+                            <span
+                                data-testid="choose-size-button"
+                                className="flex-1 h-10 flex items-center justify-center bg-white border-2 border-lyvest-500 text-lyvest-600 font-bold rounded-full hover:bg-lyvest-50 transition-all text-sm"
+                            >
+                                Escolher tamanho
+                            </span>
+                        ) : (
+                            <button
+                                data-testid="add-to-cart-button"
+                                type="button"
+                                onClick={handleAddToCart}
+                                className="flex-1 h-10 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-full hover:brightness-90 transition-all shadow-sm hover:shadow-md active:scale-95 text-sm"
+                            >
+                                {t('products.buy')}
+                            </button>
+                        )}
                     </div>
                 </div>
             </Link>

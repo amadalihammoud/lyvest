@@ -16,21 +16,41 @@ com seleção de tamanho e estoque correto por tamanho.
 | 1 | Interpretar o payload do Bling (`src/server/bling/variations.ts`, puro, 17 testes) | ✅ feito |
 | 2 | Sync grava pai + variantes e pula os filhos | ✅ feito e verificado em produção |
 | 2a | Despromover clones que já existiam como produto | ✅ feito |
-| 3 | API e PDP expõem as variantes | ❌ **não iniciado** |
-| 4 | Seletor de tamanho + carrinho carregam `variantId` | ❌ **não iniciado** |
-| 5 | Zod e `create_order` aceitam `variantId` | ❌ **não iniciado** |
+| 3 | API e PDP expõem as variantes | ✅ feito |
+| 4 | Seletor de tamanho + carrinho carregam `variantId` | ✅ feito |
+| 5 | Zod e `create_order` aceitam `variantId` | ✅ feito e verificado |
 
-### ⚠️ Janela conhecida e ACEITA
+### ✅ Janela fechada (commit `c924e1f`)
 
-A partir da etapa 2, `create_order` exige `variantId` para produto que tenha
-variante ativa (`EXISTS` na função SQL). O checkout **ainda não envia** esse
-campo, e o schema Zod de `/api/payment/create-session` descarta chave
-desconhecida.
+A causa raiz era o Zod: `variantId` não estava declarado no schema de
+`/api/payment/create-session` nem de `/api/orders`, e o Zod **descarta chave
+não declarada em silêncio** — o campo sumia entre o cliente e o banco.
 
-**Consequência: o produto com grade NÃO é comprável até a etapa 5 terminar.**
+Verificado contra o banco de produção, em bloco `DO` com rollback:
 
-Hoje isso é inofensivo porque só existe produto de teste. Deixa de ser no
-momento em que houver catálogo real.
+| Cenário | Resultado |
+|---|---|
+| com `variantId` (P, 2 un) | total **299,80** = 2 × 149,90 · estoque P 5→3 |
+| sem `variantId` | `VARIANT_REQUIRED` |
+| variante esgotada (GG, 0) | `INSUFFICIENT_STOCK` |
+| 99 unidades de P | `INSUFFICIENT_STOCK` |
+
+Nada persistiu: 0 pedidos, estoque P de volta em 5.
+
+**Falta a prova final: uma compra de verdade pela interface**, escolhendo
+tamanho. É o único teste que exercita PDP → carrinho → checkout → Asaas junto.
+
+### Decisões de UI que têm motivo
+
+- **Tamanho esgotado fica visível e riscado**, não sumido. Escondê-lo faria a
+  grade "P M G" parecer o catálogo completo, e quem procura GG concluiria que a
+  loja nunca teve o tamanho dele.
+- **`variantId` do localStorage é validado como UUID.** O usuário pode editar
+  esse storage; um id inventado viraria falha opaca de SQL em vez de uma
+  mensagem compreensível.
+- **`size` no carrinho aceita 40 chars, não 10.** Com dois atributos o Bling
+  manda `Tamanho:P;Cor:Azul` — cortar em 10 fundiria variantes distintas no
+  mesmo rótulo.
 
 ### Como o Bling representa grade (verificado na API real, não na doc)
 

@@ -168,15 +168,24 @@ function ProductQuickView({ product, onClose, onAddToCart }: ProductQuickViewPro
                         >
                             {t('products.viewDetails')}
                         </button>
+                        {/*
+                          * Produto com grade vai para a PDP: o quickview não tem
+                          * seletor de tamanho, e adicionar sem variantId monta um
+                          * carrinho que só falha no checkout.
+                          */}
                         <button
                             onClick={() => {
+                                if (product.hasVariants) {
+                                    handleViewDetails();
+                                    return;
+                                }
                                 onAddToCart(product);
                                 openModal('addedToCart', product);
                             }}
                             className="px-4 py-2 bg-lyvest-500 text-white font-bold rounded-full hover:brightness-90 transition-all shadow-lg flex items-center gap-2 text-xs"
                         >
                             <ShoppingBag className="w-3 h-3" />
-                            <span>{t('products.buy')}</span>
+                            <span>{product.hasVariants ? 'Escolher tamanho' : t('products.buy')}</span>
                         </button>
                     </div>
                 </div>

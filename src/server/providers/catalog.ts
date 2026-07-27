@@ -132,13 +132,17 @@ export function rowsToVariants(rows: VariantRow[], fallbackPrice: number): Produ
  */
 function resolveGrade(
     row: ProductRow,
-    variants?: ProductVariant[]
-): Pick<Product, 'sizes' | 'variants'> {
-    if (!variants?.length) return { sizes: row.sizes ?? undefined, variants: undefined };
+    variants?: ProductVariant[],
+    hasVariants = false
+): Pick<Product, 'sizes' | 'variants' | 'hasVariants'> {
+    if (!variants?.length) {
+        return { sizes: row.sizes ?? undefined, variants: undefined, hasVariants };
+    }
 
     return {
         sizes: variants.map((v) => v.size).filter((s): s is string => s !== null),
         variants,
+        hasVariants: true,
     };
 }
 
@@ -157,9 +161,14 @@ function resolveGrade(
  * A média do rating fica PRECISA: nenhum componente renderiza rating hoje, e o
  * único consumidor é o JSON-LD da PDP, onde 4.3 vale mais que 4.0.
  */
-export function rowToProduct(row: ProductRow, rating?: RowRating, variants?: ProductVariant[]): Product {
+export function rowToProduct(
+    row: ProductRow,
+    rating?: RowRating,
+    variants?: ProductVariant[],
+    hasVariants?: boolean
+): Product {
     const { price, oldPrice } = resolveDisplayPrice(row.price, row.promotionalPrice);
-    const grade = resolveGrade(row, variants);
+    const grade = resolveGrade(row, variants, hasVariants);
 
     return {
         id: row.id,
@@ -178,6 +187,7 @@ export function rowToProduct(row: ProductRow, rating?: RowRating, variants?: Pro
         stock_quantity: row.stock ?? 0,
         sizes: grade.sizes,
         variants: grade.variants,
+        hasVariants: grade.hasVariants,
         colors: (row.colors as unknown[]) ?? [],
         badge: row.badge ?? null,
         rating: rating?.avg,
@@ -342,6 +352,26 @@ export const getProductBySlug = cache(async (slug: string): Promise<Product | nu
     }
 });
 
+/**
+ * Quais destes produtos têm grade ativa.
+ *
+ * UMA query para a página inteira. Carregar as variantes de cada produto seria
+ * N queries por pageview, e a vitrine não precisa delas — só precisa SABER que
+ * existem, para não oferecer "adicionar ao carrinho" sem tamanho escolhido. Sem
+ * isso o item vai ao carrinho sem `variantId` e o pedido falha lá no fim, no
+ * checkout, com erro de banco que o cliente não tem como interpretar.
+ */
+async function findProductsWithVariants(productIds: string[]): Promise<Set<string>> {
+    if (productIds.length === 0) return new Set();
+
+    const rows = await db
+        .selectDistinct({ productId: productVariants.productId })
+        .from(productVariants)
+        .where(and(eq(productVariants.active, true), inArray(productVariants.productId, productIds)));
+
+    return new Set(rows.map((r) => r.productId));
+}
+
 /** Lista produtos ativos, com filtro opcional por categoria (slug) e busca por texto. */
 export async function getProducts(opts: GetProductsOptions = {}): Promise<Product[]> {
     if (!isDbConfigured()) {
@@ -429,7 +459,11 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
             }
         }
 
-        return rows.map((row) => rowToProduct(row, ratingMap.get(row.id)));
+        const comGrade = await findProductsWithVariants(productIds);
+
+        return rows.map((row) =>
+            rowToProduct(row, ratingMap.get(row.id), undefined, comGrade.has(row.id))
+        );
     } catch (e) {
         // NÃO cair no mock aqui. O fallback antigo transformava indisponibilidade
         // do banco numa LOJA FALSA: a vitrine passava a exibir produtos
