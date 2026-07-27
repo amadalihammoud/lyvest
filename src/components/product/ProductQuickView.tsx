@@ -90,7 +90,7 @@ function ProductQuickView({ product, onClose, onAddToCart }: ProductQuickViewPro
                                     <svg className="w-8 h-8 text-white fill-current ml-1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                 </div>
                             </button>
-                            <span className="absolute bottom-10 font-bold text-slate-500 uppercase tracking-widest text-sm">Assistir VÃ­deo</span>
+                            <span className="absolute bottom-10 font-bold text-slate-500 uppercase tracking-widest text-sm">Assistir Vídeo</span>
                         </div>
                     ) : (
                         <div className="relative w-full h-[50vh] md:h-[60vh]">

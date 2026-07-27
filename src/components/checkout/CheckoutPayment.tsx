@@ -6,6 +6,7 @@ import { useState, ChangeEvent, FormEvent } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { paymentService } from '../../services/payment';
 import { useCart } from '../../store/useCartStore';
+import { buildPaymentCustomer, buildRateLimitMessage, buildSessionItems, resolveSessionOutcome } from '../../utils/checkoutPayment';
 import { paymentSchema, validateForm } from '../../utils/schemas';
 import { RateLimiter, detectXSS } from '../../utils/security';
 import { formatCardNumber } from '../../utils/validation';
@@ -65,7 +66,7 @@ function CreditCardForm({
     return (
         <form onSubmit={handleSubmit} className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100 animate-slide-up">
             <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-semibold text-slate-500">{t('checkout.payment.acceptedCards') || 'CartÃµes Aceitos'}</span>
+                <span className="text-sm font-semibold text-slate-500">{t('checkout.payment.acceptedCards') || 'Cartões Aceitos'}</span>
                 <div className="flex gap-2">
                     <div className="w-8 h-5 bg-gradient-to-r from-blue-600 to-blue-800 rounded text-[6px] text-white flex items-center justify-center font-bold">VISA</div>
                     <div className="w-8 h-5 bg-gradient-to-r from-[#F5E6E8]/300 to-yellow-500 rounded text-[6px] text-white flex items-center justify-center font-bold">MC</div>
@@ -106,7 +107,7 @@ function CreditCardForm({
                     id="cardName"
                     type="text"
                     autoComplete="cc-name"
-                    placeholder={t('checkout.payment.cardNamePlaceholder') || 'COMO NO CARTÃƒO'}
+                    placeholder={t('checkout.payment.cardNamePlaceholder') || 'COMO NO CARTÃO'}
                     value={formData.cardName}
                     onChange={handleInputChange('cardName')}
                     maxLength={100}
@@ -191,8 +192,8 @@ function PixPanel({ t }: { t: TFn }) {
     return (
         <div className="bg-green-50 p-6 rounded-2xl border border-green-100 text-center animate-slide-up">
             <QrCode className="w-32 h-32 mx-auto text-green-600 mb-4 opacity-80" />
-            <p className="text-sm text-green-800 font-medium mb-2">{t('checkout.payment.pixMessage') || 'O cÃ³digo PIX serÃ¡ gerado na prÃ³xima etapa.'}</p>
-            <p className="text-xs text-green-600">{t('checkout.payment.pixSecure') || 'AprovaÃ§Ã£o imediata e mais seguranÃ§a.'}</p>
+            <p className="text-sm text-green-800 font-medium mb-2">{t('checkout.payment.pixMessage') || 'O código PIX será gerado na próxima etapa.'}</p>
+            <p className="text-xs text-green-600">{t('checkout.payment.pixSecure') || 'Aprovação imediata e mais segurança.'}</p>
         </div>
     );
 }
@@ -275,7 +276,7 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
 
         // Check for XSS
         if (detectXSS(value)) {
-            setErrors(prev => ({ ...prev, [field]: t('errors.invalidCharacters') || 'Caracteres invÃ¡lidos' }));
+            setErrors(prev => ({ ...prev, [field]: t('errors.invalidCharacters') || 'Caracteres inválidos' }));
             return;
         }
 
@@ -291,9 +292,8 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
         // Check rate limiting
         const { allowed, resetIn } = checkoutLimiter.check();
         if (!allowed) {
-            const minutes = Math.ceil(resetIn / 60000);
             setRateLimitError(true);
-            setErrors({ _form: t('errors.rateLimit') || `Muitas tentativas. Aguarde ${minutes} minuto(s).` });
+            setErrors({ _form: buildRateLimitMessage(t('errors.rateLimit'), resetIn) });
             return;
         }
 
@@ -333,17 +333,8 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
                 // Call Payment Service
                 // Cast the response to PaymentSession
                 const session = await paymentService.createPaymentSession({
-                    customer: {
-                        firstName: (formData.cardName || user?.fullName || 'Cliente').split(' ')[0],
-                        lastName: (formData.cardName || user?.fullName || '').split(' ').slice(1).join(' '),
-                        email: user?.primaryEmailAddress?.emailAddress || 'checkout@lyvest.com.br',
-                    },
-                    items: cartItems.map(item => ({
-                        id: item.id,
-                        quantity: item.qty,
-                        // Obrigatório para produto com grade (migração 0006).
-                        variantId: item.variantId,
-                    })),
+                    customer: buildPaymentCustomer(formData.cardName, user),
+                    items: buildSessionItems(cartItems),
                     // Envia apenas o CÓDIGO do cupom; o servidor revalida e recomputa o total.
                     // O `total` do cliente é meramente informativo (o backend o ignora).
                     couponCode: couponCode || undefined,
@@ -354,16 +345,15 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
                     orderId: `LV-${Date.now()}`
                 }) as unknown as PaymentSession;
 
-                if (session && session.checkoutUrl) {
-                    window.location.href = session.checkoutUrl;
-                } else if (session && session.status === 'success') {
-                    // Direct success (e.g. mock without redirect)
+                const outcome = resolveSessionOutcome(session);
+                if (outcome.kind === 'redirect') {
+                    window.location.href = outcome.url;
+                } else {
+                    // Sucesso direto (ex.: mock sem redirecionamento).
                     onSubmit({
                         method: 'credit',
                         lastFour: formData.cardNumber.slice(-4)
                     });
-                } else {
-                    throw new Error('URL de pagamento detalhada nÃ£o gerada');
                 }
             }
         } catch (err) {
@@ -403,7 +393,7 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
                     className={`flex-1 py-3 px-4 rounded-xl border-2 flex items-center justify-center gap-2 font-bold transition-all text-sm sm:text-base ${method === 'credit' ? 'border-lyvest-500 bg-lyvest-50 text-lyvest-600' : 'border-slate-100 bg-white text-slate-400 hover:border-lyvest-100'} `}
                 >
                     <CreditCard className="w-5 h-5" />
-                    <span>{t('checkout.payment.creditCard') || 'CartÃ£o de CrÃ©dito'}</span>
+                    <span>{t('checkout.payment.creditCard') || 'Cartão de Crédito'}</span>
                 </button>
                 <button
                     type="button"
@@ -449,7 +439,7 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
             />
 
             <p className="text-center text-xs text-slate-400 flex items-center justify-center gap-1">
-                <Lock className="w-3 h-3" /> {t('checkout.payment.secure') || 'Ambiente 100% Seguro â€¢ Seus dados sÃ£o criptografados'}
+                <Lock className="w-3 h-3" /> {t('checkout.payment.secure') || 'Ambiente 100% Seguro • Seus dados são criptografados'}
             </p>
         </div>
     );

@@ -6,9 +6,10 @@ import { z } from 'zod';
 import { orders, products } from '@/db/schema';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError, logInfo } from '@/lib/server/logger';
+import { buildCreateOrderParams, buildSessionMetadata, normalizeCreateOrderResult, usesInvertedOrderFlow } from '@/server/checkout';
 import { db } from '@/server/dbClient';
 import { createOrderDb } from '@/server/orderDb';
-import { couponRuleFor, messageForRpcError } from '@/server/orders';
+import { couponRuleFor, describeRpcFailure } from '@/server/orders';
 import { buildVerifiedItems, computeSubtotal, computeTotal, resolveDiscount } from '@/server/pricing';
 import { getPaymentProvider } from '@/server/providers/payment';
 
@@ -109,30 +110,27 @@ export async function POST(request: NextRequest) {
         // ANTES da sessão. No mock, o fluxo legado (wizard -> /api/orders) permanece,
         // evitando pedido duplicado. A função SQL é a autoridade final de
         // preço/estoque/cupom; usamos o total dela.
-        const providerName = (process.env.PAYMENT_PROVIDER || 'mock').toLowerCase();
         let orderId: string | null = null;
 
-        if (providerName === 'asaas') {
-            const coupon = couponRuleFor(couponCode);
+        if (usesInvertedOrderFlow(process.env.PAYMENT_PROVIDER)) {
             try {
-                const rpc = await createOrderDb({
-                    userId: userId ?? null,
-                    items: frontendItems.map((i) => ({ id: String(i.id), quantity: i.quantity, variantId: i.variantId ?? null })),
-                    couponCode: coupon.code,
-                    discount: coupon.discount,
-                    singleUse: coupon.singleUse,
-                    minCartTotal: coupon.minCartTotal,
-                    paymentMethod: paymentMethod ?? 'unknown',
-                    shipping: shipping ?? null,
-                    guestEmail: userId ? null : (customer?.email || 'guest@lyvest.com.br'),
-                });
-                orderId = rpc?.orderId ? String(rpc.orderId) : null;
-                if (typeof rpc?.total === 'number') total = rpc.total;
+                const rpc = await createOrderDb(
+                    buildCreateOrderParams({
+                        userId,
+                        items: frontendItems,
+                        coupon: couponRuleFor(couponCode),
+                        paymentMethod,
+                        shipping,
+                        customerEmail: customer?.email,
+                    })
+                );
+                const normalizado = normalizeCreateOrderResult(rpc, total);
+                orderId = normalizado.orderId;
+                total = normalizado.total;
             } catch (rpcError) {
-                const msg = rpcError instanceof Error ? rpcError.message : String(rpcError);
-                const mapped = messageForRpcError(msg);
-                if (mapped.status >= 500) logError('create-session: create_order falhou', rpcError);
-                return NextResponse.json({ message: mapped.message }, { status: mapped.status });
+                const falha = describeRpcFailure(rpcError);
+                if (falha.shouldLog) logError('create-session: create_order falhou', rpcError);
+                return NextResponse.json({ message: falha.message }, { status: falha.status });
             }
         }
 
@@ -142,15 +140,14 @@ export async function POST(request: NextRequest) {
             currency,
             discountAmount,
             amount: total, // valor autoritativo calculado no servidor
-            metadata: {
-                source: 'lyvest',
-                verified: 'true',
-                userId: userId || 'guest',
-                coupon: appliedCoupon || '',
-                orderId: orderId || '',
-                // Origem real do request (preview da Vercel muda de host por branch/deploy).
-                appUrl: request.headers.get('origin') ?? new URL(request.url).origin,
-            },
+            // Metadata volta no webhook; a montagem vive em src/server/checkout.ts.
+            metadata: buildSessionMetadata({
+                userId,
+                appliedCoupon,
+                orderId,
+                originHeader: request.headers.get('origin'),
+                requestUrl: request.url,
+            }),
         });
 
         // Correlação webhook: grava o id do link/cobrança no pedido (payment_ref).

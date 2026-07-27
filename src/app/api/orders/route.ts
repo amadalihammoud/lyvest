@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError } from '@/lib/server/logger';
 import { createOrderDb } from '@/server/orderDb';
-import { couponRuleFor, messageForRpcError } from '@/server/orders';
+import { couponRuleFor, describeRpcFailure } from '@/server/orders';
 
 /**
  * POST /api/orders
@@ -74,10 +74,9 @@ export async function POST(request: NextRequest) {
             });
             return NextResponse.json({ success: true, data });
         } catch (dbError) {
-            const msg = dbError instanceof Error ? dbError.message : String(dbError);
-            const mapped = messageForRpcError(msg);
-            if (mapped.status >= 500) logError('orders: create_order falhou', dbError);
-            return NextResponse.json({ message: mapped.message }, { status: mapped.status });
+            const falha = describeRpcFailure(dbError);
+            if (falha.shouldLog) logError('orders: create_order falhou', dbError);
+            return NextResponse.json({ message: falha.message }, { status: falha.status });
         }
     } catch (error) {
         logError('orders: erro inesperado', error);

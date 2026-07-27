@@ -104,7 +104,7 @@ export default function CheckoutAddress({ onSubmit, initialData }: CheckoutAddre
 
         // Detect XSS
         if (detectXSS(value)) {
-            setErrors(prev => ({ ...prev, [field]: t('errors.invalidCharacters') || 'Caracteres invÃ¡lidos' }));
+            setErrors(prev => ({ ...prev, [field]: t('errors.invalidCharacters') || 'Caracteres inválidos' }));
             return;
         }
 

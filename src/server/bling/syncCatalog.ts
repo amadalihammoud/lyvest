@@ -18,6 +18,7 @@ import { logInfo } from '../../lib/server/logger';
 import { db } from '../dbClient';
 import { blingGet } from './client';
 import { decideProductWrite } from './productSlug';
+import { buildProductValues, mapBlingProductFields, pickStockWriteValues, resolveLocalCategoryId, toSlugMatch } from './productValues';
 import {
     collectVariationIds,
     temVariacoes,
@@ -278,9 +279,6 @@ async function syncProducts(
     }
 
     for (const bp of blingProds) {
-        const nome = (bp.nome ?? '').trim();
-        if (!nome) continue;
-
         // O CORAÇÃO DA CORREÇÃO: filhos de grade não viram produto próprio.
         // A listagem do Bling devolve pai e filhos lado a lado, sem vínculo —
         // era isso que enchia a vitrine de clones ("Sutiã ... Tamanho:P" como
@@ -288,28 +286,24 @@ async function syncProducts(
         // abaixo, junto do pai.
         if (idsDeVariacao.has(bp.id)) continue;
 
-        const slug = slugify(nome);
-        const image = bp.imagemURL || bp.urlImagem || null;
-        const stock = Math.max(0, Math.trunc(bp.estoque?.saldoVirtualTotal ?? 0));
-        const price = String(bp.preco ?? 0);
-        const promo = bp.precoPromocional != null && bp.precoPromocional > 0 ? String(bp.precoPromocional) : null;
-        const categoryId = bp.categoria?.id ? catIdMap.get(bp.categoria.id) ?? null : null;
+        // Normalização e montagem do payload vivem em ./productValues (puras e
+        // testadas). null = produto sem nome utilizável, nada a gravar.
+        const fields = mapBlingProductFields(bp);
+        if (!fields) continue;
 
-        const values = {
-            name: nome,
-            description: bp.descricaoCurta ?? undefined,
-            price,
-            promotionalPrice: promo,
-            active: bp.situacao !== 'I',
-            ...(image ? { imageUrl: image } : {}),
-            ...(categoryId ? { categoryId } : {}),
-        };
+        const slug = slugify(fields.nome);
+        const values = buildProductValues(fields, resolveLocalCategoryId(catIdMap, bp.categoria));
 
-        // O saldo do Bling só sobrescreve o saldo local quando o ERP é a fonte
-        // da verdade — hoje ele não é, porque as vendas do site não chegam lá.
-        // Ver src/lib/server/erpFlags.ts. Em produtos NOVOS o saldo do Bling é
-        // sempre usado: não há venda local para preservar.
-        const updateValues = stockIsAuthoritative ? { ...values, stock } : values;
+        const grade = variacoesPorPai.get(bp.id);
+
+        // Os dois eixos de estoque (flag do ERP no update, grade no insert) são
+        // independentes e moram juntos em pickStockWriteValues, sob teste.
+        const { updateValues, insertValues } = pickStockWriteValues({
+            values,
+            stock: fields.stock,
+            stockIsAuthoritative,
+            hasGrade: grade !== undefined,
+        });
 
         const byBling = await db.select().from(products).where(eq(products.blingId, bp.id)).limit(1);
         const bySlug = byBling[0]
@@ -323,18 +317,10 @@ async function syncProducts(
         const decisao = decideProductWrite({
             baseSlug: slug,
             matchedByBlingId: byBling[0]?.id ?? null,
-            matchedBySlug: bySlug[0]
-                ? { id: bySlug[0].id, blingId: bySlug[0].blingId ?? null }
-                : null,
+            matchedBySlug: toSlugMatch(bySlug[0]),
             codigo: bp.codigo,
             blingId: bp.id,
         });
-
-        const grade = variacoesPorPai.get(bp.id);
-
-        // Produto com grade não tem estoque próprio: o saldo vive nas variantes
-        // e o trigger do banco recalcula products.stock a partir delas.
-        const insertValues = grade ? values : { ...values, stock };
 
         let localId: string;
 

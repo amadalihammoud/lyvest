@@ -27,6 +27,30 @@ export function couponRuleFor(couponCode?: string): {
 }
 
 /** Mapeia exceções conhecidas da RPC create_order para mensagens seguras. */
+/**
+ * Erro cru de `create_order` → resposta HTTP + se vale logar.
+ *
+ * As duas rotas que chamam create_order (/api/orders e
+ * /api/payment/create-session) repetiam este trio linha a linha. Duplicar a
+ * decisão de "o que o cliente vê" e "o que vai para o log" é como as duas
+ * acabam divergindo — uma passa a esconder um erro que a outra reporta.
+ *
+ * `shouldLog` só para 5xx: erro de estoque ou cupom já usado é fluxo normal do
+ * negócio, e logá-lo como falha afogaria os erros de verdade em ruído.
+ *
+ * A mensagem do log continua em cada rota, porque o prefixo identifica de onde
+ * veio.
+ */
+export function describeRpcFailure(error: unknown): {
+    status: number;
+    message: string;
+    shouldLog: boolean;
+} {
+    const raw = error instanceof Error ? error.message : String(error);
+    const mapped = messageForRpcError(raw);
+    return { ...mapped, shouldLog: mapped.status >= 500 };
+}
+
 export function messageForRpcError(raw: string): { status: number; message: string } {
     if (raw.includes('INSUFFICIENT_STOCK')) {
         return { status: 409, message: 'Um dos itens ficou sem estoque. Revise seu carrinho.' };
