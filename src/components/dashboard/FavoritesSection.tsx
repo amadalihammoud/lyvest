@@ -2,18 +2,32 @@ import { Heart, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
 import EmptyState from './EmptyState';
-import { productsData } from '../../data/products';
 import { useI18n } from '../../hooks/useI18n';
 import { useCart } from '../../store/useCartStore';
+import { useCatalog } from '../../store/useCatalogStore';
 import { useFavorites } from '../../store/useFavoritesStore';
 import { generateSlug } from '../../utils/slug';
+
+/** Nome da categoria, independente do formato (string | objeto | array). */
+function categoryName(p: { category?: { name: string } | { name: string }[] | string }): string {
+    if (!p.category) return '';
+    if (typeof p.category === 'string') return p.category;
+    if (Array.isArray(p.category)) return p.category[0]?.name ?? '';
+    return p.category.name;
+}
 
 export default function FavoritesSection() {
     const { t, formatCurrency } = useI18n();
     const { favorites, removeFavorite } = useFavorites();
     const { addToCart } = useCart();
+    const { products } = useCatalog();
 
-    const favoriteProducts = productsData.filter(p => favorites.includes(p.id));
+    // Catálogo REAL (useCatalogStore -> /api/products), não mais o mock
+    // src/data/products.ts. Com o mock, o cliente via na lista de desejos
+    // produtos que não existem — e os ids nem batiam: favoritos guardam uuid do
+    // banco, enquanto o mock usa id numérico, então a lista aparecia vazia para
+    // quem favoritou de verdade.
+    const favoriteProducts = products.filter((p) => favorites.includes(p.id));
 
     if (favoriteProducts.length === 0) {
         return (
@@ -32,7 +46,7 @@ export default function FavoritesSection() {
             {favoriteProducts.map(product => (
                 <div key={product.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
                     <div className="relative aspect-square bg-slate-50 overflow-hidden">
-                        <Link href={`/produto/${generateSlug(product.name)}`}>
+                        <Link href={`/produto/${product.slug ?? generateSlug(product.name)}`}>
                             <img
                                 src={product.image}
                                 alt={product.name}
@@ -49,13 +63,16 @@ export default function FavoritesSection() {
                     </div>
 
                     <div className="p-4">
-                        <Link href={`/produto/${generateSlug(product.name)}`}>
+                        <Link href={`/produto/${product.slug ?? generateSlug(product.name)}`}>
                             <h3 className="font-bold text-slate-800 text-sm mb-1 line-clamp-2 hover:text-lyvest-500 transition-colors">{product.name}</h3>
                         </Link>
                         <p className="font-bold text-lyvest-500 text-lg mb-4">{formatCurrency(product.price)}</p>
 
                         <button
-                            onClick={() => addToCart({ ...product, qty: 1 })}
+                            // `category` no carrinho é string; no catálogo real vem como
+                            // objeto {name, slug}. Mesmo tratamento já usado na home e na
+                            // página de categoria.
+                            onClick={() => addToCart({ ...product, category: categoryName(product), qty: 1 })}
                             className="w-full py-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl hover:bg-lyvest-500 hover:text-white transition-all flex items-center justify-center gap-2 group/btn"
                         >
                             <ShoppingBag className="w-4 h-4 text-slate-400 group-hover/btn:text-white" />

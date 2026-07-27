@@ -1,7 +1,6 @@
 import { PackageSearch, X, CheckCircle } from 'lucide-react';
 import React from 'react';
 
-import { mockOrders } from '../../data/mockOrders';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useI18n } from '../../hooks/useI18n';
 
@@ -32,6 +31,7 @@ export default function DrawerTracking({ isOpen, onClose, trackingCode, setTrack
     const { t, isRTL } = useI18n();
 
     const containerRef = React.useRef(null);
+    const [naoEncontrado, setNaoEncontrado] = React.useState(false);
     useFocusTrap(isOpen);
 
     if (!isOpen) return null;
@@ -39,31 +39,21 @@ export default function DrawerTracking({ isOpen, onClose, trackingCode, setTrack
     const handleTrackingSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!trackingCode) return;
-        // Simulação de rastreio
-        // Simulação de rastreio inteligente
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const foundOrder = (window as any).mockOrders?.find((o: any) => o.trackingCode === trackingCode) ||
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (mockOrders && mockOrders.find((o: any) => o.trackingCode === trackingCode));
 
-        if (foundOrder) {
-            setTrackingResult({
-                status: foundOrder.status,
-                history: foundOrder.history || [],
-                date: foundOrder.date
-            });
-        } else {
-            // Fallback genérico se não encontrar
-            setTrackingResult({
-                status: t('tracking.status.inTransit'),
-                location: "São Paulo, SP",
-                date: "12/05/2026",
-                history: [
-                    { status: "transit", date: "12/05/2026 14:00", label: "Objeto em trânsito - Por favor aguarde", location: "São Paulo / SP" },
-                    { status: "posted", date: "10/05/2026 09:30", label: "Objeto postado", location: "Curitiba / PR" }
-                ]
-            });
-        }
+        // NÃO EXISTE RASTREIO REAL nesta loja: a tabela `orders` não tem coluna
+        // de código de rastreio e não há integração com transportadora.
+        //
+        // O que havia aqui antes era pior que um mock. Buscava em mockOrders e,
+        // quando não achava — ou seja, SEMPRE, para qualquer código digitado por
+        // um cliente real — devolvia um resultado INVENTADO: "em trânsito",
+        // "São Paulo, SP", data fixa 12/05/2026, e um histórico completo com
+        // "Objeto postado — Curitiba/PR".
+        //
+        // Isso é informação falsa de entrega dada ao cliente: ele acreditaria
+        // que a encomenda está a caminho. Enquanto não houver rastreio de
+        // verdade, o certo é dizer que não temos.
+        setTrackingResult(null);
+        setNaoEncontrado(true);
     };
 
     return (
@@ -99,6 +89,7 @@ export default function DrawerTracking({ isOpen, onClose, trackingCode, setTrack
                                         onChange={(e) => {
                                             const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 20);
                                             setTrackingCode(val);
+                                            setNaoEncontrado(false);
                                         }}
                                         className={`w-full ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-3 rounded-xl border border-lyvest-100 focus:outline-none focus:ring-2 focus:ring-[#E8C4C8] transition-all uppercase`}
                                         placeholder="Ex: TN123456BR"
@@ -109,6 +100,24 @@ export default function DrawerTracking({ isOpen, onClose, trackingCode, setTrack
                                 <button type="submit" className="w-full py-3 bg-gradient-to-r from-lyvest-500 to-lyvest-500 text-white font-bold rounded-xl hover:shadow-lg transition-all">
                                     {t('tracking.button')}
                                 </button>
+
+                                {/* Resposta honesta enquanto não há rastreio real (ver
+                                    comentário em handleTrackingSubmit). Melhor dizer que
+                                    não temos do que inventar que a encomenda saiu. */}
+                                {naoEncontrado && (
+                                    <div
+                                        role="status"
+                                        className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+                                    >
+                                        Não encontramos esse código. O rastreio automático ainda não
+                                        está disponível na loja — se você já tem um pedido, acompanhe
+                                        o status em{' '}
+                                        <a href="/dashboard" className="font-bold underline">
+                                            Meus Pedidos
+                                        </a>
+                                        , ou fale com a gente pelo WhatsApp.
+                                    </div>
+                                )}
                             </form>
                         ) : (
                             <div className="bg-white p-6 rounded-2xl border border-slate-100 animate-fade-in shadow-sm">
