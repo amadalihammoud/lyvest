@@ -64,6 +64,7 @@ export interface GetProductsOptions {
 export interface ProductRow {
     id: string;
     name: string;
+    slug: string;
     description: string | null;
     price: string;
     promotionalPrice: string | null;
@@ -111,6 +112,7 @@ export function rowToProduct(row: ProductRow, rating?: RowRating): Product {
     return {
         id: row.id,
         name: row.name,
+        slug: row.slug,
         description: row.description ?? '',
         price,
         oldPrice,
@@ -229,6 +231,7 @@ export const getProductBySlug = cache(async (slug: string): Promise<Product | nu
             .select({
                 id: products.id,
                 name: products.name,
+                slug: products.slug,
                 description: products.description,
                 price: products.price,
                 promotionalPrice: products.promotionalPrice,
@@ -301,6 +304,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
             .select({
                 id: products.id,
                 name: products.name,
+                slug: products.slug,
                 description: products.description,
                 price: products.price,
                 promotionalPrice: products.promotionalPrice,

@@ -35,7 +35,7 @@ export default function RelatedProducts({ productId, onAddToCart, t }: RelatedPr
                                 onToggleFavorite={() => { }}
                                 onAddToCart={(qty: number) => onAddToCart({ ...relatedProduct, quantity: qty } as Product)}
                                 onQuickView={() => {
-                                    const slug = generateSlug(relatedProduct.name);
+                                    const slug = relatedProduct.slug ?? generateSlug(relatedProduct.name);
                                     router.push(`/produto/${slug}`);
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }}

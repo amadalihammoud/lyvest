@@ -21,7 +21,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart, onQui
     const { formatCurrency, getProductData, t } = useI18n();
     const [quantity, setQuantity] = useState(1);
 
-    const productSlug = generateSlug(product.name);
+    const productSlug = product.slug ?? generateSlug(product.name);
 
     // Use translated data if available, fallback to original
     const productName = (getProductData(product.id, 'name') as string) || product.name;

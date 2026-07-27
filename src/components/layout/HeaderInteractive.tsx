@@ -190,7 +190,7 @@ export default function HeaderInteractive() {
                                     .map((product) => (
                                         <Link
                                             key={product.id}
-                                            href={`/produto/${generateSlug(product.name)}`}
+                                            href={`/produto/${(product.slug ?? generateSlug(product.name))}`}
                                             onClick={() => setSearchQuery('')}
                                             className="flex items-center gap-4 p-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
                                         >

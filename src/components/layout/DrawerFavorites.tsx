@@ -55,11 +55,11 @@ function DrawerFavorites({ isOpen, onClose, favoriteProducts, onAddToCart, onTog
                     ) : (
                         favoriteProducts.map(item => (
                             <div key={item.id} className="flex gap-4 items-center animate-fade-in p-2 hover:bg-slate-50 rounded-xl transition-colors mb-2">
-                                <Link href={`/produto/${generateSlug(item.name)}`} onClick={onClose} className="shrink-0">
+                                <Link href={`/produto/${(item.slug ?? generateSlug(item.name))}`} onClick={onClose} className="shrink-0">
                                     <img src={item.image} alt={(getProductData(item.id, 'name') as string) || item.name} className="w-20 h-20 rounded-xl object-cover bg-slate-50 border border-slate-100" />
                                 </Link>
                                 <div className="flex-1">
-                                    <Link href={`/produto/${generateSlug(item.name)}`} onClick={onClose}>
+                                    <Link href={`/produto/${(item.slug ?? generateSlug(item.name))}`} onClick={onClose}>
                                         <h4 className="font-bold text-slate-800 text-sm line-clamp-2 hover:text-lyvest-500 transition-colors">
                                             {(getProductData(item.id, 'name') as string) || item.name}
                                         </h4>

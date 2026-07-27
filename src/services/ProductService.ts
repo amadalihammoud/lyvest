@@ -7,6 +7,19 @@
 export interface Product {
     id: number | string;
     name: string;
+    /**
+     * Slug canônico, vindo de products.slug — a MESMA coluna que a PDP consulta.
+     *
+     * Existe porque a UI montava a URL com generateSlug(product.name), enquanto
+     * o banco guarda um slug gravado pelo slugify do sync. As duas funções
+     * coincidem por acaso hoje, mas o sync NÃO regrava o slug no update: basta
+     * o lojista renomear um produto no Bling para a UI passar a gerar um slug
+     * novo enquanto o banco mantém o antigo — e todo link vira 404, inclusive os
+     * já indexados pelo Google.
+     *
+     * Opcional apenas para o mock legado (src/data/products.ts), que não tem slug.
+     */
+    slug?: string;
     description: string;
     price: number;
     image: string;

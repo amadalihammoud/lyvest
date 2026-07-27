@@ -62,7 +62,7 @@ function ProductQuickView({ product, onClose, onAddToCart }: ProductQuickViewPro
 
     const handleViewDetails = () => {
         if (!product) return;
-        const slug = generateSlug(product.name);
+        const slug = product.slug ?? generateSlug(product.name);
         if (onClose) onClose();
         router.push(`/produto/${slug}`);
     };

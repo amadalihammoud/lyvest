@@ -11,6 +11,7 @@ import {
 const row = (over: Partial<ProductRow> = {}): ProductRow => ({
     id: 'uuid-1',
     name: 'Sutiã Renda Comfort',
+    slug: 'sutia-renda-comfort',
     description: 'Sem bojo',
     price: '149.90',
     promotionalPrice: null,
@@ -74,6 +75,14 @@ describe('rowToProduct', () => {
         expect(p.stock_quantity).toBe(0);
         expect(p.colors).toEqual([]);
         expect(p.specs).toEqual({});
+    });
+
+// O slug vem da COLUNA, nunca derivado do nome. A PDP consulta
+    // products.slug; se a UI derivasse do nome, um rename no Bling quebraria
+    // todo link — inclusive os ja indexados pelo Google.
+    it('propaga o slug do banco, sem deriva-lo do nome', () => {
+        const p = rowToProduct(row({ name: 'Nome Novo Depois do Rename', slug: 'slug-antigo-indexado' }));
+        expect(p.slug).toBe('slug-antigo-indexado');
     });
 
     it('omite categoria quando o produto não tem uma (LEFT JOIN sem par)', () => {
