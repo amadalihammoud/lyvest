@@ -34,6 +34,8 @@ const paymentSchema = z.object({
             z.object({
                 id: z.union([z.string(), z.number()]),
                 quantity: z.number().int().positive().max(99),
+                // Obrigatorio quando o produto tem grade; create_order rejeita sem ele.
+                variantId: z.string().uuid().optional(),
             })
         )
         .min(1, { message: 'Cart cannot be empty' })
@@ -115,7 +117,7 @@ export async function POST(request: NextRequest) {
             try {
                 const rpc = await createOrderDb({
                     userId: userId ?? null,
-                    items: frontendItems.map((i) => ({ id: String(i.id), quantity: i.quantity })),
+                    items: frontendItems.map((i) => ({ id: String(i.id), quantity: i.quantity, variantId: i.variantId ?? null })),
                     couponCode: coupon.code,
                     discount: coupon.discount,
                     singleUse: coupon.singleUse,

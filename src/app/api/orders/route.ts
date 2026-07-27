@@ -26,6 +26,10 @@ const bodySchema = z.object({
             z.object({
                 id: z.string().uuid(),
                 quantity: z.number().int().positive().max(99),
+                // Obrigatório quando o produto tem grade (migração 0006).
+                // Sem este campo o Zod descartaria a chave e create_order
+                // rejeitaria com VARIANT_REQUIRED.
+                variantId: z.string().uuid().optional(),
             })
         )
         .min(1, { message: 'Cart cannot be empty' })

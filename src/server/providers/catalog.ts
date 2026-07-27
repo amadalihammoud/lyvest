@@ -9,9 +9,9 @@ import { and, avg, count, eq, ilike, inArray, or } from 'drizzle-orm';
 import { cache } from 'react';
 
 import { productsData } from '../../data/products';
-import { categories, products, reviews } from '../../db/schema';
+import { categories, productVariants, products, reviews } from '../../db/schema';
 import { logError } from '../../lib/server/logger';
-import { Product } from '../../services/ProductService';
+import { Product, ProductVariant } from '../../services/ProductService';
 import { generateSlug } from '../../utils/slug';
 import { db, isDbConfigured } from '../dbClient';
 import { resolveDisplayPrice } from '../pricing';
@@ -91,6 +91,57 @@ export function resolveMainImage(imageUrl: string | null, images: string[] | nul
     return imageUrl || images?.[0] || '';
 }
 
+/** Linha de `product_variants` como lida por getProductBySlug. */
+export interface VariantRow {
+    id: string;
+    size: string | null;
+    stock: number | null;
+    price: string | null;
+    promotionalPrice: string | null;
+}
+
+/**
+ * Converte as linhas de `product_variants` no formato que a PDP consome.
+ *
+ * `price` null na variante significa HERDA do produto — é o padrão do sync, que
+ * só grava preço próprio quando o Bling informa um diferente do pai. Resolver
+ * essa herança aqui evita que a UI mostre R$ 0,00 para a grade inteira.
+ *
+ * Variante sem `size` é descartada: sem rótulo não há o que oferecer no seletor,
+ * e deixá-la passar produziria um botão em branco impossível de escolher.
+ */
+export function rowsToVariants(rows: VariantRow[], fallbackPrice: number): ProductVariant[] {
+    return rows
+        .filter((v) => v.size !== null && v.size.trim() !== '')
+        .map((v) => ({
+            id: v.id,
+            size: v.size,
+            stock: Math.max(0, v.stock ?? 0),
+            price: v.price === null
+                ? fallbackPrice
+                : resolveDisplayPrice(v.price, v.promotionalPrice).price,
+        }));
+}
+
+/**
+ * Concilia as duas origens de tamanho.
+ *
+ * Com grade, quem manda são as variantes: `products.sizes` é texto livre do ERP
+ * e pode listar tamanho que não existe como variante comprável — oferecê-lo
+ * levaria o cliente a escolher algo que `create_order` recusa.
+ */
+function resolveGrade(
+    row: ProductRow,
+    variants?: ProductVariant[]
+): Pick<Product, 'sizes' | 'variants'> {
+    if (!variants?.length) return { sizes: row.sizes ?? undefined, variants: undefined };
+
+    return {
+        sizes: variants.map((v) => v.size).filter((s): s is string => s !== null),
+        variants,
+    };
+}
+
 /**
  * Linha do banco → `Product`. Fonte ÚNICA dessa conversão.
  *
@@ -106,8 +157,9 @@ export function resolveMainImage(imageUrl: string | null, images: string[] | nul
  * A média do rating fica PRECISA: nenhum componente renderiza rating hoje, e o
  * único consumidor é o JSON-LD da PDP, onde 4.3 vale mais que 4.0.
  */
-export function rowToProduct(row: ProductRow, rating?: RowRating): Product {
+export function rowToProduct(row: ProductRow, rating?: RowRating, variants?: ProductVariant[]): Product {
     const { price, oldPrice } = resolveDisplayPrice(row.price, row.promotionalPrice);
+    const grade = resolveGrade(row, variants);
 
     return {
         id: row.id,
@@ -124,7 +176,8 @@ export function rowToProduct(row: ProductRow, rating?: RowRating): Product {
         ean: row.ean ?? undefined,
         active: row.active ?? true,
         stock_quantity: row.stock ?? 0,
-        sizes: row.sizes ?? undefined,
+        sizes: grade.sizes,
+        variants: grade.variants,
         colors: (row.colors as unknown[]) ?? [],
         badge: row.badge ?? null,
         rating: rating?.avg,
@@ -265,7 +318,22 @@ export const getProductBySlug = cache(async (slug: string): Promise<Product | nu
         const rating =
             Number.isFinite(media) && total > 0 ? { avg: media, count: total } : undefined;
 
-        return rowToProduct(row, rating);
+        // Só as ATIVAS: uma variante desativada no ERP não pode aparecer no
+        // seletor, senão o cliente escolhe um tamanho que create_order recusa.
+        const variantRows = await db
+            .select({
+                id: productVariants.id,
+                size: productVariants.size,
+                stock: productVariants.stock,
+                price: productVariants.price,
+                promotionalPrice: productVariants.promotionalPrice,
+            })
+            .from(productVariants)
+            .where(and(eq(productVariants.productId, row.id), eq(productVariants.active, true)))
+            .orderBy(productVariants.createdAt);
+
+        const base = resolveDisplayPrice(row.price, row.promotionalPrice).price;
+        return rowToProduct(row, rating, rowsToVariants(variantRows, base));
     } catch (e) {
         // Propaga: falha de banco deve virar erro 500, nunca "produto não
         // encontrado". Um 404 aqui ensinaria ao Google que o produto não existe.

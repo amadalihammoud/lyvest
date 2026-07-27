@@ -1,10 +1,11 @@
 
 import { Minus, Plus, Lock } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import SizeGuideModal from './SizeGuideModal';
 // Use Product from services/ProductService instead of local definition
 import { Product } from '../../services/ProductService';
+import { buildSizeOptions, isFullyOutOfStock, requiresSizeSelection, resolveVariantId } from '../../utils/variantOptions';
 
 interface ProductActionsProps {
     product: Product;
@@ -32,42 +33,74 @@ export function ProductActions({
 
     const [isGuideOpen, setIsGuideOpen] = useState(false);
     const [selectedSize, setSelectedSize] = useState<string | null>(null);
+    const [sizeError, setSizeError] = useState(false);
+
+    const sizeOptions = useMemo(() => buildSizeOptions(product), [product]);
+    const esgotado = isFullyOutOfStock(sizeOptions);
 
     const handleQuantityChange = (delta: number) => {
         setQuantity(prev => Math.max(1, prev + delta));
     };
 
+    const handleSelectSize = (size: string) => {
+        setSelectedSize(size);
+        setSizeError(false);
+    };
+
     const handleAddToCartClick = () => {
-        if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-            alert('Por favor, selecione um tamanho antes de comprar.');
+        if (requiresSizeSelection(sizeOptions) && !selectedSize) {
+            // Antes era um alert() — bloqueante, sem acessibilidade e invisível
+            // para quem usa leitor de tela. O erro agora fica ao lado do seletor.
+            setSizeError(true);
             return;
         }
-        onAddToCart({ ...product, quantity, sizes: selectedSize ? [selectedSize] : undefined } as unknown as Product); // Pass selectedSize
+
+        // O variantId é o que create_order exige para produto com grade; sem ele
+        // o pedido é recusado (VARIANT_REQUIRED) já no banco.
+        onAddToCart({
+            ...product,
+            quantity,
+            sizes: selectedSize ? [selectedSize] : undefined,
+            variantId: resolveVariantId(sizeOptions, selectedSize),
+        } as unknown as Product);
     };
 
     return (
         <>
             {/* Seletor de Tamanho */}
-            {product.sizes && product.sizes.length > 0 && (
+            {sizeOptions.length > 0 && (
                 <div className="mt-4 mb-2">
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-bold text-slate-700">Tamanho: {selectedSize || ''}</span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        {product.sizes.map((size) => (
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Escolha o tamanho">
+                        {sizeOptions.map((opt) => (
                             <button
-                                key={size}
-                                onClick={() => setSelectedSize(size)}
+                                key={opt.size}
+                                type="button"
+                                onClick={() => handleSelectSize(opt.size)}
+                                disabled={!opt.available}
+                                aria-pressed={selectedSize === opt.size}
+                                // Esgotado continua visível: sumir com ele faria a
+                                // loja parecer nunca ter tido o tamanho.
+                                title={opt.available ? undefined : 'Esgotado'}
                                 className={`h-10 min-w-[3rem] px-3 border rounded-md font-medium text-sm transition-colors ${
-                                    selectedSize === size
-                                        ? 'border-lyvest-600 bg-lyvest-600 text-white'
-                                        : 'border-slate-300 text-slate-700 hover:border-lyvest-500'
+                                    !opt.available
+                                        ? 'border-slate-200 text-slate-300 line-through cursor-not-allowed'
+                                        : selectedSize === opt.size
+                                            ? 'border-lyvest-600 bg-lyvest-600 text-white'
+                                            : 'border-slate-300 text-slate-700 hover:border-lyvest-500'
                                 }`}
                             >
-                                {size}
+                                {opt.size}
                             </button>
                         ))}
                     </div>
+                    {sizeError && (
+                        <p role="alert" className="mt-2 text-sm font-medium text-red-600">
+                            Selecione um tamanho antes de comprar.
+                        </p>
+                    )}
                 </div>
             )}
 
@@ -87,10 +120,16 @@ export function ProductActions({
                 {/* Buy Button */}
                 <button
                     data-testid="add-to-cart-button"
+                    type="button"
                     onClick={handleAddToCartClick}
-                    className="px-8 bg-lyvest-600 text-white font-bold h-12 rounded-md hover:bg-lyvest-700 transition-colors shadow-md text-base uppercase tracking-wide flex-1"
+                    disabled={esgotado}
+                    className={`px-8 font-bold h-12 rounded-md transition-colors shadow-md text-base uppercase tracking-wide flex-1 ${
+                        esgotado
+                            ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                            : 'bg-lyvest-600 text-white hover:bg-lyvest-700'
+                    }`}
                 >
-                    {t('products.buy')}
+                    {esgotado ? 'Esgotado' : t('products.buy')}
                 </button>
             </div>
 

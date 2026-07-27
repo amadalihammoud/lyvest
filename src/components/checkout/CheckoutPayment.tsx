@@ -341,6 +341,8 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
                     items: cartItems.map(item => ({
                         id: item.id,
                         quantity: item.qty,
+                        // Obrigatório para produto com grade (migração 0006).
+                        variantId: item.variantId,
                     })),
                     // Envia apenas o CÓDIGO do cupom; o servidor revalida e recomputa o total.
                     // O `total` do cliente é meramente informativo (o backend o ignora).

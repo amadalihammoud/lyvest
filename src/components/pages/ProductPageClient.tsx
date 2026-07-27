@@ -31,17 +31,22 @@ export default function ProductPageClient({ initialProduct }: ProductPageClientP
         return p.category?.name || 'Departamento';
     };
 
-    const mapProductToCartItem = (p: Product & { size?: string, sizes?: string[] }): Partial<CartItem> => ({
+    type AddToCartInput = Product & { size?: string; sizes?: string[]; variantId?: string };
+
+    const mapProductToCartItem = (p: AddToCartInput): Partial<CartItem> => ({
         id: p.id,
         name: p.name,
         price: p.price,
         image: Array.isArray(p.image) ? p.image[0] : p.image,
         category: getCategoryName(p),
         qty: p.quantity || 1,
-        size: p.size || (p.sizes && p.sizes.length > 0 ? p.sizes[0] : undefined)
+        size: p.size || (p.sizes && p.sizes.length > 0 ? p.sizes[0] : undefined),
+        // Vem do seletor da PDP (ProductActions). Sem ele, create_order recusa o
+        // item de produto com grade — a baixa de estoque é por variante.
+        variantId: p.variantId
     });
 
-    const handleAddToCart = (item: Product & { size?: string, sizes?: string[] }) => {
+    const handleAddToCart = (item: AddToCartInput) => {
         const cartItem = mapProductToCartItem(item);
         addToCart(cartItem);
         openModal('addedToCart', { ...item, size: cartItem.size } as Product);

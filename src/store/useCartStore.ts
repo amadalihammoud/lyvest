@@ -13,6 +13,13 @@ export interface CartItem {
     image: string;
     category: string;
     size?: string;
+    /**
+     * Variante escolhida (product_variants.id). Precisa sobreviver ao
+     * localStorage e chegar ao checkout: desde a migração 0006, `create_order`
+     * recusa item de produto com grade que venha sem ele, porque a baixa de
+     * estoque acontece na variante, não no produto.
+     */
+    variantId?: string;
 }
 
 const CART_STORAGE_KEY = CART_CONFIG.STORAGE_KEY;
@@ -42,6 +49,18 @@ function sanitizeCartStr(v: unknown, max: number): string {
     return typeof v === 'string' ? v.slice(0, max) : '';
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Só aceita UUID de verdade. O carrinho vem do localStorage, que o usuário pode
+ * editar: um `variantId` inventado seria enviado ao checkout e recusado pelo
+ * banco. Descartar aqui faz o erro virar "selecione um tamanho" em vez de uma
+ * falha opaca de SQL.
+ */
+function sanitizeVariantId(v: unknown): string | undefined {
+    return typeof v === 'string' && UUID_RE.test(v) ? v : undefined;
+}
+
 function validateCartItem(item: unknown): CartItem | null {
     if (!item || typeof item !== 'object') return null;
     const i = item as Record<string, unknown>;
@@ -58,7 +77,10 @@ function validateCartItem(item: unknown): CartItem | null {
         qty: Math.min(Math.floor(i.qty as number), CART_MAX_QUANTITY),
         image: sanitizeCartStr(i.image, 500),
         category: sanitizeCartStr(i.category, 100),
-        size: i.size ? sanitizeCartStr(i.size, 10) : undefined
+        // 40, não 10: com dois atributos o Bling entrega "Tamanho:P;Cor:Azul",
+        // e cortar em 10 transformaria variantes distintas no mesmo rótulo.
+        size: i.size ? sanitizeCartStr(i.size, 40) : undefined,
+        variantId: sanitizeVariantId(i.variantId)
     };
 }
 

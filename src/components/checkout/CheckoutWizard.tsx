@@ -110,7 +110,7 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        items: cartItems.map((i) => ({ id: String(i.id), quantity: i.qty })),
+                        items: cartItems.map((i) => ({ id: String(i.id), quantity: i.qty, variantId: i.variantId })),
                         couponCode: couponCode || undefined,
                         paymentMethod: method,
                         shipping: addressData ? { ...addressData } : undefined,

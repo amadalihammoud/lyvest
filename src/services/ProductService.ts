@@ -4,6 +4,23 @@
 // com o banco direto do browser — foram removidos. Consultas de produto vivem em
 // server components / rotas (Drizzle via src/server/dbClient).
 
+/**
+ * Uma variante comprável de um produto com grade (product_variants).
+ *
+ * `id` é o que precisa chegar ao servidor no checkout: desde a migração 0006,
+ * `create_order` recusa item de produto com variante ativa se `variantId` vier
+ * ausente, porque a baixa de estoque acontece na variante, não no produto. O
+ * `stock` aqui é por tamanho — `products.stock` é só a soma, mantida por trigger.
+ */
+export interface ProductVariant {
+    id: string;
+    /** Valor do atributo: "P", "M". Null em produto sem grade. */
+    size: string | null;
+    stock: number;
+    /** Preço já resolvido (próprio da variante, ou herdado do produto). */
+    price: number;
+}
+
 export interface Product {
     id: number | string;
     name: string;
@@ -32,6 +49,12 @@ export interface Product {
     active?: boolean;
     stock_quantity?: number;
     sizes?: string[];
+    /**
+     * Presente só na PDP (getProductBySlug). Quando existe, é a fonte da verdade
+     * do seletor: `sizes` vira derivado dela, e cada tamanho carrega estoque
+     * próprio e o `variantId` exigido pelo checkout.
+     */
+    variants?: ProductVariant[];
     colors?: unknown[];
     quantity?: number;
     badge?: string | null;

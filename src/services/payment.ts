@@ -13,6 +13,12 @@ export interface OrderItem {
     quantity?: number;
     image?: string;
     category?: string;
+    /**
+     * Declarado explicitamente apesar do index signature abaixo: sem a chave
+     * nomeada, remover o `variantId` de quem chama não daria erro de tipo
+     * nenhum — e o sintoma só apareceria como pedido recusado no banco.
+     */
+    variantId?: string;
     [key: string]: unknown;
 }
 
