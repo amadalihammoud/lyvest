@@ -111,6 +111,7 @@ async function main() {
         'db/neon/0004_catalog_extend.sql',
         'db/neon/0005_category_hierarchy.sql',
         'db/neon/0006_product_variants.sql',
+        'db/neon/0007_cancel_pending_order.sql',
     ];
 
     console.log(

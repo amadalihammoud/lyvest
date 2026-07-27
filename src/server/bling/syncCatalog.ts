@@ -405,8 +405,33 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
     for (const pai of pais) {
         const det = await blingGet<{ data?: { variacoes?: BlingVariacao[] } }>(`/produtos/${pai.id}`);
         const variacoes = det.data?.variacoes ?? [];
+        const drafts = toVariantDrafts(variacoes);
+
+        // ABORTA em vez de escrever meia-verdade.
+        //
+        // Um produto marcado como grade (formato 'V') que volta sem variação
+        // utilizável significa que NÃO SABEMOS a grade dele — não que ela esteja
+        // vazia. Seguir em frente causaria uma cascata a partir de uma única
+        // resposta ruim: os filhos não seriam identificados e voltariam à
+        // vitrine como produtos soltos (o bug de clones que a 0006 existe para
+        // eliminar); o produto seria inserido sem estoque, e o trigger nunca
+        // dispararia para corrigi-lo; e syncVariantsOf, recebendo lista vazia,
+        // DESATIVARIA todas as variantes locais existentes, zerando o estoque de
+        // um produto que tem saldo real no Bling.
+        //
+        // É a mesma regra que reportOrphans já segue: com dado parcial, não se
+        // desativa nada. Melhor um sync que falha visivelmente do que um que
+        // "funciona" e corrompe a vitrine.
+        if (drafts.length === 0) {
+            throw new Error(
+                `bling/sync: produto ${pai.id} ("${pai.nome}") esta marcado como grade mas nao devolveu ` +
+                `variacao utilizavel. Sync abortado para nao desativar variantes nem recriar clones. ` +
+                `Verifique o produto no Bling e rode de novo.`
+            );
+        }
+
         detalhes.push({ variacoes });
-        variacoesPorPai.set(pai.id, toVariantDrafts(variacoes));
+        variacoesPorPai.set(pai.id, drafts);
         await new Promise((r) => setTimeout(r, PAGE_DELAY_MS));
     }
 

@@ -45,6 +45,37 @@ export async function createOrderDb(p: CreateOrderParams): Promise<CreateOrderRe
     return rows[0]?.result as CreateOrderResult;
 }
 
+/**
+ * Desfaz um pedido 'pending' — estoque de volta, cupom liberado, status
+ * 'cancelled' — tudo numa transação só (db/neon/0007).
+ *
+ * Compensação do fluxo invertido: o pedido é criado ANTES da sessão do gateway,
+ * então uma falha do gateway deixaria estoque preso e cupom de uso único
+ * queimado por uma compra que nunca existiu.
+ *
+ * NUNCA lança. Se a compensação em si falhar, o erro é registrado com o orderId
+ * — o pedido órfão fica rastreável — mas a falha original é o que precisa
+ * chegar ao cliente, não esta.
+ */
+export async function cancelPendingOrderDb(
+    // Aceita null para o chamador não precisar de um `if` só para decidir se
+    // vale a pena chamar — sem pedido, não há o que compensar.
+    orderId: string | null,
+    couponCode: string | null
+): Promise<boolean> {
+    if (!orderId) return false;
+
+    try {
+        const rows = await sql`
+            SELECT cancel_pending_order(${orderId}::uuid, ${couponCode}) AS result
+        `;
+        return Boolean((rows[0]?.result as { applied?: boolean } | undefined)?.applied);
+    } catch (e) {
+        logError(`orderDb: falha ao cancelar pedido pendente ${orderId}`, e);
+        return false;
+    }
+}
+
 /** Baixa atômica de estoque. Retorna false se estoque insuficiente. */
 export async function decrementStockDb(productId: string, qty: number): Promise<boolean> {
     const rows = await sql`SELECT decrement_stock(${productId}::uuid, ${qty}) AS ok`;

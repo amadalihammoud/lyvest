@@ -64,6 +64,32 @@ describe('mapBlingProductFields', () => {
         expect(mapBlingProductFields(produtoReal({ preco: undefined }))!.price).toBe('0');
     });
 
+    /**
+     * O Bling manda `descricaoCurta: ''` quando o produto não tem descrição
+     * curta cadastrada. Com `?? undefined` a string vazia passava, e o Drizzle
+     * gravava '' por cima da descrição escrita à mão no admin — a cada sync.
+     * Só `undefined` é omitido do UPDATE, e omitir é o que preserva o local.
+     */
+    describe('descrição', () => {
+        it('string vazia ou só espaços NÃO apaga a descrição local', () => {
+            expect(mapBlingProductFields(produtoReal({ descricaoCurta: '' }))!.descricao).toBeUndefined();
+            expect(mapBlingProductFields(produtoReal({ descricaoCurta: '   ' }))!.descricao).toBeUndefined();
+            expect(mapBlingProductFields(produtoReal({ descricaoCurta: undefined }))!.descricao).toBeUndefined();
+        });
+
+        it('descrição de verdade passa, sem espaços nas pontas', () => {
+            expect(mapBlingProductFields(produtoReal({ descricaoCurta: '  Renda macia  ' }))!.descricao)
+                .toBe('Renda macia');
+        });
+
+        // buildProductValues precisa OMITIR a chave, não mandá-la undefined:
+        // é a ausência que faz o Drizzle deixar a coluna em paz.
+        it('omitida do payload quando não há descrição', () => {
+            const v = buildProductValues(mapBlingProductFields(produtoReal({ descricaoCurta: '' }))!, null);
+            expect(v.description).toBeUndefined();
+        });
+    });
+
     it('situacao "I" marca inativo; qualquer outra coisa é ativo', () => {
         expect(mapBlingProductFields(produtoReal({ situacao: 'I' }))!.active).toBe(false);
         expect(mapBlingProductFields(produtoReal({ situacao: 'A' }))!.active).toBe(true);

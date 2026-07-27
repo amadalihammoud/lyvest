@@ -8,7 +8,7 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError, logInfo } from '@/lib/server/logger';
 import { buildCreateOrderParams, buildSessionMetadata, normalizeCreateOrderResult, usesInvertedOrderFlow } from '@/server/checkout';
 import { db } from '@/server/dbClient';
-import { createOrderDb } from '@/server/orderDb';
+import { cancelPendingOrderDb, createOrderDb } from '@/server/orderDb';
 import { couponRuleFor, describeRpcFailure } from '@/server/orders';
 import { buildVerifiedItems, computeSubtotal, computeTotal, resolveDiscount } from '@/server/pricing';
 import { getPaymentProvider } from '@/server/providers/payment';
@@ -89,9 +89,27 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: 'Failed to verify product information' }, { status: 500 });
         }
 
-        if (!dbProducts || dbProducts.length === 0) {
-            logError('create-session: produtos não encontrados', { productIds });
-            return NextResponse.json({ message: 'Failed to verify product information' }, { status: 500 });
+        // Compara contra os ids DISTINTOS: o mesmo produto aparece mais de uma
+        // vez no carrinho quando o cliente leva dois tamanhos, e comparar com o
+        // total de itens acusaria falta que não existe.
+        //
+        // Antes o guard só disparava com dbProducts.length === 0. Com 3 itens no
+        // carrinho e 2 no banco — produto desativado ou removido entre abrir a
+        // página e finalizar — ele passava, e quem falhava era buildVerifiedItems
+        // lá embaixo, caindo no catch genérico: o cliente recebia "Internal
+        // Server Error" e o log registrava "erro inesperado". Uma situação
+        // comum e recuperável reportada como falha do servidor, sem dizer ao
+        // cliente o que fazer.
+        const idsDistintos = new Set(productIds);
+        if (dbProducts.length < idsDistintos.size) {
+            const achados = new Set(dbProducts.map((p) => p.id));
+            logInfo('create-session: item do carrinho indisponivel', {
+                faltando: [...idsDistintos].filter((id) => !achados.has(id)),
+            });
+            return NextResponse.json(
+                { message: 'Um item do seu carrinho não está mais disponível. Revise o carrinho.' },
+                { status: 409 }
+            );
         }
 
         // Toda a matemática vive em src/server/pricing.ts (pura e testada).
@@ -135,20 +153,41 @@ export async function POST(request: NextRequest) {
         }
 
         const paymentProvider = getPaymentProvider();
-        const session = await paymentProvider.createSession({
-            items: verifiedItems,
-            currency,
-            discountAmount,
-            amount: total, // valor autoritativo calculado no servidor
-            // Metadata volta no webhook; a montagem vive em src/server/checkout.ts.
-            metadata: buildSessionMetadata({
-                userId,
-                appliedCoupon,
-                orderId,
-                originHeader: request.headers.get('origin'),
-                requestUrl: request.url,
-            }),
-        });
+        let session;
+        try {
+            session = await paymentProvider.createSession({
+                items: verifiedItems,
+                currency,
+                discountAmount,
+                amount: total, // valor autoritativo calculado no servidor
+                // Metadata volta no webhook; a montagem vive em src/server/checkout.ts.
+                metadata: buildSessionMetadata({
+                    userId,
+                    appliedCoupon,
+                    orderId,
+                    originHeader: request.headers.get('origin'),
+                    requestUrl: request.url,
+                }),
+            });
+        } catch (gatewayError) {
+            // O pedido JÁ existe neste ponto (fluxo invertido) e a transação do
+            // create_order já commitou: estoque baixado, cupom consumido. Sem
+            // compensar, cada falha do gateway deixaria um pedido órfão
+            // segurando estoque real — e o cliente impedido de repetir a compra,
+            // porque o cupom de uso único já teria sido queimado por uma venda
+            // que nunca aconteceu.
+            // O orderId vai no CONTEXTO da mensagem, não no detalhe: é o que
+            // torna o pedido órfão rastreável se a compensação abaixo falhar.
+            logError(`create-session: gateway falhou apos criar pedido ${orderId ?? 'nenhum'}`, gatewayError);
+
+            const desfeito = await cancelPendingOrderDb(orderId, appliedCoupon);
+            logInfo('create-session: compensacao do pedido orfao', { orderId, desfeito });
+
+            return NextResponse.json(
+                { message: 'Não foi possível iniciar o pagamento. Tente novamente em instantes.' },
+                { status: 502 }
+            );
+        }
 
         // Correlação webhook: grava o id do link/cobrança no pedido (payment_ref).
         if (orderId && session.sessionId) {

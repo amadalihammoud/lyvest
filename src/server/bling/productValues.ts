@@ -51,7 +51,13 @@ export function mapBlingProductFields(bp: BlingProdutoFonte): BlingProductFields
         stock: Math.max(0, Math.trunc(bp.estoque?.saldoVirtualTotal ?? 0)),
         price: String(bp.preco ?? 0),
         promo: bp.precoPromocional != null && bp.precoPromocional > 0 ? String(bp.precoPromocional) : null,
-        descricao: bp.descricaoCurta ?? undefined,
+        // `|| undefined`, não `?? undefined`: o `??` só intercepta null/undefined
+        // e deixava passar a string vazia que o Bling manda quando o produto não
+        // tem descrição curta cadastrada. O Drizzle então gravava '' por cima da
+        // descrição escrita à mão no admin — perda silenciosa de conteúdo da
+        // página de produto e de texto indexado, a cada sync. Só `undefined` é
+        // omitido do UPDATE, e omitir é o que preserva o dado local.
+        descricao: bp.descricaoCurta?.trim() || undefined,
         active: bp.situacao !== 'I',
     };
 }
