@@ -6,6 +6,7 @@
 // Objetivo desta migração: nenhuma tela da vitrine deve mais importar
 // `productsData` diretamente — tudo passa por aqui.
 import { and, avg, count, eq, ilike, inArray, or } from 'drizzle-orm';
+import { cache } from 'react';
 
 import { productsData } from '../../data/products';
 import { categories, products, reviews } from '../../db/schema';
@@ -121,6 +122,88 @@ export async function getCategoryTree(): Promise<CategoryTreeNode[]> {
     const flat = await getCategories();
     return buildCategoryTree(flat);
 }
+
+/**
+ * Busca UM produto ativo pelo slug — fonte única para a PDP e para o
+ * generateMetadata dela.
+ *
+ * Envolvido em `cache()` do React: metadata e componente chamam a mesma função
+ * na mesma request e o Next deduplica o round-trip ao banco.
+ *
+ * Antes, generateMetadata consultava `productsData` (o mock de 8 itens) enquanto
+ * o corpo da página consultava o Neon. Resultado: todo produto real vinha com
+ * <title>Produto não encontrado</title>, sem description e sem og:image —
+ * destruindo indexação e preview em WhatsApp/Instagram.
+ *
+ * Filtra por `active = true`: produto desativado no ERP deixa de ser alcançável
+ * pela URL, em vez de continuar comprável com o último estoque conhecido.
+ */
+export const getProductBySlug = cache(async (slug: string): Promise<Product | null> => {
+    if (!isDbConfigured()) {
+        const mock = productsData.find((p) => generateSlug(p.name) === slug);
+        return mock ? mockToProduct(mock) : null;
+    }
+
+    try {
+        const rows = await db
+            .select({
+                id: products.id,
+                name: products.name,
+                description: products.description,
+                price: products.price,
+                promotionalPrice: products.promotionalPrice,
+                imageUrl: products.imageUrl,
+                images: products.images,
+                active: products.active,
+                stock: products.stock,
+                sizes: products.sizes,
+                ean: products.ean,
+                badge: products.badge,
+                colors: products.colors,
+                specs: products.specs,
+                categoryName: categories.name,
+                categorySlug: categories.slug,
+            })
+            .from(products)
+            .leftJoin(categories, eq(products.categoryId, categories.id))
+            .where(and(eq(products.slug, slug), eq(products.active, true)))
+            .limit(1);
+
+        const row = rows[0];
+        if (!row) return null;
+
+        const [ratingRow] = await db
+            .select({ avgRating: avg(reviews.rating), reviewCount: count(reviews.id) })
+            .from(reviews)
+            .where(and(eq(reviews.productId, row.id), eq(reviews.approved, true)));
+
+        return {
+            id: row.id,
+            name: row.name,
+            description: row.description ?? '',
+            price: Number(row.promotionalPrice ?? row.price),
+            oldPrice: row.promotionalPrice ? Number(row.price) : undefined,
+            image: row.imageUrl || '',
+            active: row.active ?? true,
+            stock_quantity: row.stock ?? 0,
+            sizes: row.sizes ?? undefined,
+            ean: row.ean ?? undefined,
+            badge: row.badge ?? undefined,
+            colors: (row.colors as unknown[]) ?? [],
+            specs: (row.specs as Record<string, string>) ?? undefined,
+            rating: ratingRow?.avgRating ? Number(ratingRow.avgRating) : undefined,
+            reviews: ratingRow?.reviewCount ?? undefined,
+            category: row.categoryName
+                ? { name: row.categoryName, slug: row.categorySlug ?? '' }
+                : undefined,
+        } as Product;
+    } catch (e) {
+        // Propaga: falha de banco deve virar erro 500, nunca "produto não
+        // encontrado". Um 404 aqui ensinaria ao Google que o produto não existe.
+        logError('catalog: erro ao buscar produto por slug', e);
+        throw e;
+    }
+});
 
 /** Lista produtos ativos, com filtro opcional por categoria (slug) e busca por texto. */
 export async function getProducts(opts: GetProductsOptions = {}): Promise<Product[]> {

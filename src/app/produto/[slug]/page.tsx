@@ -1,129 +1,118 @@
-
-import { and, avg, count, eq } from 'drizzle-orm';
-
 import type { Metadata } from 'next';
 
 import ProductPageClient from '@/components/pages/ProductPageClient';
-import { productsData } from '@/data/products';
-import { categories, products, reviews } from '@/db/schema';
-import { db, isDbConfigured } from '@/server/dbClient';
+import { getProductBySlug } from '@/server/providers/catalog';
 import { Product } from '@/services/ProductService';
-import { generateSlug } from '@/utils/slug';
 
 export const dynamicParams = true;
 
-// Intentionally skipping generateStaticParams to allow Dynamic Rendering (SSR) 
+// Intentionally skipping generateStaticParams to allow Dynamic Rendering (SSR)
 // avoiding layout conflicts with the Suspense dynamic header.
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://lyvest.com.br';
+
+function absoluteUrl(path: string): string {
+    if (!path) return '';
+    return path.startsWith('http') ? path : `${SITE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
     const { slug } = await params;
-    const product = productsData.find(p => generateSlug(p.name) === slug);
+
+    // MESMA função usada pelo componente abaixo. Antes, isto consultava o mock
+    // `productsData` (8 itens hardcoded) enquanto o corpo da página consultava o
+    // Neon — então TODO produto real do catálogo era servido com
+    // <title>Produto não encontrado</title>, sem description e sem og:image.
+    // O `cache()` em getProductBySlug faz as duas chamadas virarem um round-trip.
+    const product = await getProductBySlug(slug);
 
     if (!product) {
-        return {
-            title: 'Produto não encontrado | Ly Vest',
-        };
+        return { title: 'Produto não encontrado | Ly Vest' };
     }
 
     const title = `${product.name} | Ly Vest`;
-    const description = product.description || `Compre ${product.name} na Ly Vest. Qualidade e conforto garantidos.`;
-    const images = product.image ? [product.image.startsWith('http') ? product.image : `https://lyvest.vercel.app${product.image}`] : [];
+    const description =
+        product.description || `Compre ${product.name} na Ly Vest. Qualidade e conforto garantidos.`;
+    const images = product.image ? [absoluteUrl(product.image)] : [];
 
     return {
         title,
         description,
+        alternates: { canonical: `${SITE_URL}/produto/${slug}` },
         openGraph: {
             title,
             description,
             images,
-            type: 'article', // 'product' type is not standard in Next.js Metadata type yet, using article or website
+            url: `${SITE_URL}/produto/${slug}`,
+            type: 'article', // o Metadata do Next ainda não tipa 'product'
         },
-        twitter: {
-            card: 'summary_large_image',
-            title,
-            description,
-            images,
+        twitter: { card: 'summary_large_image', title, description, images },
+    };
+}
+
+/**
+ * JSON-LD Product/Offer/AggregateRating.
+ *
+ * A página já carrega no servidor tudo que o schema exige — nome, imagem,
+ * preço, estoque e rating agregado — e antes jogava fora: não havia um único
+ * bloco ld+json no projeto inteiro. Sem ele não há estrelas nem preço na SERP,
+ * e não há elegibilidade a Google Shopping.
+ */
+function productJsonLd(product: Product, slug: string) {
+    const disponivel = (product.stock_quantity ?? 0) > 0;
+
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: product.name,
+        description: product.description || undefined,
+        image: product.image ? [absoluteUrl(product.image)] : undefined,
+        sku: String(product.id),
+        gtin13: product.ean || undefined,
+        brand: { '@type': 'Brand', name: 'Ly Vest' },
+        offers: {
+            '@type': 'Offer',
+            url: `${SITE_URL}/produto/${slug}`,
+            priceCurrency: 'BRL',
+            price: product.price.toFixed(2),
+            availability: disponivel
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            itemCondition: 'https://schema.org/NewCondition',
         },
+        // Só emite AggregateRating quando há avaliação de verdade: publicar
+        // rating vazio ou zerado é motivo de penalização manual no Google.
+        aggregateRating:
+            product.rating && product.reviews
+                ? {
+                      '@type': 'AggregateRating',
+                      ratingValue: Number(product.rating).toFixed(1),
+                      reviewCount: product.reviews,
+                  }
+                : undefined,
     };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+    const product = await getProductBySlug(slug);
 
-    // 1. Try to find by slug no banco (server component → Drizzle direto, sem rota)
-    let product: Product | null = null;
-
-    if (isDbConfigured()) {
-        try {
-            const rows = await db
-                .select({
-                    id: products.id,
-                    name: products.name,
-                    description: products.description,
-                    price: products.price,
-                    promotionalPrice: products.promotionalPrice,
-                    imageUrl: products.imageUrl,
-                    active: products.active,
-                    stock: products.stock,
-                    sizes: products.sizes,
-                    ean: products.ean,
-                    badge: products.badge,
-                    colors: products.colors,
-                    images: products.images,
-                    specs: products.specs,
-                    categoryName: categories.name,
-                    categorySlug: categories.slug,
-                })
-                .from(products)
-                .leftJoin(categories, eq(products.categoryId, categories.id))
-                .where(eq(products.slug, slug))
-                .limit(1);
-
-            const row = rows[0];
-            if (row) {
-                // Rating agregado a partir das reviews aprovadas
-                const ratingRows = await db
-                    .select({ avgRating: avg(reviews.rating), reviewCount: count(reviews.id) })
-                    .from(reviews)
-                    .where(and(eq(reviews.productId, row.id), eq(reviews.approved, true)));
-                const ratingRow = ratingRows[0];
-
-                product = {
-                    id: row.id,
-                    name: row.name,
-                    description: row.description ?? '',
-                    price: Number(row.promotionalPrice ?? row.price),
-                    oldPrice: row.promotionalPrice ? Number(row.price) : undefined,
-                    image: row.imageUrl || '',
-                    active: row.active ?? true,
-                    stock_quantity: row.stock ?? 0,
-                    sizes: row.sizes ?? undefined,
-                    ean: row.ean ?? undefined,
-                    badge: row.badge ?? undefined,
-                    colors: (row.colors as unknown[]) ?? [],
-                    specs: (row.specs as Record<string, string>) ?? undefined,
-                    rating: ratingRow?.avgRating ? Number(ratingRow.avgRating) : undefined,
-                    reviews: ratingRow?.reviewCount ?? undefined,
-                    category: row.categoryName
-                        ? { name: row.categoryName, slug: row.categorySlug ?? '' }
-                        : undefined,
-                } as Product;
-            }
-        } catch (err) {
-            console.error('Error fetching product from database:', err);
-        }
-    }
-
-    // 2. Fallback: Try to find by name (slugified) in mockData
-    if (!product) {
-        const mockProduct = productsData.find(p => generateSlug(p.name) === slug);
-        if (mockProduct) {
-            product = mockProduct as unknown as Product;
-        }
-    }
-
-    // 3. Not found - could return 404 or let Client handle "Product not found"
-    // We pass null to client if not found, let it render the "Not Found" state
-
-    return <ProductPageClient slug={slug} initialProduct={product} />;
+    return (
+        <>
+            {product && (
+                // dangerouslySetInnerHTML aqui é o caminho padrão para JSON-LD.
+                // O conteúdo é JSON.stringify de dado do próprio banco — não há
+                // entrada de usuário, e a serialização escapa o que precisa.
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(product, slug)) }}
+                />
+            )}
+            <ProductPageClient slug={slug} initialProduct={product} />
+        </>
+    );
 }
