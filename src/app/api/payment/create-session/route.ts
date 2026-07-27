@@ -3,13 +3,13 @@ import { eq, inArray } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { validateCoupon } from '@/config/coupons';
 import { orders, products } from '@/db/schema';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError, logInfo } from '@/lib/server/logger';
 import { db } from '@/server/dbClient';
 import { createOrderDb } from '@/server/orderDb';
 import { couponRuleFor, messageForRpcError } from '@/server/orders';
+import { buildVerifiedItems, computeSubtotal, computeTotal, resolveDiscount } from '@/server/pricing';
 import { getPaymentProvider } from '@/server/providers/payment';
 
 /**
@@ -91,27 +91,14 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: 'Failed to verify product information' }, { status: 500 });
         }
 
-        const verifiedItems = frontendItems.map((fItem) => {
-            const dbProduct = dbProducts.find((p) => String(p.id) === String(fItem.id));
-            if (!dbProduct) throw new Error(`Product ${fItem.id} not found in database`);
-            const activePrice = dbProduct.promotionalPrice ?? dbProduct.price;
-            return { id: dbProduct.id, name: dbProduct.name, price: Number(activePrice), quantity: fItem.quantity };
-        });
-
-        // Subtotal recomputado a partir dos preços do banco (nunca do cliente).
-        const subtotal = verifiedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-        // Revalida o cupom NO SERVIDOR contra o subtotal real.
-        let discountAmount = 0;
-        let appliedCoupon: string | null = null;
-        if (couponCode) {
-            const result = validateCoupon(couponCode, subtotal);
-            if (result.valid) {
-                discountAmount = Math.round(subtotal * result.discount * 100) / 100;
-                appliedCoupon = couponCode.toUpperCase().trim();
-            }
-        }
-        let total = Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100);
+        // Toda a matemática vive em src/server/pricing.ts (pura e testada).
+        // buildVerifiedItems descarta qualquer preço ou nome vindo do cliente e
+        // usa a linha do banco — e trata promoção "0.00" como inválida, que o
+        // `promotionalPrice ?? price` anterior adotava, cobrando R$0 pelo item.
+        const verifiedItems = buildVerifiedItems(frontendItems, dbProducts);
+        const subtotal = computeSubtotal(verifiedItems);
+        const { discountAmount, appliedCoupon } = resolveDiscount(couponCode, subtotal);
+        let total = computeTotal(subtotal, discountAmount);
 
         // Best-effort: identifica o usuário se logado (checkout de convidado permitido).
         const { userId } = await auth();

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
     buildCategoryTree,
-    resolveDisplayPrice,
     resolveMainImage,
     rowToProduct,
     type CatalogCategory,
@@ -34,28 +33,6 @@ const row = (over: Partial<ProductRow> = {}): ProductRow => ({
  * checkout recalcula tudo no servidor — mas anunciar preço errado é problema de
  * confiança e de CDC, não só de UI.
  */
-describe('resolveDisplayPrice', () => {
-    it('sem promoção, mostra o preço cheio e não risca nada', () => {
-        expect(resolveDisplayPrice('149.90', null)).toEqual({ price: 149.9 });
-    });
-
-    it('com promoção, mostra a promo e risca o cheio', () => {
-        expect(resolveDisplayPrice('149.90', '99.90')).toEqual({ price: 99.9, oldPrice: 149.9 });
-    });
-
-    // Promoção de R$0,00 não existe como preço válido. Tratada como válida, a
-    // loja anunciaria o produto de graça.
-    it('IGNORA promoção zerada e volta ao preço cheio', () => {
-        expect(resolveDisplayPrice('149.90', '0')).toEqual({ price: 149.9 });
-        expect(resolveDisplayPrice('149.90', '0.00')).toEqual({ price: 149.9 });
-    });
-
-    it('IGNORA promoção negativa ou não numérica', () => {
-        expect(resolveDisplayPrice('149.90', '-10')).toEqual({ price: 149.9 });
-        expect(resolveDisplayPrice('149.90', 'abc')).toEqual({ price: 149.9 });
-    });
-});
-
 describe('resolveMainImage', () => {
     it('prefere image_url', () => {
         expect(resolveMainImage('https://a/1.webp', ['https://a/2.webp'])).toBe('https://a/1.webp');

@@ -14,6 +14,7 @@ import { logError } from '../../lib/server/logger';
 import { Product } from '../../services/ProductService';
 import { generateSlug } from '../../utils/slug';
 import { db, isDbConfigured } from '../dbClient';
+import { resolveDisplayPrice } from '../pricing';
 
 export interface CatalogCategory {
     id: string;
@@ -84,6 +85,11 @@ export interface RowRating {
     count: number;
 }
 
+/** Imagem principal, com a galeria como reserva. */
+export function resolveMainImage(imageUrl: string | null, images: string[] | null): string {
+    return imageUrl || images?.[0] || '';
+}
+
 /**
  * Linha do banco → `Product`. Fonte ÚNICA dessa conversão.
  *
@@ -93,34 +99,12 @@ export interface RowRating {
  * arredondava e caía para `null` no badge. Dois mapeamentos do mesmo dado é
  * garantia de que um dia eles discordam sobre o que é o produto.
  *
- * A média fica PRECISA (não arredondada): nenhum componente renderiza rating
- * hoje, e o único consumidor é o JSON-LD da PDP, onde 4.3 vale mais que 4.0.
- */
-/**
- * Preço exibido e preço riscado.
+ * O preço sai de src/server/pricing.ts — a MESMA regra usada para cobrar, para
+ * que vitrine e checkout nunca discordem sobre quanto custa.
  *
- * `promotional_price` manda quando existe e o cheio vira `oldPrice`, para a UI
- * riscar. Atenção ao zero: promoção de R$0,00 não existe como preço válido, e
- * tratá-la como válida faria a loja anunciar produto de graça.
+ * A média do rating fica PRECISA: nenhum componente renderiza rating hoje, e o
+ * único consumidor é o JSON-LD da PDP, onde 4.3 vale mais que 4.0.
  */
-export function resolveDisplayPrice(
-    price: string,
-    promotionalPrice: string | null
-): { price: number; oldPrice?: number } {
-    const cheio = Number(price);
-    const promo = promotionalPrice === null ? null : Number(promotionalPrice);
-
-    if (promo === null || !Number.isFinite(promo) || promo <= 0) {
-        return { price: cheio };
-    }
-    return { price: promo, oldPrice: cheio };
-}
-
-/** Imagem principal, com a galeria como reserva. */
-export function resolveMainImage(imageUrl: string | null, images: string[] | null): string {
-    return imageUrl || images?.[0] || '';
-}
-
 export function rowToProduct(row: ProductRow, rating?: RowRating): Product {
     const { price, oldPrice } = resolveDisplayPrice(row.price, row.promotionalPrice);
 
