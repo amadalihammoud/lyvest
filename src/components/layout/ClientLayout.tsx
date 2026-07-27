@@ -21,7 +21,22 @@ const LazyClerkProviderDeferred = lazy(() => import('@/components/providers/Lazy
 
 // Routes that require Clerk auth immediately (skip the lazy 7s window).
 // These are protected pages the user navigates to intentionally.
-const EAGER_CLERK_ROUTES = ['/dashboard', '/admin', '/conta', '/pedidos'];
+// Rotas onde o ClerkProvider monta IMEDIATAMENTE, sem esperar o timer de
+// ultra-lazy (que existe para proteger o LCP da home).
+//
+// /sign-in, /sign-up e /sso-callback entraram aqui porque adiar o Clerk numa
+// página cuja única função é autenticar não faz sentido: o formulário É o
+// conteúdo. Sem isso, o usuário esperava o timer só para então ver o form —
+// e o callback do OAuth precisa do provider já montado para concluir o login.
+const EAGER_CLERK_ROUTES = [
+    '/dashboard',
+    '/admin',
+    '/conta',
+    '/pedidos',
+    '/sign-in',
+    '/sign-up',
+    '/sso-callback',
+];
 
 // Isolate FavoritesSync so Clerk is not pulled into the global bundle
 const FavoritesSyncDeferred = lazy(() => import('@/components/auth/FavoritesSync').then(mod => ({ default: mod.FavoritesSync })));

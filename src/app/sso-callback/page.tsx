@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthenticateWithRedirectCallback } from '@clerk/nextjs';
+import nextDynamic from 'next/dynamic';
 
 /**
  * Landing do OAuth (Google) — /sso-callback
@@ -9,16 +9,35 @@ import { AuthenticateWithRedirectCallback } from '@clerk/nextjs';
  * O <SignIn /> do AuthModal é montado sem `path`/`routing`, então o Clerk usa o
  * callback padrão em /sso-callback NO DOMÍNIO DA APLICAÇÃO. Essa rota não
  * existia: quem clicava em "Continuar com Google" no modal da loja terminava o
- * handshake com o Google e caía num 404 — login social simplesmente não
- * funcionava para nenhum cliente.
+ * handshake com o Google e caía num 404 — login social não funcionava para
+ * nenhum cliente.
  *
- * AuthenticateWithRedirectCallback finaliza o handshake e redireciona. Sem UI
- * própria de propósito: a permanência aqui é de milissegundos.
+ * POR QUE O IMPORT É DINÂMICO COM ssr: false
+ * AuthenticateWithRedirectCallback exige estar dentro de <ClerkProvider />, e
+ * este projeto monta o provider sob demanda no cliente (ClientLayout) para não
+ * arrastar ~200 KB de chunk para o bundle inicial. Renderizado no servidor, o
+ * componente não encontra provider algum e lança — foi exatamente isso que
+ * quebrou o build:
  *
- * Esta rota precisa ser pública — o matcher do middleware (dashboard, checkout,
- * admin) não a cobre, que é o correto: exigir sessão para completar o login
- * seria circular.
+ *   Error occurred prerendering page "/sso-callback"
+ *   @clerk/clerk-react: AuthenticateWithRedirectCallback can only be used
+ *   within the <ClerkProvider /> component
+ *
+ * Com ssr: false o componente só existe no cliente. E como /sso-callback está
+ * em EAGER_CLERK_ROUTES (ClientLayout), o provider já montou quando o chunk
+ * assíncrono termina de carregar — a própria latência do import garante a ordem.
+ *
+ * A rota fica fora do matcher do middleware de propósito: exigir sessão para
+ * concluir o login seria circular.
  */
+const AuthenticateWithRedirectCallback = nextDynamic(
+    () =>
+        import('@clerk/nextjs').then((m) => ({
+            default: m.AuthenticateWithRedirectCallback,
+        })),
+    { ssr: false }
+);
+
 export default function SSOCallbackPage() {
     return (
         <div className="flex min-h-screen items-center justify-center bg-[#F5EDE8]">
