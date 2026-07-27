@@ -9,7 +9,19 @@ export const dynamicParams = true;
 // Intentionally skipping generateStaticParams to allow Dynamic Rendering (SSR)
 // avoiding layout conflicts with the Suspense dynamic header.
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://lyvest.com.br';
+/**
+ * Domínio canônico da loja.
+ *
+ * NÃO usa NEXT_PUBLIC_APP_URL. Essa variável descreve "onde este deploy está
+ * rodando" — em produção ela estava apontando para uma URL de preview de branch
+ * (lyvest-git-...vercel.app), e isso vazou para o canonical, o og:url e a
+ * offer.url do JSON-LD. Canonical apontando para outro domínio diz ao Google
+ * que a página verdadeira mora lá, e pode desindexar o domínio real.
+ *
+ * Endereço canônico é decisão de negócio, não de ambiente: fica fixo, e só muda
+ * se a loja mudar de domínio.
+ */
+const SITE_URL = 'https://www.lyvest.com.br';
 
 function absoluteUrl(path: string): string {
     if (!path) return '';
@@ -31,10 +43,12 @@ export async function generateMetadata({
     const product = await getProductBySlug(slug);
 
     if (!product) {
-        return { title: 'Produto não encontrado | Ly Vest' };
+        return { title: 'Produto não encontrado' };
     }
 
-    const title = `${product.name} | Ly Vest`;
+    // Sem sufixo aqui: o layout raiz já aplica `template: '%s | Ly Vest'`
+    // (src/app/layout.tsx:38). Repetir gerava "Produto | Ly Vest | Ly Vest".
+    const title = product.name;
     const description =
         product.description || `Compre ${product.name} na Ly Vest. Qualidade e conforto garantidos.`;
     const images = product.image ? [absoluteUrl(product.image)] : [];

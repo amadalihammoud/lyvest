@@ -11,7 +11,10 @@ export const revalidate = 300;
 // Intentionally skipping generateStaticParams to allow Dynamic Rendering (SSR)
 // avoiding layout conflicts with the Suspense dynamic header.
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://lyvest.com.br';
+// Domínio canônico fixo — ver comentário em src/app/produto/[slug]/page.tsx:
+// NEXT_PUBLIC_APP_URL descreve o deploy, não a loja, e em produção estava
+// apontando para uma URL de preview de branch.
+const SITE_URL = 'https://www.lyvest.com.br';
 
 /**
  * Sem isto, o Next aplicava o metadata padrão de src/app/layout.tsx a TODAS as
@@ -29,10 +32,11 @@ export async function generateMetadata({
     const categoria = (await getCategories()).find((c) => c.slug === slug);
 
     if (!categoria) {
-        return { title: 'Categoria não encontrada | Ly Vest' };
+        return { title: 'Categoria não encontrada' };
     }
 
-    const title = `${categoria.name} | Ly Vest`;
+    // Sem sufixo: o layout raiz já aplica `template: '%s | Ly Vest'`.
+    const title = categoria.name;
     const description = `Veja a seleção de ${categoria.name.toLowerCase()} da Ly Vest: conforto, caimento e acabamento premium. Entrega para todo o Brasil.`;
 
     return {
