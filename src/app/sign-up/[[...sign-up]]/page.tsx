@@ -1,9 +1,7 @@
 'use client';
 
 import { SignUp } from "@clerk/nextjs";
-import { Suspense } from "react";
-
-import { useUltraLazyLoad } from "@/lib/ultra-lazy-load";
+import { Suspense, useEffect, useState } from "react";
 
 function SignUpPageContent() {
     return (
@@ -38,9 +36,17 @@ function SignUpSkeletonForm() {
 }
 
 function LazySignUpForm() {
-    const shouldLoad = useUltraLazyLoad();
+    // Cadastro é destino deliberado — ver comentário em src/app/checkout/page.tsx.
+    // O atraso do useUltraLazyLoad servia à janela de medição do Lighthouse na
+    // home; aqui só fazia quem quer criar conta esperar olhando um esqueleto.
+    const [mounted, setMounted] = useState(false);
 
-    if (!shouldLoad) {
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- guard de montagem client-only (evita mismatch de hidratação SSR)
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
         return <SignUpSkeletonForm />;
     }
     return (

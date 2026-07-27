@@ -2,9 +2,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
-
-import { useUltraLazyLoad } from '@/lib/ultra-lazy-load';
+import { Suspense, useEffect, useState } from 'react';
 
 const CheckoutPageClient = dynamic(
     () => import('@/components/pages/CheckoutPageClient'),
@@ -27,9 +25,21 @@ function CheckoutSkeleton() {
 }
 
 export default function CheckoutPage() {
-    const shouldLoad = useUltraLazyLoad();
+    // O checkout é destino deliberado: o cliente clicou em "Finalizar compra" e
+    // está esperando pagar. O useUltraLazyLoad daqui adiava o carregamento em
+    // LCP + 5000ms (ou 2500ms de fallback) — estratégia desenhada para a janela
+    // de medição do Lighthouse na home, onde ninguém está esperando nada.
+    // Aplicado aqui, o cliente encarava um esqueleto pulsante por segundos no
+    // ponto exato de conversão, sem indicador de progresso. Mesmo padrão de
+    // montagem já usado em src/app/dashboard/page.tsx.
+    const [mounted, setMounted] = useState(false);
 
-    if (!shouldLoad) {
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- guard de montagem client-only (evita mismatch de hidratação SSR)
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
         return <CheckoutSkeleton />;
     }
 

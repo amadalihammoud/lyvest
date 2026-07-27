@@ -4,8 +4,6 @@ import { SignIn, useClerk } from "@clerk/nextjs";
 import Image from "next/image";
 import { useEffect, useState, Suspense } from "react";
 
-import { useUltraLazyLoad } from "@/lib/ultra-lazy-load";
-
 function SignInPageContent() {
     const clerk = useClerk();
     const [signInUrl, setSignInUrl] = useState("/");
@@ -94,9 +92,18 @@ function SignInSkeletonForm() {
 }
 
 function LazySignInForm() {
-    const shouldLoad = useUltraLazyLoad();
+    // Login é destino deliberado — ver comentário em src/app/checkout/page.tsx.
+    // Somado ao 404 de /sso-callback que acabamos de corrigir, o cliente que
+    // tentava entrar enfrentava primeiro segundos de esqueleto e depois uma
+    // página de erro. Aqui não há nada a adiar: a página existe para o formulário.
+    const [mounted, setMounted] = useState(false);
 
-    if (!shouldLoad) {
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- guard de montagem client-only (evita mismatch de hidratação SSR)
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
         return <SignInSkeletonForm />;
     }
     return (
