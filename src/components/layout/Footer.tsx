@@ -2,8 +2,35 @@
 'use client';
 import Image from 'next/image';
 
+import { REDES_SOCIAIS, type RedeKey } from './socialIcons';
 import { useI18n } from '../../hooks/useI18n';
 import { useModal } from '../../store/useModalStore';
+
+/**
+ * Redes exibidas no rodapé, na ordem.
+ *
+ * ⚠️ AS URLs DE PERFIL AINDA NÃO SÃO REAIS.
+ *
+ * Apontam para a home de cada plataforma — herdado do código anterior, não uma
+ * escolha. Um link que leva o cliente para fora do site e o deixa na página de
+ * login do Instagram é pior que não ter link nenhum. Substituir por
+ * `instagram.com/lyvest` e equivalentes assim que os perfis forem confirmados.
+ *
+ * Só linke canal ATIVO: perfil parado há meses comunica loja abandonada
+ * exatamente no momento em que o cliente foi procurar sinal de confiança.
+ *
+ * O WhatsApp usa o telefone que este mesmo rodapé já publica logo abaixo.
+ * ATENÇÃO: o botão flutuante (FloatingWhatsApp) usa OUTRO número,
+ * `5513999999999`, que é claramente um placeholder — ou seja, hoje ele não
+ * chega a lugar nenhum. Os dois precisam apontar para o mesmo lugar.
+ */
+const REDES = [
+    { chave: 'instagram', url: 'https://instagram.com' },
+    { chave: 'whatsapp', url: 'https://wa.me/5513996246969' },
+    { chave: 'tiktok', url: 'https://tiktok.com' },
+    { chave: 'pinterest', url: 'https://pinterest.com' },
+    { chave: 'facebook', url: 'https://facebook.com' },
+] as const satisfies ReadonlyArray<{ chave: RedeKey; url: string }>;
 
 export default function Footer() {
     const { t } = useI18n();
@@ -47,22 +74,30 @@ export default function Footer() {
                             em vez de duplicadas: dois conjuntos do mesmo link no
                             mesmo rodapé confundem quem navega por teclado e
                             repetem o mesmo destino para leitor de tela. */}
-                        <nav className="flex items-center gap-6" aria-label="Redes sociais">
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                <div className="w-8 h-8 flex items-center justify-center">
-                                    <Image src="/assets/icons/instagram-logo.webp" alt="" width={54} height={54} className="max-w-full max-h-full object-contain" />
-                                </div>
-                            </a>
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                <div className="w-8 h-8 flex items-center justify-center">
-                                    <img src="/assets/icons/facebook-logo.svg" alt="" className="max-w-full max-h-full object-contain" />
-                                </div>
-                            </a>
-                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
-                                <div className="w-8 h-8 flex items-center justify-center">
-                                    <img src="/assets/icons/x-logo.svg" alt="" className="max-w-full max-h-full object-contain" />
-                                </div>
-                            </a>
+                        <nav className="flex items-center gap-5" aria-label="Redes sociais">
+                            {REDES.map(({ chave, url }) => {
+                                const { titulo, path } = REDES_SOCIAIS[chave];
+                                return (
+                                    <a
+                                        key={chave}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={titulo}
+                                        className="text-lyvest-500 hover:text-lyvest-600 hover:scale-110 transition-all duration-200"
+                                    >
+                                        {/*
+                                           `fill="currentColor"` é o ponto todo: a cor
+                                           vem da classe do link, não do arquivo. Foi o
+                                           que permitiu sair do azul do Facebook e do
+                                           gradiente do Instagram para o carmim da marca.
+                                        */}
+                                        <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current" aria-hidden="true">
+                                            <path d={path} />
+                                        </svg>
+                                    </a>
+                                );
+                            })}
                         </nav>
                     </div>
 
