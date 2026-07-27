@@ -73,7 +73,19 @@ export default defineConfig({
 
     /* Servidor de desenvolvimento — mesma porta do baseURL acima (next dev = 3000) */
     webServer: {
-        command: 'npm run dev',
+        /*
+         * Em CI: `npm start`, servindo o build que o job JÁ produziu no passo
+         * anterior. Antes era `npm run dev` nos dois casos — o CI compilava
+         * tudo no build e o Playwright subia um servidor de desenvolvimento que
+         * recompilava cada rota sob demanda, no primeiro acesso. Com os testes
+         * em paralelo, todos batiam na mesma compilação fria e estouravam o
+         * timeout de 30s da navegação. O E2E falharia por lentidão de
+         * ferramenta, não por defeito do produto — o pior tipo de teste
+         * vermelho, porque ensina a ignorar o vermelho.
+         *
+         * Local continua em dev, para o hot reload valer durante a escrita.
+         */
+        command: process.env.CI ? 'npm start' : 'npm run dev',
         url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000,

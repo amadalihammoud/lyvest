@@ -70,31 +70,64 @@ jobs:
   test-e2e:
     name: 🎭 E2E Tests
     runs-on: ubuntu-latest
-    # tests/e2e esta vazio: sem esta guarda o job falha ("no tests found") e,
-    # como o deploy agora depende da conclusao do CI, produção nunca sairia.
-    # Um job pulado nao reprova o workflow. Escreveu o primeiro .spec.ts, ele
-    # volta a rodar sozinho — nao ha flag para lembrar de religar.
     if: hashFiles('tests/e2e/**/*.spec.ts') != ''
+    env:
+      # Sem DATABASE_URL de proposito: o catalogo cai no mock
+      # (src/data/products.ts), que e dado FIXO. Um E2E preso ao banco de
+      # producao falharia toda vez que o lojista mexesse no catalogo — vermelho
+      # por motivo errado ensina a ignorar o vermelho. E CI nao deve ter
+      # credencial de banco de producao.
+      #
+      # Clerk, ao contrario, e OBRIGATORIO: o middleware valida a chave contra a
+      # instancia a cada request. Sem ela o `next start` responde "Invalid host"
+      # em toda rota e o servidor nunca fica saudavel. Chave inventada nao
+      # resolve — ja testado. Precisa ser de uma instancia de DESENVOLVIMENTO
+      # (pk_test_...), nunca a de producao.
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.E2E_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.E2E_CLERK_SECRET_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # O `secrets` nao pode ser lido no `if:` de um job, entao a decisao vira
+      # um passo. Sem a chave, o job passa VERDE e explica o que falta — travar
+      # o deploy por falta de um segredo que so o dono pode criar seria pior
+      # que nao rodar o E2E.
+      - name: Verificar credencial de teste
+        id: guard
+        run: |
+          if [ -z "$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" ]; then
+            echo "rodar=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=E2E pulado::Falta o secret E2E_CLERK_PUBLISHABLE_KEY (chave pk_test_ de uma instancia de desenvolvimento do Clerk). Sem ela o servidor de teste nao sobe. Adicione em Settings > Secrets and variables > Actions."
+          else
+            echo "rodar=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Node.js
+        if: steps.guard.outputs.rodar == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.guard.outputs.rodar == 'true'
         run: npm ci
 
       - name: Install Playwright browsers
+        if: steps.guard.outputs.rodar == 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Build application
+        if: steps.guard.outputs.rodar == 'true'
         run: npm run build
 
+      # playwright.config sobe `npm start` quando CI=1, servindo ESTE build.
+      # Antes subia `npm run dev`, que recompilava cada rota sob demanda e
+      # estourava o timeout de navegacao — o E2E falharia por lentidao de
+      # ferramenta, nao por defeito do produto.
       - name: Run E2E tests
+        if: steps.guard.outputs.rodar == 'true'
         run: npm run test:e2e
 
       - name: Upload test results
