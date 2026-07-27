@@ -5,7 +5,7 @@
 //
 // Objetivo desta migração: nenhuma tela da vitrine deve mais importar
 // `productsData` diretamente — tudo passa por aqui.
-import { and, eq, ilike, inArray, or } from 'drizzle-orm';
+import { and, avg, count, eq, ilike, inArray, or } from 'drizzle-orm';
 
 import { categories, products, reviews } from '../../db/schema';
 import { logError } from '../../lib/server/logger';
@@ -179,20 +179,32 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
         const productIds = rows.map((r) => r.id);
         const ratingMap = new Map<string, { avg: number; count: number }>();
         if (productIds.length > 0) {
-            const reviewRows = await db
-                .select({ productId: reviews.productId, rating: reviews.rating })
+            // Agregação NO BANCO, filtrada pelos produtos desta página.
+            //
+            // Antes: o WHERE filtrava só por `approved`, sem inArray — toda
+            // chamada trazia a tabela `reviews` INTEIRA pela conexão e cruzava
+            // em memória com `productIds.includes()` dentro de um loop, ou seja
+            // busca linear aninhada: O(n_reviews x n_produtos). Com 300 produtos
+            // e 5.000 avaliações são 1,5 milhão de comparações por pageview,
+            // além de trafegar 5.000 linhas para usar poucas.
+            //
+            // O índice idx_reviews_product (0001_init.sql:127) cobre este filtro.
+            const ratingRows = await db
+                .select({
+                    productId: reviews.productId,
+                    avgRating: avg(reviews.rating),
+                    reviewCount: count(reviews.id),
+                })
                 .from(reviews)
-                .where(eq(reviews.approved, true));
-            const grouped = new Map<string, number[]>();
-            for (const r of reviewRows) {
-                if (!r.productId || !productIds.includes(r.productId)) continue;
-                const arr = grouped.get(r.productId) ?? [];
-                if (r.rating != null) arr.push(r.rating);
-                grouped.set(r.productId, arr);
-            }
-            for (const [pid, arr] of grouped) {
-                if (arr.length === 0) continue;
-                ratingMap.set(pid, { avg: arr.reduce((a, b) => a + b, 0) / arr.length, count: arr.length });
+                .where(and(eq(reviews.approved, true), inArray(reviews.productId, productIds)))
+                .groupBy(reviews.productId);
+
+            for (const r of ratingRows) {
+                if (!r.productId) continue;
+                const media = Number(r.avgRating);
+                const total = Number(r.reviewCount);
+                if (!Number.isFinite(media) || total <= 0) continue;
+                ratingMap.set(r.productId, { avg: media, count: total });
             }
         }
 
