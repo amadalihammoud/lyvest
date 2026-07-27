@@ -59,6 +59,93 @@ export interface GetProductsOptions {
     limit?: number;
 }
 
+/** Linha de `products` (+ join de categoria) como lida pelas queries deste módulo. */
+export interface ProductRow {
+    id: string;
+    name: string;
+    description: string | null;
+    price: string;
+    promotionalPrice: string | null;
+    imageUrl: string | null;
+    images: string[] | null;
+    stock: number | null;
+    sizes: string[] | null;
+    colors: unknown;
+    specs: unknown;
+    ean: string | null;
+    badge: string | null;
+    active?: boolean | null;
+    categoryName: string | null;
+    categorySlug: string | null;
+}
+
+export interface RowRating {
+    avg: number;
+    count: number;
+}
+
+/**
+ * Linha do banco → `Product`. Fonte ÚNICA dessa conversão.
+ *
+ * Existiam duas versões quase iguais — uma em getProducts, outra em
+ * getProductBySlug — que divergiam em silêncio: a da PDP não usava `images[0]`
+ * como fallback de imagem e devolvia o rating sem arredondar, a da grade
+ * arredondava e caía para `null` no badge. Dois mapeamentos do mesmo dado é
+ * garantia de que um dia eles discordam sobre o que é o produto.
+ *
+ * A média fica PRECISA (não arredondada): nenhum componente renderiza rating
+ * hoje, e o único consumidor é o JSON-LD da PDP, onde 4.3 vale mais que 4.0.
+ */
+/**
+ * Preço exibido e preço riscado.
+ *
+ * `promotional_price` manda quando existe e o cheio vira `oldPrice`, para a UI
+ * riscar. Atenção ao zero: promoção de R$0,00 não existe como preço válido, e
+ * tratá-la como válida faria a loja anunciar produto de graça.
+ */
+export function resolveDisplayPrice(
+    price: string,
+    promotionalPrice: string | null
+): { price: number; oldPrice?: number } {
+    const cheio = Number(price);
+    const promo = promotionalPrice === null ? null : Number(promotionalPrice);
+
+    if (promo === null || !Number.isFinite(promo) || promo <= 0) {
+        return { price: cheio };
+    }
+    return { price: promo, oldPrice: cheio };
+}
+
+/** Imagem principal, com a galeria como reserva. */
+export function resolveMainImage(imageUrl: string | null, images: string[] | null): string {
+    return imageUrl || images?.[0] || '';
+}
+
+export function rowToProduct(row: ProductRow, rating?: RowRating): Product {
+    const { price, oldPrice } = resolveDisplayPrice(row.price, row.promotionalPrice);
+
+    return {
+        id: row.id,
+        name: row.name,
+        description: row.description ?? '',
+        price,
+        oldPrice,
+        image: resolveMainImage(row.imageUrl, row.images),
+        category: row.categoryName
+            ? { name: row.categoryName, slug: row.categorySlug ?? '' }
+            : undefined,
+        specs: (row.specs as Record<string, string>) ?? {},
+        ean: row.ean ?? undefined,
+        active: row.active ?? true,
+        stock_quantity: row.stock ?? 0,
+        sizes: row.sizes ?? undefined,
+        colors: (row.colors as unknown[]) ?? [],
+        badge: row.badge ?? null,
+        rating: rating?.avg,
+        reviews: rating?.count,
+    };
+}
+
 /** Converte um item do mock (src/data/products.ts) para o formato unificado `Product`. */
 function mockToProduct(p: (typeof productsData)[number]): Product {
     return {
@@ -177,26 +264,12 @@ export const getProductBySlug = cache(async (slug: string): Promise<Product | nu
             .from(reviews)
             .where(and(eq(reviews.productId, row.id), eq(reviews.approved, true)));
 
-        return {
-            id: row.id,
-            name: row.name,
-            description: row.description ?? '',
-            price: Number(row.promotionalPrice ?? row.price),
-            oldPrice: row.promotionalPrice ? Number(row.price) : undefined,
-            image: row.imageUrl || '',
-            active: row.active ?? true,
-            stock_quantity: row.stock ?? 0,
-            sizes: row.sizes ?? undefined,
-            ean: row.ean ?? undefined,
-            badge: row.badge ?? undefined,
-            colors: (row.colors as unknown[]) ?? [],
-            specs: (row.specs as Record<string, string>) ?? undefined,
-            rating: ratingRow?.avgRating ? Number(ratingRow.avgRating) : undefined,
-            reviews: ratingRow?.reviewCount ?? undefined,
-            category: row.categoryName
-                ? { name: row.categoryName, slug: row.categorySlug ?? '' }
-                : undefined,
-        } as Product;
+        const media = Number(ratingRow?.avgRating);
+        const total = Number(ratingRow?.reviewCount);
+        const rating =
+            Number.isFinite(media) && total > 0 ? { avg: media, count: total } : undefined;
+
+        return rowToProduct(row, rating);
     } catch (e) {
         // Propaga: falha de banco deve virar erro 500, nunca "produto não
         // encontrado". Um 404 aqui ensinaria ao Google que o produto não existe.
@@ -291,29 +364,7 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
             }
         }
 
-        return rows.map((row): Product => {
-            const ratingInfo = ratingMap.get(row.id);
-            return {
-                id: row.id,
-                name: row.name,
-                description: row.description ?? '',
-                price: Number(row.promotionalPrice ?? row.price),
-                oldPrice: row.promotionalPrice ? Number(row.price) : undefined,
-                image: row.imageUrl || (row.images?.[0] ?? ''),
-                category: row.categoryName
-                    ? { name: row.categoryName, slug: row.categorySlug ?? '' }
-                    : undefined,
-                specs: (row.specs as Record<string, string>) ?? {},
-                ean: row.ean ?? undefined,
-                active: true,
-                stock_quantity: row.stock ?? 0,
-                sizes: row.sizes ?? undefined,
-                colors: (row.colors as unknown[]) ?? [],
-                badge: row.badge ?? null,
-                rating: ratingInfo ? Math.round(ratingInfo.avg) : undefined,
-                reviews: ratingInfo?.count,
-            };
-        });
+        return rows.map((row) => rowToProduct(row, ratingMap.get(row.id)));
     } catch (e) {
         // NÃO cair no mock aqui. O fallback antigo transformava indisponibilidade
         // do banco numa LOJA FALSA: a vitrine passava a exibir produtos
