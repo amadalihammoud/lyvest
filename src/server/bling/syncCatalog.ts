@@ -12,12 +12,19 @@
  */
 import { eq } from 'drizzle-orm';
 
-import { categories, products } from '../../db/schema';
+import { categories, productVariants, products } from '../../db/schema';
 import { isErpStockAuthoritative } from '../../lib/server/erpFlags';
 import { logInfo } from '../../lib/server/logger';
 import { db } from '../dbClient';
 import { blingGet } from './client';
 import { decideProductWrite } from './productSlug';
+import {
+    collectVariationIds,
+    temVariacoes,
+    toVariantDrafts,
+    type BlingVariacao,
+    type VariantDraft,
+} from './variations';
 
 const PAGE_LIMIT = 100;
 const PAGE_DELAY_MS = 400;
@@ -39,6 +46,8 @@ interface BlingCategoria {
 interface BlingProduto {
     id: number;
     nome: string;
+    /** 'V' = pai de uma grade, 'S' = simples (ou filho de grade), 'E' = composição. */
+    formato?: string;
     codigo?: string;
     preco?: number;
     precoPromocional?: number | null;
@@ -53,6 +62,7 @@ interface BlingProduto {
 export interface CatalogSyncReport {
     categorias: { criadas: number; atualizadas: number };
     produtos: { criados: number; atualizados: number; adotadosPorSlug: number; inativosNoBling: string[] };
+    variantes: { criadas: number; atualizadas: number; desativadas: number; paisComGrade: number };
     naoTocados: number;
 }
 
@@ -152,10 +162,66 @@ async function resolveHierarchy(blingCats: BlingCategoria[], catIdMap: CatIdMap)
     }
 }
 
+/**
+ * Fase 2b — grade de um produto.
+ *
+ * Correlaciona por `bling_id` da variação (índice único parcial da migração
+ * 0006). Variantes locais que sumiram do Bling são DESATIVADAS, não apagadas:
+ * apagar destruiria o vínculo de pedidos antigos que referenciam a variante.
+ *
+ * Escrever aqui dispara o trigger trg_sync_product_stock, que recalcula
+ * products.stock como a soma das variantes ativas — por isso o pai não precisa
+ * (e não deve) ter estoque próprio quando tem grade.
+ */
+async function syncVariantsOf(
+    productLocalId: string,
+    drafts: VariantDraft[],
+    report: CatalogSyncReport
+): Promise<void> {
+    const locais = await db
+        .select({ id: productVariants.id, blingId: productVariants.blingId })
+        .from(productVariants)
+        .where(eq(productVariants.productId, productLocalId));
+
+    const localPorBling = new Map(locais.filter((l) => l.blingId != null).map((l) => [l.blingId!, l.id]));
+    const vistos = new Set<number>();
+
+    for (const d of drafts) {
+        vistos.add(d.blingId);
+        const values = {
+            size: d.size,
+            sku: d.sku,
+            ean: d.ean,
+            stock: d.stock,
+            price: d.price,
+            active: d.active,
+        };
+
+        const existente = localPorBling.get(d.blingId);
+        if (existente) {
+            await db.update(productVariants).set(values).where(eq(productVariants.id, existente));
+            report.variantes.atualizadas++;
+        } else {
+            await db
+                .insert(productVariants)
+                .values({ ...values, productId: productLocalId, blingId: d.blingId });
+            report.variantes.criadas++;
+        }
+    }
+
+    for (const [blingId, localId] of localPorBling) {
+        if (vistos.has(blingId)) continue;
+        await db.update(productVariants).set({ active: false }).where(eq(productVariants.id, localId));
+        report.variantes.desativadas++;
+    }
+}
+
 /** Fase 2 — produtos. */
 async function syncProducts(
     blingProds: BlingProduto[],
     catIdMap: CatIdMap,
+    variacoesPorPai: Map<number, VariantDraft[]>,
+    idsDeVariacao: Set<number>,
     report: CatalogSyncReport
 ): Promise<void> {
     const stockIsAuthoritative = isErpStockAuthoritative();
@@ -166,6 +232,14 @@ async function syncProducts(
     for (const bp of blingProds) {
         const nome = (bp.nome ?? '').trim();
         if (!nome) continue;
+
+        // O CORAÇÃO DA CORREÇÃO: filhos de grade não viram produto próprio.
+        // A listagem do Bling devolve pai e filhos lado a lado, sem vínculo —
+        // era isso que enchia a vitrine de clones ("Sutiã ... Tamanho:P" como
+        // produto solto). Eles entram como linhas de product_variants, logo
+        // abaixo, junto do pai.
+        if (idsDeVariacao.has(bp.id)) continue;
+
         const slug = slugify(nome);
         const image = bp.imagemURL || bp.urlImagem || null;
         const stock = Math.max(0, Math.trunc(bp.estoque?.saldoVirtualTotal ?? 0));
@@ -208,23 +282,38 @@ async function syncProducts(
             blingId: bp.id,
         });
 
+        const grade = variacoesPorPai.get(bp.id);
+
+        // Produto com grade não tem estoque próprio: o saldo vive nas variantes
+        // e o trigger do banco recalcula products.stock a partir delas.
+        const insertValues = grade ? values : { ...values, stock };
+
+        let localId: string;
+
         if (decisao.mode === 'update') {
             await db.update(products).set(updateValues).where(eq(products.id, byBling[0].id));
+            localId = byBling[0].id;
             report.produtos.atualizados++;
-            continue;
-        }
-
-        if (decisao.mode === 'adopt') {
+        } else if (decisao.mode === 'adopt') {
             await db
                 .update(products)
                 .set({ ...updateValues, blingId: bp.id })
                 .where(eq(products.id, bySlug[0].id));
+            localId = bySlug[0].id;
             report.produtos.adotadosPorSlug++;
-            continue;
+        } else {
+            const [criado] = await db
+                .insert(products)
+                .values({ ...insertValues, slug: decisao.slug, blingId: bp.id })
+                .returning({ id: products.id });
+            localId = criado.id;
+            report.produtos.criados++;
         }
 
-        await db.insert(products).values({ ...values, stock, slug: decisao.slug, blingId: bp.id });
-        report.produtos.criados++;
+        if (grade) {
+            report.variantes.paisComGrade++;
+            await syncVariantsOf(localId, grade, report);
+        }
     }
 }
 
@@ -258,6 +347,7 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
     const report: CatalogSyncReport = {
         categorias: { criadas: 0, atualizadas: 0 },
         produtos: { criados: 0, atualizados: 0, adotadosPorSlug: 0, inativosNoBling: [] },
+        variantes: { criadas: 0, atualizadas: 0, desativadas: 0, paisComGrade: 0 },
         naoTocados: 0,
     };
 
@@ -268,7 +358,28 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
 
     const blingProds = await fetchAllPages<BlingProduto>('/produtos?criterio=2'); // 2 = ativos
     logInfo('bling/sync: produtos ativos no Bling', blingProds.length);
-    await syncProducts(blingProds, catIdMap, report);
+
+    // A listagem NÃO traz as variações: só o GET por id do pai as devolve.
+    // Uma chamada extra por produto com grade, com a mesma pausa de rate limit
+    // usada na paginação (~3 req/s no Bling).
+    const pais = blingProds.filter((p) => temVariacoes(p.formato));
+    logInfo('bling/sync: produtos com grade', pais.length);
+
+    const variacoesPorPai = new Map<number, VariantDraft[]>();
+    const detalhes: Array<{ variacoes?: BlingVariacao[] }> = [];
+
+    for (const pai of pais) {
+        const det = await blingGet<{ data?: { variacoes?: BlingVariacao[] } }>(`/produtos/${pai.id}`);
+        const variacoes = det.data?.variacoes ?? [];
+        detalhes.push({ variacoes });
+        variacoesPorPai.set(pai.id, toVariantDrafts(variacoes));
+        await new Promise((r) => setTimeout(r, PAGE_DELAY_MS));
+    }
+
+    const idsDeVariacao = collectVariationIds(detalhes);
+    logInfo('bling/sync: variações identificadas (não viram produto)', idsDeVariacao.size);
+
+    await syncProducts(blingProds, catIdMap, variacoesPorPai, idsDeVariacao, report);
 
     await reportOrphans(blingProds, report);
 
