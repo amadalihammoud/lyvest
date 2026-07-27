@@ -8,6 +8,7 @@
  * 3. Adicione um case em getPaymentProvider()
  */
 
+import { buildAsaasPaymentLinkBody, formatGatewayErrors, isCallbackRejection } from './asaasPayload';
 import { logError, logInfo } from '../../lib/server/logger';
 
 export interface PaymentItem {
@@ -76,9 +77,55 @@ class MockPaymentProvider extends PaymentProvider {
 // Implementação Asaas — checkout HOSPEDADO via Link de Pagamentos.
 // PCI: nenhum dado de cartão passa pelo LyVest; o cliente paga (Pix, cartão até 6x
 // ou boleto) na página do Asaas. Sandbox/produção definidos por ASAAS_BASE_URL.
+type AsaasLinkResponse = {
+    id?: string;
+    url?: string;
+    errors?: Array<{ code?: string; description?: string }>;
+} | null;
+
 class AsaasPaymentProvider extends PaymentProvider {
     private readonly baseUrl =
         process.env.ASAAS_BASE_URL || 'https://api-sandbox.asaas.com/v3';
+
+    /** Transporte puro: um POST, sem regra de negócio. */
+    private async postLink(payload: Record<string, unknown>, apiKey: string) {
+        const res = await fetch(`${this.baseUrl}/paymentLinks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                access_token: apiKey,
+                'User-Agent': 'lyvest-ecommerce',
+            },
+            body: JSON.stringify(payload),
+        });
+        const data = (await res.json().catch(() => null)) as AsaasLinkResponse;
+        return { res, data };
+    }
+
+    /**
+     * Cria o link, com uma única tentativa de recuperação.
+     *
+     * O Asaas só aceita `callback` quando a conta tem site cadastrado (Minha
+     * Conta > Informações); sem isso devolve 400. Como o redirect de retorno é
+     * acessório, recriamos o link sem ele em vez de perder a venda.
+     *
+     * Separado de createSession de propósito: aqui mora o protocolo (transporte
+     * e retry), lá a orquestração. Misturar os dois era metade da complexidade
+     * daquele método.
+     */
+    private async createLink(body: ReturnType<typeof buildAsaasPaymentLinkBody>, apiKey: string) {
+        const first = await this.postLink(body, apiKey);
+        const precisaRetry =
+            !first.res.ok && Boolean(body.callback) && isCallbackRejection(first.data?.errors);
+
+        if (!precisaRetry) return first;
+
+        logError(
+            'asaas: callback rejeitado (conta sem domínio cadastrado) — recriando link sem redirect de retorno'
+        );
+        delete body.callback;
+        return this.postLink(body, apiKey);
+    }
 
     async createSession({ items, currency, amount, metadata }: CreateSessionParams): Promise<PaymentSession> {
         const apiKey = process.env.ASAAS_API_KEY;
@@ -86,80 +133,26 @@ class AsaasPaymentProvider extends PaymentProvider {
             throw new Error('ASAAS_API_KEY ausente — configure o ambiente antes de usar o provider asaas.');
         }
 
-        const totalAmount =
-            typeof amount === 'number'
-                ? amount
-                : items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const orderId = metadata?.orderId || undefined;
-        const summary = items
-            .slice(0, 5)
-            .map((i) => `${i.quantity}x ${i.name ?? i.id}`)
-            .join(', ')
-            .slice(0, 255);
 
-        const body: Record<string, unknown> = {
-            name: orderId ? `Pedido LyVest ${String(orderId).slice(0, 8).toUpperCase()}` : 'Pedido LyVest',
-            description: summary || undefined,
-            value: Math.round(totalAmount * 100) / 100,
-            billingType: 'UNDEFINED', // pagador escolhe: Pix, cartão ou boleto
-            chargeType: 'DETACHED',
-            dueDateLimitDays: 3,
-            maxInstallmentCount: 6, // política da loja: até 6x
-            externalReference: orderId, // volta no webhook (payment.externalReference)
-            notificationEnabled: false,
-        };
-        // URL de retorno: derivada do request (preview/prod na Vercel mudam de host);
-        // env como fallback. O Asaas rejeita callback http/localhost — nesse caso omitimos
-        // o callback em vez de derrubar a cobrança inteira.
-        const appUrl = metadata?.appUrl || process.env.NEXT_PUBLIC_APP_URL;
-        if (appUrl && appUrl.startsWith('https://')) {
-            body.callback = {
-                successUrl: `${appUrl}/checkout?status=success${orderId ? `&order=${orderId}` : ''}`,
-                autoRedirect: true,
-            };
-        }
+        // Montagem do payload vive em ./asaasPayload (pura e testada): é ela que
+        // decide o VALOR cobrado — preferindo sempre o total autoritativo do
+        // servidor sobre a soma dos itens — e se o redirect de retorno entra.
+        // A URL de retorno é derivada do request (preview/prod na Vercel mudam
+        // de host), com a env como fallback.
+        const body = buildAsaasPaymentLinkBody({
+            items,
+            amount,
+            orderId,
+            appUrl: metadata?.appUrl || process.env.NEXT_PUBLIC_APP_URL,
+        });
+        // O valor reportado na sessão é o MESMO que foi enviado ao gateway.
+        const totalAmount = body.value;
 
-        type AsaasLinkResponse = {
-            id?: string;
-            url?: string;
-            errors?: Array<{ code?: string; description?: string }>;
-        } | null;
-        const postLink = async (payload: Record<string, unknown>) => {
-            const response = await fetch(`${this.baseUrl}/paymentLinks`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    access_token: apiKey,
-                    'User-Agent': 'lyvest-ecommerce',
-                },
-                body: JSON.stringify(payload),
-            });
-            const parsed = (await response.json().catch(() => null)) as AsaasLinkResponse;
-            return { response, parsed };
-        };
-
-        let { response: res, parsed: data } = await postLink(body);
-
-        // O Asaas só aceita callback quando a conta tem um site cadastrado
-        // (Minha Conta > Informações). Sem isso, retorna 400 invalid_object.
-        // O redirect de retorno é acessório: recriamos o link sem callback
-        // em vez de perder a venda.
-        if (!res.ok && body.callback) {
-            const desc = (data?.errors ?? []).map((e) => e.description ?? '').join(' ');
-            if (/dom[ií]nio|callback/i.test(desc)) {
-                logError('asaas: callback rejeitado (conta sem domínio cadastrado) — recriando link sem redirect de retorno');
-                delete body.callback;
-                ({ response: res, parsed: data } = await postLink(body));
-            }
-        }
+        const { res, data } = await this.createLink(body, apiKey);
 
         if (!res.ok || !data?.id || !data?.url) {
-            // Erros de validação do gateway (código+descrição) não contêm dados do cliente —
-            // entram no rótulo para serem visíveis também em produção (o logger suprime detail).
-            const gatewayErrors = (data?.errors ?? [])
-                .map((e) => `${e.code ?? '?'}: ${e.description ?? ''}`)
-                .join('; ')
-                .slice(0, 300);
+            const gatewayErrors = formatGatewayErrors(data?.errors);
             logError(
                 `asaas: falha ao criar link de pagamento (HTTP ${res.status})${gatewayErrors ? ` — ${gatewayErrors}` : ''}`
             );
