@@ -10,7 +10,7 @@
  *  - Imagem: usa a urlImagem do Bling quando existir; senão preserva a atual.
  *  - Rate limit: ~3 req/s → pausa de 400ms entre páginas.
  */
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
 import { categories, productVariants, products } from '../../db/schema';
 import { isErpStockAuthoritative } from '../../lib/server/erpFlags';
@@ -62,7 +62,14 @@ interface BlingProduto {
 export interface CatalogSyncReport {
     categorias: { criadas: number; atualizadas: number };
     produtos: { criados: number; atualizados: number; adotadosPorSlug: number; inativosNoBling: string[] };
-    variantes: { criadas: number; atualizadas: number; desativadas: number; paisComGrade: number };
+    variantes: {
+        criadas: number;
+        atualizadas: number;
+        desativadas: number;
+        paisComGrade: number;
+        /** clones da grade que ja existiam como produto e sairam da vitrine */
+        produtosDespromovidos: number;
+    };
     naoTocados: number;
 }
 
@@ -162,12 +169,53 @@ async function resolveHierarchy(blingCats: BlingCategoria[], catIdMap: CatIdMap)
     }
 }
 
+/** Fase 2a — despromove clones de grade que já existem como produto. */
+async function demoteVariationProducts(
+    idsDeVariacao: Set<number>,
+    report: CatalogSyncReport
+): Promise<void> {
+    if (idsDeVariacao.size === 0) return;
+
+    // MIGRAÇÃO, não higiene. Toda loja que rodou o sync antigo tem os filhos da
+    // grade gravados como produtos independentes. Parar de criá-los não some
+    // com os que já existem — sem isto, o mesmo item do Bling apareceria DUAS
+    // vezes: como produto na vitrine e como variante do pai.
+    //
+    // Desativa em vez de apagar: um pedido antigo pode referenciar esse
+    // product_id, e apagar quebraria o histórico. Desativado, ele sai da
+    // vitrine (getProducts filtra active = true) e deixa de ser comprável.
+    const despromovidos = await db
+        .update(products)
+        .set({ active: false })
+        .where(and(inArray(products.blingId, [...idsDeVariacao]), eq(products.active, true)))
+        .returning({ name: products.name });
+
+    report.variantes.produtosDespromovidos = despromovidos.length;
+    if (despromovidos.length > 0) {
+        logInfo(
+            'bling/sync: clones de grade despromovidos (agora sao variantes)',
+            despromovidos.map((d) => d.name)
+        );
+    }
+}
+
 /**
  * Fase 2b — grade de um produto.
  *
- * Correlaciona por `bling_id` da variação (índice único parcial da migração
+ * Correlaciona por  da variação (índice único parcial da migração
  * 0006). Variantes locais que sumiram do Bling são DESATIVADAS, não apagadas:
  * apagar destruiria o vínculo de pedidos antigos que referenciam a variante.
+ *
+ * Escrever aqui dispara o trigger trg_sync_product_stock, que recalcula
+ * products.stock como a soma das variantes ativas — por isso o pai não precisa
+ * (e não deve) ter estoque próprio quando tem grade.
+ */
+/**
+ * Fase 2b — grade de um produto.
+ *
+ * Correlaciona por bling_id da variação (índice único parcial da migração 0006).
+ * Variantes locais que sumiram do Bling são DESATIVADAS, não apagadas: apagar
+ * destruiria o vínculo de pedidos antigos que as referenciam.
  *
  * Escrever aqui dispara o trigger trg_sync_product_stock, que recalcula
  * products.stock como a soma das variantes ativas — por isso o pai não precisa
@@ -347,7 +395,7 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
     const report: CatalogSyncReport = {
         categorias: { criadas: 0, atualizadas: 0 },
         produtos: { criados: 0, atualizados: 0, adotadosPorSlug: 0, inativosNoBling: [] },
-        variantes: { criadas: 0, atualizadas: 0, desativadas: 0, paisComGrade: 0 },
+        variantes: { criadas: 0, atualizadas: 0, desativadas: 0, paisComGrade: 0, produtosDespromovidos: 0 },
         naoTocados: 0,
     };
 
@@ -379,6 +427,7 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
     const idsDeVariacao = collectVariationIds(detalhes);
     logInfo('bling/sync: variações identificadas (não viram produto)', idsDeVariacao.size);
 
+    await demoteVariationProducts(idsDeVariacao, report);
     await syncProducts(blingProds, catIdMap, variacoesPorPai, idsDeVariacao, report);
 
     await reportOrphans(blingProds, report);
