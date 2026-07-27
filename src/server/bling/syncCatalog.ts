@@ -17,6 +17,7 @@ import { isErpStockAuthoritative } from '../../lib/server/erpFlags';
 import { logInfo } from '../../lib/server/logger';
 import { db } from '../dbClient';
 import { blingGet } from './client';
+import { decideProductWrite } from './productSlug';
 
 const PAGE_LIMIT = 100;
 const PAGE_DELAY_MS = 400;
@@ -178,14 +179,31 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
         const updateValues = stockIsAuthoritative ? { ...values, stock } : values;
 
         const byBling = await db.select().from(products).where(eq(products.blingId, bp.id)).limit(1);
-        if (byBling[0]) {
+        const bySlug = byBling[0]
+            ? []
+            : await db.select().from(products).where(eq(products.slug, slug)).limit(1);
+
+        // A decisão vive em ./productSlug (pura e testada). O ponto delicado é o
+        // caso 4: colidir com um produto que JÁ pertence a outro item do Bling.
+        // Antes, adotávamos a linha e sobrescrevíamos o bling_id dela — dois
+        // produtos homônimos viravam um só, alternando de identidade a cada sync.
+        const decisao = decideProductWrite({
+            baseSlug: slug,
+            matchedByBlingId: byBling[0]?.id ?? null,
+            matchedBySlug: bySlug[0]
+                ? { id: bySlug[0].id, blingId: bySlug[0].blingId ?? null }
+                : null,
+            codigo: bp.codigo,
+            blingId: bp.id,
+        });
+
+        if (decisao.mode === 'update') {
             await db.update(products).set(updateValues).where(eq(products.id, byBling[0].id));
             report.produtos.atualizados++;
             continue;
         }
 
-        const bySlug = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
-        if (bySlug[0]) {
+        if (decisao.mode === 'adopt') {
             await db
                 .update(products)
                 .set({ ...updateValues, blingId: bp.id })
@@ -194,7 +212,7 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
             continue;
         }
 
-        await db.insert(products).values({ ...values, stock, slug, blingId: bp.id });
+        await db.insert(products).values({ ...values, stock, slug: decisao.slug, blingId: bp.id });
         report.produtos.criados++;
     }
 
