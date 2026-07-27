@@ -15,8 +15,59 @@ export default function Footer() {
         <footer id="footer" className="bg-white pt-16 pb-8 border-t border-slate-100" role="contentinfo">
             <div className="container mx-auto px-4">
 
+                {/*
+                   Bloco de marca IRMÃO do grid, não uma quarta coluna dele.
+
+                   O grid abaixo é afinado à mão (larguras de 141px e 220px para
+                   centrar títulos sobre os ícones, Let's Encrypt absoluto para
+                   não inflar a altura da linha). Enfiar uma coluna nova obrigaria
+                   a deslocar todo `md:col-start-N` e refazer esse alinhamento.
+                   Como flex-irmão, o grid fica intacto.
+                */}
+                <div className="max-w-6xl mx-auto mb-12 flex flex-col md:flex-row md:items-start gap-10 md:gap-12">
+
+                    <div className="md:w-[300px] md:shrink-0 flex flex-col items-center md:items-start gap-5">
+                        <Image
+                            src="/assets/logos/lyvest-red-logo.webp"
+                            alt="Ly Vest"
+                            width={300}
+                            height={90}
+                            className="h-12 w-auto"
+                        />
+
+                        {/* Texto da própria metadata do site (app/layout.tsx), não
+                            inventado aqui — para a marca dizer a mesma coisa na
+                            aba do navegador, no Google e no rodapé. */}
+                        <p className="text-base text-slate-600 leading-relaxed text-center md:text-left">
+                            Moda íntima com conforto e sofisticação. Descubra nossa coleção
+                            exclusiva de lingeries, pijamas e acessórios.
+                        </p>
+
+                        {/* Redes sociais. Vieram da coluna 3 (o antigo "SIGA-NOS")
+                            em vez de duplicadas: dois conjuntos do mesmo link no
+                            mesmo rodapé confundem quem navega por teclado e
+                            repetem o mesmo destino para leitor de tela. */}
+                        <nav className="flex items-center gap-6" aria-label="Redes sociais">
+                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
+                                <div className="w-8 h-8 flex items-center justify-center">
+                                    <Image src="/assets/icons/instagram-logo.webp" alt="" width={54} height={54} className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
+                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
+                                <div className="w-8 h-8 flex items-center justify-center">
+                                    <img src="/assets/icons/facebook-logo.svg" alt="" className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
+                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
+                                <div className="w-8 h-8 flex items-center justify-center">
+                                    <img src="/assets/icons/x-logo.svg" alt="" className="max-w-full max-h-full object-contain" />
+                                </div>
+                            </a>
+                        </nav>
+                    </div>
+
                 {/* Grid flat único 3 colunas — cols 1+2 auto-placement intercalado, col 3 posicionamento explícito */}
-                <div className="grid grid-cols-1 md:grid-cols-[auto_auto_1fr] gap-x-10 gap-y-3 max-w-5xl mx-auto mb-12 items-center">
+                <div className="grid grid-cols-1 md:grid-cols-[auto_auto_1fr] gap-x-10 gap-y-3 flex-1 items-center">
 
                     {/* ── Cols 1+2: 12 filhos intercalados (auto-placement preenche col1 e col2) ── */}
 
@@ -83,60 +134,40 @@ export default function Footer() {
                         <span>(13) 9 9624-6969</span>
                     </div>
 
-                    {/* ── Col 3, Row 1: títulos SIGA-NOS ←→ SEGURANÇA ── */}
-                    <div className="flex items-start justify-between w-full self-start order-13 md:order-none md:col-start-3 md:row-start-1">
-                        {/* wrapper 141px = largura do cluster social → texto centrado acima do ícone Facebook */}
-                        <div className="md:w-[141px] md:text-center">
-                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
-                                {t('footer.followUs')}
-                            </h3>
-                        </div>
-                        {/* wrapper 220px = largura do LE → texto centrado acima do logo Let's Encrypt */}
-                        <div className="md:w-[220px] md:text-center">
-                            <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
-                                {t('footer.security')}
-                            </h3>
-                        </div>
+                    {/*
+                       ── Col 3, Rows 1-2: SEGURANÇA ──
+
+                       Ficou só o Let's Encrypt. O "SIGA-NOS" e seus ícones foram
+                       para o bloco de marca, à esquerda. Isso simplificou a
+                       coluna: o LE era `md:absolute` para não inflar a altura da
+                       linha que dividia com o cluster social — sozinho, não
+                       precisa mais do truque, e agora espelha a estrutura de
+                       PAGAMENTO logo abaixo (título centrado + logos centrados).
+                    */}
+                    <div className="flex justify-center order-[13] md:order-none md:col-start-3 md:row-start-1">
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                            {t('footer.security')}
+                        </h3>
                     </div>
 
-                    {/* ── Col 3, Row 2: cluster social (esq.) + LE (dir.) — LE abs para não inflacionar o row track ── */}
-                    <div className="relative flex items-center w-full order-14 md:order-none md:col-start-3 md:row-start-2">
-                        {/* Cluster social — 27×27 (−20%), gap-[30px] */}
-                        <div className="flex items-center gap-[30px]">
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Instagram">
-                                <div className="w-[27px] h-[27px] flex items-center justify-center">
-                                    <Image src="/assets/icons/instagram-logo.webp" alt="Instagram" width={54} height={54} className="max-w-full max-h-full object-contain" />
-                                </div>
-                            </a>
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="Facebook">
-                                <div className="w-[27px] h-[27px] flex items-center justify-center">
-                                    <img src="/assets/icons/facebook-logo.svg" alt="Facebook" className="max-w-full max-h-full object-contain" />
-                                </div>
-                            </a>
-                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200" aria-label="X">
-                                <div className="w-[27px] h-[27px] flex items-center justify-center">
-                                    <img src="/assets/icons/x-logo.svg" alt="X" className="max-w-full max-h-full object-contain" />
-                                </div>
-                            </a>
-                        </div>
-                        {/* Let's Encrypt — 220×61 (+80%) — abs no desktop para não afetar row track height */}
-                        <div className="ml-auto w-[220px] h-[61px] flex items-center justify-center md:ml-0 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2">
+                    <div className="flex items-center justify-center order-[14] md:order-none md:col-start-3 md:row-start-2">
+                        <div className="w-[220px] h-[61px] flex items-center justify-center">
                             <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={220} height={61} className="max-w-full max-h-full object-contain" />
                         </div>
                     </div>
 
                     {/* ── Col 3, Row 3: divisor sutil — self-center para alinhar com mid-text dos adjacentes ── */}
-                    <div className="border-t border-slate-100 w-full self-center order-15 md:order-none md:col-start-3 md:row-start-3" />
+                    <div className="border-t border-slate-100 w-full self-center order-[15] md:order-none md:col-start-3 md:row-start-3" />
 
                     {/* ── Col 3, Row 4: PAGAMENTO — alinhado com "Trocas e Devoluções" ── */}
-                    <div className="flex justify-center order-16 md:order-none md:col-start-3 md:row-start-4">
+                    <div className="flex justify-center order-[16] md:order-none md:col-start-3 md:row-start-4">
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                             {t('footer.paymentMethods')}
                         </h3>
                     </div>
 
                     {/* ── Col 3, Rows 5-6: ícones de pagamento centralizados (ponta ▽) ── */}
-                    <div className="flex items-center justify-center gap-2 order-17 md:order-none md:col-start-3 md:row-start-5 md:row-span-2">
+                    <div className="flex items-center justify-center gap-2 order-[17] md:order-none md:col-start-3 md:row-start-5 md:row-span-2">
                         <div className="w-[62px] h-[47px] flex items-center justify-center">
                             <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
                         </div>
@@ -148,6 +179,7 @@ export default function Footer() {
                         </div>
                     </div>
 
+                    </div>
                 </div>
 
                 {/* Copyright */}
