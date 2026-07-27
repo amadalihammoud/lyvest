@@ -69,18 +69,19 @@ async function fetchAllPages<T>(basePath: string): Promise<T[]> {
     return all;
 }
 
-export async function syncCatalog(): Promise<CatalogSyncReport> {
-    const report: CatalogSyncReport = {
-        categorias: { criadas: 0, atualizadas: 0 },
-        produtos: { criados: 0, atualizados: 0, adotadosPorSlug: 0, inativosNoBling: [] },
-        naoTocados: 0,
-    };
+/** blingId da categoria -> uuid local. */
+type CatIdMap = Map<number, string>;
 
-    // ---------- 1. Categorias ----------
-    const blingCats = await fetchAllPages<BlingCategoria>('/categorias/produtos');
-    logInfo('bling/sync: categorias no Bling', blingCats.length);
-
-    const catIdMap = new Map<number, string>(); // blingId -> uuid local
+/**
+ * Fase 1 — categorias.
+ *
+ * @returns o mapa blingId -> uuid local, necessário para vincular os produtos.
+ */
+async function syncCategories(
+    blingCats: BlingCategoria[],
+    report: CatalogSyncReport
+): Promise<CatIdMap> {
+    const catIdMap: CatIdMap = new Map();
 
     // Nomes do Bling por id, pra poder desambiguar slugs repetidos (ex.: "Cueca"
     // existe em Masculino E em Menino) usando o nome do pai, sem depender da
@@ -131,10 +132,17 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
         report.categorias.criadas++;
     }
 
-    // ---------- 1b. Hierarquia (parent_id) ----------
-    // Segunda passada: só agora catIdMap está completo (todo blingId -> uuid local),
-    // então dá pra resolver categoriaPai.id -> uuid mesmo se o pai vier depois do filho
-    // na listagem da API do Bling.
+    return catIdMap;
+}
+
+/**
+ * Fase 1b — hierarquia (parent_id).
+ *
+ * Segunda passada de propósito: só aqui catIdMap está completo, então
+ * categoriaPai.id resolve mesmo quando o pai vem DEPOIS do filho na paginação
+ * da API do Bling. É o que torna o resultado independente da ordem.
+ */
+async function resolveHierarchy(blingCats: BlingCategoria[], catIdMap: CatIdMap): Promise<void> {
     for (const bc of blingCats) {
         const localId = catIdMap.get(bc.id);
         if (!localId) continue;
@@ -142,11 +150,14 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
         const parentLocalId = parentBlingId ? catIdMap.get(parentBlingId) ?? null : null;
         await db.update(categories).set({ parentId: parentLocalId }).where(eq(categories.id, localId));
     }
+}
 
-    // ---------- 2. Produtos ----------
-    const blingProds = await fetchAllPages<BlingProduto>('/produtos?criterio=2'); // 2 = ativos
-    logInfo('bling/sync: produtos ativos no Bling', blingProds.length);
-
+/** Fase 2 — produtos. */
+async function syncProducts(
+    blingProds: BlingProduto[],
+    catIdMap: CatIdMap,
+    report: CatalogSyncReport
+): Promise<void> {
     const stockIsAuthoritative = isErpStockAuthoritative();
     if (!stockIsAuthoritative) {
         logInfo('bling/sync: saldo do Bling NÃO sobrescreve o estoque local (ERP_STOCK_AUTHORITATIVE desligado)');
@@ -215,16 +226,51 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
         await db.insert(products).values({ ...values, stock, slug: decisao.slug, blingId: bp.id });
         report.produtos.criados++;
     }
+}
 
-    // ---------- 3. Relatório de órfãos (no banco com bling_id que sumiram do Bling) ----------
+/**
+ * Fase 3 — órfãos.
+ *
+ * Apenas RELATA produtos locais cujo bling_id sumiu da listagem. Não desativa
+ * nada: um sync parcial (erro de paginação, cota estourada) desativaria a
+ * vitrine inteira. A decisão de desativar é humana.
+ */
+async function reportOrphans(
+    blingProds: BlingProduto[],
+    report: CatalogSyncReport
+): Promise<void> {
     const blingIds = new Set(blingProds.map((p) => p.id));
     const locals = await db
         .select({ name: products.name, blingId: products.blingId })
         .from(products);
+
     for (const l of locals) {
         if (l.blingId == null) report.naoTocados++;
         else if (!blingIds.has(l.blingId)) report.produtos.inativosNoBling.push(l.name);
     }
+}
+
+/**
+ * Orquestra o sync completo. Cada fase faz uma coisa e entrega à próxima o que
+ * ela precisa — antes tudo isto vivia numa função só, de complexidade 47.
+ */
+export async function syncCatalog(): Promise<CatalogSyncReport> {
+    const report: CatalogSyncReport = {
+        categorias: { criadas: 0, atualizadas: 0 },
+        produtos: { criados: 0, atualizados: 0, adotadosPorSlug: 0, inativosNoBling: [] },
+        naoTocados: 0,
+    };
+
+    const blingCats = await fetchAllPages<BlingCategoria>('/categorias/produtos');
+    logInfo('bling/sync: categorias no Bling', blingCats.length);
+    const catIdMap = await syncCategories(blingCats, report);
+    await resolveHierarchy(blingCats, catIdMap);
+
+    const blingProds = await fetchAllPages<BlingProduto>('/produtos?criterio=2'); // 2 = ativos
+    logInfo('bling/sync: produtos ativos no Bling', blingProds.length);
+    await syncProducts(blingProds, catIdMap, report);
+
+    await reportOrphans(blingProds, report);
 
     logInfo('bling/sync: concluído', report as unknown as Record<string, unknown>);
     return report;
