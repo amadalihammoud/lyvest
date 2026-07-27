@@ -1,7 +1,7 @@
 'use client';
 import { useUser } from '@clerk/nextjs';
 import { CreditCard, QrCode, AlertCircle, Lock } from 'lucide-react';
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useRef, useState, ChangeEvent, FormEvent } from 'react';
 
 import { useI18n } from '../../hooks/useI18n';
 import { paymentService } from '../../services/payment';
@@ -24,7 +24,12 @@ type PaymentFormData = {
 
 // Interface for component props
 interface CheckoutPaymentProps {
-    onSubmit: (data: { method: 'credit' | 'pix'; lastFour?: string }) => void;
+    /**
+     * Pode devolver Promise: o wizard persiste o pedido antes de avancar, e
+     * este componente PRECISA esperar — se o pedido falha, o wizard nao troca
+     * de passo e o formulario continua montado.
+     */
+    onSubmit: (data: { method: 'credit' | 'pix'; lastFour?: string }) => void | Promise<void>;
     total: number;
     /** Endereço de entrega coletado no passo anterior (enviado ao servidor no fluxo hospedado). */
     shipping?: Record<string, unknown>;
@@ -199,16 +204,20 @@ function PixPanel({ t }: { t: TFn }) {
 }
 
 // Botão de confirmar pagamento — extraído para reduzir complexidade.
-function SubmitButton({ t, isSubmitting, rateLimitError, handleSubmit }: {
+function SubmitButton({ t, isSubmitting, handleSubmit }: {
     t: TFn;
     isSubmitting: boolean;
-    rateLimitError: boolean;
     handleSubmit: (e: FormEvent) => void;
 }) {
     return (
         <button
             onClick={handleSubmit}
-            disabled={isSubmitting || rateLimitError} // Removed unnecessary boolean check
+            // So isSubmitting. Antes tinha `|| rateLimitError`, e como nada nunca punha
+            // esse estado de volta em false, o botao morria depois de 3 tentativas:
+            // a propria mensagem ("aguarde N minutos") virava impossivel de cumprir,
+            // porque nenhum clique reavaliava o limitador. Quem decide se pode
+            // tentar e o checkoutLimiter, a cada submit.
+            disabled={isSubmitting}
             className="w-full py-4 bg-lyvest-500 text-white font-bold rounded-xl hover:bg-lyvest-600 transition-all shadow-lg hover:glare-effect flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
             {isSubmitting ? (
@@ -238,6 +247,8 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [rateLimitError, setRateLimitError] = useState(false);
+    // Espelho sincrono de isSubmitting: setState nao vale como trava de reentrada.
+    const submittingRef = useRef(false);
 
     // Form state
     const [formData, setFormData] = useState<PaymentFormData>({
@@ -289,7 +300,15 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        // Check rate limiting
+        // Trava de reentrada em REF, não em state.
+        //
+        // `setIsSubmitting` é assíncrono: entre o primeiro clique e o React
+        // re-renderizar o botão como disabled existe uma janela real, e dois
+        // cliques rápidos leem o mesmo `false`. Com o Asaas isso custa caro — o
+        // segundo POST cria um SEGUNDO pedido pending, baixa estoque de novo e
+        // queima cupom de uso único. Ref é síncrona e fecha a janela.
+        if (submittingRef.current) return;
+
         const { allowed, resetIn } = checkoutLimiter.check();
         if (!allowed) {
             setRateLimitError(true);
@@ -297,70 +316,81 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
             return;
         }
 
+        // O limitador liberou agora, então um bloqueio anterior não vale mais.
+        setRateLimitError(false);
+
+        // Quando true, o browser JÁ está saindo da página: reabilitar o botão
+        // aqui só o deixaria clicável durante a navegação.
+        let redirecionando = false;
+
+        submittingRef.current = true;
         setIsSubmitting(true);
         setErrors({});
 
-        // Fluxo legado (mock): PIX resolve direto no wizard, sem gateway.
-        if (method === 'pix' && !isHostedCheckout) {
-            checkoutLimiter.attempt();
-            onSubmit({ method: 'pix' });
-            return;
-        }
-
-        // Validação de cartão: apenas no fluxo legado (no hospedado o cartão é
-        // digitado na página segura do gateway, nunca aqui).
-        if (!isHostedCheckout) {
-            const validation = validateForm(paymentSchema, {
-                cardNumber: formData.cardNumber,
-                cardName: formData.cardName,
-                expiry: formData.expiry,
-                cvv: formData.cvv
-            });
-
-            if (!validation.success) {
-                setErrors(validation.errors as ValidationErrors);
-                setIsSubmitting(false);
+        try {
+            // Fluxo legado (mock): PIX resolve direto no wizard, sem gateway.
+            //
+            // O `await` não é decorativo: onSubmit é async e, quando o pedido
+            // falha (sem estoque, rede fora), o wizard mostra o erro e NÃO
+            // avança de passo — este componente continua montado. Sem esperar,
+            // o `finally` rodaria antes da falha e o botão ficaria travado em
+            // "Processando..." até o cliente recarregar a página.
+            if (method === 'pix' && !isHostedCheckout) {
+                checkoutLimiter.attempt();
+                await onSubmit({ method: 'pix' });
                 return;
             }
-        }
 
-        // Register attempt
-        checkoutLimiter.attempt();
+            // Validação de cartão: apenas no fluxo legado (no hospedado o cartão
+            // é digitado na página segura do gateway, nunca aqui).
+            if (!isHostedCheckout) {
+                const validation = validateForm(paymentSchema, {
+                    cardNumber: formData.cardNumber,
+                    cardName: formData.cardName,
+                    expiry: formData.expiry,
+                    cvv: formData.cvv
+                });
 
-        // Process payment
-        try {
-            if (method === 'credit' || isHostedCheckout) {
-                // Call Payment Service
-                // Cast the response to PaymentSession
-                const session = await paymentService.createPaymentSession({
-                    customer: buildPaymentCustomer(formData.cardName, user),
-                    items: buildSessionItems(cartItems),
-                    // Envia apenas o CÓDIGO do cupom; o servidor revalida e recomputa o total.
-                    // O `total` do cliente é meramente informativo (o backend o ignora).
-                    couponCode: couponCode || undefined,
-                    paymentMethod: method,
-                    shipping,
-                    total: displayTotal,
-                    currency: 'BRL',
-                    orderId: `LV-${Date.now()}`
-                }) as unknown as PaymentSession;
-
-                const outcome = resolveSessionOutcome(session);
-                if (outcome.kind === 'redirect') {
-                    window.location.href = outcome.url;
-                } else {
-                    // Sucesso direto (ex.: mock sem redirecionamento).
-                    onSubmit({
-                        method: 'credit',
-                        lastFour: formData.cardNumber.slice(-4)
-                    });
+                if (!validation.success) {
+                    setErrors(validation.errors as ValidationErrors);
+                    return;
                 }
             }
+
+            checkoutLimiter.attempt();
+
+            const session = await paymentService.createPaymentSession({
+                customer: buildPaymentCustomer(formData.cardName, user),
+                items: buildSessionItems(cartItems),
+                // Envia apenas o CÓDIGO do cupom; o servidor revalida e recomputa o total.
+                // O `total` do cliente é meramente informativo (o backend o ignora).
+                couponCode: couponCode || undefined,
+                paymentMethod: method,
+                shipping,
+                total: displayTotal,
+                currency: 'BRL',
+                orderId: `LV-${Date.now()}`
+            }) as unknown as PaymentSession;
+
+            const outcome = resolveSessionOutcome(session);
+            if (outcome.kind === 'redirect') {
+                redirecionando = true;
+                window.location.href = outcome.url;
+                return;
+            }
+
+            // Sucesso direto (ex.: mock sem redirecionamento). `method`, não o
+            // literal 'credit': no fluxo hospedado o PIX não retorna cedo, e
+            // registrar um PIX como cartão corromperia a conciliação.
+            await onSubmit({ method, lastFour: formData.cardNumber.slice(-4) });
         } catch (err) {
             console.error(err);
             setErrors({ _form: 'Erro ao processar pagamento. Tente novamente.' });
         } finally {
-            setIsSubmitting(false);
+            if (!redirecionando) {
+                submittingRef.current = false;
+                setIsSubmitting(false);
+            }
         }
     };
 
@@ -434,7 +464,6 @@ export default function CheckoutPayment({ onSubmit, total, shipping }: CheckoutP
             <SubmitButton
                 t={t}
                 isSubmitting={isSubmitting}
-                rateLimitError={rateLimitError}
                 handleSubmit={handleSubmit}
             />
 
