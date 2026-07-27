@@ -67,7 +67,7 @@ export default function Footer() {
                     </div>
 
                 {/* Grid flat único 3 colunas — cols 1+2 auto-placement intercalado, col 3 posicionamento explícito */}
-                <div className="grid grid-cols-1 md:grid-cols-[auto_auto_1fr] gap-x-10 gap-y-3 flex-1 items-center">
+                <div className="grid grid-cols-1 md:grid-cols-[auto_auto] gap-x-10 gap-y-3 flex-1 items-center">
 
                     {/* ── Cols 1+2: 12 filhos intercalados (auto-placement preenche col1 e col2) ── */}
 
@@ -134,51 +134,54 @@ export default function Footer() {
                         <span>(13) 9 9624-6969</span>
                     </div>
 
-                    {/*
-                       ── Col 3, Rows 1-2: SEGURANÇA ──
+                    </div>
 
-                       Ficou só o Let's Encrypt. O "SIGA-NOS" e seus ícones foram
-                       para o bloco de marca, à esquerda. Isso simplificou a
-                       coluna: o LE era `md:absolute` para não inflar a altura da
-                       linha que dividia com o cluster social — sozinho, não
-                       precisa mais do truque, e agora espelha a estrutura de
-                       PAGAMENTO logo abaixo (título centrado + logos centrados).
+                    {/*
+                       ── Selos: SEGURANÇA + PAGAMENTO ──
+
+                       Terceiro irmão flex, FORA do grid. Enquanto era a coluna 3
+                       dele, cada elemento daqui dividia linha com um item de
+                       AJUDA — e a altura da linha é a do elemento mais alto. O
+                       logo do Let's Encrypt tem 61px contra ~24px de uma linha de
+                       texto, então a linha inteira esticava e, com items-center,
+                       "Quem somos" ganhava 18px extras de folga: 54px até o item
+                       seguinte, contra 36px entre todos os outros.
+
+                       O código antigo contornava isso posicionando o logo de
+                       forma absoluta. Funcionava, mas mantinha o acoplamento: a
+                       coluna da direita continuava capaz de deformar a da
+                       esquerda, e qualquer selo novo reabriria o problema.
+
+                       Fora do grid, as duas colunas não têm mais como se
+                       influenciar — e junto foram embora os md:row-start-1..6,
+                       md:col-start-3, md:row-span-2 e os order-[13..17].
                     */}
-                    <div className="flex justify-center order-[13] md:order-none md:col-start-3 md:row-start-1">
+                    <div className="md:w-[240px] md:shrink-0 flex flex-col items-center gap-3">
                         <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
                             {t('footer.security')}
                         </h3>
-                    </div>
 
-                    <div className="flex items-center justify-center order-[14] md:order-none md:col-start-3 md:row-start-2">
                         <div className="w-[220px] h-[61px] flex items-center justify-center">
                             <Image src="/assets/icons/logo-seguranca.webp" alt="Let's Encrypt" width={220} height={61} className="max-w-full max-h-full object-contain" />
                         </div>
-                    </div>
 
-                    {/* ── Col 3, Row 3: divisor sutil — self-center para alinhar com mid-text dos adjacentes ── */}
-                    <div className="border-t border-slate-100 w-full self-center order-[15] md:order-none md:col-start-3 md:row-start-3" />
+                        <div className="border-t border-slate-100 w-full" />
 
-                    {/* ── Col 3, Row 4: PAGAMENTO — alinhado com "Trocas e Devoluções" ── */}
-                    <div className="flex justify-center order-[16] md:order-none md:col-start-3 md:row-start-4">
-                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight">
+                        <h3 className="text-[15px] font-bold text-slate-800 uppercase tracking-[0.1em] leading-tight mt-1">
                             {t('footer.paymentMethods')}
                         </h3>
-                    </div>
 
-                    {/* ── Col 3, Rows 5-6: ícones de pagamento centralizados (ponta ▽) ── */}
-                    <div className="flex items-center justify-center gap-2 order-[17] md:order-none md:col-start-3 md:row-start-5 md:row-span-2">
-                        <div className="w-[62px] h-[47px] flex items-center justify-center">
-                            <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="w-[62px] h-[47px] flex items-center justify-center">
+                                <Image src="/assets/icons/visa-logo.webp" alt="Visa" width={90} height={28} className="max-w-full max-h-full object-contain" />
+                            </div>
+                            <div className="w-[81px] h-[61px] flex items-center justify-center">
+                                <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="max-w-full max-h-full object-contain" />
+                            </div>
+                            <div className="w-[81px] h-[61px] flex items-center justify-center">
+                                <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="max-w-full max-h-full object-contain" />
+                            </div>
                         </div>
-                        <div className="w-[81px] h-[61px] flex items-center justify-center">
-                            <Image src="/assets/icons/mastercard-logo.webp" alt="Mastercard" width={90} height={70} className="max-w-full max-h-full object-contain" />
-                        </div>
-                        <div className="w-[81px] h-[61px] flex items-center justify-center">
-                            <Image src="/assets/icons/pix-logo.webp" alt="Pix" width={150} height={80} className="max-w-full max-h-full object-contain" />
-                        </div>
-                    </div>
-
                     </div>
                 </div>
 
