@@ -183,8 +183,17 @@ export async function getCategories(): Promise<CatalogCategory[]> {
             .orderBy(categories.name);
         return rows;
     } catch (e) {
+        // PROPAGA. Devolver [] aqui era mentira com cara de verdade: "nenhuma
+        // categoria" é indistinguível de "a loja não tem categorias", então o
+        // menu sumia do site sem gerar erro, sem alerta e sem nada no
+        // monitoramento.
+        //
+        // Aconteceu de verdade em 26/07/2026: o banco de produção ficou fora por
+        // ~10 minutos após uma troca de senha e o site parecia apenas "vazio".
+        // /api/products acusou 503 na hora; /api/categories respondeu 200 e
+        // escondeu a queda.
         logError('catalog: erro ao listar categorias', e);
-        return [];
+        throw e;
     }
 }
 
