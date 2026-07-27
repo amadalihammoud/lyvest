@@ -5,7 +5,6 @@ import { useState } from 'react';
 import SizeGuideModal from './SizeGuideModal';
 // Use Product from services/ProductService instead of local definition
 import { Product } from '../../services/ProductService';
-import { toast } from 'react-hot-toast';
 
 interface ProductActionsProps {
     product: Product;

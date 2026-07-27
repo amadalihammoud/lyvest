@@ -3,9 +3,9 @@
  * A identidade do usuário é passada explicitamente pelo chamador (Clerk auth()),
  * nunca vinda do cliente.
  */
+import { sql } from './dbClient';
 import { logError } from '../lib/server/logger';
 
-import { sql } from './dbClient';
 
 export interface CreateOrderParams {
     userId: string | null;              // Clerk id; null para convidado

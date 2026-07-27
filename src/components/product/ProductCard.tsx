@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { Product } from '../../services/ProductService';
 import { getInstallments } from '../../utils/installments';
-import { useCartStore } from '../../store/useCartStore';
 import { generateSlug } from '../../utils/slug';
 import OptimizedProductImage from '../ui/OptimizedProductImage';
 

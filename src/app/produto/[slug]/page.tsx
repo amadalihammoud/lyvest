@@ -1,10 +1,10 @@
 
+import { and, avg, count, eq } from 'drizzle-orm';
+
 import type { Metadata } from 'next';
 
 import ProductPageClient from '@/components/pages/ProductPageClient';
 import { productsData } from '@/data/products';
-import { and, avg, count, eq } from 'drizzle-orm';
-
 import { categories, products, reviews } from '@/db/schema';
 import { db, isDbConfigured } from '@/server/dbClient';
 import { Product } from '@/services/ProductService';

@@ -9,7 +9,6 @@
  */
 
 import { logInfo } from '../../lib/server/logger';
-
 import { getFreeShippingThreshold } from '../financialConfig';
 
 export interface ShippingItem {

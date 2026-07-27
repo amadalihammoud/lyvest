@@ -1,9 +1,9 @@
 'use client';
 
+import { useAuth, UserButton } from '@clerk/nextjs';
+import { LayoutDashboard, ShoppingBag, Package, Settings, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ShoppingBag, Package, Settings, LogOut } from 'lucide-react';
-import { useAuth, UserButton } from '@clerk/nextjs';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();

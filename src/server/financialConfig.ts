@@ -8,11 +8,11 @@
 
 import { eq } from 'drizzle-orm';
 
+import { db, isDbConfigured } from './dbClient';
 import { SHIPPING_CONFIG } from '../config/constants';
 import { financialConfigs } from '../db/schema';
 import { logError } from '../lib/server/logger';
 
-import { db, isDbConfigured } from './dbClient';
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 

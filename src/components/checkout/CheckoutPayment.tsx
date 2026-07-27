@@ -9,7 +9,6 @@ import { useCart } from '../../store/useCartStore';
 import { paymentSchema, validateForm } from '../../utils/schemas';
 import { RateLimiter, detectXSS } from '../../utils/security';
 import { formatCardNumber } from '../../utils/validation';
-import { getInstallments } from '../../utils/installments';
 
 // import { useAuth } from '../../context/AuthContext'; // Removed
 

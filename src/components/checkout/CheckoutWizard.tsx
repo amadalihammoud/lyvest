@@ -76,6 +76,7 @@ export default function CheckoutWizard({ onBack, onComplete }: CheckoutWizardPro
             const status = params.get('status');
             const orderId = params.get('order');
             if (status === 'success') {
+                // eslint-disable-next-line react-hooks/set-state-in-effect -- retorno do gateway: os parâmetros só existem no cliente, na URL de callback
                 setOrderNumber(orderId ? orderId.slice(0, 8).toUpperCase() : 'SUCESSO');
                 clearCart();
                 setStep(3);

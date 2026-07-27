@@ -7,9 +7,9 @@
 // `productsData` diretamente — tudo passa por aqui.
 import { and, avg, count, eq, ilike, inArray, or } from 'drizzle-orm';
 
+import { productsData } from '../../data/products';
 import { categories, products, reviews } from '../../db/schema';
 import { logError } from '../../lib/server/logger';
-import { productsData } from '../../data/products';
 import { Product } from '../../services/ProductService';
 import { generateSlug } from '../../utils/slug';
 import { db, isDbConfigured } from '../dbClient';

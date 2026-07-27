@@ -9,8 +9,8 @@ import { useMemo, useState } from 'react';
 
 import CategoryToolbar from '@/components/product/CategoryToolbar';
 import ProductCard from '@/components/product/ProductCard';
-import { useCatalog } from '@/store/useCatalogStore';
 import { useCart } from '@/store/useCartStore';
+import { useCatalog } from '@/store/useCatalogStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useI18n } from '@/store/useI18nStore';
 import { useModal } from '@/store/useModalStore';
