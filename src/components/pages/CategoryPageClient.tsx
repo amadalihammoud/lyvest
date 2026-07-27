@@ -7,6 +7,8 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
+import type { Product } from '@/services/ProductService';
+
 import CategoryToolbar from '@/components/product/CategoryToolbar';
 import ProductCard from '@/components/product/ProductCard';
 import { useCart } from '@/store/useCartStore';
@@ -29,14 +31,21 @@ const FilterSidebar = dynamic(() => import('@/components/product/FilterSidebar')
 
 interface CategoryPageClientProps {
     slug: string;
+    /** Catálogo renderizado no servidor (page.tsx). Garante grade no HTML inicial. */
+    initialProducts?: Product[];
 }
 
-export default function CategoryPageClient({ slug }: CategoryPageClientProps) {
+export default function CategoryPageClient({ slug, initialProducts = [] }: CategoryPageClientProps) {
     const { t } = useI18n();
     const { addToCart } = useCart();
     const { favorites, toggleFavorite } = useFavorites();
     const { openModal } = useModal();
-    const { products: catalogProducts } = useCatalog();
+    const { products: storeProducts } = useCatalog();
+
+    // O store só popula depois da hidratação (useEffect). Até lá — e no HTML do
+    // servidor, que é o que o crawler lê — usamos o que veio pronto do servidor.
+    // Depois da hidratação o store assume, mantendo filtros e ordenação vivos.
+    const catalogProducts = storeProducts.length > 0 ? storeProducts : initialProducts;
 
     // State for Toolbar & Filters
     const [sortOption, setSortOption] = useState('relevance');

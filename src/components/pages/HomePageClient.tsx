@@ -7,6 +7,8 @@ import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 
 // Hero and InfoStrip moved to page.tsx for LCP optimization
 // import Hero from '@/components/features/Hero';
+import type { Product } from '@/services/ProductService';
+
 import ProductCard from '@/components/product/ProductCard';
 // import InfoStrip from '@/components/features/InfoStrip';
 import { useCart } from '@/store/useCartStore';
@@ -21,7 +23,7 @@ const NewsletterForm = dynamic(() => import('@/components/features/NewsletterFor
 const Testimonials = dynamic(() => import('@/components/features/Testimonials'), { ssr: false });
 
 // 1. Dynamic Component: Handles URL params and Product Grid
-function ProductShowcase() {
+function ProductShowcase({ initialProducts }: { initialProducts: Product[] }) {
     const router = useRouter();
 
     const [selectedCategory, setSelectedCategory] = useState('Todos');
@@ -46,7 +48,15 @@ function ProductShowcase() {
     const { favorites, toggleFavorite } = useFavorites();
     const { openModal } = useModal();
     const { t } = useI18n();
-    const { products: catalogProducts } = useCatalog();
+    const { products: storeProducts } = useCatalog();
+
+    // O store só popula depois da hidratação. Até lá — e no HTML do servidor,
+    // que é o que o crawler lê — vale o catálogo que veio pronto de page.tsx.
+    // Era exatamente isto que faltava para o comentário acima ("statically
+    // generate the product grid in the initial HTML") ser verdade: a intenção
+    // estava certa, mas a fonte de dados era client-only, então o HTML saía com
+    // o bloco "Ops! Não encontrámos nada." e zero links de produto.
+    const catalogProducts = storeProducts.length > 0 ? storeProducts : initialProducts;
 
     // Update URL when category/search changes (avoid loop by not depending on searchParams)
     const isFirstRender = useRef(true);
@@ -171,11 +181,11 @@ function ProductShowcase() {
 }
 
 // 3. Main Component: Renders Static Parts
-export default function HomePageClient() {
+export default function HomePageClient({ initialProducts = [] }: { initialProducts?: Product[] }) {
     return (
         <>
             {/* Static Product Grid - Instantly parsed from HTML */}
-            <ProductShowcase />
+            <ProductShowcase initialProducts={initialProducts} />
 
             {/* Testimonials moved here with ssr: false for JS diet */}
             <div className="cv-auto-sm">
