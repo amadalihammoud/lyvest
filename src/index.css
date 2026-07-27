@@ -279,15 +279,10 @@ textarea:focus-visible {
   }
 }
 
-/* Hero mais compacto no mobile */
-@media (max-width: 768px) {
-  .hero-mobile-compact {
-    padding-top: 1rem;
-    padding-bottom: 2rem;
-  }
-
-  /* hero-title-mobile removed — not used in any component */
-}
+/* .hero-mobile-compact removida: era a única usuária desta regra e o padding
+   dela virava duas faixas carmim em volta do banner no mobile — o Hero é
+   transparente, então o bg-lyvest-500 do wrapper aparecia. Os pontinhos do
+   carrossel, que dependiam do espaço de baixo, agora ficam sobre a imagem. */
 
 /* Animações reduzidas para preferência do usuário */
 @media (prefers-reduced-motion: reduce) {

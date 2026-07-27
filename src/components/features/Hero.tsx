@@ -33,10 +33,16 @@ function Hero() {
                 <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-sky-200/40 rounded-full blur-3xl animate-blob animation-delay-2000" />
             </div>
 
-            <div
-                className="pb-3 md:pb-0 hero-mobile-compact"
-                suppressHydrationWarning
-            >
+            {/*
+               Sem padding. Antes havia `pb-3 md:pb-0` + a classe
+               .hero-mobile-compact (1rem em cima, 2rem embaixo, só no mobile).
+               Como este bloco é transparente, aquele respiro virava duas faixas
+               carmim — o bg-lyvest-500 do wrapper em app/page.tsx aparecendo por
+               cima e por baixo do banner. O espaço de baixo existia para os
+               pontinhos do carrossel, que ficavam FORA da imagem; agora eles
+               vivem sobre ela.
+            */}
+            <div suppressHydrationWarning>
                 <div className="flex justify-center items-center w-full">
                     <div className="w-full relative group">
 
@@ -129,14 +135,26 @@ function Hero() {
                             })}
                         </div>
 
-                        {/* 
-                           Visual Indicator for Multi-slide 
-                           (Pure CSS/Static - Optional: Add JS later if strict auto-play needed, 
-                           but for LCP pure CSS is superior)
+                        {/*
+                           Indicador de múltiplos slides, agora SOBRE a imagem.
+
+                           A cápsula escura translúcida não é enfeite: os pontos
+                           pousam em cima da arte do banner, que muda a cada
+                           slide e a cada campanha. Pontos brancos soltos somem
+                           numa foto de areia clara; a cápsula garante contraste
+                           independentemente do que o lojista subir depois.
+
+                           `aria-hidden` porque isto é decoração: o carrossel é
+                           CSS scroll-snap puro, sem JS, então os pontos não
+                           acompanham a rolagem — anunciá-los a um leitor de tela
+                           informaria uma posição que pode estar errada.
                         */}
-                        <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 flex md:hidden space-x-2 z-20 pointer-events-none">
-                            <div className="w-6 h-3 rounded-full bg-lyvest-600 transition-all opacity-80" />
-                            <div className="w-3 h-3 rounded-full bg-lyvest-200 opacity-60" />
+                        <div
+                            className="absolute bottom-3 left-1/2 -translate-x-1/2 md:hidden flex items-center gap-2 z-20 pointer-events-none rounded-full bg-black/25 px-2.5 py-1.5 backdrop-blur-sm"
+                            aria-hidden="true"
+                        >
+                            <div className="w-5 h-1.5 rounded-full bg-white" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/60" />
                         </div>
 
                     </div>
