@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import UserDashboard from '@/components/dashboard/UserDashboard';
-import { mockOrders } from '@/data/mockOrders';
 // import { useAuth, User } from '@/context/AuthContext'; // Removed
 import { useModal } from '@/store/useModalStore';
 import { Order } from '@/types/dashboard';
@@ -65,6 +64,27 @@ interface User {
     [key: string]: unknown;
 }
 
+/**
+ * Falha ao carregar pedidos precisa ser distinguível de "você não tem pedidos".
+ * Sem este aviso, um erro de rede faria o cliente concluir que a compra sumiu.
+ *
+ * Fica fora de UserDashboard de propósito: aquele componente é compartilhado
+ * pelas abas Overview e Orders, e acrescentar props de estado de carregamento
+ * ali obrigaria a mexer em toda a cadeia por um banner.
+ */
+function OrdersLoadError({ show }: { show: boolean }) {
+    if (!show) return null;
+    return (
+        <div
+            role="alert"
+            className="mx-auto mb-4 max-w-5xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        >
+            Não conseguimos carregar seus pedidos agora. Atualize a página em instantes — nenhuma
+            compra sua foi perdida.
+        </div>
+    );
+}
+
 export default function DashboardPageClient() {
     const router = useRouter();
     // const { user, profile, signOut } = useAuth(); // Removed
@@ -74,8 +94,14 @@ export default function DashboardPageClient() {
     const { openDrawer, setTrackingCode } = useModal();
 
     // Pedidos reais via /api/my-orders (escopo por usuário aplicado no servidor).
-    // Fallback para mock enquanto carrega ou em erro (dev/demo).
-    const [orders, setOrders] = useState<Order[]>(mockOrders as unknown as Order[]);
+    //
+    // Começa VAZIO, não com mock. Antes iniciava com mockOrders e, quando
+    // /api/my-orders falhava, o `return` no erro deixava os pedidos fictícios na
+    // tela PERMANENTEMENTE — um cliente real via pedidos que não existem e podia
+    // abrir chamado pedindo rastreio de um código inventado.
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [ordersLoading, setOrdersLoading] = useState(true);
+    const [ordersError, setOrdersError] = useState(false);
 
     useEffect(() => {
         if (!user) return;
@@ -87,13 +113,19 @@ export default function DashboardPageClient() {
                 if (!active) return;
                 if (!res.ok) {
                     logger.error('Erro ao carregar pedidos:', String(res.status));
+                    setOrdersError(true);
                     return;
                 }
                 const body = (await res.json()) as { orders?: DbOrderRow[] };
                 if (!active) return;
                 setOrders((body.orders ?? []).map(mapDbOrder));
             } catch (err) {
-                if (active) logger.error('Erro ao carregar pedidos:', err);
+                if (active) {
+                    logger.error('Erro ao carregar pedidos:', err);
+                    setOrdersError(true);
+                }
+            } finally {
+                if (active) setOrdersLoading(false);
             }
         })();
 
@@ -132,11 +164,14 @@ export default function DashboardPageClient() {
     };
 
     return (
-        <UserDashboard
-            user={dashboardUser}
-            orders={orders}
-            onTrackOrder={handleTrackOrder}
-            onLogout={handleLogout}
-        />
+        <>
+            <OrdersLoadError show={ordersError && !ordersLoading} />
+            <UserDashboard
+                user={dashboardUser}
+                orders={orders}
+                onTrackOrder={handleTrackOrder}
+                onLogout={handleLogout}
+            />
+        </>
     );
 }

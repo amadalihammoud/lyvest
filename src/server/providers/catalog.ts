@@ -220,7 +220,14 @@ export async function getProducts(opts: GetProductsOptions = {}): Promise<Produc
             };
         });
     } catch (e) {
+        // NÃO cair no mock aqui. O fallback antigo transformava indisponibilidade
+        // do banco numa LOJA FALSA: a vitrine passava a exibir produtos
+        // hardcoded, com preços de fevereiro e ids numéricos (1..12). O cliente
+        // adicionava ao carrinho e o checkout estourava, porque products.id é
+        // uuid — `inArray(products.id, ['1'])` levanta "invalid input syntax for
+        // type uuid" e vira 500 genérico, com o carrinho perdido.
+        // Um erro visível é melhor que uma venda impossível.
         logError('catalog: erro ao listar produtos', e);
-        return filterMockProducts(opts);
+        throw e;
     }
 }
