@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorizedInternal } from '@/lib/server/internalAuth';
 import { logError } from '@/lib/server/logger';
 import { isBlingConfigured } from '@/server/bling/client';
-import { syncCatalog } from '@/server/bling/syncCatalog';
+import { inspectBlingProducts, syncCatalog } from '@/server/bling/syncCatalog';
 
 export const maxDuration = 300; // catálogos grandes: até 5 min
 
@@ -31,6 +31,16 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+        // Modo diagnóstico: ?inspect=1 devolve o payload CRU do Bling e não
+        // escreve nada. Existe porque a forma como o Bling representa produto
+        // com variação (pai/filho, campo `variacao`, `produtoPai`) não está
+        // documentada de forma confiável — e implementar a importação de
+        // variantes sem ver o payload real seria codificar no escuro.
+        if (new URL(request.url).searchParams.get('inspect') === '1') {
+            const amostra = await inspectBlingProducts();
+            return NextResponse.json({ success: true, inspect: amostra });
+        }
+
         const report = await syncCatalog();
         return NextResponse.json({ success: true, report });
     } catch (e) {

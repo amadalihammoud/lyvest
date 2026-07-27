@@ -275,3 +275,28 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
     logInfo('bling/sync: concluído', report as unknown as Record<string, unknown>);
     return report;
 }
+
+/**
+ * DIAGNÓSTICO — leitura pura, não escreve nada.
+ *
+ * Devolve o payload cru do Bling para os produtos, e o detalhe de UM produto
+ * buscado individualmente (o endpoint de listagem costuma omitir `variacoes`,
+ * que só aparece no GET por id). Serve para descobrir como o Bling representa
+ * grade antes de implementar a importação de variantes.
+ */
+export async function inspectBlingProducts(): Promise<unknown> {
+    const lista = await blingGet<{ data: unknown[] }>('/produtos?criterio=2&pagina=1&limite=10');
+    const primeiro = (lista.data?.[0] ?? null) as { id?: number } | null;
+
+    let detalhe: unknown = null;
+    if (primeiro?.id) {
+        detalhe = await blingGet<unknown>(`/produtos/${primeiro.id}`);
+    }
+
+    return {
+        totalNaPagina: lista.data?.length ?? 0,
+        camposDaListagem: primeiro ? Object.keys(primeiro) : [],
+        listaCrua: lista.data,
+        detalheDoPrimeiro: detalhe,
+    };
+}
