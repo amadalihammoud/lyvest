@@ -1,14 +1,13 @@
 /**
  * Payment Provider Abstraction
  *
- * Gerencia a interação com gateways de pagamento.
- * Para adicionar um provider (ex.: Mercado Pago, Stripe):
- * 1. Crie uma classe que estenda PaymentProvider
- * 2. Implemente o método createSession
- * 3. Adicione um case em getPaymentProvider()
+ * Asaas:
+ *  - PIX → cobrança transparente (QR na própria loja)
+ *  - cartão / default → Payment Link (redirect) — PCI
  */
 
 import { buildAsaasPaymentLinkBody, formatGatewayErrors, isCallbackRejection } from './asaasPayload';
+import { createAsaasPixPayment, ensureAsaasCustomer } from './asaasPix';
 import { logError, logInfo } from '../../lib/server/logger';
 
 export interface PaymentItem {
@@ -21,10 +20,11 @@ export interface PaymentItem {
 export interface CreateSessionParams {
     items: PaymentItem[];
     currency: string;
-    /** Valor autoritativo calculado no servidor (com desconto). Sempre preferido. */
     amount?: number;
     discountAmount?: number;
     metadata?: Record<string, string>;
+    /** 'pix' → on-site; 'credit' ou omitido → hosted link. */
+    paymentMethod?: 'credit' | 'pix';
 }
 
 export interface PaymentSession {
@@ -33,32 +33,47 @@ export interface PaymentSession {
     status: 'pending' | 'paid' | 'failed';
     amount: number;
     currency: string;
-    /** Em produção, URL de redirecionamento do gateway. */
+    /** Redirect (cartão / link). Vazio no PIX on-site. */
     checkoutUrl: string;
     clientSecret?: string;
+    /** Fluxo on-site PIX. */
+    mode?: 'hosted' | 'pix_on_site';
     qrCode?: string;
+    pixCopyPaste?: string;
+    expiresAt?: string;
 }
 
-// Classe base (interface)
 export abstract class PaymentProvider {
     abstract createSession(params: CreateSessionParams): Promise<PaymentSession>;
 }
 
-// Implementação Mock (desenvolvimento/testes)
 class MockPaymentProvider extends PaymentProvider {
-    async createSession({ items, currency, amount }: CreateSessionParams): Promise<PaymentSession> {
+    async createSession({ items, currency, amount, paymentMethod }: CreateSessionParams): Promise<PaymentSession> {
         logInfo('MockPayment: criando sessão', `${items.length} itens`);
 
-        // Usa o valor autoritativo calculado no servidor (com desconto já aplicado) quando
-        // presente; só cai no somatório dos itens como último recurso.
         const totalAmount =
             typeof amount === 'number'
                 ? amount
                 : items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const randomId = Math.random().toString(36).substring(7);
 
-        // Simula latência de rede
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise((resolve) => setTimeout(resolve, 400));
+
+        if (paymentMethod === 'pix') {
+            return {
+                sessionId: `sess_pix_${randomId}`,
+                provider: 'mock',
+                status: 'pending',
+                amount: totalAmount,
+                currency,
+                checkoutUrl: '',
+                mode: 'pix_on_site',
+                qrCode:
+                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+                pixCopyPaste: `00020126580014BR.GOV.BCB.PIX0136mock${randomId}52040000530398654${totalAmount.toFixed(2)}5802BR5907LYVEST6009SAOPAULO62070503***6304ABCD`,
+                expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+            };
+        }
 
         return {
             sessionId: `sess_${randomId}`,
@@ -66,17 +81,13 @@ class MockPaymentProvider extends PaymentProvider {
             status: 'pending',
             amount: totalAmount,
             currency,
-            // Em cenário real, URL para redirecionar o usuário
             checkoutUrl: `/checkout?session_id=sess_${randomId}&status=success`,
+            mode: 'hosted',
             clientSecret: `pi_${randomId}_secret`,
-            qrCode: '00020126360014BR.GOV.BCB.PIX...', // Exemplo para PIX
         };
     }
 }
 
-// Implementação Asaas — checkout HOSPEDADO via Link de Pagamentos.
-// PCI: nenhum dado de cartão passa pelo LyVest; o cliente paga (Pix, cartão até 6x
-// ou boleto) na página do Asaas. Sandbox/produção definidos por ASAAS_BASE_URL.
 type AsaasLinkResponse = {
     id?: string;
     url?: string;
@@ -84,10 +95,8 @@ type AsaasLinkResponse = {
 } | null;
 
 class AsaasPaymentProvider extends PaymentProvider {
-    private readonly baseUrl =
-        process.env.ASAAS_BASE_URL || 'https://api-sandbox.asaas.com/v3';
+    private readonly baseUrl = process.env.ASAAS_BASE_URL || 'https://api-sandbox.asaas.com/v3';
 
-    /** Transporte puro: um POST, sem regra de negócio. */
     private async postLink(payload: Record<string, unknown>, apiKey: string) {
         const res = await fetch(`${this.baseUrl}/paymentLinks`, {
             method: 'POST',
@@ -102,17 +111,6 @@ class AsaasPaymentProvider extends PaymentProvider {
         return { res, data };
     }
 
-    /**
-     * Cria o link, com uma única tentativa de recuperação.
-     *
-     * O Asaas só aceita `callback` quando a conta tem site cadastrado (Minha
-     * Conta > Informações); sem isso devolve 400. Como o redirect de retorno é
-     * acessório, recriamos o link sem ele em vez de perder a venda.
-     *
-     * Separado de createSession de propósito: aqui mora o protocolo (transporte
-     * e retry), lá a orquestração. Misturar os dois era metade da complexidade
-     * daquele método.
-     */
     private async createLink(body: ReturnType<typeof buildAsaasPaymentLinkBody>, apiKey: string) {
         const first = await this.postLink(body, apiKey);
         const precisaRetry =
@@ -127,26 +125,63 @@ class AsaasPaymentProvider extends PaymentProvider {
         return this.postLink(body, apiKey);
     }
 
-    async createSession({ items, currency, amount, metadata }: CreateSessionParams): Promise<PaymentSession> {
+    private async createPixOnSite(
+        params: CreateSessionParams,
+        apiKey: string
+    ): Promise<PaymentSession> {
+        void apiKey; // auth via asaasPix helpers
+        const orderId = params.metadata?.orderId;
+        const email = params.metadata?.customerEmail || 'checkout@lyvest.com.br';
+        const name = params.metadata?.customerName || 'Cliente LyVest';
+
+        const customerId = await ensureAsaasCustomer({
+            name,
+            email,
+            cpfCnpj: params.metadata?.customerDocument || null,
+        });
+
+        const pix = await createAsaasPixPayment({
+            customerId,
+            items: params.items,
+            amount: params.amount,
+            orderId,
+            description: orderId ? `Pedido LyVest ${orderId.slice(0, 8)}` : 'Pedido LyVest',
+        });
+
+        return {
+            sessionId: pix.paymentId,
+            provider: 'asaas',
+            status: 'pending',
+            amount: pix.value,
+            currency: params.currency,
+            checkoutUrl: '',
+            mode: 'pix_on_site',
+            qrCode: pix.encodedImage,
+            pixCopyPaste: pix.payload,
+            expiresAt: pix.expirationDate,
+        };
+    }
+
+    async createSession(params: CreateSessionParams): Promise<PaymentSession> {
         const apiKey = process.env.ASAAS_API_KEY;
         if (!apiKey) {
             throw new Error('ASAAS_API_KEY ausente — configure o ambiente antes de usar o provider asaas.');
         }
 
+        // PIX transparente: QR na loja, sem sair do site.
+        if (params.paymentMethod === 'pix') {
+            return this.createPixOnSite(params, apiKey);
+        }
+
+        const { items, currency, amount, metadata } = params;
         const orderId = metadata?.orderId || undefined;
 
-        // Montagem do payload vive em ./asaasPayload (pura e testada): é ela que
-        // decide o VALOR cobrado — preferindo sempre o total autoritativo do
-        // servidor sobre a soma dos itens — e se o redirect de retorno entra.
-        // A URL de retorno é derivada do request (preview/prod na Vercel mudam
-        // de host), com a env como fallback.
         const body = buildAsaasPaymentLinkBody({
             items,
             amount,
             orderId,
             appUrl: metadata?.appUrl || process.env.NEXT_PUBLIC_APP_URL,
         });
-        // O valor reportado na sessão é o MESMO que foi enviado ao gateway.
         const totalAmount = body.value;
 
         const { res, data } = await this.createLink(body, apiKey);
@@ -167,32 +202,20 @@ class AsaasPaymentProvider extends PaymentProvider {
             amount: totalAmount,
             currency,
             checkoutUrl: data.url,
+            mode: 'hosted',
         };
     }
 }
 
-// Implementação Mercado Pago (placeholder)
 class MercadoPagoProvider extends PaymentProvider {
     async createSession(_params: CreateSessionParams): Promise<PaymentSession> {
-        // TODO: instalar o SDK 'mercadopago'
-        // import { MercadoPagoConfig, Preference } from 'mercadopago';
-        // const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
         throw new Error('Mercado Pago provider is not fully configured yet. Please set up API keys.');
     }
 }
 
-/** Factory: retorna o provider de pagamento ativo (process.env.PAYMENT_PROVIDER). */
 export function getPaymentProvider(): PaymentProvider {
     const provider = process.env.PAYMENT_PROVIDER || 'mock';
 
-    // Fail-closed: o MockPaymentProvider devolve uma checkoutUrl que aponta para
-    // a própria loja com status=success, ou seja, confirma o pedido SEM cobrar.
-    // Se PAYMENT_PROVIDER sumir ou vier grafado errado num deploy, é melhor o
-    // checkout falhar visivelmente do que fechar venda fantasma.
-    //
-    // O discriminador é VERCEL_ENV, não NODE_ENV: em preview deployment da Vercel
-    // NODE_ENV também vale 'production' (é um build de produção do Next), e usar
-    // mock em preview é legítimo — o que não pode é mock cobrando cliente real.
     const isRealMoney = process.env.VERCEL_ENV
         ? process.env.VERCEL_ENV === 'production'
         : process.env.NODE_ENV === 'production';
@@ -209,7 +232,6 @@ export function getPaymentProvider(): PaymentProvider {
         case 'mercadopago':
             return new MercadoPagoProvider();
         case 'stripe':
-            // return new StripeProvider();
             throw new Error('Stripe not implemented yet');
         case 'mock':
         default:
