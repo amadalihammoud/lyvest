@@ -3,10 +3,11 @@
  *
  * Idempotência: se orders.erp_order_id já existe, não reenvia.
  * Correlação: grava o id retornado pelo Bling em erp_order_id.
+ * Contato: CPF/nome de profiles (Clerk) quando houver; senão destinatário + guest email.
  */
 import { eq, inArray } from 'drizzle-orm';
 
-import { orders, productVariants, products } from '../../db/schema';
+import { orders, productVariants, products, profiles } from '../../db/schema';
 import { logError, logInfo } from '../../lib/server/logger';
 import { db } from '../dbClient';
 import type { ErpOrderData, ErpSyncResult } from '../providers/erp';
@@ -59,10 +60,29 @@ function guestEmailFromUserId(userId: string | null): string | null {
     return null;
 }
 
-async function resolveBlingIds(
-    snapshot: SnapshotItem[]
-): Promise<Map<string, number>> {
-    /** key: `v:${variantId}` ou `p:${productId}` → blingId */
+async function loadProfileContact(
+    userId: string | null
+): Promise<{ name: string | null; cpf: string | null }> {
+    if (!userId || userId.startsWith('guest:')) {
+        return { name: null, cpf: null };
+    }
+    try {
+        const rows = await db
+            .select({ fullName: profiles.fullName, cpf: profiles.cpf })
+            .from(profiles)
+            .where(eq(profiles.id, userId))
+            .limit(1);
+        const row = rows[0];
+        return {
+            name: row?.fullName?.trim() || null,
+            cpf: row?.cpf?.trim() || null,
+        };
+    } catch {
+        return { name: null, cpf: null };
+    }
+}
+
+async function resolveBlingIds(snapshot: SnapshotItem[]): Promise<Map<string, number>> {
     const map = new Map<string, number>();
     const variantIds = snapshot.map((i) => i.variantId).filter((id): id is string => Boolean(id));
     const productIds = snapshot.map((i) => i.id).filter((id): id is string => Boolean(id));
@@ -108,9 +128,6 @@ async function loadOrder(orderId: string): Promise<LocalOrderRow | null> {
     return rows[0] ?? null;
 }
 
-/**
- * Envia o pedido ao Bling. Seguro chamar mais de uma vez (idempotente via erp_order_id).
- */
 export async function sendLocalOrderToBling(orderId: string): Promise<ErpSyncResult> {
     if (!isBlingConfigured()) {
         return {
@@ -159,13 +176,18 @@ export async function sendLocalOrderToBling(orderId: string): Promise<ErpSyncRes
     });
 
     const shipping = parseShipping(order.shippingAddress);
+    const profile = await loadProfileContact(order.userId);
     const lojaId = Number(process.env.BLING_LOJA_ID) || null;
+
+    // Documento: só de profiles.cpf (nunca inventar). Nome: destinatário > profile > fallback.
+    const customerName =
+        shipping?.recipient?.trim() || profile.name || 'Cliente LyVest';
 
     const payload = buildBlingOrderPayload({
         orderId: order.id,
         createdAt: order.createdAt,
-        customerName: shipping?.recipient || 'Cliente LyVest',
-        customerDocument: null,
+        customerName,
+        customerDocument: profile.cpf,
         customerEmail: guestEmailFromUserId(order.userId),
         items,
         shipping,
@@ -211,7 +233,6 @@ export async function sendLocalOrderToBling(orderId: string): Promise<ErpSyncRes
     }
 }
 
-/** Aceita shape genérico do ErpProvider (id obrigatório). */
 export async function sendOrderFromErpData(orderData: ErpOrderData): Promise<ErpSyncResult> {
     const id = orderData.id != null ? String(orderData.id) : '';
     if (!id) {
