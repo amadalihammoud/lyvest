@@ -12,12 +12,12 @@ export const categories = pgTable('categories', {
     name: text('name').notNull(),
     slug: text('slug').notNull().unique(),
     description: text('description'),
-    blingId: bigint('bling_id', { mode: 'number' }), // correlação Bling (migração 0003)
-    parentId: uuid('parent_id').references((): AnyPgColumn => categories.id), // hierarquia Bling (migração 0005)
+    blingId: bigint('bling_id', { mode: 'number' }),
+    parentId: uuid('parent_id').references((): AnyPgColumn => categories.id),
 });
 
 export const profiles = pgTable('profiles', {
-    id: text('id').primaryKey(), // Clerk user id
+    id: text('id').primaryKey(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
     fullName: text('full_name'),
     avatarUrl: text('avatar_url'),
@@ -44,18 +44,18 @@ export const products = pgTable('products', {
     stock: integer('stock').default(0),
     highlight: boolean('highlight').default(false),
     sizes: text('sizes').array().default(['P', 'M', 'G', 'GG']),
-    blingId: bigint('bling_id', { mode: 'number' }), // correlação Bling (migração 0003)
-    ean: text('ean'), // migração 0004
-    badge: text('badge'), // ex.: "Mais Vendido", "Novo" — migração 0004
-    colors: jsonb('colors').notNull().default([]), // [{name, hex}] — migração 0004
-    images: text('images').array().notNull().default([]), // galeria adicional — migração 0004
-    specs: jsonb('specs').notNull().default({}), // ficha técnica livre — migração 0004
+    blingId: bigint('bling_id', { mode: 'number' }),
+    ean: text('ean'),
+    badge: text('badge'),
+    colors: jsonb('colors').notNull().default([]),
+    images: text('images').array().notNull().default([]),
+    specs: jsonb('specs').notNull().default({}),
 }, (t) => [index('idx_products_category').on(t.categoryId)]);
 
 export const orders = pgTable('orders', {
     id: uuid('id').defaultRandom().primaryKey(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-    userId: text('user_id'), // Clerk id ou 'guest:<email>'
+    userId: text('user_id'),
     status: text('status').default('pending'),
     totalAmount: decimal('total_amount', { precision: 10, scale: 2 }).notNull(),
     paymentMethod: text('payment_method').notNull(),
@@ -63,6 +63,8 @@ export const orders = pgTable('orders', {
     shippingAddress: jsonb('shipping_address'),
     items: jsonb('items'),
     paymentRef: text('payment_ref'),
+    // Migração 0009: permite cancel_pending_order / job de expiração liberar cupom sem parâmetro externo.
+    couponCode: text('coupon_code'),
 }, (t) => [
     index('idx_orders_user_id').on(t.userId),
     index('idx_orders_payment_ref').on(t.paymentRef),
@@ -113,8 +115,6 @@ export const reviews = pgTable('reviews', {
     approved: boolean('approved').default(true),
 }, (t) => [index('idx_reviews_product').on(t.productId)]);
 
-// Tokens OAuth do Bling — linha única (id=1). O refresh_token é rotativo,
-// por isso persiste no banco e nunca em env var. Server-only.
 export const blingTokens = pgTable('bling_tokens', {
     id: integer('id').primaryKey().default(1),
     accessToken: text('access_token').notNull(),
@@ -123,27 +123,19 @@ export const blingTokens = pgTable('bling_tokens', {
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Grade vendável (migração 0006). Quando um produto tem variante ativa, o estoque
-// autoritativo é o da variante e products.stock vira espelho derivado, mantido por
-// trigger no banco. Produto sem variante continua funcionando pelo caminho antigo.
-//
-// ATENÇÃO: os índices únicos parciais (bling_id, sku) e o índice de combinação por
-// COALESCE(size,'')/COALESCE(color,'') vivem apenas no SQL — o Drizzle não expressa
-// índice sobre expressão. Um `drizzle-kit push` NÃO os recria. O DDL de
-// db/neon/0006_product_variants.sql continua sendo a fonte da verdade.
 export const productVariants = pgTable('product_variants', {
     id: uuid('id').defaultRandom().primaryKey(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     productId: uuid('product_id')
         .notNull()
         .references(() => products.id, { onDelete: 'cascade' }),
-    size: text('size'), // NULL = produto sem grade de tamanho
-    color: text('color'), // NULL = produto sem variação de cor
+    size: text('size'),
+    color: text('color'),
     sku: text('sku'),
     ean: text('ean'),
-    blingId: bigint('bling_id', { mode: 'number' }), // id da variação no Bling
+    blingId: bigint('bling_id', { mode: 'number' }),
     stock: integer('stock').notNull().default(0),
-    price: decimal('price', { precision: 10, scale: 2 }), // NULL = herda de products.price
+    price: decimal('price', { precision: 10, scale: 2 }),
     promotionalPrice: decimal('promotional_price', { precision: 10, scale: 2 }),
     active: boolean('active').notNull().default(true),
 }, (t) => [index('idx_product_variants_product').on(t.productId)]);
