@@ -16,7 +16,7 @@ describe('toBlingDate', () => {
 });
 
 describe('buildBlingOrderPayload', () => {
-    it('monta contato PF e itens com produto Bling', () => {
+    it('monta contato PF, itens e endereço de entrega', () => {
         const body = buildBlingOrderPayload({
             orderId: 'ord-1',
             createdAt: '2026-07-30T12:00:00.000Z',
@@ -33,7 +33,16 @@ describe('buildBlingOrderPayload', () => {
                     blingProductId: 16682834177,
                 },
             ],
-            shipping: { price: 25.5 },
+            shipping: {
+                price: 25.5,
+                recipient: 'Maria Silva',
+                street: 'Rua A',
+                number: '100',
+                neighborhood: 'Centro',
+                city: 'São Paulo',
+                state: 'sp',
+                zipCode: '01310-100',
+            },
             lojaId: 123,
         });
 
@@ -56,7 +65,21 @@ describe('buildBlingOrderPayload', () => {
             },
         ]);
         expect(body.loja).toEqual({ id: 123 });
-        expect(body.transporte).toMatchObject({ frete: 25.5 });
+        expect(body.transporte).toMatchObject({
+            frete: 25.5,
+            fretePorConta: 1,
+            contato: {
+                nome: 'Maria Silva',
+                endereco: {
+                    endereco: 'Rua A',
+                    numero: '100',
+                    bairro: 'Centro',
+                    municipio: 'São Paulo',
+                    uf: 'SP',
+                    cep: '01310100',
+                },
+            },
+        });
     });
 
     it('sem documento válido não manda numeroDocumento', () => {
