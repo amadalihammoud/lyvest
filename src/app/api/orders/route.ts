@@ -6,19 +6,14 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError } from '@/lib/server/logger';
 import { createOrderDb } from '@/server/orderDb';
 import { couponRuleFor, describeRpcFailure } from '@/server/orders';
+import { usesInvertedOrderFlow } from '@/server/checkout';
 
 /**
  * POST /api/orders
  *
- * Persiste um pedido de forma ATÔMICA e server-authoritative, via a função SQL
- * create_order (Neon):
- *  - Pilar 1: o cliente manda só id + quantidade (+ código do cupom). Preço e total são
- *    recomputados no banco. Qualquer total/desconto do cliente é ignorado.
- *  - Pilar 2: baixa de estoque condicional/atômica e cupom de uso único (constraint UNIQUE)
- *    dentro da mesma transação da função.
- *  - Pilar 3: exige usuário logado; a identidade vem do Clerk (auth()) AQUI no servidor
- *    e é passada como parâmetro — o cliente nunca escolhe o user_id.
- *  - Pilar 4: rate limit. Pilar 5: validação Zod + erros sem vazar detalhe interno.
+ * Fluxo LEGADO (mock / wizard sem gateway hospedado).
+ * Em produção com Asaas, o pedido nasce em /api/payment/create-session — esta
+ * rota fica DESLIGADA para evitar pending órfão e estoque preso sem cobrança.
  */
 const bodySchema = z.object({
     items: z
@@ -26,9 +21,6 @@ const bodySchema = z.object({
             z.object({
                 id: z.string().uuid(),
                 quantity: z.number().int().positive().max(99),
-                // Obrigatório quando o produto tem grade (migração 0006).
-                // Sem este campo o Zod descartaria a chave e create_order
-                // rejeitaria com VARIANT_REQUIRED.
                 variantId: z.string().uuid().optional(),
             })
         )
@@ -40,6 +32,17 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+    // Com gateway real (fluxo invertido), create-session é a única porta de pedido.
+    if (usesInvertedOrderFlow(process.env.PAYMENT_PROVIDER)) {
+        return NextResponse.json(
+            {
+                message:
+                    'Esta rota não está disponível com o gateway de pagamento ativo. Use o checkout.',
+            },
+            { status: 405 }
+        );
+    }
+
     const rl = await checkRateLimit(getClientIp(request.headers), 'checkout');
     if (!rl.success) {
         return NextResponse.json(
