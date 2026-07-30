@@ -10,15 +10,16 @@ import { buildCreateOrderParams, buildSessionMetadata, normalizeCreateOrderResul
 import { db } from '@/server/dbClient';
 import { cancelPendingOrderDb, createOrderDb } from '@/server/orderDb';
 import { couponRuleFor, describeRpcFailure } from '@/server/orders';
-import { buildVerifiedItems, computeSubtotal, computeTotal, resolveDiscount } from '@/server/pricing';
+import { buildVerifiedItems, computeSubtotal, computeTotal, resolveDiscount, toCents } from '@/server/pricing';
 import { getPaymentProvider } from '@/server/providers/payment';
+import { resolveAuthoritativeShipping } from '@/server/shippingAuth';
 
 /**
  * POST /api/payment/create-session
  *
  * Cria a sessão de pagamento com FLUXO INVERTIDO (pedido antes do gateway):
  *  1. Pilar 1 (Zero-Trust): confia SOMENTE em id + quantity (e no CÓDIGO do cupom).
- *     Preço unitário e desconto são revalidados no servidor; total do cliente é ignorado.
+ *     Preço unitário, desconto e FRETE são revalidados no servidor; total do cliente é ignorado.
  *  2. Usuário logado OU convidado: o pedido é criado ANTES da sessão via função SQL
  *     create_order (status 'pending', baixa de estoque atômica, cupom de uso único).
  *     A identidade vem do Clerk auth() no servidor; convidado usa guest_email.
@@ -71,7 +72,6 @@ export async function POST(request: NextRequest) {
 
         const { items: frontendItems, currency, couponCode, paymentMethod, shipping, customer } = parsed.data;
 
-        // Relê os preços reais no banco (fonte da verdade). Ids de produto são UUID (string).
         const productIds = frontendItems.map((i) => String(i.id));
         let dbProducts: Array<{ id: string; name: string; price: string; promotionalPrice: string | null }>;
         try {
@@ -89,17 +89,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: 'Failed to verify product information' }, { status: 500 });
         }
 
-        // Compara contra os ids DISTINTOS: o mesmo produto aparece mais de uma
-        // vez no carrinho quando o cliente leva dois tamanhos, e comparar com o
-        // total de itens acusaria falta que não existe.
-        //
-        // Antes o guard só disparava com dbProducts.length === 0. Com 3 itens no
-        // carrinho e 2 no banco — produto desativado ou removido entre abrir a
-        // página e finalizar — ele passava, e quem falhava era buildVerifiedItems
-        // lá embaixo, caindo no catch genérico: o cliente recebia "Internal
-        // Server Error" e o log registrava "erro inesperado". Uma situação
-        // comum e recuperável reportada como falha do servidor, sem dizer ao
-        // cliente o que fazer.
         const idsDistintos = new Set(productIds);
         if (dbProducts.length < idsDistintos.size) {
             const achados = new Set(dbProducts.map((p) => p.id));
@@ -112,22 +101,40 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Toda a matemática vive em src/server/pricing.ts (pura e testada).
-        // buildVerifiedItems descarta qualquer preço ou nome vindo do cliente e
-        // usa a linha do banco — e trata promoção "0.00" como inválida, que o
-        // `promotionalPrice ?? price` anterior adotava, cobrando R$0 pelo item.
         const verifiedItems = buildVerifiedItems(frontendItems, dbProducts);
         const subtotal = computeSubtotal(verifiedItems);
         const { discountAmount, appliedCoupon } = resolveDiscount(couponCode, subtotal);
-        let total = computeTotal(subtotal, discountAmount);
+        const productsTotal = computeTotal(subtotal, discountAmount);
 
-        // Best-effort: identifica o usuário se logado (checkout de convidado permitido).
+        // Frete: preço recalculado no servidor (opção id + CEP + preços do banco).
+        // Nunca confia em shipping.price do cliente.
+        let shippingRecord: Record<string, unknown> | null = shipping ?? null;
+        let shippingAmount = 0;
+        try {
+            const authShipping = await resolveAuthoritativeShipping(
+                shipping as Record<string, unknown> | undefined,
+                verifiedItems.map((i) => ({ id: i.id, quantity: i.quantity, price: i.price }))
+            );
+            shippingRecord = authShipping.record;
+            shippingAmount = authShipping.price;
+            if (authShipping.record._invalidOption) {
+                return NextResponse.json(
+                    { message: 'Opção de frete inválida. Recalcule o frete e tente novamente.' },
+                    { status: 400 }
+                );
+            }
+        } catch (shipErr) {
+            logError('create-session: falha ao resolver frete autoritativo', shipErr);
+            return NextResponse.json(
+                { message: 'Não foi possível calcular o frete. Tente novamente.' },
+                { status: 502 }
+            );
+        }
+
+        let total = toCents(productsTotal + shippingAmount);
+
         const { userId } = await auth();
 
-        // FLUXO INVERTIDO: apenas para gateway real (asaas) — cria o pedido (pending)
-        // ANTES da sessão. No mock, o fluxo legado (wizard -> /api/orders) permanece,
-        // evitando pedido duplicado. A função SQL é a autoridade final de
-        // preço/estoque/cupom; usamos o total dela.
         let orderId: string | null = null;
 
         if (usesInvertedOrderFlow(process.env.PAYMENT_PROVIDER)) {
@@ -138,12 +145,13 @@ export async function POST(request: NextRequest) {
                         items: frontendItems,
                         coupon: couponRuleFor(couponCode),
                         paymentMethod,
-                        shipping,
+                        shipping: shippingRecord ?? undefined,
                         customerEmail: customer?.email,
                     })
                 );
                 const normalizado = normalizeCreateOrderResult(rpc, total);
                 orderId = normalizado.orderId;
+                // SQL é autoridade final (inclui frete a partir da migração 0008).
                 total = normalizado.total;
             } catch (rpcError) {
                 const falha = describeRpcFailure(rpcError);
@@ -159,8 +167,7 @@ export async function POST(request: NextRequest) {
                 items: verifiedItems,
                 currency,
                 discountAmount,
-                amount: total, // valor autoritativo calculado no servidor
-                // Metadata volta no webhook; a montagem vive em src/server/checkout.ts.
+                amount: total,
                 metadata: buildSessionMetadata({
                     userId,
                     appliedCoupon,
@@ -170,14 +177,6 @@ export async function POST(request: NextRequest) {
                 }),
             });
         } catch (gatewayError) {
-            // O pedido JÁ existe neste ponto (fluxo invertido) e a transação do
-            // create_order já commitou: estoque baixado, cupom consumido. Sem
-            // compensar, cada falha do gateway deixaria um pedido órfão
-            // segurando estoque real — e o cliente impedido de repetir a compra,
-            // porque o cupom de uso único já teria sido queimado por uma venda
-            // que nunca aconteceu.
-            // O orderId vai no CONTEXTO da mensagem, não no detalhe: é o que
-            // torna o pedido órfão rastreável se a compensação abaixo falhar.
             logError(`create-session: gateway falhou apos criar pedido ${orderId ?? 'nenhum'}`, gatewayError);
 
             const desfeito = await cancelPendingOrderDb(orderId, appliedCoupon);
@@ -189,7 +188,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Correlação webhook: grava o id do link/cobrança no pedido (payment_ref).
         if (orderId && session.sessionId) {
             try {
                 await db
@@ -202,11 +200,16 @@ export async function POST(request: NextRequest) {
             logInfo('create-session: pedido criado antes da sessão', { orderId, provider: session.provider });
         }
 
-        // Devolve os valores autoritativos para o cliente exibir (nunca para confiar).
         return NextResponse.json({
             success: true,
             data: { ...session, orderId },
-            amounts: { subtotal, discountAmount, total, currency },
+            amounts: {
+                subtotal,
+                discountAmount,
+                shipping: shippingAmount,
+                total,
+                currency,
+            },
         });
     } catch (error) {
         logError('create-session: erro inesperado', error);

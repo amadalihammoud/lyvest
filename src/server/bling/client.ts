@@ -19,7 +19,6 @@ import { db } from '../dbClient';
 
 const BLING_API = 'https://api.bling.com.br/Api/v3';
 const TOKEN_URL = 'https://api.bling.com.br/Api/v3/oauth/token';
-// Atenção: o authorize fica no domínio do APP (bling.com.br), não no da API.
 export const AUTHORIZE_URL = 'https://www.bling.com.br/Api/v3/oauth/authorize';
 
 function basicAuthHeader(): string {
@@ -35,7 +34,7 @@ export function isBlingConfigured(): boolean {
 interface TokenResponse {
     access_token: string;
     refresh_token: string;
-    expires_in: number; // segundos
+    expires_in: number;
 }
 
 async function requestToken(body: Record<string, string>): Promise<TokenResponse> {
@@ -44,7 +43,7 @@ async function requestToken(body: Record<string, string>): Promise<TokenResponse
         headers: {
             Authorization: basicAuthHeader(),
             'Content-Type': 'application/x-www-form-urlencoded',
-            Accept: '1.0', // exigido pela doc do token endpoint do Bling v3
+            Accept: '1.0',
         },
         body: new URLSearchParams(body).toString(),
         cache: 'no-store',
@@ -58,25 +57,33 @@ async function requestToken(body: Record<string, string>): Promise<TokenResponse
 }
 
 async function saveTokens(t: TokenResponse): Promise<void> {
-    // margem de 5 min antes da expiração real
     const expiresAt = new Date(Date.now() + (t.expires_in - 300) * 1000);
     await db
         .insert(blingTokens)
-        .values({ id: 1, accessToken: t.access_token, refreshToken: t.refresh_token, expiresAt, updatedAt: new Date() })
+        .values({
+            id: 1,
+            accessToken: t.access_token,
+            refreshToken: t.refresh_token,
+            expiresAt,
+            updatedAt: new Date(),
+        })
         .onConflictDoUpdate({
             target: blingTokens.id,
-            set: { accessToken: t.access_token, refreshToken: t.refresh_token, expiresAt, updatedAt: new Date() },
+            set: {
+                accessToken: t.access_token,
+                refreshToken: t.refresh_token,
+                expiresAt,
+                updatedAt: new Date(),
+            },
         });
 }
 
-/** Troca o authorization_code (callback OAuth) por tokens e persiste. */
 export async function exchangeAuthCode(code: string): Promise<void> {
     const t = await requestToken({ grant_type: 'authorization_code', code });
     await saveTokens(t);
     logInfo('bling: autorização concluída, tokens persistidos');
 }
 
-/** Devolve um access_token válido, renovando via refresh rotativo se preciso. */
 export async function getAccessToken(): Promise<string> {
     const rows = await db.select().from(blingTokens).where(eq(blingTokens.id, 1)).limit(1);
     const row = rows[0];
@@ -94,7 +101,6 @@ export async function getAccessToken(): Promise<string> {
     return t.access_token;
 }
 
-/** GET autenticado na API v3. path ex.: '/categorias/produtos?pagina=1' */
 export async function blingGet<T>(path: string): Promise<T> {
     const token = await getAccessToken();
     const res = await fetch(`${BLING_API}${path}`, {
@@ -103,7 +109,6 @@ export async function blingGet<T>(path: string): Promise<T> {
     });
 
     if (res.status === 429) {
-        // rate limit: espera 1,2s e tenta uma vez mais
         await new Promise((r) => setTimeout(r, 1200));
         return blingGet<T>(path);
     }
@@ -116,7 +121,33 @@ export async function blingGet<T>(path: string): Promise<T> {
     return json;
 }
 
-/** URL para o usuário autorizar o app (abrir logado no Bling). */
+/** POST autenticado. path ex.: '/pedidos/vendas'. */
+export async function blingPost<T>(path: string, body: unknown): Promise<T> {
+    const token = await getAccessToken();
+    const res = await fetch(`${BLING_API}${path}`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+        cache: 'no-store',
+    });
+
+    if (res.status === 429) {
+        await new Promise((r) => setTimeout(r, 1200));
+        return blingPost<T>(path, body);
+    }
+
+    const json = (await res.json().catch(() => null)) as T | null;
+    if (!res.ok || json === null) {
+        logError('bling: POST falhou', { path, status: res.status, body: JSON.stringify(json).slice(0, 400) });
+        throw new Error(`Bling POST ${path} → ${res.status}: ${JSON.stringify(json).slice(0, 300)}`);
+    }
+    return json;
+}
+
 export function buildAuthorizeUrl(state: string): string {
     const params = new URLSearchParams({
         response_type: 'code',

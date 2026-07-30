@@ -11,14 +11,14 @@ import { getProductsForContext } from '@/server/providers/products';
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-// Pilar 5: a mensagem do usuário é validada antes de chegar ao modelo. Limites de tamanho
-// e de contagem barram payloads abusivos (custo/token) e conteúdo malformado.
+// Pilar 5: a mensagem do usuário é validada antes de chegar ao modelo.
+// NUNCA aceitar role 'system' do cliente — isso é o vetor clássico de prompt injection.
 const chatBodySchema = z.object({
     messages: z
         .array(
             z
                 .object({
-                    role: z.enum(['user', 'assistant', 'system']),
+                    role: z.enum(['user', 'assistant']),
                     content: z.string().max(4000).optional(),
                 })
                 .passthrough()

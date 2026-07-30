@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useChat } from '@ai-sdk/react';
 import { Sparkles, X, Send, ShoppingBag } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -6,12 +6,12 @@ import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from 'r
 
 import { useCart } from '../../hooks/useCart';
 import { useModal } from '../../hooks/useModal';
+import { safeMarkdownComponents } from '../../lib/safeMarkdown';
 import { useCatalog } from '../../store/useCatalogStore';
 
 // react-markdown (~50 KB) carregado dinamicamente — só necessário quando o chat está aberto
 const ReactMarkdown = dynamic(() => import('react-markdown'), { ssr: false });
 
-// Custom type for simplified ToolInvocation
 interface ToolInvocation {
     toolName: string;
     toolCallId: string;
@@ -26,10 +26,6 @@ interface ChatMessage {
 }
 
 export default function ChatWidget() {
-    // NOTA: este widget usa a API antiga do useChat (api/initialMessages/input/handleSubmit,
-    // mensagens com `content`). O pacote `ai`/@ai-sdk/react instalado é v6, cuja API é diferente
-    // (UIMessage com `parts`, `sendMessage`, `status`). Mantemos um cast TIPADO (sem `any`) para
-    // não quebrar o build; migrar este componente para a API v6 é uma tarefa separada.
     const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat(
         {
             api: '/api/chat',
@@ -37,9 +33,9 @@ export default function ChatWidget() {
                 {
                     id: 'welcome-v3',
                     role: 'assistant',
-                    content: 'Oi! Sou a Ly, assistente digital da Ly Vest.\n\nComo posso ajudar hoje?'
-                }
-            ]
+                    content: 'Oi! Sou a Ly, assistente digital da Ly Vest.\n\nComo posso ajudar hoje?',
+                },
+            ],
         } as unknown as Parameters<typeof useChat>[0]
     ) as unknown as {
         messages: ChatMessage[];
@@ -60,18 +56,17 @@ export default function ChatWidget() {
         scrollToBottom();
     }, [messages]);
 
-    const quickReplies: string[] = ["Ajuda com Tamanhos", "Ideias de Presente", "Falar com Humano"];
+    const quickReplies: string[] = ['Ajuda com Tamanhos', 'Ideias de Presente', 'Falar com Humano'];
 
     const handleQuickReply = (text: string) => {
         const event = {
-            target: { value: text }
+            target: { value: text },
         } as React.ChangeEvent<HTMLInputElement>;
         handleInputChange(event);
     };
 
     return (
         <>
-            {/* Floating Action Button */}
             <button
                 onClick={() => setIsOpen(true)}
                 className={`fixed bottom-32 sm:bottom-24 right-6 z-[95] flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#7D2121] focus:ring-offset-2 bg-[#7D2121] text-white
@@ -81,14 +76,17 @@ export default function ChatWidget() {
                 <Sparkles className="h-6 w-6 animate-pulse" />
             </button>
 
-            {/* Chat Window */}
             {isOpen && (
                 <div className="fixed bottom-24 left-4 right-4 z-[95] flex h-[450px] max-h-[45vh] flex-col overflow-hidden rounded-2xl bg-white/95 shadow-2xl backdrop-blur-xl transition-all duration-300 animate-slide-up sm:bottom-28 sm:left-auto sm:right-6 sm:max-h-[80vh] sm:h-[510px] sm:w-[440px] border border-stone-100">
                     <div className="flex items-center justify-between bg-gradient-to-r from-[#7D2121] to-[#5A1A1A] p-4 text-white shadow-md">
                         <div className="flex items-center gap-3">
                             <div className="relative">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full shadow-inner overflow-hidden bg-white">
-                                    <img src="/assets/images/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
+                                    <img
+                                        src="/assets/images/ly-avatar.webp"
+                                        alt="Ly"
+                                        className="h-full w-full object-cover scale-110"
+                                    />
                                 </div>
                                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-[#7D2121]"></span>
                             </div>
@@ -110,62 +108,103 @@ export default function ChatWidget() {
                             {messages.length === 0 && (
                                 <div className="flex gap-3 animate-fade-in">
                                     <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden shadow-sm bg-white">
-                                        <img src="/assets/images/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
+                                        <img
+                                            src="/assets/images/ly-avatar.webp"
+                                            alt="Ly"
+                                            className="h-full w-full object-cover scale-110"
+                                        />
                                     </div>
                                     <div className="flex flex-col gap-1 max-w-[85%]">
                                         <div className="rounded-2xl rounded-tl-none bg-white p-3 text-sm text-slate-700 shadow-sm border border-slate-100">
-                                            <p>Oi! Sou a Ly, assistente digital da Ly Vest.<br /><br />Como posso ajudar hoje?</p>
+                                            <p>
+                                                Oi! Sou a Ly, assistente digital da Ly Vest.
+                                                <br />
+                                                <br />
+                                                Como posso ajudar hoje?
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-                            {messages.map((m: ChatMessage) => (
-                                m.role !== 'system' && (
-                                    <div
-                                        key={m.id}
-                                        className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'} animate-slide-up`}
-                                    >
-                                        {m.role !== 'user' && (
-                                            <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden shadow-sm bg-white">
-                                                <img src="/assets/images/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
-                                            </div>
-                                        )}
+                            {messages.map(
+                                (m: ChatMessage) =>
+                                    m.role !== 'system' && (
+                                        <div
+                                            key={m.id}
+                                            className={`flex gap-3 ${
+                                                m.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+                                            } animate-slide-up`}
+                                        >
+                                            {m.role !== 'user' && (
+                                                <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden shadow-sm bg-white">
+                                                    <img
+                                                        src="/assets/images/ly-avatar.webp"
+                                                        alt="Ly"
+                                                        className="h-full w-full object-cover scale-110"
+                                                    />
+                                                </div>
+                                            )}
 
-                                        <div className={`flex flex-col gap-1 max-w-[85%] ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
                                             <div
-                                                className={`rounded-2xl p-3 text-sm shadow-sm ${m.role === 'user'
-                                                    ? 'bg-[#7D2121] text-white rounded-tr-none'
-                                                    : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-sm max-w-none prose-p:my-1 prose-strong:text-[#7D2121] prose-a:text-[#7D2121] prose-a:font-bold'
-                                                    }`}
+                                                className={`flex flex-col gap-1 max-w-[85%] ${
+                                                    m.role === 'user' ? 'items-end' : 'items-start'
+                                                }`}
                                             >
-                                                <ReactMarkdown>{m.content}</ReactMarkdown>
+                                                <div
+                                                    className={`rounded-2xl p-3 text-sm shadow-sm ${
+                                                        m.role === 'user'
+                                                            ? 'bg-[#7D2121] text-white rounded-tr-none'
+                                                            : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-sm max-w-none'
+                                                    }`}
+                                                >
+                                                    <ReactMarkdown
+                                                        // skipHtml: nunca interpreta HTML cru da IA (XSS).
+                                                        skipHtml
+                                                        components={safeMarkdownComponents}
+                                                    >
+                                                        {m.content}
+                                                    </ReactMarkdown>
 
-                                                {m.toolInvocations?.map((toolInvocation: ToolInvocation) => {
-                                                    const { toolName, toolCallId, args } = toolInvocation;
+                                                    {m.toolInvocations?.map(
+                                                        (toolInvocation: ToolInvocation) => {
+                                                            const { toolName, toolCallId, args } =
+                                                                toolInvocation;
 
-                                                    if (toolName === 'addToCart') {
-                                                        return (
-                                                            <div key={toolCallId} className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                                <p className="font-semibold text-slate-700 text-xs mb-2">
-                                                                    Sugestão de Compra:
-                                                                </p>
-                                                                <AddToCartButton productId={args.productId as string} />
-                                                            </div>
-                                                        );
-                                                    }
-                                                    return null;
-                                                })}
+                                                            if (toolName === 'addToCart') {
+                                                                return (
+                                                                    <div
+                                                                        key={toolCallId}
+                                                                        className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200"
+                                                                    >
+                                                                        <p className="font-semibold text-slate-700 text-xs mb-2">
+                                                                            Sugestão de Compra:
+                                                                        </p>
+                                                                        <AddToCartButton
+                                                                            productId={
+                                                                                args.productId as string
+                                                                            }
+                                                                        />
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        }
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )
-                            ))}
+                                    )
+                            )}
 
                             {isLoading && (
                                 <div className="flex gap-3 animate-fade-in">
                                     <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden shadow-sm bg-white">
-                                        <img src="/assets/images/ly-avatar.webp" alt="Ly" className="h-full w-full object-cover scale-110" />
+                                        <img
+                                            src="/assets/images/ly-avatar.webp"
+                                            alt="Ly"
+                                            className="h-full w-full object-cover scale-110"
+                                        />
                                     </div>
                                     <div className="rounded-2xl rounded-tl-none bg-white p-4 shadow-sm border border-slate-100">
                                         <div className="flex gap-1.5">
@@ -228,20 +267,20 @@ function AddToCartButton({ productId }: AddToCartButtonProps) {
     const [added, setAdded] = useState<boolean>(false);
 
     const handleAdd = () => {
-        // Safe check for product ID match (string vs number)
         const product = catalogProducts.find((p) => String(p.id) === String(productId));
 
         if (product) {
-            const categoryName = typeof product.category === 'string'
-                ? product.category
-                : Array.isArray(product.category)
-                    ? product.category[0]?.name ?? 'Geral'
-                    : product.category?.name ?? 'Geral';
+            const categoryName =
+                typeof product.category === 'string'
+                    ? product.category
+                    : Array.isArray(product.category)
+                      ? product.category[0]?.name ?? 'Geral'
+                      : product.category?.name ?? 'Geral';
             addToCart({ ...product, category: categoryName });
             setAdded(true);
             setTimeout(() => {
                 openDrawer('cart');
-            }, 300); // Small delay for effect
+            }, 300);
         } else {
             console.warn('Product not found in context', productId);
         }
@@ -249,8 +288,11 @@ function AddToCartButton({ productId }: AddToCartButtonProps) {
 
     if (added) {
         return (
-            <button disabled className='w-full flex items-center justify-center gap-2 bg-green-100 text-green-700 py-2 rounded-md text-xs font-bold cursor-default'>
-                <Sparkles className='w-3 h-3' /> Adicionado!
+            <button
+                disabled
+                className="w-full flex items-center justify-center gap-2 bg-green-100 text-green-700 py-2 rounded-md text-xs font-bold cursor-default"
+            >
+                <Sparkles className="w-3 h-3" /> Adicionado!
             </button>
         );
     }
@@ -258,9 +300,9 @@ function AddToCartButton({ productId }: AddToCartButtonProps) {
     return (
         <button
             onClick={handleAdd}
-            className='w-full bg-[#7D2121] text-white py-2 rounded-md text-xs font-bold hover:bg-[#5A1A1A] transition-colors flex items-center justify-center gap-2'
+            className="w-full bg-[#7D2121] text-white py-2 rounded-md text-xs font-bold hover:bg-[#5A1A1A] transition-colors flex items-center justify-center gap-2"
         >
-            <ShoppingBag className='w-3 h-3' /> Adicionar ao Carrinho
+            <ShoppingBag className="w-3 h-3" /> Adicionar ao Carrinho
         </button>
     );
 }

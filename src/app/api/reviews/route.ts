@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -11,38 +11,27 @@ import { db } from '@/server/dbClient';
 /**
  * POST /api/reviews
  *
- * Cria uma avaliação de produto. Fluxo server-side (Neon/Drizzle):
- *
- *  - Pilar 3: exige usuário logado (auth no servidor); o user_id vem do token, não do body.
- *    Sem RLS: o escopo por usuário é o WHERE user_id = <Clerk id> aplicado AQUI.
- *  - Verificação de compra: só permite avaliar produto que o usuário realmente comprou
- *    (existe um pedido dele contendo o produto).
- *  - Moderação: grava com approved=false (nunca auto-aprova) — evita review injection.
- *  - Pilar 4: rate limit. Pilar 5: validação Zod.
+ * - Identidade: Clerk auth() (nunca do body)
+ * - productId obrigatório (UUID) — sem match por nome (bypass)
+ * - orderId deve ser pedido do usuário em status pago (processing|shipped|delivered)
+ * - productId deve constar nos items daquele pedido
+ * - approved=false (moderação)
  */
 const bodySchema = z.object({
-    productId: z.string().uuid().optional(),
-    productName: z.string().min(1).max(200),
-    orderId: z.string().min(1).max(64),
+    productId: z.string().uuid(),
+    productName: z.string().min(1).max(200).optional(),
+    orderId: z.string().uuid(),
     rating: z.number().int().min(1).max(5),
     comment: z.string().max(2000).optional().default(''),
 });
 
-type OrderRow = { id: string; items: unknown };
+const PAID_STATUSES = ['processing', 'shipped', 'delivered'] as const;
 
-// Confere se algum pedido do usuário contém o produto avaliado (por id ou nome).
-function purchasedProduct(orders: OrderRow[], productId?: string, productName?: string): boolean {
-    return orders.some((order) => {
-        const items = Array.isArray(order.items) ? order.items : [];
-        return items.some((raw) => {
-            const item = (raw ?? {}) as Record<string, unknown>;
-            const idMatch = productId != null && String(item.id) === String(productId);
-            const nameMatch =
-                productName != null &&
-                typeof item.name === 'string' &&
-                item.name.trim().toLowerCase() === productName.trim().toLowerCase();
-            return idMatch || nameMatch;
-        });
+function orderContainsProduct(items: unknown, productId: string): boolean {
+    if (!Array.isArray(items)) return false;
+    return items.some((raw) => {
+        const item = (raw ?? {}) as Record<string, unknown>;
+        return String(item.id) === productId;
     });
 }
 
@@ -56,7 +45,6 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        // Pilar 3: identidade vem do servidor, nunca do corpo da requisição.
         const { userId } = await auth();
         if (!userId) {
             return NextResponse.json({ message: 'Não autorizado' }, { status: 401 });
@@ -68,33 +56,49 @@ export async function POST(request: NextRequest) {
         }
         const { productId, productName, orderId, rating, comment } = parsed.data;
 
-        // Verificação de compra: busca os pedidos do usuário (escopo aplicado no WHERE)
-        // e confere que algum deles contém o produto avaliado.
-        let userOrders: OrderRow[];
+        let order: { id: string; status: string | null; items: unknown } | undefined;
         try {
-            userOrders = await db
-                .select({ id: ordersTable.id, items: ordersTable.items })
+            const rows = await db
+                .select({
+                    id: ordersTable.id,
+                    status: ordersTable.status,
+                    items: ordersTable.items,
+                })
                 .from(ordersTable)
-                .where(eq(ordersTable.userId, userId));
+                .where(
+                    and(
+                        eq(ordersTable.id, orderId),
+                        eq(ordersTable.userId, userId),
+                        inArray(ordersTable.status, [...PAID_STATUSES])
+                    )
+                )
+                .limit(1);
+            order = rows[0];
         } catch (ordersError) {
-            logError('reviews: erro ao verificar pedidos', ordersError);
+            logError('reviews: erro ao verificar pedido', ordersError);
             return NextResponse.json({ message: 'Não foi possível validar a compra' }, { status: 500 });
         }
 
-        if (!purchasedProduct(userOrders, productId, productName)) {
+        if (!order) {
             return NextResponse.json(
-                { message: 'Só é possível avaliar produtos que você comprou.' },
+                { message: 'Pedido não encontrado ou ainda não pago.' },
                 { status: 403 }
             );
         }
 
-        // Grava para moderação (approved=false). user_id vem do token (não do cliente).
+        if (!orderContainsProduct(order.items, productId)) {
+            return NextResponse.json(
+                { message: 'Só é possível avaliar produtos deste pedido.' },
+                { status: 403 }
+            );
+        }
+
         try {
             await db.insert(reviews).values({
                 userId,
                 orderId,
-                productId: productId ?? null,
-                productName,
+                productId,
+                productName: productName ?? null,
                 rating,
                 comment,
                 approved: false,

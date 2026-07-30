@@ -9,6 +9,8 @@
  *    reportado (decisão de desativar é humana, evita apagão de vitrine).
  *  - Imagem: usa a urlImagem do Bling quando existir; senão preserva a atual.
  *  - Rate limit: ~3 req/s → pausa de 400ms entre páginas.
+ *  - Estoque de variantes no UPDATE só sobrescreve se ERP_STOCK_AUTHORITATIVE=1
+ *    (mesma política do pai — evita overselling enquanto sendOrder não existe).
  */
 import { and, eq, inArray } from 'drizzle-orm';
 
@@ -90,20 +92,12 @@ async function fetchAllPages<T>(basePath: string): Promise<T[]> {
 /** blingId da categoria -> uuid local. */
 type CatIdMap = Map<number, string>;
 
-/**
- * Fase 1 — categorias.
- *
- * @returns o mapa blingId -> uuid local, necessário para vincular os produtos.
- */
 async function syncCategories(
     blingCats: BlingCategoria[],
     report: CatalogSyncReport
 ): Promise<CatIdMap> {
     const catIdMap: CatIdMap = new Map();
 
-    // Nomes do Bling por id, pra poder desambiguar slugs repetidos (ex.: "Cueca"
-    // existe em Masculino E em Menino) usando o nome do pai, sem depender da
-    // ordem de paginação da API.
     const nomeById = new Map<number, string>();
     for (const bc of blingCats) {
         const nome = (bc.descricao ?? '').trim();
@@ -123,11 +117,6 @@ async function syncCategories(
             continue;
         }
 
-        // adota categoria existente do seed com mesmo slug — SÓ se ela ainda não
-        // pertence a outra categoria real do Bling (bling_id nulo). Se já tiver
-        // bling_id, é uma colisão de nome legítima (ex.: "Cueca" em Masculino E
-        // Menino) e precisa virar uma linha própria, senão os produtos das duas
-        // categorias se misturam.
         const bySlug = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
         if (bySlug[0] && bySlug[0].blingId == null) {
             await db.update(categories).set({ blingId: bc.id, name: nome }).where(eq(categories.id, bySlug[0].id));
@@ -153,13 +142,6 @@ async function syncCategories(
     return catIdMap;
 }
 
-/**
- * Fase 1b — hierarquia (parent_id).
- *
- * Segunda passada de propósito: só aqui catIdMap está completo, então
- * categoriaPai.id resolve mesmo quando o pai vem DEPOIS do filho na paginação
- * da API do Bling. É o que torna o resultado independente da ordem.
- */
 async function resolveHierarchy(blingCats: BlingCategoria[], catIdMap: CatIdMap): Promise<void> {
     for (const bc of blingCats) {
         const localId = catIdMap.get(bc.id);
@@ -170,21 +152,12 @@ async function resolveHierarchy(blingCats: BlingCategoria[], catIdMap: CatIdMap)
     }
 }
 
-/** Fase 2a — despromove clones de grade que já existem como produto. */
 async function demoteVariationProducts(
     idsDeVariacao: Set<number>,
     report: CatalogSyncReport
 ): Promise<void> {
     if (idsDeVariacao.size === 0) return;
 
-    // MIGRAÇÃO, não higiene. Toda loja que rodou o sync antigo tem os filhos da
-    // grade gravados como produtos independentes. Parar de criá-los não some
-    // com os que já existem — sem isto, o mesmo item do Bling apareceria DUAS
-    // vezes: como produto na vitrine e como variante do pai.
-    //
-    // Desativa em vez de apagar: um pedido antigo pode referenciar esse
-    // product_id, e apagar quebraria o histórico. Desativado, ele sai da
-    // vitrine (getProducts filtra active = true) e deixa de ser comprável.
     const despromovidos = await db
         .update(products)
         .set({ active: false })
@@ -203,29 +176,15 @@ async function demoteVariationProducts(
 /**
  * Fase 2b — grade de um produto.
  *
- * Correlaciona por  da variação (índice único parcial da migração
- * 0006). Variantes locais que sumiram do Bling são DESATIVADAS, não apagadas:
- * apagar destruiria o vínculo de pedidos antigos que referenciam a variante.
- *
- * Escrever aqui dispara o trigger trg_sync_product_stock, que recalcula
- * products.stock como a soma das variantes ativas — por isso o pai não precisa
- * (e não deve) ter estoque próprio quando tem grade.
- */
-/**
- * Fase 2b — grade de um produto.
- *
- * Correlaciona por bling_id da variação (índice único parcial da migração 0006).
- * Variantes locais que sumiram do Bling são DESATIVADAS, não apagadas: apagar
- * destruiria o vínculo de pedidos antigos que as referenciam.
- *
- * Escrever aqui dispara o trigger trg_sync_product_stock, que recalcula
- * products.stock como a soma das variantes ativas — por isso o pai não precisa
- * (e não deve) ter estoque próprio quando tem grade.
+ * UPDATE de stock: só quando ERP_STOCK_AUTHORITATIVE=1. Sem isso, preservar o
+ * saldo local (já reduzido por create_order) evita overselling.
+ * INSERT de variante nova: sempre grava stock do Bling (não há venda local).
  */
 async function syncVariantsOf(
     productLocalId: string,
     drafts: VariantDraft[],
-    report: CatalogSyncReport
+    report: CatalogSyncReport,
+    stockIsAuthoritative: boolean
 ): Promise<void> {
     const locais = await db
         .select({ id: productVariants.id, blingId: productVariants.blingId })
@@ -237,23 +196,24 @@ async function syncVariantsOf(
 
     for (const d of drafts) {
         vistos.add(d.blingId);
-        const values = {
+        const base = {
             size: d.size,
             sku: d.sku,
             ean: d.ean,
-            stock: d.stock,
             price: d.price,
             active: d.active,
         };
 
         const existente = localPorBling.get(d.blingId);
         if (existente) {
-            await db.update(productVariants).set(values).where(eq(productVariants.id, existente));
+            const updatePayload = stockIsAuthoritative ? { ...base, stock: d.stock } : base;
+            await db.update(productVariants).set(updatePayload).where(eq(productVariants.id, existente));
             report.variantes.atualizadas++;
         } else {
+            // Variante nova: stock do Bling é a melhor (e única) informação.
             await db
                 .insert(productVariants)
-                .values({ ...values, productId: productLocalId, blingId: d.blingId });
+                .values({ ...base, stock: d.stock, productId: productLocalId, blingId: d.blingId });
             report.variantes.criadas++;
         }
     }
@@ -265,7 +225,6 @@ async function syncVariantsOf(
     }
 }
 
-/** Fase 2 — produtos. */
 async function syncProducts(
     blingProds: BlingProduto[],
     catIdMap: CatIdMap,
@@ -279,15 +238,8 @@ async function syncProducts(
     }
 
     for (const bp of blingProds) {
-        // O CORAÇÃO DA CORREÇÃO: filhos de grade não viram produto próprio.
-        // A listagem do Bling devolve pai e filhos lado a lado, sem vínculo —
-        // era isso que enchia a vitrine de clones ("Sutiã ... Tamanho:P" como
-        // produto solto). Eles entram como linhas de product_variants, logo
-        // abaixo, junto do pai.
         if (idsDeVariacao.has(bp.id)) continue;
 
-        // Normalização e montagem do payload vivem em ./productValues (puras e
-        // testadas). null = produto sem nome utilizável, nada a gravar.
         const fields = mapBlingProductFields(bp);
         if (!fields) continue;
 
@@ -296,8 +248,6 @@ async function syncProducts(
 
         const grade = variacoesPorPai.get(bp.id);
 
-        // Os dois eixos de estoque (flag do ERP no update, grade no insert) são
-        // independentes e moram juntos em pickStockWriteValues, sob teste.
         const { updateValues, insertValues } = pickStockWriteValues({
             values,
             stock: fields.stock,
@@ -310,10 +260,6 @@ async function syncProducts(
             ? []
             : await db.select().from(products).where(eq(products.slug, slug)).limit(1);
 
-        // A decisão vive em ./productSlug (pura e testada). O ponto delicado é o
-        // caso 4: colidir com um produto que JÁ pertence a outro item do Bling.
-        // Antes, adotávamos a linha e sobrescrevíamos o bling_id dela — dois
-        // produtos homônimos viravam um só, alternando de identidade a cada sync.
         const decisao = decideProductWrite({
             baseSlug: slug,
             matchedByBlingId: byBling[0]?.id ?? null,
@@ -346,18 +292,11 @@ async function syncProducts(
 
         if (grade) {
             report.variantes.paisComGrade++;
-            await syncVariantsOf(localId, grade, report);
+            await syncVariantsOf(localId, grade, report, stockIsAuthoritative);
         }
     }
 }
 
-/**
- * Fase 3 — órfãos.
- *
- * Apenas RELATA produtos locais cujo bling_id sumiu da listagem. Não desativa
- * nada: um sync parcial (erro de paginação, cota estourada) desativaria a
- * vitrine inteira. A decisão de desativar é humana.
- */
 async function reportOrphans(
     blingProds: BlingProduto[],
     report: CatalogSyncReport
@@ -373,10 +312,6 @@ async function reportOrphans(
     }
 }
 
-/**
- * Orquestra o sync completo. Cada fase faz uma coisa e entrega à próxima o que
- * ela precisa — antes tudo isto vivia numa função só, de complexidade 47.
- */
 export async function syncCatalog(): Promise<CatalogSyncReport> {
     const report: CatalogSyncReport = {
         categorias: { criadas: 0, atualizadas: 0 },
@@ -390,12 +325,9 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
     const catIdMap = await syncCategories(blingCats, report);
     await resolveHierarchy(blingCats, catIdMap);
 
-    const blingProds = await fetchAllPages<BlingProduto>('/produtos?criterio=2'); // 2 = ativos
+    const blingProds = await fetchAllPages<BlingProduto>('/produtos?criterio=2');
     logInfo('bling/sync: produtos ativos no Bling', blingProds.length);
 
-    // A listagem NÃO traz as variações: só o GET por id do pai as devolve.
-    // Uma chamada extra por produto com grade, com a mesma pausa de rate limit
-    // usada na paginação (~3 req/s no Bling).
     const pais = blingProds.filter((p) => temVariacoes(p.formato));
     logInfo('bling/sync: produtos com grade', pais.length);
 
@@ -407,21 +339,6 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
         const variacoes = det.data?.variacoes ?? [];
         const drafts = toVariantDrafts(variacoes);
 
-        // ABORTA em vez de escrever meia-verdade.
-        //
-        // Um produto marcado como grade (formato 'V') que volta sem variação
-        // utilizável significa que NÃO SABEMOS a grade dele — não que ela esteja
-        // vazia. Seguir em frente causaria uma cascata a partir de uma única
-        // resposta ruim: os filhos não seriam identificados e voltariam à
-        // vitrine como produtos soltos (o bug de clones que a 0006 existe para
-        // eliminar); o produto seria inserido sem estoque, e o trigger nunca
-        // dispararia para corrigi-lo; e syncVariantsOf, recebendo lista vazia,
-        // DESATIVARIA todas as variantes locais existentes, zerando o estoque de
-        // um produto que tem saldo real no Bling.
-        //
-        // É a mesma regra que reportOrphans já segue: com dado parcial, não se
-        // desativa nada. Melhor um sync que falha visivelmente do que um que
-        // "funciona" e corrompe a vitrine.
         if (drafts.length === 0) {
             throw new Error(
                 `bling/sync: produto ${pai.id} ("${pai.nome}") esta marcado como grade mas nao devolveu ` +
@@ -447,14 +364,6 @@ export async function syncCatalog(): Promise<CatalogSyncReport> {
     return report;
 }
 
-/**
- * DIAGNÓSTICO — leitura pura, não escreve nada.
- *
- * Devolve o payload cru do Bling para os produtos, e o detalhe de UM produto
- * buscado individualmente (o endpoint de listagem costuma omitir `variacoes`,
- * que só aparece no GET por id). Serve para descobrir como o Bling representa
- * grade antes de implementar a importação de variantes.
- */
 export async function inspectBlingProducts(): Promise<unknown> {
     const lista = await blingGet<{ data: unknown[] }>('/produtos?criterio=2&pagina=1&limite=10');
     const primeiro = (lista.data?.[0] ?? null) as { id?: number } | null;
