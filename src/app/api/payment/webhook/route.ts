@@ -17,13 +17,9 @@ import { incrementStockDb, incrementVariantStockDb } from '@/server/orderDb';
  *    painel do Asaas e em ASAAS_WEBHOOK_TOKEN), eventos PAYMENT_CONFIRMED/RECEIVED.
  *  - Legado/mock: assinatura HMAC-SHA256 do corpo bruto (PAYMENT_WEBHOOK_SECRET).
  * Fail-closed em produção + idempotência por id de evento. Ao confirmar pagamento,
- * faz o update idempotente do pedido: status 'pending' -> 'processing' (pago),
- * localizado por payment.externalReference (= orders.id) ou payment.paymentLink
- * (= orders.payment_ref). Retorna erro 4xx/5xx quando não conseguir processar,
+ * confere payment.value ≈ orders.total_amount e faz update idempotente
+ * pending -> processing. Retorna erro 4xx/5xx quando não conseguir processar,
  * para o gateway reenviar o evento.
- *
- * Banco: Neon via Drizzle (server-only). Não há mais admin client — o servidor
- * é o único ator com acesso ao banco.
  */
 function timingSafeEq(a: string, b: string): boolean {
     const ba = Buffer.from(a);
@@ -37,6 +33,9 @@ function verifySignature(rawBody: string, signature: string | null, secret: stri
     return timingSafeEq(expected, String(signature));
 }
 
+/** Tolerância de R$ 0,05 para arredondamento de centavos entre gateway e SQL. */
+const AMOUNT_TOLERANCE = 0.05;
+
 interface AsaasPayment {
     id?: string;
     paymentLink?: string | null;
@@ -48,14 +47,12 @@ interface AsaasPayment {
 
 type WebhookEvent = {
     id?: string;
-    type?: string; // formato legado/mock (payment_intent.*)
-    event?: string; // formato Asaas (PAYMENT_*)
-    payment?: AsaasPayment; // objeto de cobrança do Asaas
+    type?: string;
+    event?: string;
+    payment?: AsaasPayment;
     data?: { object?: { id?: string } };
 };
 
-// Gate de autenticação: Asaas (token fixo) tem precedência quando configurado;
-// caso contrário vale o esquema legado de HMAC. Fail-closed em produção.
 function checkAuthGate(
     request: NextRequest,
     rawBody: string,
@@ -67,14 +64,12 @@ function checkAuthGate(
     if (asaasToken) {
         const header = request.headers.get('asaas-access-token');
         if (header && timingSafeEq(asaasToken, header)) return null;
-        // Permite coexistência: se não veio o header do Asaas, tenta o HMAC legado.
         const signature = request.headers.get('x-webhook-signature') || request.headers.get('stripe-signature');
         if (hmacSecret && signature && verifySignature(rawBody, signature, hmacSecret)) return null;
         logError('webhook: autenticação inválida (asaas-access-token/HMAC)');
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Esquema legado (HMAC) — comportamento original preservado.
     const signature = request.headers.get('x-webhook-signature') || request.headers.get('stripe-signature');
     if (isProd) {
         if (!hmacSecret) {
@@ -93,7 +88,7 @@ function checkAuthGate(
     return null;
 }
 
-/** Update idempotente: pending -> processing (pago). Lança erro para o gateway reenviar. */
+/** Update idempotente: pending -> processing (pago). Lança se valor divergir. */
 async function markOrderPaid(payment: AsaasPayment): Promise<void> {
     let refCondition;
     if (payment.externalReference) {
@@ -105,10 +100,51 @@ async function markOrderPaid(payment: AsaasPayment): Promise<void> {
         return;
     }
 
+    // Lê o pedido ANTES de marcar: precisamos do total_amount para conferir valor.
+    const found = await db
+        .select({ id: orders.id, status: orders.status, totalAmount: orders.totalAmount })
+        .from(orders)
+        .where(refCondition)
+        .limit(1);
+
+    if (found.length === 0) {
+        logInfo('webhook: nenhum pedido correspondente', { payment: payment.id });
+        return;
+    }
+
+    const order = found[0];
+
+    if (order.status !== 'pending') {
+        // Já processado (ou cancelado) — idempotente, não é erro.
+        logInfo('webhook: pedido não está pending (ignorado)', { orderId: order.id, status: order.status });
+        return;
+    }
+
+    // Conferência de valor: se o gateway manda value, tem que bater com o total do pedido.
+    // Sem value no payload, logamos e seguimos (alguns eventos legados omitem).
+    if (typeof payment.value === 'number' && Number.isFinite(payment.value)) {
+        const expected = Number(order.totalAmount);
+        if (Number.isFinite(expected) && Math.abs(payment.value - expected) > AMOUNT_TOLERANCE) {
+            logError('webhook: VALOR DIVERGENTE — recusando marcar como pago', {
+                orderId: order.id,
+                expected,
+                received: payment.value,
+                payment: payment.id,
+            });
+            // Lança para o gateway reenviar e para não liberar mercadoria sem bater o caixa.
+            throw new Error(`AMOUNT_MISMATCH order=${order.id} expected=${expected} got=${payment.value}`);
+        }
+    } else {
+        logInfo('webhook: payment.value ausente — não foi possível conferir valor', {
+            orderId: order.id,
+            payment: payment.id,
+        });
+    }
+
     const updated = await db
         .update(orders)
         .set({ status: 'processing' })
-        .where(and(eq(orders.status, 'pending'), refCondition))
+        .where(and(eq(orders.status, 'pending'), eq(orders.id, order.id)))
         .returning({ id: orders.id });
 
     if (updated.length > 0) {
@@ -116,8 +152,7 @@ async function markOrderPaid(payment: AsaasPayment): Promise<void> {
         // TODO(follow-up): disparar sync com o ERP (Bling) aqui, com retry fora do ciclo
         // do webhook (fila/job) para não segurar a resposta ao gateway.
     } else {
-        // Idempotência: pedido já processado (ou referência desconhecida) — não é erro.
-        logInfo('webhook: nenhum pedido pending correspondente', { payment: payment.id });
+        logInfo('webhook: nenhum pedido pending correspondente após race', { payment: payment.id });
     }
 }
 
@@ -149,15 +184,10 @@ async function markOrderRefunded(payment: AsaasPayment): Promise<void> {
         return;
     }
 
-    // Atualizar status do pedido para cancelado (idempotente: só sai de não-cancelado).
     await db.update(orders).set({ status: 'cancelled' }).where(eq(orders.id, order.id));
 
     logInfo('webhook: pedido marcado como cancelado (reembolsado)', { orderId: order.id });
 
-    // Restaurar estoque (atômico via função SQL). Quando o item tem variante, o
-    // saldo autoritativo é o da VARIANTE — products.stock é espelho derivado por
-    // trigger (migração 0006), então devolver ao produto seria sobrescrito e o
-    // estorno viraria um no-op silencioso.
     const items = order.items as Array<{
         id: string;
         variantId?: string | null;
@@ -187,11 +217,10 @@ async function markOrderRefunded(payment: AsaasPayment): Promise<void> {
 }
 
 async function handleEvent(event: WebhookEvent): Promise<void> {
-    // Formato Asaas (PAYMENT_*)
     if (event.event) {
         switch (event.event) {
-            case 'PAYMENT_CONFIRMED': // cartão confirmado (saldo ainda não disponível)
-            case 'PAYMENT_RECEIVED': // pagamento recebido (Pix/boleto/dinheiro em conta)
+            case 'PAYMENT_CONFIRMED':
+            case 'PAYMENT_RECEIVED':
                 await markOrderPaid(event.payment ?? {});
                 return;
             case 'PAYMENT_REFUNDED':
@@ -204,7 +233,6 @@ async function handleEvent(event: WebhookEvent): Promise<void> {
         }
     }
 
-    // Formato legado/mock
     switch (event.type) {
         case 'payment_intent.succeeded':
         case 'order.paid':
@@ -232,11 +260,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
-    // Idempotência: o SET NX RESERVA o evento (protege contra entregas
-    // simultâneas). A reserva só vira definitiva se handleEvent concluir — em
-    // caso de falha ela é liberada, para que o reenvio do gateway reprocesse.
-    // Sem isso, uma falha transitória do banco deixa o pedido pago em 'pending'
-    // permanentemente: o reenvio cairia no ramo "duplicado" e devolveria 200.
     const eventId = event.id || event.payment?.id || event.data?.object?.id;
     const isNew = await markEventProcessed(eventId, 'payment');
     if (!isNew) {
