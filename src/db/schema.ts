@@ -63,8 +63,10 @@ export const orders = pgTable('orders', {
     shippingAddress: jsonb('shipping_address'),
     items: jsonb('items'),
     paymentRef: text('payment_ref'),
-    // Migração 0009: permite cancel_pending_order / job de expiração liberar cupom sem parâmetro externo.
     couponCode: text('coupon_code'),
+    // Migração 0010 — id do pedido de venda no Bling + timestamp do sync.
+    erpOrderId: text('erp_order_id'),
+    erpSyncedAt: timestamp('erp_synced_at', { withTimezone: true }),
 }, (t) => [
     index('idx_orders_user_id').on(t.userId),
     index('idx_orders_payment_ref').on(t.paymentRef),
