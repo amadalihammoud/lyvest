@@ -1,15 +1,16 @@
 # Deploy — hardening LyVest (fases 0–3)
 
-Checklist do que **só o operador** pode fazer (código já está no PR #12 / branch `fix/security-phase-3-erp`).
+Código das fases 0–3 está na **main** (PR #12 mergeado). Abaixo o que **só o operador** pode fazer.
 
-## 1. Merge e migrações Neon
+## 1. Migrações Neon (obrigatório)
 
-1. Mergear o PR que empilha as fases (recomendado: **#12**).
-2. Aplicar no Neon, nesta ordem:
-   - `db/neon/0008_create_order_shipping.sql`
-   - `db/neon/0009_order_coupon_and_expire.sql`
-   - `db/neon/0010_erp_order_id.sql`
-3. Redeploy na Vercel.
+Aplicar nesta ordem:
+
+1. `db/neon/0008_create_order_shipping.sql` — frete no total do pedido  
+2. `db/neon/0009_order_coupon_and_expire.sql` — `coupon_code` + cancel autossuficiente  
+3. `db/neon/0010_erp_order_id.sql` — correlação Bling  
+
+Depois: redeploy na Vercel.
 
 ## 2. Variáveis de ambiente (Vercel)
 
@@ -17,9 +18,9 @@ Checklist do que **só o operador** pode fazer (código já está no PR #12 / br
 |---|---|
 | `PAYMENT_PROVIDER=asaas` | Checkout hospedado |
 | `ASAAS_*` / `ASAAS_WEBHOOK_TOKEN` | Pagamento + webhook |
-| `UPSTASH_REDIS_*` | Rate limit + idempotência (não fail-open em prod) |
+| `UPSTASH_REDIS_*` | Rate limit + idempotência |
 | `INTERNAL_API_KEY` | Cron / rotas internas |
-| `ERP_PROVIDER=bling` | Só após validar mock |
+| `ERP_PROVIDER=bling` | Só após validar com mock |
 | `BLING_CLIENT_ID` / `BLING_CLIENT_SECRET` | OAuth Bling |
 | `BLING_LOJA_ID` | Opcional |
 | `PENDING_ORDER_TTL_HOURS` | Default 2 |
@@ -27,24 +28,22 @@ Checklist do que **só o operador** pode fazer (código já está no PR #12 / br
 
 ## 3. Testes manuais mínimos
 
-1. **Checkout Asaas** — total no gateway = produtos + frete.
-2. **Webhook** — pedido `pending` → `processing`; valor divergente não marca pago.
-3. **Pending abandonado** — após TTL, estoque e cupom voltam (`/api/internal/expire-pending-orders`).
-4. **Review** — exige productId UUID + pedido pago do user.
-5. **Produção** — formulário de cartão **não** aparece no site.
-6. **Bling** (com `ERP_PROVIDER=bling`) — pedido pago cria venda com `numeroLoja` = UUID local.
+1. **Checkout Asaas** — total no gateway = produtos + frete  
+2. **Webhook** — `pending` → `processing`; valor divergente não marca pago  
+3. **Pending abandonado** — TTL restaura estoque/cupom  
+4. **Review** — productId UUID + pedido pago do user  
+5. **Produção** — sem formulário de cartão no site  
+6. **Bling** — venda com `numeroLoja` = UUID local  
 
 ## 4. Crons Vercel
 
-- `*/30 * * * *` → `/api/internal/expire-pending-orders`
-- `15 * * * *` → `/api/internal/sync-erp-orders`
+- `*/30 * * * *` → `/api/internal/expire-pending-orders`  
+- `15 * * * *` → `/api/internal/sync-erp-orders`  
 
-Plano Hobby pode limitar frequência de cron.
+## 5. O que o código não faz sozinho
 
-## 5. O que o código **não** faz sozinho
-
-- Aplicar SQL no Neon
-- Configurar secrets na Vercel
-- Autorizar OAuth do Bling (primeira vez)
-- Compra real de ponta a ponta
-- Rotação de tokens comprometidos
+- Aplicar SQL no Neon  
+- Configurar secrets na Vercel  
+- Autorizar OAuth do Bling (primeira vez)  
+- Compra real de ponta a ponta  
+- Rotação de tokens  
