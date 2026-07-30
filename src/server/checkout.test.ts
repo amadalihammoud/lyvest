@@ -32,15 +32,11 @@ describe('buildCreateOrderParams', () => {
         });
     });
 
-    // products.id é uuid; um número aqui estoura com "invalid input syntax for
-    // type uuid" e vira 500 genérico.
     it('converte id numérico para string', () => {
         const p = buildCreateOrderParams({ userId: null, items: [{ id: 7, quantity: 1 }], coupon: semCupom });
         expect(p.items[0].id).toBe('7');
     });
 
-    // A função SQL distingue "não mandou" de "mandou vazio" para decidir se
-    // exige a variante.
     it('variantId ausente vira null explícito, não undefined', () => {
         const p = buildCreateOrderParams({ userId: null, items: [{ id: 'p1', quantity: 1 }], coupon: semCupom });
         expect(p.items[0].variantId).toBeNull();
@@ -69,8 +65,6 @@ describe('buildCreateOrderParams', () => {
             expect(convidado('maria@x.com')).toBe('maria@x.com');
         });
 
-        // guest_email é o único vínculo com um pedido sem conta; null tornaria
-        // o pedido irrastreável.
         it('convidado sem e-mail recebe o endereço genérico', () => {
             expect(convidado(undefined)).toBe('guest@lyvest.com.br');
             expect(convidado('')).toBe('guest@lyvest.com.br');
@@ -89,8 +83,6 @@ describe('buildCreateOrderParams', () => {
 });
 
 describe('normalizeCreateOrderResult', () => {
-    // A função SQL é a autoridade final de preço: lê a variante quando existe e
-    // aplica o cupom na mesma transação que baixa estoque.
     it('o total da função SQL vence o calculado localmente', () => {
         expect(normalizeCreateOrderResult({ orderId: 'o1', total: 299.8 }, 149.9)).toEqual({
             orderId: 'o1',
@@ -105,8 +97,6 @@ describe('normalizeCreateOrderResult', () => {
         expect(normalizeCreateOrderResult(undefined, 149.9).total).toBe(149.9);
     });
 
-    // Zero é um total válido (pedido 100% coberto por cupom) e não pode cair no
-    // fallback.
     it('total zero é preservado, não trocado pelo fallback', () => {
         expect(normalizeCreateOrderResult({ orderId: 'o1', total: 0 }, 149.9).total).toBe(0);
     });
@@ -139,11 +129,11 @@ describe('buildSessionMetadata', () => {
             coupon: 'BEMVINDA10',
             orderId: 'o1',
             appUrl: 'https://www.lyvest.com.br',
+            customerEmail: '',
+            customerName: '',
         });
     });
 
-    // Gateways achatam metadata para texto: um null viraria a string "null" na
-    // volta, e o webhook procuraria um pedido com esse id.
     it('nunca emite null — ausência vira string vazia', () => {
         const m = buildSessionMetadata({ ...base, appliedCoupon: null, orderId: null });
         expect(m.coupon).toBe('');
@@ -155,11 +145,20 @@ describe('buildSessionMetadata', () => {
         expect(buildSessionMetadata({ ...base, userId: null }).userId).toBe('guest');
     });
 
-    // No preview da Vercel o host muda a cada branch; NEXT_PUBLIC_APP_URL
-    // apontaria para o lugar errado.
     it('cai para a origem da URL do request quando não há header Origin', () => {
-        expect(buildSessionMetadata({ ...base, originHeader: null }).appUrl)
-            .toBe('https://www.lyvest.com.br');
+        expect(buildSessionMetadata({ ...base, originHeader: null }).appUrl).toBe(
+            'https://www.lyvest.com.br'
+        );
+    });
+
+    it('propaga e-mail e nome do cliente', () => {
+        const m = buildSessionMetadata({
+            ...base,
+            customerEmail: 'a@b.com',
+            customerName: 'Ana',
+        });
+        expect(m.customerEmail).toBe('a@b.com');
+        expect(m.customerName).toBe('Ana');
     });
 });
 
@@ -170,8 +169,6 @@ describe('usesInvertedOrderFlow', () => {
         expect(usesInvertedOrderFlow('  ')).toBe(false);
     });
 
-    // Sem provedor configurado o padrão é mock, que mantém o fluxo legado —
-    // inverter ali criaria pedido duplicado.
     it('ausente vira mock, que NÃO inverte', () => {
         expect(usesInvertedOrderFlow(undefined)).toBe(false);
         expect(usesInvertedOrderFlow('')).toBe(false);

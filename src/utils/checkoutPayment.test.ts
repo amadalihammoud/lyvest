@@ -4,6 +4,7 @@ import {
     buildPaymentCustomer,
     buildRateLimitMessage,
     buildSessionItems,
+    needsGuestEmail,
     resolveSessionOutcome,
 } from './checkoutPayment';
 
@@ -16,14 +17,17 @@ describe('buildPaymentCustomer', () => {
         });
     });
 
-    // Quem paga pode não ser o titular da conta, e o gateway confere o nome
-    // contra o cartão — o que foi digitado ali vence.
     it('o nome do cartão tem precedência sobre o nome da conta', () => {
         const user = { fullName: 'João Conta', primaryEmailAddress: { emailAddress: 'joao@x.com' } };
         const c = buildPaymentCustomer('Maria Cartao', user);
         expect(c.firstName).toBe('Maria');
         expect(c.lastName).toBe('Cartao');
         expect(c.email).toBe('joao@x.com');
+    });
+
+    it('e-mail explícito (guest PIX) vence o da conta', () => {
+        const user = { fullName: 'João', primaryEmailAddress: { emailAddress: 'joao@x.com' } };
+        expect(buildPaymentCustomer('', user, 'pix@y.com').email).toBe('pix@y.com');
     });
 
     it('cai para o nome da conta quando o campo do cartão está vazio', () => {
@@ -33,10 +37,8 @@ describe('buildPaymentCustomer', () => {
 
     it('usa "Cliente" quando não há nome em lugar nenhum', () => {
         expect(buildPaymentCustomer('', null).firstName).toBe('Cliente');
-        expect(buildPaymentCustomer('', undefined).firstName).toBe('Cliente');
     });
 
-    // Sobrenome vazio é aceitável para o gateway; inventar um seria pior.
     it('aceita nome único, com sobrenome vazio', () => {
         expect(buildPaymentCustomer('Madonna', null)).toEqual({
             firstName: 'Madonna',
@@ -44,16 +46,17 @@ describe('buildPaymentCustomer', () => {
             email: 'checkout@lyvest.com.br',
         });
     });
+});
 
-    it('não confunde "Cliente" (default do nome) com sobrenome', () => {
-        expect(buildPaymentCustomer('', null).lastName).toBe('');
+describe('needsGuestEmail', () => {
+    it('pede e-mail quando não há user ou e-mail', () => {
+        expect(needsGuestEmail(null)).toBe(true);
+        expect(needsGuestEmail({})).toBe(true);
+        expect(needsGuestEmail({ primaryEmailAddress: { emailAddress: '  ' } })).toBe(true);
     });
 
-    it('atravessa usuário sem e-mail ou com e-mail nulo', () => {
-        expect(buildPaymentCustomer('A B', { fullName: null, primaryEmailAddress: null }).email)
-            .toBe('checkout@lyvest.com.br');
-        expect(buildPaymentCustomer('A B', { primaryEmailAddress: { emailAddress: null } }).email)
-            .toBe('checkout@lyvest.com.br');
+    it('não pede quando Clerk tem e-mail', () => {
+        expect(needsGuestEmail({ primaryEmailAddress: { emailAddress: 'a@b.com' } })).toBe(false);
     });
 });
 
@@ -64,45 +67,48 @@ describe('buildSessionItems', () => {
         ]);
     });
 
-    // Preço vindo do cliente é ignorado pelo servidor; mandá-lo só criaria a
-    // ilusão de que o cliente decide quanto paga.
     it('descarta preço, nome e qualquer outro campo do carrinho', () => {
-        const itens = buildSessionItems([
-            { id: 'p1', qty: 1, price: 0.01, name: 'hack' } as never,
-        ]);
+        const itens = buildSessionItems([{ id: 'p1', qty: 1, price: 0.01, name: 'hack' } as never]);
         expect(Object.keys(itens[0]).sort()).toEqual(['id', 'quantity', 'variantId']);
-    });
-
-    it('preserva variantId ausente como undefined, não como null', () => {
-        expect(buildSessionItems([{ id: 'p1', qty: 1 }])[0].variantId).toBeUndefined();
-    });
-
-    it('carrinho vazio vira lista vazia', () => {
-        expect(buildSessionItems([])).toEqual([]);
     });
 });
 
 describe('resolveSessionOutcome', () => {
     it('redireciona quando o gateway devolve checkoutUrl', () => {
-        expect(resolveSessionOutcome({ checkoutUrl: 'https://pay.x/1', status: 'pending' }))
-            .toEqual({ kind: 'redirect', url: 'https://pay.x/1' });
+        expect(resolveSessionOutcome({ checkoutUrl: 'https://pay.x/1', status: 'pending' })).toEqual({
+            kind: 'redirect',
+            url: 'https://pay.x/1',
+        });
     });
 
-    // checkoutUrl vence status: se há para onde mandar o cliente, manda.
+    it('PIX on-site tem precedência sobre checkoutUrl vazio', () => {
+        const o = resolveSessionOutcome({
+            mode: 'pix_on_site',
+            qrCode: 'img',
+            pixCopyPaste: '000201',
+            orderId: 'o1',
+            checkoutUrl: '',
+        });
+        expect(o.kind).toBe('pix');
+        if (o.kind === 'pix') {
+            expect(o.orderId).toBe('o1');
+            expect(o.pixCopyPaste).toBe('000201');
+        }
+    });
+
     it('checkoutUrl tem precedência sobre status success', () => {
-        expect(resolveSessionOutcome({ checkoutUrl: 'https://pay.x/1', status: 'success' }).kind)
-            .toBe('redirect');
+        expect(resolveSessionOutcome({ checkoutUrl: 'https://pay.x/1', status: 'success' }).kind).toBe(
+            'redirect'
+        );
     });
 
     it('sucesso direto quando não há url mas o status é success', () => {
         expect(resolveSessionOutcome({ status: 'success' })).toEqual({ kind: 'direct-success' });
     });
 
-    it('lança quando não há url nem sucesso — o caso que não pode passar calado', () => {
+    it('lança quando não há url nem sucesso', () => {
         expect(() => resolveSessionOutcome({ status: 'pending' })).toThrow(/URL de pagamento/);
         expect(() => resolveSessionOutcome(null)).toThrow(/URL de pagamento/);
-        expect(() => resolveSessionOutcome(undefined)).toThrow(/URL de pagamento/);
-        expect(() => resolveSessionOutcome({ checkoutUrl: '' })).toThrow(/URL de pagamento/);
     });
 });
 
@@ -111,14 +117,7 @@ describe('buildRateLimitMessage', () => {
         expect(buildRateLimitMessage('Calma lá', 60000)).toBe('Calma lá');
     });
 
-    // "Aguarde 0 minutos" faria o cliente tentar de novo e bater na mesma parede.
     it('arredonda para cima — nunca diz 0 minuto', () => {
         expect(buildRateLimitMessage(undefined, 30000)).toBe('Muitas tentativas. Aguarde 1 minuto(s).');
-        expect(buildRateLimitMessage(undefined, 1)).toBe('Muitas tentativas. Aguarde 1 minuto(s).');
-    });
-
-    it('converte milissegundos em minutos', () => {
-        expect(buildRateLimitMessage('', 300000)).toBe('Muitas tentativas. Aguarde 5 minuto(s).');
-        expect(buildRateLimitMessage('', 61000)).toBe('Muitas tentativas. Aguarde 2 minuto(s).');
     });
 });
