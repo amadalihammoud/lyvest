@@ -3,6 +3,7 @@
  *
  * Contato: nome + tipo pessoa; documento opcional (CPF/CNPJ só dígitos).
  * Itens: preferem produto.id (blingId da variante ou do produto pai).
+ * Transporte: frete + endereço de entrega quando disponível.
  * numeroLoja: id do pedido local (idempotência humana no Bling).
  */
 
@@ -56,6 +57,47 @@ export function toBlingDate(value?: string | Date | null): string {
     return d.toISOString().slice(0, 10);
 }
 
+function buildTransporte(shipping?: OrderShippingForBling | null): Record<string, unknown> | null {
+    if (!shipping) return null;
+
+    const frete = Number(shipping.price ?? 0);
+    const cep = onlyDigits(shipping.zipCode);
+    const hasAddress = Boolean(
+        shipping.street || shipping.city || shipping.state || cep.length === 8
+    );
+
+    if (!(Number.isFinite(frete) && frete > 0) && !hasAddress) {
+        return null;
+    }
+
+    const transporte: Record<string, unknown> = {
+        fretePorConta: 1,
+    };
+
+    if (Number.isFinite(frete) && frete >= 0) {
+        transporte.frete = frete;
+    }
+
+    if (hasAddress) {
+        const endereco: Record<string, unknown> = {};
+        if (shipping.street) endereco.endereco = String(shipping.street).slice(0, 100);
+        if (shipping.number) endereco.numero = String(shipping.number).slice(0, 20);
+        if (shipping.complement) endereco.complemento = String(shipping.complement).slice(0, 100);
+        if (shipping.neighborhood) endereco.bairro = String(shipping.neighborhood).slice(0, 60);
+        if (shipping.city) endereco.municipio = String(shipping.city).slice(0, 60);
+        if (shipping.state) endereco.uf = String(shipping.state).slice(0, 2).toUpperCase();
+        if (cep.length === 8) endereco.cep = cep;
+        if (Object.keys(endereco).length > 0) {
+            transporte.contato = {
+                nome: (shipping.recipient || 'Destinatário').slice(0, 120),
+                endereco,
+            };
+        }
+    }
+
+    return transporte;
+}
+
 export function buildBlingOrderPayload(input: BuildBlingOrderInput): Record<string, unknown> {
     const doc = onlyDigits(input.customerDocument);
     const contato: Record<string, unknown> = {
@@ -103,12 +145,9 @@ export function buildBlingOrderPayload(input: BuildBlingOrderInput): Record<stri
         body.loja = { id: input.lojaId };
     }
 
-    const frete = Number(input.shipping?.price ?? 0);
-    if (Number.isFinite(frete) && frete > 0) {
-        body.transporte = {
-            fretePorConta: 1, // 1 = conta do destinatário / cobrado (comum em e-commerce)
-            frete,
-        };
+    const transporte = buildTransporte(input.shipping);
+    if (transporte) {
+        body.transporte = transporte;
     }
 
     return body;
