@@ -4,19 +4,27 @@ import { useUser } from '@clerk/nextjs';
 import { X, Star, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
-
-
-
 interface ReviewModalProps {
     isOpen: boolean;
     onClose: () => void;
     productName: string;
-    productId?: string | number; // Opcional, se tiver
+    /** UUID do produto no pedido — obrigatório para a API. */
+    productId?: string | number;
     orderId: string | number;
     productImage?: string;
 }
 
-export default function ReviewModal({ isOpen, onClose, productName, productId, orderId, productImage }: ReviewModalProps) {
+const UUID_RE =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export default function ReviewModal({
+    isOpen,
+    onClose,
+    productName,
+    productId,
+    orderId,
+    productImage,
+}: ReviewModalProps) {
     const { user } = useUser();
 
     const [rating, setRating] = useState(0);
@@ -37,18 +45,21 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
             return;
         }
 
+        const pid = typeof productId === 'string' ? productId : String(productId ?? '');
+        if (!UUID_RE.test(pid)) {
+            setError('Não foi possível identificar o produto deste pedido.');
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
             if (user) {
-                // Envia para a rota server-side, que verifica a compra e grava para moderação.
-                // O user_id NÃO é enviado pelo cliente — o servidor o obtém do token do Clerk.
-                const isUuid = typeof productId === 'string' && productId.includes('-');
                 const res = await fetch('/api/reviews', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        productId: isUuid ? productId : undefined,
+                        productId: pid,
                         productName,
                         orderId: String(orderId),
                         rating,
@@ -61,8 +72,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                     throw new Error(data?.message || 'Erro ao enviar avaliação.');
                 }
             } else {
-                // Mock simulation
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
             }
 
             setSuccess(true);
@@ -74,7 +84,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
             }, 2000);
         } catch (err) {
             console.error('Erro ao avaliar:', err);
-            setError('Erro ao enviar avaliação. Tente novamente.');
+            setError(err instanceof Error ? err.message : 'Erro ao enviar avaliação. Tente novamente.');
         } finally {
             setIsSubmitting(false);
         }
@@ -82,10 +92,7 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-            <div
-                className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl relative overflow-hidden animate-scale-in"
-            >
-                {/* Header */}
+            <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl relative overflow-hidden animate-scale-in">
                 <div className="bg-[#7D2121] px-8 py-6 text-white text-center relative">
                     <button
                         onClick={onClose}
@@ -107,7 +114,6 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                        {/* Product Info */}
                         <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             {productImage ? (
                                 <img src={productImage} alt={productName} className="w-16 h-16 object-cover rounded-xl" />
@@ -122,7 +128,6 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                             </div>
                         </div>
 
-                        {/* Star Rating */}
                         <div className="flex flex-col items-center gap-2">
                             <span className="text-sm font-bold text-slate-400 uppercase tracking-wide">Sua Nota</span>
                             <div className="flex gap-2">
@@ -136,10 +141,11 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                                         onClick={() => setRating(star)}
                                     >
                                         <Star
-                                            className={`w-10 h-10 ${star <= (hoverRating || rating)
-                                                ? 'fill-amber-400 text-amber-400'
-                                                : 'text-slate-200'
-                                                } transition-colors duration-200`}
+                                            className={`w-10 h-10 ${
+                                                star <= (hoverRating || rating)
+                                                    ? 'fill-amber-400 text-amber-400'
+                                                    : 'text-slate-200'
+                                            } transition-colors duration-200`}
                                         />
                                     </button>
                                 ))}
@@ -153,9 +159,10 @@ export default function ReviewModal({ isOpen, onClose, productName, productId, o
                             </p>
                         </div>
 
-                        {/* Comment */}
                         <div className="space-y-2">
-                            <label htmlFor="review-comment" className="text-sm font-bold text-slate-700 ml-1">Comentário (opcional)</label>
+                            <label htmlFor="review-comment" className="text-sm font-bold text-slate-700 ml-1">
+                                Comentário (opcional)
+                            </label>
                             <textarea
                                 id="review-comment"
                                 value={comment}
