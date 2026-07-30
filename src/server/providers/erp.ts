@@ -9,8 +9,9 @@
  */
 
 import { logInfo } from '../../lib/server/logger';
+import { sendOrderFromErpData } from '../bling/sendOrder';
 
-/** Pedido enviado ao ERP (shape flexível — o contrato duro é do ERP de destino). */
+/** Pedido enviado ao ERP — no mínimo o id local do pedido. */
 export interface ErpOrderData {
     id?: string | number;
     [key: string]: unknown;
@@ -23,19 +24,14 @@ export interface ErpSyncResult {
     message: string;
 }
 
-// Classe base (interface)
 abstract class ErpProvider {
     abstract sendOrder(orderData: ErpOrderData): Promise<ErpSyncResult>;
 }
 
-// Implementação Mock (desenvolvimento/testes)
 class MockErpProvider extends ErpProvider {
     async sendOrder(orderData: ErpOrderData): Promise<ErpSyncResult> {
         logInfo('MockERP: sincronizando pedido', orderData.id);
-
-        // Simula latência de rede
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
+        await new Promise((resolve) => setTimeout(resolve, 50));
         return {
             success: true,
             provider: 'mock',
@@ -45,16 +41,13 @@ class MockErpProvider extends ErpProvider {
     }
 }
 
-// Implementação Bling (placeholder)
+/** Bling: POST /pedidos/vendas a partir do snapshot do pedido no Neon. */
 class BlingProvider extends ErpProvider {
-    async sendOrder(_orderData: ErpOrderData): Promise<ErpSyncResult> {
-        // TODO: transformar orderData no XML/JSON exigido pelo Bling
-        // TODO: POST em process.env.BLING_API_URL
-        throw new Error('Bling provider is not fully configured yet.');
+    async sendOrder(orderData: ErpOrderData): Promise<ErpSyncResult> {
+        return sendOrderFromErpData(orderData);
     }
 }
 
-/** Factory: retorna o provider de ERP ativo (process.env.ERP_PROVIDER). */
 export function getErpProvider(): ErpProvider {
     const provider = process.env.ERP_PROVIDER || 'mock';
 
@@ -62,10 +55,23 @@ export function getErpProvider(): ErpProvider {
         case 'bling':
             return new BlingProvider();
         case 'tiny':
-            // return new TinyProvider();
             throw new Error('Tiny ERP not implemented yet');
         case 'mock':
         default:
             return new MockErpProvider();
+    }
+}
+
+/** Dispara sync sem derrubar o webhook se o ERP falhar. */
+export async function syncOrderToErpBestEffort(orderId: string): Promise<void> {
+    try {
+        const result = await getErpProvider().sendOrder({ id: orderId });
+        logInfo('erp: sync pedido', { orderId, ...result });
+    } catch (e) {
+        // Nunca propaga: pagamento já confirmado; retry via job interno.
+        logInfo('erp: sync falhou (best-effort)', {
+            orderId,
+            error: e instanceof Error ? e.message : String(e),
+        });
     }
 }
