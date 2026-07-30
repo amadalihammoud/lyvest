@@ -6,7 +6,12 @@ import { z } from 'zod';
 import { orders, products } from '@/db/schema';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError, logInfo } from '@/lib/server/logger';
-import { buildCreateOrderParams, buildSessionMetadata, normalizeCreateOrderResult, usesInvertedOrderFlow } from '@/server/checkout';
+import {
+    buildCreateOrderParams,
+    buildSessionMetadata,
+    normalizeCreateOrderResult,
+    usesInvertedOrderFlow,
+} from '@/server/checkout';
 import { db } from '@/server/dbClient';
 import { cancelPendingOrderDb, createOrderDb } from '@/server/orderDb';
 import { couponRuleFor, describeRpcFailure } from '@/server/orders';
@@ -14,29 +19,12 @@ import { buildVerifiedItems, computeSubtotal, computeTotal, resolveDiscount, toC
 import { getPaymentProvider } from '@/server/providers/payment';
 import { resolveAuthoritativeShipping } from '@/server/shippingAuth';
 
-/**
- * POST /api/payment/create-session
- *
- * Cria a sessão de pagamento com FLUXO INVERTIDO (pedido antes do gateway):
- *  1. Pilar 1 (Zero-Trust): confia SOMENTE em id + quantity (e no CÓDIGO do cupom).
- *     Preço unitário, desconto e FRETE são revalidados no servidor; total do cliente é ignorado.
- *  2. Usuário logado OU convidado: o pedido é criado ANTES da sessão via função SQL
- *     create_order (status 'pending', baixa de estoque atômica, cupom de uso único).
- *     A identidade vem do Clerk auth() no servidor; convidado usa guest_email.
- *     O orderId segue no metadata/externalReference para o gateway devolvê-lo no
- *     webhook, que fará o update idempotente pending -> processing (pago).
- *  3. Pilar 4: rate limit. Pilar 5: validação Zod.
- *
- * TODO(follow-up): job de expiração de pedidos 'pending' antigos (restaurar estoque de
- * links de pagamento abandonados).
- */
 const paymentSchema = z.object({
     items: z
         .array(
             z.object({
                 id: z.union([z.string(), z.number()]),
                 quantity: z.number().int().positive().max(99),
-                // Obrigatorio quando o produto tem grade; create_order rejeita sem ele.
                 variantId: z.string().uuid().optional(),
             })
         )
@@ -70,7 +58,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { items: frontendItems, currency, couponCode, paymentMethod, shipping, customer } = parsed.data;
+        const { items: frontendItems, currency, couponCode, paymentMethod, shipping, customer } =
+            parsed.data;
 
         const productIds = frontendItems.map((i) => String(i.id));
         let dbProducts: Array<{ id: string; name: string; price: string; promotionalPrice: string | null }>;
@@ -106,8 +95,6 @@ export async function POST(request: NextRequest) {
         const { discountAmount, appliedCoupon } = resolveDiscount(couponCode, subtotal);
         const productsTotal = computeTotal(subtotal, discountAmount);
 
-        // Frete: preço recalculado no servidor (opção id + CEP + preços do banco).
-        // Nunca confia em shipping.price do cliente.
         let shippingRecord: Record<string, unknown> | null = shipping ?? null;
         let shippingAmount = 0;
         try {
@@ -151,7 +138,6 @@ export async function POST(request: NextRequest) {
                 );
                 const normalizado = normalizeCreateOrderResult(rpc, total);
                 orderId = normalizado.orderId;
-                // SQL é autoridade final (inclui frete a partir da migração 0008).
                 total = normalizado.total;
             } catch (rpcError) {
                 const falha = describeRpcFailure(rpcError);
@@ -159,6 +145,8 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ message: falha.message }, { status: falha.status });
             }
         }
+
+        const customerName = [customer?.firstName, customer?.lastName].filter(Boolean).join(' ').trim();
 
         const paymentProvider = getPaymentProvider();
         let session;
@@ -168,12 +156,15 @@ export async function POST(request: NextRequest) {
                 currency,
                 discountAmount,
                 amount: total,
+                paymentMethod,
                 metadata: buildSessionMetadata({
                     userId,
                     appliedCoupon,
                     orderId,
                     originHeader: request.headers.get('origin'),
                     requestUrl: request.url,
+                    customerEmail: customer?.email,
+                    customerName: customerName || undefined,
                 }),
             });
         } catch (gatewayError) {
