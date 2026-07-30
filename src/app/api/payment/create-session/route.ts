@@ -1,9 +1,9 @@
 import { auth } from '@clerk/nextjs/server';
-import { eq, inArray } from 'drizzle-orm';
+import { inArray } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { orders, products } from '@/db/schema';
+import { products } from '@/db/schema';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { logError, logInfo } from '@/lib/server/logger';
 import {
@@ -14,10 +14,13 @@ import {
 } from '@/server/checkout';
 import { db } from '@/server/dbClient';
 import { cancelPendingOrderDb, createOrderDb } from '@/server/orderDb';
+import { attachPaymentRef } from '@/server/orderService';
 import { couponRuleFor, describeRpcFailure } from '@/server/orders';
 import { buildVerifiedItems, computeSubtotal, computeTotal, resolveDiscount, toCents } from '@/server/pricing';
 import { getPaymentProvider } from '@/server/providers/payment';
 import { resolveAuthoritativeShipping } from '@/server/shippingAuth';
+
+const PLACEHOLDER_EMAILS = new Set(['checkout@lyvest.com.br', 'guest@lyvest.com.br']);
 
 const paymentSchema = z.object({
     items: z
@@ -43,6 +46,11 @@ const paymentSchema = z.object({
         .optional(),
 });
 
+function isUsableEmail(email: string | undefined | null): boolean {
+    if (!email || !email.includes('@')) return false;
+    return !PLACEHOLDER_EMAILS.has(email.trim().toLowerCase());
+}
+
 export async function POST(request: NextRequest) {
     const rl = await checkRateLimit(getClientIp(request.headers), 'checkout');
     if (!rl.success) {
@@ -60,6 +68,14 @@ export async function POST(request: NextRequest) {
 
         const { items: frontendItems, currency, couponCode, paymentMethod, shipping, customer } =
             parsed.data;
+
+        // PIX on-site precisa de e-mail real para o customer Asaas.
+        if (paymentMethod === 'pix' && !isUsableEmail(customer?.email)) {
+            return NextResponse.json(
+                { message: 'Informe um e-mail válido para pagar com Pix.' },
+                { status: 400 }
+            );
+        }
 
         const productIds = frontendItems.map((i) => String(i.id));
         let dbProducts: Array<{ id: string; name: string; price: string; promotionalPrice: string | null }>;
@@ -180,15 +196,11 @@ export async function POST(request: NextRequest) {
         }
 
         if (orderId && session.sessionId) {
-            try {
-                await db
-                    .update(orders)
-                    .set({ paymentRef: session.sessionId })
-                    .where(eq(orders.id, orderId));
-            } catch (refError) {
-                logError('create-session: falha ao gravar payment_ref (webhook usará externalReference)', refError);
-            }
-            logInfo('create-session: pedido criado antes da sessão', { orderId, provider: session.provider });
+            await attachPaymentRef(orderId, session.sessionId);
+            logInfo('create-session: pedido criado antes da sessão', {
+                orderId,
+                provider: session.provider,
+            });
         }
 
         return NextResponse.json({

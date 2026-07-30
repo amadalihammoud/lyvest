@@ -1,22 +1,14 @@
 import crypto from 'node:crypto';
 
-import { and, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { orders } from '@/db/schema';
 import { markEventProcessed, releaseEventMark } from '@/lib/server/idempotency';
 import { logError, logInfo } from '@/lib/server/logger';
-import { db } from '@/server/dbClient';
-import { incrementStockDb, incrementVariantStockDb } from '@/server/orderDb';
-import { syncOrderToErpBestEffort } from '@/server/providers/erp';
+import { markOrderPaid, markOrderRefunded } from '@/server/orderService';
 
 /**
  * POST /api/payment/webhook
- *
- * Confirmação server-to-server de pagamento. Suporta:
- *  - Asaas: header `asaas-access-token`
- *  - Legado/mock: HMAC-SHA256 (PAYMENT_WEBHOOK_SECRET)
- * Após pending → processing, tenta enviar o pedido ao ERP (best-effort).
+ * Auth Asaas / HMAC; idempotência; domínio em orderService.
  */
 function timingSafeEq(a: string, b: string): boolean {
     const ba = Buffer.from(a);
@@ -29,8 +21,6 @@ function verifySignature(rawBody: string, signature: string | null, secret: stri
     const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
     return timingSafeEq(expected, String(signature));
 }
-
-const AMOUNT_TOLERANCE = 0.05;
 
 interface AsaasPayment {
     id?: string;
@@ -86,139 +76,18 @@ function checkAuthGate(
     return null;
 }
 
-async function markOrderPaid(payment: AsaasPayment): Promise<void> {
-    let refCondition;
-    if (payment.externalReference) {
-        refCondition = eq(orders.id, payment.externalReference);
-    } else if (payment.paymentLink) {
-        refCondition = eq(orders.paymentRef, payment.paymentLink);
-    } else {
-        logInfo('webhook: pagamento sem referência de pedido (ignorado)', payment.id);
-        return;
-    }
+async function handlePaid(payment: AsaasPayment): Promise<void> {
+    const result = await markOrderPaid({
+        externalReference: payment.externalReference,
+        paymentLink: payment.paymentLink,
+        paymentId: payment.id,
+        value: payment.value,
+    });
 
-    const found = await db
-        .select({ id: orders.id, status: orders.status, totalAmount: orders.totalAmount })
-        .from(orders)
-        .where(refCondition)
-        .limit(1);
-
-    if (found.length === 0) {
-        logInfo('webhook: nenhum pedido correspondente', { payment: payment.id });
-        return;
-    }
-
-    const order = found[0];
-
-    if (order.status !== 'pending') {
-        logInfo('webhook: pedido não está pending (ignorado)', {
-            orderId: order.id,
-            status: order.status,
-        });
-        // Já pago: ainda tenta ERP se não sincronizou (idempotente).
-        if (order.status === 'processing') {
-            await syncOrderToErpBestEffort(order.id);
-        }
-        return;
-    }
-
-    if (typeof payment.value === 'number' && Number.isFinite(payment.value)) {
-        const expected = Number(order.totalAmount);
-        if (Number.isFinite(expected) && Math.abs(payment.value - expected) > AMOUNT_TOLERANCE) {
-            logError('webhook: VALOR DIVERGENTE — recusando marcar como pago', {
-                orderId: order.id,
-                expected,
-                received: payment.value,
-                payment: payment.id,
-            });
-            throw new Error(
-                `AMOUNT_MISMATCH order=${order.id} expected=${expected} got=${payment.value}`
-            );
-        }
-    } else {
-        logInfo('webhook: payment.value ausente — não foi possível conferir valor', {
-            orderId: order.id,
-            payment: payment.id,
-        });
-    }
-
-    const updated = await db
-        .update(orders)
-        .set({ status: 'processing' })
-        .where(and(eq(orders.status, 'pending'), eq(orders.id, order.id)))
-        .returning({ id: orders.id });
-
-    if (updated.length > 0) {
-        logInfo('webhook: pedido marcado como pago (processing)', {
-            orderId: updated[0].id,
-            payment: payment.id,
-        });
-        // Best-effort: não falha o webhook se o Bling estiver fora.
-        await syncOrderToErpBestEffort(updated[0].id);
-    } else {
-        logInfo('webhook: nenhum pedido pending correspondente após race', {
-            payment: payment.id,
-        });
-    }
-}
-
-async function markOrderRefunded(payment: AsaasPayment): Promise<void> {
-    let refCondition;
-    if (payment.externalReference) {
-        refCondition = eq(orders.id, payment.externalReference);
-    } else if (payment.paymentLink) {
-        refCondition = eq(orders.paymentRef, payment.paymentLink);
-    } else {
-        logInfo('webhook: reembolso sem referência de pedido (ignorado)', payment.id);
-        return;
-    }
-
-    const found = await db
-        .select({ id: orders.id, status: orders.status, items: orders.items })
-        .from(orders)
-        .where(refCondition)
-        .limit(1);
-
-    if (found.length === 0) {
-        logInfo('webhook: nenhum pedido correspondente para reembolso', { payment: payment.id });
-        return;
-    }
-
-    const order = found[0];
-    if (order.status === 'cancelled') {
-        logInfo('webhook: pedido de reembolso já está cancelado', { orderId: order.id });
-        return;
-    }
-
-    await db.update(orders).set({ status: 'cancelled' }).where(eq(orders.id, order.id));
-
-    logInfo('webhook: pedido marcado como cancelado (reembolsado)', { orderId: order.id });
-
-    const items = order.items as Array<{
-        id: string;
-        variantId?: string | null;
-        quantity: number;
-    }> | null;
-    if (items && Array.isArray(items)) {
-        for (const item of items) {
-            if (!item.id || !item.quantity) continue;
-            const ok = item.variantId
-                ? await incrementVariantStockDb(item.variantId, item.quantity)
-                : await incrementStockDb(item.id, item.quantity);
-            if (ok) {
-                logInfo('webhook: estoque restaurado', {
-                    productId: item.id,
-                    variantId: item.variantId ?? null,
-                    qty: item.quantity,
-                });
-            } else {
-                logError('webhook: falha ao restaurar estoque', {
-                    productId: item.id,
-                    variantId: item.variantId ?? null,
-                    qty: item.quantity,
-                });
-            }
-        }
+    if (result.kind === 'amount_mismatch') {
+        throw new Error(
+            `AMOUNT_MISMATCH order=${result.orderId} expected=${result.expected} got=${result.received}`
+        );
     }
 }
 
@@ -227,11 +96,15 @@ async function handleEvent(event: WebhookEvent): Promise<void> {
         switch (event.event) {
             case 'PAYMENT_CONFIRMED':
             case 'PAYMENT_RECEIVED':
-                await markOrderPaid(event.payment ?? {});
+                await handlePaid(event.payment ?? {});
                 return;
             case 'PAYMENT_REFUNDED':
             case 'PAYMENT_CHARGEBACK_REQUESTED':
-                await markOrderRefunded(event.payment ?? {});
+                await markOrderRefunded({
+                    externalReference: event.payment?.externalReference,
+                    paymentLink: event.payment?.paymentLink,
+                    paymentId: event.payment?.id,
+                });
                 return;
             default:
                 logInfo('webhook: evento Asaas não tratado', event.event);

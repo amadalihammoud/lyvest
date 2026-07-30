@@ -19,14 +19,26 @@ export interface SessionCartItem {
     variantId?: string;
 }
 
-export function buildPaymentCustomer(cardName: string, user: CustomerIdentity): PaymentCustomer {
+const PLACEHOLDER = 'checkout@lyvest.com.br';
+
+export function buildPaymentCustomer(
+    cardName: string,
+    user: CustomerIdentity,
+    explicitEmail?: string
+): PaymentCustomer {
     const nomeCompleto = cardName || user?.fullName || 'Cliente';
     const partes = nomeCompleto.split(' ');
+    const fromUser = user?.primaryEmailAddress?.emailAddress?.trim();
+    const fromExplicit = explicitEmail?.trim();
+    const email =
+        (fromExplicit && fromExplicit.includes('@') ? fromExplicit : null) ||
+        (fromUser && fromUser.includes('@') ? fromUser : null) ||
+        PLACEHOLDER;
 
     return {
         firstName: partes[0],
         lastName: (cardName || user?.fullName || '').split(' ').slice(1).join(' '),
-        email: user?.primaryEmailAddress?.emailAddress || 'checkout@lyvest.com.br',
+        email,
     };
 }
 
@@ -74,4 +86,9 @@ export function resolveSessionOutcome(
 export function buildRateLimitMessage(traduzida: string | undefined, resetInMs: number): string {
     const minutos = Math.ceil(resetInMs / 60000);
     return traduzida || `Muitas tentativas. Aguarde ${minutos} minuto(s).`;
+}
+
+export function needsGuestEmail(user: CustomerIdentity): boolean {
+    const e = user?.primaryEmailAddress?.emailAddress?.trim();
+    return !e || !e.includes('@');
 }
