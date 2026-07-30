@@ -26,20 +26,8 @@ export function couponRuleFor(couponCode?: string): {
     };
 }
 
-/** Mapeia exceções conhecidas da RPC create_order para mensagens seguras. */
 /**
  * Erro cru de `create_order` → resposta HTTP + se vale logar.
- *
- * As duas rotas que chamam create_order (/api/orders e
- * /api/payment/create-session) repetiam este trio linha a linha. Duplicar a
- * decisão de "o que o cliente vê" e "o que vai para o log" é como as duas
- * acabam divergindo — uma passa a esconder um erro que a outra reporta.
- *
- * `shouldLog` só para 5xx: erro de estoque ou cupom já usado é fluxo normal do
- * negócio, e logá-lo como falha afogaria os erros de verdade em ruído.
- *
- * A mensagem do log continua em cada rota, porque o prefixo identifica de onde
- * veio.
  */
 export function describeRpcFailure(error: unknown): {
     status: number;
@@ -58,14 +46,14 @@ export function messageForRpcError(raw: string): { status: number; message: stri
     if (raw.includes('PRODUCT_NOT_FOUND')) {
         return { status: 400, message: 'Produto indisponível no carrinho.' };
     }
-    // Migração 0006: produto com grade exige a variante escolhida. Sem este
-    // mapeamento, um carrinho antigo (sem variantId) devolveria 500 genérico em
-    // vez de dizer ao cliente o que fazer.
     if (raw.includes('VARIANT_REQUIRED')) {
         return { status: 400, message: 'Escolha o tamanho antes de finalizar a compra.' };
     }
     if (raw.includes('VARIANT_NOT_FOUND')) {
         return { status: 400, message: 'A opção escolhida não está mais disponível. Revise seu carrinho.' };
+    }
+    if (raw.includes('INVALID_SHIPPING')) {
+        return { status: 400, message: 'Frete inválido. Recalcule o frete e tente novamente.' };
     }
     if (raw.includes('AUTH_REQUIRED')) {
         return { status: 401, message: 'Sessão expirada. Entre novamente.' };
