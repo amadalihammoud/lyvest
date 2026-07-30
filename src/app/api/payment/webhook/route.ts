@@ -8,18 +8,15 @@ import { markEventProcessed, releaseEventMark } from '@/lib/server/idempotency';
 import { logError, logInfo } from '@/lib/server/logger';
 import { db } from '@/server/dbClient';
 import { incrementStockDb, incrementVariantStockDb } from '@/server/orderDb';
+import { syncOrderToErpBestEffort } from '@/server/providers/erp';
 
 /**
  * POST /api/payment/webhook
  *
  * Confirmação server-to-server de pagamento. Suporta:
- *  - Asaas: autenticação pelo header `asaas-access-token` (token fixo configurado no
- *    painel do Asaas e em ASAAS_WEBHOOK_TOKEN), eventos PAYMENT_CONFIRMED/RECEIVED.
- *  - Legado/mock: assinatura HMAC-SHA256 do corpo bruto (PAYMENT_WEBHOOK_SECRET).
- * Fail-closed em produção + idempotência por id de evento. Ao confirmar pagamento,
- * confere payment.value ≈ orders.total_amount e faz update idempotente
- * pending -> processing. Retorna erro 4xx/5xx quando não conseguir processar,
- * para o gateway reenviar o evento.
+ *  - Asaas: header `asaas-access-token`
+ *  - Legado/mock: HMAC-SHA256 (PAYMENT_WEBHOOK_SECRET)
+ * Após pending → processing, tenta enviar o pedido ao ERP (best-effort).
  */
 function timingSafeEq(a: string, b: string): boolean {
     const ba = Buffer.from(a);
@@ -33,7 +30,6 @@ function verifySignature(rawBody: string, signature: string | null, secret: stri
     return timingSafeEq(expected, String(signature));
 }
 
-/** Tolerância de R$ 0,05 para arredondamento de centavos entre gateway e SQL. */
 const AMOUNT_TOLERANCE = 0.05;
 
 interface AsaasPayment {
@@ -64,16 +60,18 @@ function checkAuthGate(
     if (asaasToken) {
         const header = request.headers.get('asaas-access-token');
         if (header && timingSafeEq(asaasToken, header)) return null;
-        const signature = request.headers.get('x-webhook-signature') || request.headers.get('stripe-signature');
+        const signature =
+            request.headers.get('x-webhook-signature') || request.headers.get('stripe-signature');
         if (hmacSecret && signature && verifySignature(rawBody, signature, hmacSecret)) return null;
         logError('webhook: autenticação inválida (asaas-access-token/HMAC)');
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const signature = request.headers.get('x-webhook-signature') || request.headers.get('stripe-signature');
+    const signature =
+        request.headers.get('x-webhook-signature') || request.headers.get('stripe-signature');
     if (isProd) {
         if (!hmacSecret) {
-            logError('webhook: nenhum segredo configurado em produção (ASAAS_WEBHOOK_TOKEN/PAYMENT_WEBHOOK_SECRET)');
+            logError('webhook: nenhum segredo configurado em produção');
             return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
         }
         if (!verifySignature(rawBody, signature, hmacSecret)) {
@@ -88,7 +86,6 @@ function checkAuthGate(
     return null;
 }
 
-/** Update idempotente: pending -> processing (pago). Lança se valor divergir. */
 async function markOrderPaid(payment: AsaasPayment): Promise<void> {
     let refCondition;
     if (payment.externalReference) {
@@ -100,7 +97,6 @@ async function markOrderPaid(payment: AsaasPayment): Promise<void> {
         return;
     }
 
-    // Lê o pedido ANTES de marcar: precisamos do total_amount para conferir valor.
     const found = await db
         .select({ id: orders.id, status: orders.status, totalAmount: orders.totalAmount })
         .from(orders)
@@ -115,13 +111,17 @@ async function markOrderPaid(payment: AsaasPayment): Promise<void> {
     const order = found[0];
 
     if (order.status !== 'pending') {
-        // Já processado (ou cancelado) — idempotente, não é erro.
-        logInfo('webhook: pedido não está pending (ignorado)', { orderId: order.id, status: order.status });
+        logInfo('webhook: pedido não está pending (ignorado)', {
+            orderId: order.id,
+            status: order.status,
+        });
+        // Já pago: ainda tenta ERP se não sincronizou (idempotente).
+        if (order.status === 'processing') {
+            await syncOrderToErpBestEffort(order.id);
+        }
         return;
     }
 
-    // Conferência de valor: se o gateway manda value, tem que bater com o total do pedido.
-    // Sem value no payload, logamos e seguimos (alguns eventos legados omitem).
     if (typeof payment.value === 'number' && Number.isFinite(payment.value)) {
         const expected = Number(order.totalAmount);
         if (Number.isFinite(expected) && Math.abs(payment.value - expected) > AMOUNT_TOLERANCE) {
@@ -131,8 +131,9 @@ async function markOrderPaid(payment: AsaasPayment): Promise<void> {
                 received: payment.value,
                 payment: payment.id,
             });
-            // Lança para o gateway reenviar e para não liberar mercadoria sem bater o caixa.
-            throw new Error(`AMOUNT_MISMATCH order=${order.id} expected=${expected} got=${payment.value}`);
+            throw new Error(
+                `AMOUNT_MISMATCH order=${order.id} expected=${expected} got=${payment.value}`
+            );
         }
     } else {
         logInfo('webhook: payment.value ausente — não foi possível conferir valor', {
@@ -148,11 +149,16 @@ async function markOrderPaid(payment: AsaasPayment): Promise<void> {
         .returning({ id: orders.id });
 
     if (updated.length > 0) {
-        logInfo('webhook: pedido marcado como pago (processing)', { orderId: updated[0].id, payment: payment.id });
-        // TODO(follow-up): disparar sync com o ERP (Bling) aqui, com retry fora do ciclo
-        // do webhook (fila/job) para não segurar a resposta ao gateway.
+        logInfo('webhook: pedido marcado como pago (processing)', {
+            orderId: updated[0].id,
+            payment: payment.id,
+        });
+        // Best-effort: não falha o webhook se o Bling estiver fora.
+        await syncOrderToErpBestEffort(updated[0].id);
     } else {
-        logInfo('webhook: nenhum pedido pending correspondente após race', { payment: payment.id });
+        logInfo('webhook: nenhum pedido pending correspondente após race', {
+            payment: payment.id,
+        });
     }
 }
 
